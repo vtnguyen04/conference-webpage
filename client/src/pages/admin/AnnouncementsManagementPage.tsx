@@ -78,7 +78,7 @@ export default function AnnouncementsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo thông báo thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -93,7 +93,7 @@ export default function AnnouncementsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật thông báo thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
       setIsDialogOpen(false);
       setEditingAnnouncement(null);
       form.reset();
@@ -109,7 +109,7 @@ export default function AnnouncementsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa thông báo thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });

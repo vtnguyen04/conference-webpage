@@ -4,19 +4,9 @@ import { Loader2 } from "lucide-react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [location] = useLocation();
+  // const [location] = useLocation(); // No longer needed for simplified auth
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Redirect to="/login" />;
-  }
-
+  // With simplified useAuth, isAuthenticated is always true and isLoading is always false.
+  // This component will now always render its children.
   return <>{children}</>;
 }

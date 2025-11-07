@@ -1,37 +1,21 @@
 // src/hooks/useAuth.ts
 
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-
-// Định nghĩa một kiểu dữ liệu rõ ràng cho kết quả trả về từ API
-// Điều này giúp TypeScript thông minh hơn
-type AuthCheckResponse = {
-  isAuthenticated: boolean;
-};
+// import { apiRequest } from "@/lib/queryClient"; // No longer needed for simplified auth
 
 export function useAuth() {
-  const { data, isLoading, error, refetch } = useQuery<AuthCheckResponse>({ 
-    queryKey: ["authCheck"],
-    // SỬA LỖI NẰM Ở ĐÂY:
-    queryFn: async (): Promise<AuthCheckResponse> => {
-      // 1. Chờ cho request hoàn tất và nhận về đối tượng Response thô
-      const response = await apiRequest("GET", "/api/auth/check");
+  // For now, we'll simulate an authenticated state on the client side.
+  // In a real application, this would involve checking a token, session, or making an API call.
+  const isAuthenticated = true; // Temporarily set to true
+  const isLoading = false; // No loading for simulated auth
+  const error = null; // No error for simulated auth
 
-      // 2. (Rất quan trọng) Kiểm tra xem request có thành công không (status 200-299)
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      // 3. "Mở hộp" và lấy dữ liệu JSON bên trong, sau đó trả về nó
-      return response.json(); 
-    },
-    retry: false,
-  });
+  // We can still return a refetch function, though it won't do anything for simulated auth
+  const refetch = () => {}; 
 
   return {
     isLoading,
-    // Dữ liệu 'data' bây giờ đã có kiểu đúng, không cần kiểm tra 'NonNullable' nữa
-    isAuthenticated: data?.isAuthenticated || false,
+    isAuthenticated,
     error,
     refetch,
   };

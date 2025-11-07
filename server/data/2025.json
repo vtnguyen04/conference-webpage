@@ -1,0 +1,476 @@
+{
+  "conference": {
+    "id": "conf-2025",
+    "year": 2025,
+    "name": "HỘI NGHỊ Y HỌC 09 & Y HỌC LIÊN NGÀNH LẦN THỨ 4",
+    "theme": "Phòng bệnh chủ động - Tương lai vững bền",
+    "logoUrl": "/uploads/image-1762523940281-135995639.png",
+    "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
+    "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị Y học 09 & Y học Liên ngành lần thứ 4 là sự kiện y khoa quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Phòng bệnh chủ động - Tương lai vững bền</strong> tập trung vào các xu hướng mới trong y học dự phòng, chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
+    "startDate": "2025-09-20T00:00:00.000Z",
+    "endDate": "2025-09-21T00:00:00.000Z",
+    "location": "Đại học Y Dược TP.HCM, 217 Hồng Bàng, Quận 5, TP.HCM",
+    "contactEmail": "conference@ump.edu.vn",
+    "contactPhone": "024-1234-5678",
+    "isActive": true,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-11-07T13:59:44.974Z",
+    "registrationNote1": "koikl",
+    "registrationNote2": "hghg",
+    "filesToDelete": [],
+    "bannerUrls": [
+      "/uploads/image-1762523949701-618862630.jpg",
+      "/uploads/image-1762523983376-134636834.jpg"
+    ]
+  },
+  "announcements": [
+    {
+      "id": "ann-001",
+      "conferenceId": "conf-2025",
+      "title": "CÁCH THỨC ĐĂNG KÍ THÔNG TIN XUẤT HÓA ĐƠN - HỘI NGHỊ KHOA HỌC Y HỌC LIÊN NGÀNH LẦN THỨ 4",
+      "content": "<p>Kính gửi quý Thầy/Cô và các bạn học viên,</p><p>Ban tổ chức xin hướng dẫn cách thức đăng ký thông tin xuất hóa đơn cho Hội nghị Khoa học Y học Liên ngành lần thứ 4.</p><p>Quý vị vui lòng điền đầy đủ thông tin doanh nghiệp để nhận hóa đơn VAT.</p>",
+      "excerpt": "Hướng dẫn đăng ký thông tin xuất hóa đơn tham dự hội nghị",
+      "featuredImageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
+      "category": "important",
+      "publishedAt": "2025-02-23T00:00:00.000Z",
+      "createdAt": "2025-02-23T00:00:00.000Z",
+      "updatedAt": "2025-02-23T00:00:00.000Z"
+    },
+    {
+      "id": "ann-002",
+      "conferenceId": "conf-2025",
+      "title": "CHỦ ĐỀ: PHÒNG BỆNH CHỦ ĐỘNG TƯƠNG LAI VỮNG BỀN",
+      "content": "<p>Hội nghị năm nay tập trung vào chủ đề <strong>Phòng bệnh chủ động - Tương lai vững bền</strong>, với các chuyên đề quan trọng về y học dự phòng và chăm sóc sức khỏe cộng đồng.</p><p>Các phiên báo cáo sẽ bao gồm:</p><ul><li>Phòng bệnh RSV ở trẻ em</li><li>Quản lý rối loạn lipid máu</li><li>Y học gia đình và chăm sóc sức khỏe toàn diện</li><li>Điều trị ung thư hiện đại</li></ul>",
+      "excerpt": "Chủ đề chính của hội nghị năm 2025",
+      "featuredImageUrl": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop",
+      "category": "general",
+      "publishedAt": "2025-02-25T00:00:00.000Z",
+      "createdAt": "2025-02-25T00:00:00.000Z",
+      "updatedAt": "2025-02-25T00:00:00.000Z"
+    },
+    {
+      "id": "ann-003",
+      "conferenceId": "conf-2025",
+      "title": "THÔNG BÁO HỘI NGHỊ KHOA HỌC LIÊN NGÀNH LẦN THỨ 4",
+      "content": "<p>Ban tổ chức trân trọng thông báo về Hội nghị Khoa học Liên ngành lần thứ 4 sẽ được tổ chức vào ngày <strong>20-21/09/2025</strong> tại Đại học Y Dược TP.HCM.</p><p>Đăng ký tham dự mở từ ngày 01/03/2025. Hạn chót nộp bài báo cáo: 30 tháng 6 năm 2025.</p>",
+      "excerpt": "Thông tin chính thức về thời gian và địa điểm tổ chức",
+      "featuredImageUrl": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&h=600&fit=crop",
+      "category": "important",
+      "publishedAt": "2025-02-18T00:00:00.000Z",
+      "createdAt": "2025-02-18T00:00:00.000Z",
+      "updatedAt": "2025-02-18T00:00:00.000Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "sess-001",
+      "conferenceId": "conf-2025",
+      "day": 1,
+      "title": "PHIÊN TOÀN THỂ - Chủ đề: PHÒNG BỆNH CHỦ ĐỘNG - TƯƠNG LAI VỮNG BỀN",
+      "track": "Toàn thể",
+      "description": "Phiên toàn thể với các chuyên đề về phòng bệnh RSV, quản lý rối loạn lipid máu và các chiến lược phòng bệnh chủ động",
+      "descriptionMd": "## Phiên toàn thể\n\nCác chủ đề chính:\n- Cập nhật phương pháp phòng bệnh RSV ở trẻ sơ sinh\n- Quản lý rối loạn lipid máu theo khuyến cáo ESC 2025\n- Chiến lược phòng bệnh chủ động trong cộng đồng",
+      "startTime": "2025-09-20T00:00:00.000Z",
+      "endTime": "2025-09-20T02:00:00.000Z",
+      "room": "Hội trường 3D",
+      "type": "Toàn thể",
+      "chairIds": [
+        "speaker-001",
+        "speaker-002"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "07g00-07g30",
+          "title": "Updated Agenda 8qcBN7",
+          "speakerId": null
+        },
+        {
+          "timeSlot": "07g30-07g50",
+          "title": "Cập nhật giải pháp trên phụ nữ mang thai để phòng bệnh RSV trên trẻ sơ sinh",
+          "speakerId": "speaker-003"
+        },
+        {
+          "timeSlot": "07g50-08g10",
+          "title": "Vai trò của Bác sĩ điều trị da chuyên khoa trong việc nâng cao tỉ lệ tiêm ngừa cúm trên nhóm bệnh nguy cơ cao",
+          "speakerId": "speaker-004",
+          "notes": "Chia sẻ từ Bệnh viện Đại học Y dược TP.HCM"
+        },
+        {
+          "timeSlot": "08g10-08g30",
+          "title": "Làm cách nào để nâng cao hiệu quả của tiêm ngừa trong dự phòng các bệnh liên quan HPV?",
+          "speakerId": "speaker-005"
+        },
+        {
+          "timeSlot": "08g30-08g50",
+          "title": "Dự phòng sốt xuất huyết chủ động và toàn diện trong bối cảnh mới",
+          "speakerId": "speaker-006"
+        },
+        {
+          "timeSlot": "08g50-09g00",
+          "title": "Thảo luận",
+          "speakerId": null
+        },
+        {
+          "timeSlot": "34243234",
+          "title": "sdfdsf sdf sd",
+          "speakerId": null,
+          "notes": " sdf sdf sd"
+        }
+      ],
+      "materials": [
+        {
+          "type": "pdf",
+          "title": "Tài liệu phiên toàn thể",
+          "url": "/materials/session-001-materials.pdf"
+        }
+      ],
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-06T15:40:58.085Z",
+      "capacity": 100
+    },
+    {
+      "id": "sess-002",
+      "conferenceId": "conf-2025",
+      "day": 1,
+      "title": "Y HỌC GIA ĐÌNH 1 - Chủ đề: Y HỌC GIA ĐÌNH - ĐỔI MỚI QUẢN LÝ SỨC KHỎE TOÀN DIỆN",
+      "track": "Y học gia đình",
+      "description": "Phiên thảo luận về vai trò của y học gia đình trong quản lý sức khỏe toàn diện",
+      "descriptionMd": "## Y học gia đình - Đổi mới quản lý sức khỏe\n\nCác nội dung chính:\n- Mô hình y học gia đình hiện đại\n- Chăm sóc sức khỏe ban đầu\n- Quản lý bệnh mãn tính tại cộng đồng",
+      "startTime": "2025-09-20T06:30:00.000Z",
+      "endTime": "2025-09-20T08:00:00.000Z",
+      "room": "Phòng họp B",
+      "type": "Thảo luận",
+      "chairIds": [
+        "speaker-004"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "13g30-13g45",
+          "title": "Giới thiệu phiên",
+          "speakerId": null
+        },
+        {
+          "timeSlot": "13g45-14g15",
+          "title": "Mô hình y học gia đình tại Việt Nam",
+          "speakerId": "speaker-003"
+        },
+        {
+          "timeSlot": "14g15-14g45",
+          "title": "Quản lý đái tháo đường type 2 tại cộng đồng",
+          "speakerId": "speaker-006"
+        },
+        {
+          "timeSlot": "14g45-15g00",
+          "title": "Thảo luận và Q&A",
+          "speakerId": null
+        }
+      ],
+      "materials": [],
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "capacity": 50
+    },
+    {
+      "id": "sess-003",
+      "conferenceId": "conf-2025",
+      "day": 2,
+      "title": "Khai mạc - Giới thiệu đại biểu",
+      "track": "Khai mạc",
+      "description": "Lễ khai mạc hội nghị và giới thiệu các đại biểu tham dự",
+      "descriptionMd": "## Lễ khai mạc\n\nChào mừng quý vị đại biểu tham dự Hội nghị Y học 09 & Y học Liên ngành lần thứ 4",
+      "startTime": "2025-09-21T01:00:00.000Z",
+      "endTime": "2025-09-21T01:30:00.000Z",
+      "room": "Hội trường chính",
+      "type": "Khai mạc",
+      "chairIds": [],
+      "speakers": [],
+      "agendaItems": [
+        {
+          "time": "08:00",
+          "label": "Diễu hành đại biểu"
+        },
+        {
+          "time": "08:10",
+          "label": "Chào cờ và hát quốc ca"
+        },
+        {
+          "time": "08:15",
+          "label": "Phát biểu khai mạc"
+        },
+        {
+          "time": "08:25",
+          "label": "Giới thiệu đại biểu"
+        }
+      ],
+      "materials": [],
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "capacity": 150
+    },
+    {
+      "id": "sess-004",
+      "conferenceId": "conf-2025",
+      "day": 2,
+      "title": "UNG THƯ HỌC - Chủ đề: XU HƯỚNG MỚI TRONG ĐIỀU TRỊ UNG THƯ",
+      "track": "Ung thư học",
+      "description": "Các tiến bộ mới nhất trong điều trị ung thư và y học chính xác",
+      "descriptionMd": "## Xu hướng mới trong điều trị ung thư\n\n- Liệu pháp miễn dịch\n- Y học chính xác\n- Điều trị đích molecular\n- Chăm sóc giảm nhẹ",
+      "startTime": "2025-09-21T02:00:00.000Z",
+      "endTime": "2025-09-21T04:30:00.000Z",
+      "room": "Hội trường chính",
+      "type": "Báo cáo chuyên đề",
+      "chairIds": [
+        "speaker-005"
+      ],
+      "speakers": [
+        {
+          "speakerId": "speaker-001",
+          "talkTitle": "Liệu pháp miễn dịch trong điều trị ung thư phổi",
+          "startTime": "2025-09-21T02:00:00.000Z",
+          "endTime": "2025-09-21T02:30:00.000Z"
+        },
+        {
+          "speakerId": "speaker-002",
+          "talkTitle": "Y học chính xác: Cá thể hóa điều trị ung thư",
+          "startTime": "2025-09-21T02:30:00.000Z",
+          "endTime": "2025-09-21T03:00:00.000Z"
+        },
+        {
+          "speakerId": "speaker-005",
+          "talkTitle": "Điều trị đích trong ung thư vú HER2 dương tính",
+          "startTime": "2025-09-21T03:00:00.000Z",
+          "endTime": "2025-09-21T03:30:00.000Z"
+        },
+        {
+          "speakerId": "speaker-006",
+          "talkTitle": "Chăm sóc giảm nhẹ và quản lý triệu chứng",
+          "startTime": "2025-09-21T03:30:00.000Z",
+          "endTime": "2025-09-21T04:00:00.000Z"
+        }
+      ],
+      "agendaItems": [
+        {
+          "time": "09:00",
+          "label": "Giới thiệu phiên"
+        },
+        {
+          "time": "09:00",
+          "label": "Báo cáo 1: Liệu pháp miễn dịch"
+        },
+        {
+          "time": "09:30",
+          "label": "Báo cáo 2: Y học chính xác"
+        },
+        {
+          "time": "10:00",
+          "label": "Báo cáo 3: Điều trị đích HER2+"
+        },
+        {
+          "time": "10:30",
+          "label": "Báo cáo 4: Chăm sóc giảm nhẹ"
+        },
+        {
+          "time": "11:00",
+          "label": "Thảo luận chung"
+        }
+      ],
+      "materials": [
+        {
+          "type": "pdf",
+          "title": "Tài liệu phiên Ung thư học",
+          "url": "/materials/session-004-cancer.pdf"
+        },
+        {
+          "type": "video",
+          "title": "Video hướng dẫn liệu pháp miễn dịch",
+          "url": "https://www.youtube.com/watch?v=example"
+        }
+      ],
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "capacity": 75
+    }
+  ],
+  "speakers": [
+    {
+      "id": "speaker-001",
+      "conferenceId": "conf-2025",
+      "name": "Trần Thanh Vỹ",
+      "title": "Phó Giám đốc Bệnh viện Chợ Rẫy",
+      "credentials": "TS.BS",
+      "specialty": "Phẫu thuật lồng ngực - Tim mạch",
+      "photoUrl": "/uploads/image-1762523270915-441216648.png",
+      "bio": "Chuyên gia hàng đầu về phẫu thuật tim mạch với hơn 20 năm kinh nghiệm. Đã thực hiện hơn 5000 ca phẫu thuật tim mạch thành công.",
+      "role": "moderator",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:47:52.452Z"
+    },
+    {
+      "id": "speaker-002",
+      "conferenceId": "conf-2025",
+      "name": "Trần Minh Bảo Luân",
+      "title": "Trưởng khoa Tim mạch",
+      "credentials": "TS.BS",
+      "specialty": "Can thiệp tim mạch",
+      "photoUrl": "/uploads/image-1762523275626-765548050.png",
+      "bio": "Chuyên gia điều trị can thiệp tim mạch, giảng viên Đại học Y Dược TP.HCM. Tham gia nhiều nghiên cứu quốc tế về bệnh mạch vành.",
+      "role": "moderator",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:47:56.568Z"
+    },
+    {
+      "id": "speaker-003",
+      "conferenceId": "conf-2025",
+      "name": "Nguyễn Văn An",
+      "title": "Giảng viên Đại học Y Dược",
+      "credentials": "PGS.TS",
+      "specialty": "Nội khoa tổng hợp - Đái tháo đường",
+      "photoUrl": "/uploads/image-1762523302371-385748027.png",
+      "bio": "Chuyên gia về bệnh đái tháo đường và rối loạn chuyển hóa. Tác giả của nhiều công trình nghiên cứu về quản lý đái tháo đường trong cộng đồng.",
+      "role": "speaker",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:48:23.381Z"
+    },
+    {
+      "id": "speaker-004",
+      "conferenceId": "conf-2025",
+      "name": "Lê Thị Hương",
+      "title": "Trưởng khoa Y học gia đình",
+      "credentials": "TS.BS",
+      "specialty": "Y học gia đình và chăm sóc sức khỏe ban đầu",
+      "photoUrl": "/uploads/image-1762523282015-807028829.jpg",
+      "bio": "Chuyên gia y học gia đình với 15 năm kinh nghiệm. Tiên phong trong việc phát triển mô hình y học gia đình tại Việt Nam.",
+      "role": "both",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:48:03.325Z"
+    },
+    {
+      "id": "speaker-005",
+      "conferenceId": "conf-2025",
+      "name": "Phạm Minh Tuấn",
+      "title": "Giám đốc Trung tâm Ung bướu",
+      "credentials": "GS.TS",
+      "specialty": "Ung thư học và Y học chính xác",
+      "photoUrl": "/uploads/image-1762523296899-38553040.png",
+      "bio": "Chuyên gia hàng đầu về điều trị ung thư tại Việt Nam. Chủ trì nhiều dự án nghiên cứu quốc tế về liệu pháp miễn dịch và điều trị đích.",
+      "role": "both",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:48:18.028Z"
+    },
+    {
+      "id": "speaker-006",
+      "conferenceId": "conf-2025",
+      "name": "Hoàng Thị Mai",
+      "title": "Phó trưởng khoa Nội tiết",
+      "credentials": "TS.BS",
+      "specialty": "Nội tiết - Đái tháo đường",
+      "photoUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop&crop=faces",
+      "bio": "Chuyên sâu về điều trị đái tháo đường type 2 và các biến chứng mạch máu. Tham gia nhiều chương trình đào tạo bác sĩ điều trị đái tháo đường.",
+      "role": "speaker",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "sponsors": [
+    {
+      "id": "sponsor-001",
+      "conferenceId": "conf-2025",
+      "name": "Pfizer Vietnam",
+      "logoUrl": "/uploads/image-1762523126912-258459565.png",
+      "tier": "diamond",
+      "websiteUrl": "https://www.pfizer.com",
+      "displayOrder": 1,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:45:32.329Z"
+    },
+    {
+      "id": "sponsor-002",
+      "conferenceId": "conf-2025",
+      "name": "BioMed Sciences",
+      "logoUrl": "/uploads/image-1762523145715-324011926.png",
+      "tier": "gold",
+      "websiteUrl": "https://www.biomed.com",
+      "displayOrder": 1,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:45:47.207Z"
+    },
+    {
+      "id": "sponsor-004",
+      "conferenceId": "conf-2025",
+      "name": "Ferring Pharmaceuticals",
+      "logoUrl": "/uploads/image-1762523169392-374828375.jpg",
+      "tier": "silver",
+      "websiteUrl": "https://www.ferring.com",
+      "displayOrder": 1,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:46:10.838Z"
+    },
+    {
+      "id": "sponsor-005",
+      "conferenceId": "conf-2025",
+      "name": "HealthCare Solutions Vietnam",
+      "logoUrl": "/uploads/image-1762523184316-242119812.jpg",
+      "tier": "bronze",
+      "websiteUrl": "https://www.healthcare.vn",
+      "displayOrder": 1,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-11-07T13:46:25.375Z"
+    },
+    {
+      "name": "innomed",
+      "logoUrl": "/uploads/image-1762523772647-798375876.jpg",
+      "tier": "supporting",
+      "websiteUrl": "",
+      "displayOrder": 0,
+      "id": "sponsor-1762523777265-wj1yjuyf7",
+      "conferenceId": "conf-2025",
+      "createdAt": "2025-11-07T13:56:17.265Z",
+      "updatedAt": "2025-11-07T13:56:17.265Z"
+    },
+    {
+      "name": "msd",
+      "logoUrl": "/uploads/image-1762523782562-186223986.png",
+      "tier": "supporting",
+      "websiteUrl": "",
+      "displayOrder": 0,
+      "id": "sponsor-1762523788113-r70r2iwr4",
+      "conferenceId": "conf-2025",
+      "createdAt": "2025-11-07T13:56:28.113Z",
+      "updatedAt": "2025-11-07T13:56:28.113Z"
+    },
+    {
+      "name": "esasd",
+      "logoUrl": "/uploads/image-1762523793088-816738635.jpg",
+      "tier": "supporting",
+      "websiteUrl": "",
+      "displayOrder": 0,
+      "id": "sponsor-1762523798383-ju7g3kune",
+      "conferenceId": "conf-2025",
+      "createdAt": "2025-11-07T13:56:38.383Z",
+      "updatedAt": "2025-11-07T13:56:38.383Z"
+    },
+    {
+      "name": "asd",
+      "logoUrl": "/uploads/image-1762523803524-432149791.png",
+      "tier": "supporting",
+      "websiteUrl": "",
+      "displayOrder": 0,
+      "id": "sponsor-1762523807032-t7jlb14v6",
+      "conferenceId": "conf-2025",
+      "createdAt": "2025-11-07T13:56:47.032Z",
+      "updatedAt": "2025-11-07T13:56:47.032Z"
+    },
+    {
+      "name": "dfgdfg",
+      "logoUrl": "/uploads/image-1762523811513-527430791.jpg",
+      "tier": "supporting",
+      "websiteUrl": "",
+      "displayOrder": 0,
+      "id": "sponsor-1762523815015-qtzqt81eh",
+      "conferenceId": "conf-2025",
+      "createdAt": "2025-11-07T13:56:55.015Z",
+      "updatedAt": "2025-11-07T13:56:55.015Z"
+    }
+  ],
+  "whitelists": []
+}

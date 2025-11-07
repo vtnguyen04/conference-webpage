@@ -78,8 +78,8 @@ export default function ConferencePage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/conferences/active"] });
+      queryClient.refetchQueries({ queryKey: ["/api/conferences"] });
+      queryClient.refetchQueries({ queryKey: ["/api/conferences/active"] });
       setFilesToDelete([]); // Clear staged deletions on success
     },
     onError: (error: any) => {
@@ -93,7 +93,7 @@ export default function ConferencePage() {
     },
     onSuccess: () => {
       toast({ title: "Sao chép hội nghị thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
+      queryClient.refetchQueries({ queryKey: ["/api/conferences"] });
     },
   });
 

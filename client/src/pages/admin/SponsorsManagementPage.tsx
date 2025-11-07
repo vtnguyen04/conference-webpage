@@ -84,7 +84,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -99,7 +99,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
       setIsDialogOpen(false);
       setEditingSponsor(null);
       form.reset();
@@ -115,7 +115,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });

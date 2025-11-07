@@ -1,21 +1,42 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, FileText, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, FileText, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Conference, Announcement, Session, Speaker, Sponsor } from "@shared/schema";
 import Autoplay from "embla-carousel-autoplay";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+
+// Section Header Component
+const SectionHeader = ({ title, subtitle, accentColor = "bg-blue-600" }: { title: string; subtitle: string; accentColor?: string }) => (
+  <div className="text-center mb-16 relative">
+    <div className="relative inline-block">
+      <div className={`absolute -left-20 top-1/2 w-16 h-0.5 ${accentColor}`}></div>
+      <div className={`absolute -right-20 top-1/2 w-16 h-0.5 ${accentColor}`}></div>
+      <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight uppercase px-6">
+        {title}
+      </h2>
+    </div>
+    <p className="text-slate-600 text-base mt-4 font-medium">{subtitle}</p>
+    <div className="flex items-center justify-center gap-2 mt-4">
+      <div className={`w-2 h-2 ${accentColor} rounded-full`}></div>
+      <div className={`w-12 h-0.5 ${accentColor}`}></div>
+      <div className={`w-2 h-2 ${accentColor} rounded-full`}></div>
+    </div>
+  </div>
+);
 
 export default function HomePage() {
   const { data: conference, isLoading, error } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
-  console.log("conference data:", conference);
 
   const { data: announcements = [] } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
@@ -50,10 +71,10 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Đang tải...</p>
         </div>
       </div>
     );
@@ -61,10 +82,10 @@ export default function HomePage() {
 
   if (!conference) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Chưa có hội nghị nào được kích hoạt</h1>
-          <p className="text-muted-foreground">Vui lòng quay lại sau.</p>
+          <p className="text-slate-600">Vui lòng quay lại sau.</p>
         </div>
       </div>
     );
@@ -80,26 +101,45 @@ export default function HomePage() {
 
   const tierOrder = ['diamond', 'gold', 'silver', 'bronze', 'supporting', 'other'];
   const tierNames: Record<string, string> = {
-    diamond: 'TÀI TRỢ KIM CƯƠNG',
-    gold: 'TÀI TRỢ VÀNG',
-    silver: 'TÀI TRỢ BẠC',
-    bronze: 'TÀI TRỢ ĐỒNG',
-    supporting: 'NHÀ TÀI TRỢ ĐỒNG HÀNH',
-    other: 'TÀI TRỢ KHÁC',
+    diamond: 'ĐƠN VỊ TÀI TRỢ KIM CƯƠNG',
+    gold: 'ĐƠN VỊ TÀI TRỢ VÀNG',
+    silver: 'ĐƠN VỊ TÀI TRỢ BẠC',
+    bronze: 'ĐƠN VỊ TÀI TRỢ ĐỒNG',
+    supporting: 'ĐƠN VỊ ĐỒNG HÀNH',
+    other: 'ĐƠN VỊ HỖ TRỢ',
   };
 
-  const sessionsByDay = sessions.reduce((acc, session) => {
-    if (!acc[session.day]) {
-      acc[session.day] = [];
+  const speakerMap = useMemo(() => {
+    return speakers.reduce((acc, speaker) => {
+      acc[speaker.id] = speaker;
+      return acc;
+    }, {} as Record<string, Speaker>);
+  }, [speakers]);
+
+  const sessionsBySlot = useMemo(() => {
+    const grouped: Record<string, Session[]> = {};
+    const sortedSessions = [...sessions].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+    for (const session of sortedSessions) {
+      const date = new Date(session.startTime);
+      const dateKey = format(date, "yyyy-MM-dd");
+      const timeSlotKey = date.getHours() < 12 ? "Sáng" : "Chiều";
+      const combinedKey = `${dateKey}_${timeSlotKey}`;
+      
+      if (!grouped[combinedKey]) {
+        grouped[combinedKey] = [];
+      }
+      grouped[combinedKey].push(session);
     }
-    acc[session.day].push(session);
-    return acc;
-  }, {} as Record<number, Session[]>);
+    return grouped;
+  }, [sessions]);
+
+  const sortedSlots = Object.keys(sessionsBySlot).sort();
 
   return (
-    <div className="min-h-screen">
-      {/* Modern Hero Section with Carousel Background */}
-      <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-slate-900">
         <Carousel
           plugins={[plugin.current]}
           className="absolute inset-0 w-full h-full"
@@ -113,13 +153,13 @@ export default function HomePage() {
                   <img 
                     src={url} 
                     alt={`Banner ${index + 1}`}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-top opacity-40"
                   />
                 </CarouselItem>
               ))
             ) : (
               <CarouselItem className="w-full h-full">
-                <div className="w-full h-full gradient-hero" />
+                <div className="w-full h-full bg-slate-800" />
               </CarouselItem>
             )}
           </CarouselContent>
@@ -127,59 +167,70 @@ export default function HomePage() {
           <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 text-white bg-black/50 hover:bg-black/70 border-none" />
         </Carousel>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-0"></div>
+        <div className="absolute inset-0 bg-slate-900/60 z-0"></div>
 
-        {/* Content */}
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 relative z-10 pointer-events-none">
-          <div className="max-w-5xl mx-auto text-center pointer-events-auto">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
             {conference?.year && (
-              <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full mb-6 border border-white/30">
-                <span className="text-white font-semibold text-lg tracking-wide">
+              <div className="inline-block border-2 border-amber-400 px-8 py-2 mb-8 relative">
+                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-amber-400"></div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-amber-400"></div>
+                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-amber-400"></div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-amber-400"></div>
+                <span className="text-amber-400 font-bold text-lg tracking-widest">
                   {conference.year}
                 </span>
               </div>
             )}
 
-            <ScrollAnimatedSection>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white drop-shadow-lg tracking-tight leading-tight" data-testid="text-conference-name">
-                {conference?.name || "Hội Nghị Y Học"}
-              </h1>
-            </ScrollAnimatedSection>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-white tracking-tight leading-tight" data-testid="text-conference-name">
+              {conference?.name || "Hội Nghị Y Học"}
+            </h1>
             
             {conference?.theme && (
-              <ScrollAnimatedSection>
-                <p className="text-2xl md:text-3xl font-semibold text-white/95 mb-8 drop-shadow-lg" data-testid="text-conference-theme">
+              <div className="mb-10">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <div className="w-16 h-0.5 bg-amber-400"></div>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                  <div className="w-16 h-0.5 bg-amber-400"></div>
+                </div>
+                <p className="text-xl md:text-2xl font-medium text-white/95 leading-relaxed max-w-3xl mx-auto" data-testid="text-conference-theme">
                   {conference.theme}
                 </p>
-              </ScrollAnimatedSection>
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  <div className="w-16 h-0.5 bg-amber-400"></div>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                  <div className="w-16 h-0.5 bg-amber-400"></div>
+                </div>
+              </div>
             )}
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-white/90 text-lg mb-12">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-white mb-12">
               {conference?.startDate && conference?.endDate && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-amber-400" />
+                  <span className="font-medium text-lg">
                     {format(new Date(conference.startDate), "dd/MM", { locale: vi })} - {format(new Date(conference.endDate), "dd/MM/yyyy", { locale: vi })}
                   </span>
                 </div>
               )}
               
               {conference?.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  <span data-testid="text-conference-location">{conference.location}</span>
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-amber-400" />
+                  <span className="font-medium text-lg" data-testid="text-conference-location">{conference.location}</span>
                 </div>
               )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
-                <Button size="lg" variant="default" className="gradient-hero text-white shadow-xl text-base font-semibold px-8 transform hover:scale-105 transition-transform duration-300" data-testid="button-register-hero">
+                <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700 text-base font-semibold px-10 py-6 border-0 shadow-lg" data-testid="button-register-hero">
                   Đăng ký tham dự
                 </Button>
               </Link>
               <Link href="/program">
-                <Button size="lg" variant="outline" className="glass text-white border-white/30 hover:bg-white/20 text-base font-semibold px-8 transform hover:scale-105 transition-transform duration-300" data-testid="button-program-hero">
+                <Button size="lg" variant="outline" className="bg-transparent text-white border-2 border-white hover:bg-white hover:text-slate-900 text-base font-semibold px-10 py-6" data-testid="button-program-hero">
                   Xem chương trình
                 </Button>
               </Link>
@@ -188,254 +239,249 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Decorative Border */}
+      <div className="relative h-2 bg-slate-100">
+        <div className="absolute inset-0 flex">
+          <div className="flex-1 bg-blue-600"></div>
+          <div className="flex-1 bg-amber-400"></div>
+          <div className="flex-1 bg-blue-600"></div>
+        </div>
+      </div>
+
       {/* Quick Actions Section */}
-      <ScrollAnimatedSection className="py-12 bg-background">
+      <ScrollAnimatedSection className="py-16 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             <Link href="/register">
-              <Card className="group hover-elevate active-elevate-2 cursor-pointer transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden" data-testid="card-action-register">
-                <div className="absolute inset-0 gradient-card-hover opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center mb-3">
-                    <Users className="h-7 w-7 text-white" />
+              <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-blue-600 relative overflow-hidden group" data-testid="card-action-register">
+                <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <CardContent className="p-8 flex flex-col items-center text-center">
+                  <div className="w-16 h-16 border-2 border-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors duration-300">
+                    <Users className="h-8 w-8 text-blue-600 group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <h3 className="text-sm font-semibold">ĐĂNG KÝ THAM DỰ</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800">Đăng ký tham dự</h3>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href="/program">
-              <Card className="group hover-elevate active-elevate-2 cursor-pointer transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden" data-testid="card-action-program">
-                <div className="absolute inset-0 gradient-card-hover opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-3">
-                    <FileText className="h-7 w-7 text-white" />
+              <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-amber-500 relative overflow-hidden group" data-testid="card-action-program">
+                <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <CardContent className="p-8 flex flex-col items-center text-center">
+                  <div className="w-16 h-16 border-2 border-amber-500 flex items-center justify-center mb-4 group-hover:bg-amber-500 transition-colors duration-300">
+                    <FileText className="h-8 w-8 text-amber-500 group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <h3 className="text-sm font-semibold">CHƯƠNG TRÌNH</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800">Chương trình</h3>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href="/sponsors">
-              <Card className="group hover-elevate active-elevate-2 cursor-pointer transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden" data-testid="card-action-sponsors">
-                <div className="absolute inset-0 gradient-card-hover opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-accent flex items-center justify-center mb-3">
-                    <Users className="h-7 w-7 text-accent-foreground" />
+              <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-blue-600 relative overflow-hidden group" data-testid="card-action-sponsors">
+                <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <CardContent className="p-8 flex flex-col items-center text-center">
+                  <div className="w-16 h-16 border-2 border-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors duration-300">
+                    <Users className="h-8 w-8 text-blue-600 group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <h3 className="text-sm font-semibold">ĐƠN VỊ TÀI TRỢ</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800">Đơn vị tài trợ</h3>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href="/announcements">
-              <Card className="group hover-elevate active-elevate-2 cursor-pointer transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden" data-testid="card-action-announcements">
-                <div className="absolute inset-0 gradient-card-hover opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-destructive flex items-center justify-center mb-3">
-                    <FileText className="h-7 w-7 text-white" />
+              <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-amber-500 relative overflow-hidden group" data-testid="card-action-announcements">
+                <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <CardContent className="p-8 flex flex-col items-center text-center">
+                  <div className="w-16 h-16 border-2 border-amber-500 flex items-center justify-center mb-4 group-hover:bg-amber-500 transition-colors duration-300">
+                    <FileText className="h-8 w-8 text-amber-500 group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <h3 className="text-sm font-semibold">THÔNG BÁO</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800">Thông báo</h3>
                 </CardContent>
               </Card>
             </Link>
           </div>
-                  </div>
-                </ScrollAnimatedSection>
-        
-                    {/* Modern Announcements Section */}
-        
-                    {announcements.length > 0 && (
-        
-                                            <ScrollAnimatedSection className="py-16 md:py-24 gradient-section">
-        
-                                              <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        
-                                                <div className="text-center mb-12">
-        
-                                                  <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-gradient">Thông báo</h2>
-        
-                            <p className="text-muted-foreground text-lg">Cập nhật mới nhất từ ban tổ chức</p>
-        
-                          </div>
-        
-              
-        
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-        
-                            {announcements.slice(0, 6).map((announcement: Announcement) => (
-        
-                                                            <Card 
-        
-                                                              key={announcement.id} 
-        
-                                                              className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2 border-0"
-        
-                                                              data-testid={`card-announcement-${announcement.id}`}
-        
-                                {announcement.featuredImageUrl && (
-        
-                                  <div className="relative aspect-video overflow-hidden">
-        
-                                    <img 
-        
-                                      src={announcement.featuredImageUrl} 
-        
-                                      alt={announcement.title}
-        
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        
-                                    />
-        
-                                    <div className="absolute top-4 left-4">
-        
-                                      <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-        
-                                        {announcement.category === 'important' ? 'QUAN TRỌNG' : 
-        
-                                         announcement.category === 'deadline' ? 'HẠN CUỐI' : 'THÔNG BÁO'}
-        
-                                      </span>
-        
-                                    </div>
-        
-                                  </div>
-        
-                                )}
-        
-                                <CardContent className="p-6">
-        
-                                  {announcement.publishedAt && (
-        
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        
-                                      <Calendar className="h-3 w-3" />
-        
-                                      <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
-        
-                                    </div>
-        
-                                  )}
-        
-                                  <h3 className="font-semibold text-lg line-clamp-2 mb-3 group-hover:text-primary transition-colors">
-        
-                                    {announcement.title}
-        
-                                  </h3>
-        
-                                  {announcement.excerpt && (
-        
-                                    <p className="text-sm text-muted-foreground line-clamp-3">
-        
-                                      {announcement.excerpt}
-        
-                                    </p>
-        
-                                  )}
-        
-                                </CardContent>
-        
-                              </Card>
-        
-                            ))}
-        
-                          </div>
-        
-              
-        
-                          {announcements.length > 6 && (
-        
-                            <div className="text-center mt-8">
-        
-                              <Link href="/announcements">
-        
-                                <Button variant="outline" size="lg">
-        
-                                  Xem tất cả thông báo
-        
-                                </Button>
-        
-                              </Link>
-        
-                            </div>
-        
-                          )}
-        
-                        </div>
-        
-                      </ScrollAnimatedSection>
-        
-                    )}
+        </div>
+      </ScrollAnimatedSection>
 
-      {/* Modern Program/Sessions Section */}
-      {sessions.length > 0 && (
-        <ScrollAnimatedSection className="py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+      {/* Announcements Section */}
+      {announcements.length > 0 && (
+        <ScrollAnimatedSection className="py-20 bg-white relative">
+          <div className="absolute top-0 left-0 w-32 h-32 border-t-4 border-l-4 border-blue-600/10"></div>
+          <div className="absolute bottom-0 right-0 w-32 h-32 border-b-4 border-r-4 border-amber-400/10"></div>
+          
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">Chương trình hội nghị</h2>
-              <p className="text-muted-foreground text-lg">Lịch trình chi tiết các phiên</p>
-            </div>
+            <SectionHeader 
+              title="Thông báo" 
+              subtitle="Cập nhật mới nhất từ Ban Tổ chức"
+              accentColor="bg-blue-600"
+            />
 
-            <div className="space-y-8 max-w-4xl mx-auto">
-              {Object.keys(sessionsByDay).sort().map((day) => (
-                <div key={day}>
-                  <h3 className="text-2xl font-bold mb-6 text-primary">Ngày {day}</h3>
-                  <div className="relative pl-8 space-y-8 border-l-2 border-primary/20">
-                    {sessionsByDay[Number(day)].map((session: Session) => (
-                      <div key={session.id} className="relative">
-                        <div className="absolute -left-[1.5rem] top-1 w-6 h-6 bg-primary rounded-full border-4 border-background"></div>
-                        <Card 
-                          className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary overflow-hidden hover:border-l-secondary"
-                          data-testid={`session-${session.id}`}
-                        >
-                        <CardContent className="p-6">
-                          <div className="flex gap-6">
-                            <div className="flex flex-col items-center justify-center bg-primary/10 rounded-lg px-4 py-3 min-w-[100px]">
-                              <Clock className="h-5 w-5 text-primary mb-1" />
-                              <div className="text-sm font-bold text-primary">
-                                {format(new Date(session.startTime), "HH:mm", { locale: vi })}
-                              </div>
-                              <div className="text-xs text-muted-foreground">-</div>
-                              <div className="text-sm font-bold text-primary">
-                                {format(new Date(session.endTime), "HH:mm", { locale: vi })}
-                              </div>
-                            </div>
-                            
-                            <div className="flex-1">
-                              {session.track && (
-                                <span className="inline-block text-xs font-semibold text-secondary uppercase tracking-wide mb-2">
-                                  {session.track}
-                                </span>
-                              )}
-                              <h4 className="font-bold text-lg mb-2">{session.title}</h4>
-                              {session.description && (
-                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                                  {session.description}
-                                </p>
-                              )}
-                              <div className="flex flex-wrap items-center gap-3 text-sm">
-                                <span className="flex items-center gap-1 text-muted-foreground">
-                                  <MapPin className="h-4 w-4" />
-                                  {session.room || 'TBA'}
-                                </span>
-                                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">
-                                  {session.type}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              {announcements.slice(0, 6).map((announcement: Announcement) => (
+                <Card 
+                  key={announcement.id} 
+                  className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 group"
+                  data-testid={`card-announcement-${announcement.id}`}
+                >
+                  {announcement.featuredImageUrl && (
+                    <div className="relative aspect-video overflow-hidden bg-slate-100">
+                      <img 
+                        src={announcement.featuredImageUrl} 
+                        alt={announcement.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-blue-600 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wide shadow-lg">
+                          {announcement.category === 'important' ? 'Quan trọng' : 
+                           announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo'}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-0 h-0 border-l-[40px] border-l-transparent border-b-[40px] border-b-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    ))}
-                  </div>
-                </div>
+                  )}
+                  <CardContent className="p-6 relative">
+                    <div className="absolute top-0 left-0 w-1 h-0 bg-blue-600 group-hover:h-full transition-all duration-300"></div>
+                    {announcement.publishedAt && (
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-3 uppercase tracking-wide font-semibold">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
+                      </div>
+                    )}
+                    <h3 className="font-bold text-lg line-clamp-2 mb-3 text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {announcement.title}
+                    </h3>
+                    {announcement.excerpt && (
+                      <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+                        {announcement.excerpt}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               ))}
             </div>
 
-            <div className="text-center mt-8">
+            {announcements.length > 6 && (
+              <div className="text-center mt-12">
+                <Link href="/announcements">
+                  <Button variant="outline" size="lg" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-8">
+                    Xem tất cả thông báo
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </ScrollAnimatedSection>
+      )}
+
+      {/* Program/Sessions Section */}
+      {sessions.length > 0 && (
+        <ScrollAnimatedSection className="py-20 bg-gradient-to-b from-slate-50 to-white relative">
+          <div className="absolute top-20 right-10 w-24 h-24 border-4 border-amber-400/20 rotate-45"></div>
+          <div className="absolute bottom-20 left-10 w-20 h-20 border-4 border-blue-600/20"></div>
+          
+          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+            <SectionHeader 
+              title="Chương trình hội nghị" 
+              subtitle="Lịch trình chi tiết các phiên làm việc"
+              accentColor="bg-amber-500"
+            />
+
+            <Tabs defaultValue={sortedSlots[0]} className="w-full max-w-6xl mx-auto">
+              <TabsList className="w-full justify-start mb-8 flex-wrap h-auto gap-3 bg-white border-2 border-slate-200 p-2 shadow-sm">
+                {sortedSlots.map(slot => {
+                  const [date, timeOfDay] = slot.split('_');
+                  return (
+                    <TabsTrigger 
+                      key={slot} 
+                      value={slot} 
+                      className="flex-1 min-w-[200px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-700 data-[state=active]:text-white font-semibold uppercase tracking-wide text-sm py-3 relative overflow-hidden group"
+                    >
+                      <span className="relative z-10">{timeOfDay} - {format(new Date(date), "dd/MM", { locale: vi })}</span>
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                    </TabsTrigger>
+                  )
+                })}
+              </TabsList>
+
+              {sortedSlots.map(slot => (
+                <TabsContent key={slot} value={slot} className="mt-0">
+                  <Accordion type="single" collapsible className="space-y-4">
+                    {sessionsBySlot[slot].map(session => (
+                      <AccordionItem key={session.id} value={session.id} className="border-2 border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-blue-600 to-amber-400"></div>
+                        <AccordionTrigger className="px-8 py-6 hover:no-underline hover:bg-slate-50">
+                          <div className="flex items-start justify-between w-full pr-4 text-left">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-bold mb-3 text-slate-900">{session.title}</h3>
+                              <div className="flex flex-wrap gap-6 text-sm text-slate-600">
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-blue-600" />
+                                  <span className="font-medium">{format(new Date(session.startTime), "HH:mm")} - {format(new Date(session.endTime), "HH:mm")}</span>
+                                </div>
+                                {session.room && (
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-amber-500" />
+                                    <span className="font-medium">{session.room}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="ml-4 shrink-0 bg-blue-600 text-white uppercase tracking-wide font-semibold border-0">{session.type}</Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-8 pb-6 space-y-6 bg-slate-50">
+                          {session.description && <p className="text-slate-700 leading-relaxed border-l-4 border-amber-400 pl-4">{session.description}</p>}
+                          {session.chairIds?.length > 0 && (
+                            <div className="bg-white p-4 border-l-4 border-blue-600">
+                              <h4 className="font-bold mb-3 flex items-center gap-2 text-slate-900 uppercase tracking-wide text-sm">
+                                <User className="h-4 w-4 text-blue-600" />Chủ tọa
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {session.chairIds.map(id => speakerMap[id] ? (
+                                  <Badge key={id} variant="outline" className="text-sm py-2 px-4 border-2 border-blue-200 font-semibold hover:bg-blue-50">
+                                    {speakerMap[id].credentials} {speakerMap[id].name}
+                                  </Badge>
+                                ) : null)}
+                              </div>
+                            </div>
+                          )}
+                          {session.agendaItems?.length > 0 && (
+                            <div className="bg-white p-4 border-l-4 border-amber-400">
+                              <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-900 uppercase tracking-wide text-sm">
+                                <Clock className="h-4 w-4 text-amber-500" />Chương trình chi tiết
+                              </h4>
+                              <div className="space-y-3">
+                                {session.agendaItems.map((item, index) => {
+                                  const speaker = item.speakerId ? speakerMap[item.speakerId] : null;
+                                  return (
+                                    <div key={index} className="bg-slate-50 border-l-4 border-blue-400 p-4 hover:bg-slate-100 transition-colors">
+                                      <div className="flex items-start gap-4">
+                                        <Badge variant="outline" className="mt-1 shrink-0 font-mono text-xs border-2 border-blue-600 text-blue-600 font-bold px-3 py-1">
+                                          {item.timeSlot}
+                                        </Badge>
+                                        <div className="flex-1">
+                                          <p className="font-semibold text-slate-900">{item.title}</p>
+                                          {speaker && <p className="text-sm text-blue-600 mt-2 font-medium">{speaker.credentials} {speaker.name}</p>}
+                                          {item.notes && <p className="text-xs text-slate-500 mt-2 italic">{item.notes}</p>}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </TabsContent>
+              ))}
+            </Tabs>
+
+            <div className="text-center mt-12">
               <Link href="/program">
-                <Button variant="default" size="lg">
+                <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700 font-semibold px-10 border-0 shadow-lg">
                   Xem chương trình đầy đủ
                 </Button>
               </Link>
@@ -444,14 +490,19 @@ export default function HomePage() {
         </ScrollAnimatedSection>
       )}
 
-      {/* Modern Speakers Section */}
+      {/* Speakers Section */}
       {speakers.length > 0 && (
-        <ScrollAnimatedSection className="py-16 md:py-24 gradient-section">
+        <ScrollAnimatedSection className="py-20 bg-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-blue-600"></div>
+          <div className="absolute top-10 left-1/4 w-16 h-16 border-2 border-blue-600/10 rounded-full"></div>
+          <div className="absolute bottom-10 right-1/4 w-24 h-24 border-2 border-amber-400/10 rounded-full"></div>
+          
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-gradient">Chủ tọa & Diễn giả</h2>
-              <p className="text-muted-foreground text-lg">Đội ngũ chuyên gia hàng đầu</p>
-            </div>
+            <SectionHeader 
+              title="Chủ tọa & Diễn giả" 
+              subtitle="Đội ngũ chuyên gia hàng đầu"
+              accentColor="bg-blue-600"
+            />
 
             <Carousel
               opts={{
@@ -460,47 +511,52 @@ export default function HomePage() {
               }}
               className="w-full max-w-6xl mx-auto"
             >
-              <CarouselContent className="-ml-4">
+              <CarouselContent className="-ml-6">
                 {speakers.map((speaker: Speaker) => (
-                  <CarouselItem key={speaker.id} className="md:basis-1/2 lg:basis-1/3 pl-4">
+                  <CarouselItem key={speaker.id} className="md:basis-1/2 lg:basis-1/3 pl-6">
                     <div className="p-1 h-full">
                       <Card 
-                        className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 h-full flex flex-col group"
+                        className="overflow-hidden transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 hover:shadow-xl h-full flex flex-col group relative"
                         data-testid={`card-speaker-${speaker.id}`}
                       >
-                        <CardContent className="p-6 flex flex-col items-center text-center flex-1">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-amber-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                        <div className="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <CardContent className="p-8 flex flex-col items-center text-center flex-1">
                           {speaker.photoUrl ? (
-                            <div className="relative w-32 h-32 rounded-full mb-4 overflow-hidden ring-4 ring-primary/10 group-hover:ring-secondary transition-colors duration-300">
+                            <div className="relative mb-6">
+                              <div className="absolute -inset-2 border-2 border-blue-600/20 group-hover:border-blue-600 transition-colors duration-300"></div>
                               <img
                                 src={speaker.photoUrl}
                                 alt={speaker.name}
-                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+                                className="w-32 h-32 object-cover relative z-10"
                               />
+                              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                           ) : (
-                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-3xl font-bold mb-4 ring-4 ring-primary/10 group-hover:ring-secondary transition-colors duration-300">
-                              {speaker.name.charAt(0)}
+                            <div className="relative mb-6">
+                              <div className="absolute -inset-2 border-2 border-blue-600/20 group-hover:border-blue-600 transition-colors duration-300"></div>
+                              <div className="w-32 h-32 bg-slate-200 flex items-center justify-center text-slate-600 text-3xl font-bold relative z-10">
+                                {speaker.name.charAt(0)}
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                           )}
                           
-                          <h3 className="font-bold text-lg mb-1 text-primary">
+                          <h3 className="font-bold text-lg mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">
                             {speaker.credentials && `${speaker.credentials}. `}{speaker.name}
                           </h3>
                           
                           {speaker.title && (
-                            <p className="text-sm font-medium text-foreground mb-2">{speaker.title}</p>
+                            <p className="text-sm font-semibold text-slate-700 mb-3">{speaker.title}</p>
                           )}
                           
                           {speaker.specialty && (
-                            <p className="text-sm text-muted-foreground mb-3">{speaker.specialty}</p>
+                            <p className="text-sm text-slate-600 mb-4">{speaker.specialty}</p>
                           )}
                           
-                          <div className="mt-auto">
-                            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                              speaker.role === 'moderator' 
-                                ? 'bg-secondary/10 text-secondary' 
-                                : 'bg-accent/10 text-accent-foreground'
-                            }`}>
+                          <div className="mt-auto pt-4 w-full">
+                            <div className="h-0.5 w-12 bg-blue-600 mx-auto mb-3"></div>
+                            <span className="text-xs font-bold uppercase tracking-wider text-amber-600">
                               {speaker.role === 'moderator' ? 'Chủ tọa' : 
                               speaker.role === 'both' ? 'Chủ tọa & Diễn giả' : 'Diễn giả'}
                             </span>
@@ -511,37 +567,56 @@ export default function HomePage() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="-left-4 md:-left-12" />
-              <CarouselNext className="-right-4 md:-right-12" />
+              <CarouselPrevious className="-left-4 md:-left-12 border-2 border-slate-300 hover:border-blue-600" />
+              <CarouselNext className="-right-4 md:-right-12 border-2 border-slate-300 hover:border-blue-600" />
             </Carousel>
           </div>
         </ScrollAnimatedSection>
       )}
 
-      {/* Modern Sponsors Section */}
+      {/* Sponsors Section */}
       {sponsors.length > 0 && (
-        <ScrollAnimatedSection className="py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+        <ScrollAnimatedSection className="py-20 bg-gradient-to-b from-slate-50 to-white relative">
+          <div className="absolute top-0 right-0 w-40 h-40 border-t-4 border-r-4 border-blue-600/10"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 border-b-4 border-l-4 border-amber-400/10"></div>
+          
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">Đơn vị tài trợ</h2>
-              <p className="text-muted-foreground text-lg">Cảm ơn sự đồng hành của các đối tác</p>
-            </div>
+            <SectionHeader 
+              title="Đơn vị tài trợ" 
+              subtitle="Cảm ơn sự đồng hành của các đối tác"
+              accentColor="bg-amber-500"
+            />
 
-            <div className="space-y-12 max-w-6xl mx-auto">
+            <div className="space-y-16 max-w-6xl mx-auto">
               {tierOrder.map(tier => {
                 const tierSponsors = sponsorsByTier[tier];
                 if (!tierSponsors || tierSponsors.length === 0) return null;
 
+                const tierColors: Record<string, string> = {
+                  diamond: 'border-blue-600 bg-blue-600',
+                  gold: 'border-amber-400 bg-amber-400',
+                  silver: 'border-slate-400 bg-slate-400',
+                  bronze: 'border-orange-600 bg-orange-600',
+                  supporting: 'border-blue-500 bg-blue-500',
+                  other: 'border-slate-500 bg-slate-500',
+                };
+
                 return (
                   <div key={tier} className="text-center" data-testid={`sponsor-tier-${tier}`}>
-                    <h3 className="font-bold text-secondary text-xl uppercase tracking-wider mb-8 relative after:absolute after:bottom-[-10px] after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-primary after:rounded-full">
-                      {tierNames[tier]}
-                    </h3>
-                    <div className={`flex flex-wrap items-center justify-center gap-8`}>
+                    <div className="mb-10 relative inline-block">
+                      <div className={`absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 ${tierColors[tier].split(' ')[0]}`}></div>
+                      <div className={`absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 ${tierColors[tier].split(' ')[0]}`}></div>
+                      <h3 className={`font-bold text-base uppercase tracking-widest px-8 py-3 border-t-2 border-b-2 ${tierColors[tier].split(' ')[0]} text-slate-800`}>
+                        {tierNames[tier]}
+                      </h3>
+                      <div className={`absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 ${tierColors[tier].split(' ')[0]}`}></div>
+                      <div className={`absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 ${tierColors[tier].split(' ')[0]}`}></div>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-10">
                       {tierSponsors.map((sponsor) => (
                         <div
                           key={sponsor.id}
-                          className={`bg-card border border-border rounded-xl p-6 flex items-center justify-center hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer
+                          className={`bg-white border-2 border-slate-200 p-8 flex items-center justify-center hover:border-blue-600 hover:shadow-xl transition-all duration-300 relative group
                             ${tier === 'diamond' ? 'w-64 h-40' : ''}
                             ${tier === 'gold' ? 'w-56 h-36' : ''}
                             ${tier === 'silver' ? 'w-48 h-32' : ''}
@@ -550,6 +625,8 @@ export default function HomePage() {
                           `}
                           data-testid={`sponsor-logo-${sponsor.id}`}
                         >
+                          <div className={`absolute top-0 left-0 w-0 h-0.5 ${tierColors[tier].split(' ')[1]} group-hover:w-full transition-all duration-300`}></div>
+                          <div className={`absolute bottom-0 right-0 w-0 h-0.5 ${tierColors[tier].split(' ')[1]} group-hover:w-full transition-all duration-300`}></div>
                           {sponsor.logoUrl ? (
                             <img
                               src={sponsor.logoUrl}
@@ -557,7 +634,7 @@ export default function HomePage() {
                               className="max-w-full max-h-full object-contain"
                             />
                           ) : (
-                            <span className="text-sm font-semibold text-center text-muted-foreground">
+                            <span className="text-sm font-bold text-center text-slate-700">
                               {sponsor.name}
                             </span>
                           )}
@@ -569,9 +646,9 @@ export default function HomePage() {
               })}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-16">
               <Link href="/sponsors">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white font-semibold px-8">
                   Xem tất cả nhà tài trợ
                 </Button>
               </Link>
@@ -582,14 +659,26 @@ export default function HomePage() {
 
       {/* Introduction Section */}
       {conference?.introContent && (
-        <ScrollAnimatedSection className="py-16 md:py-24 gradient-section">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <ScrollAnimatedSection className="py-20 bg-white relative">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-20 left-10 w-32 h-32 border-4 border-blue-600 rotate-45"></div>
+            <div className="absolute bottom-20 right-10 w-24 h-24 border-4 border-amber-400"></div>
+          </div>
+          
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center tracking-tight text-gradient">Giới thiệu</h2>
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-8">
+              <SectionHeader 
+                title="Giới thiệu" 
+                subtitle="Thông tin chi tiết về hội nghị"
+                accentColor="bg-blue-600"
+              />
+              <Card className="border-2 border-slate-200 shadow-lg relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-amber-400 to-blue-600"></div>
+                <div className="absolute -top-3 -left-3 w-8 h-8 border-t-4 border-l-4 border-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-4 border-r-4 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CardContent className="p-10">
                   <div
-                    className="prose prose-lg max-w-none dark:prose-invert"
+                    className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: conference.introContent }}
                     data-testid="text-intro-content"
                   />
@@ -599,6 +688,17 @@ export default function HomePage() {
           </div>
         </ScrollAnimatedSection>
       )}
+
+      {/* Footer Decorative Border */}
+      <div className="relative h-3">
+        <div className="absolute inset-0 flex">
+          <div className="flex-1 bg-blue-600"></div>
+          <div className="w-16 bg-amber-400"></div>
+          <div className="flex-1 bg-blue-600"></div>
+          <div className="w-16 bg-amber-400"></div>
+          <div className="flex-1 bg-blue-600"></div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -70,7 +70,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -85,7 +85,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
       setIsDialogOpen(false);
       setEditingSpeaker(null);
       form.reset();
@@ -101,7 +101,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });

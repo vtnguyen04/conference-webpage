@@ -81,7 +81,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo phiên họp thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -96,7 +96,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật phiên họp thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
       setIsDialogOpen(false);
       setEditingSession(null);
       form.reset();
@@ -112,7 +112,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa phiên họp thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
