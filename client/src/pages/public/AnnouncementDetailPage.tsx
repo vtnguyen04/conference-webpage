@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Tag } from "lucide-react";
+import { Calendar, Tag, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
