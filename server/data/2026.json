@@ -1,106 +1,30 @@
 {
   "conference": {
-    "id": "conf-2025",
-    "year": 2025,
+    "id": "conf-2026",
+    "year": 2026,
     "name": "HỘI NGHỊ Y HỌC 09 & Y HỌC LIÊN NGÀNH LẦN THỨ 4",
     "theme": "Phòng bệnh chủ động - Tương lai vững bền",
     "logoUrl": "/uploads/image-1762526185031-504495387.png",
-    "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
+    "bannerUrls": [
+      "/uploads/image-1762523949701-618862630.jpg",
+      "/uploads/image-1762523983376-134636834.jpg"
+    ],
     "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị Y học 09 & Y học Liên ngành lần thứ 4 là sự kiện y khoa quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Phòng bệnh chủ động - Tương lai vững bền</strong> tập trung vào các xu hướng mới trong y học dự phòng, chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
+    "registrationNote1": "koikl",
+    "registrationNote2": "hghg",
     "startDate": "2025-09-20T00:00:00.000Z",
     "endDate": "2025-09-21T00:00:00.000Z",
     "location": "Đại học Y Dược TP.HCM, 217 Hồng Bàng, Quận 5, TP.HCM",
     "contactEmail": "conference@ump.edu.vn",
     "contactPhone": "024-1234-5678",
-    "isActive": false,
-    "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-11-07T14:36:25.599Z",
-    "registrationNote1": "koikl",
-    "registrationNote2": "hghg",
-    "filesToDelete": [],
-    "bannerUrls": [
-      "/uploads/image-1762523949701-618862630.jpg",
-      "/uploads/image-1762523983376-134636834.jpg"
-    ]
+    "isActive": true,
+    "createdAt": "2025-11-07T18:21:51.829Z",
+    "updatedAt": "2025-11-07T18:21:51.829Z"
   },
-  "announcements": [
-    {
-      "id": "ann-001",
-      "conferenceId": "conf-2025",
-      "title": "CÁCH THỨC ĐĂNG KÍ THÔNG TIN XUẤT HÓA ĐƠN - HỘI NGHỊ KHOA HỌC Y HỌC LIÊN NGÀNH LẦN THỨ 4",
-      "content": "<p>Kính gửi quý Thầy/Cô và các bạn học viên,</p><p>Ban tổ chức xin hướng dẫn cách thức đăng ký thông tin xuất hóa đơn cho Hội nghị Khoa học Y học Liên ngành lần thứ 4.</p><p>Quý vị vui lòng điền đầy đủ thông tin doanh nghiệp để nhận hóa đơn VAT.</p>",
-      "excerpt": "Hướng dẫn đăng ký thông tin xuất hóa đơn tham dự hội nghị",
-      "featuredImageUrl": "/uploads/image-1762537310855-644681712.jpg",
-      "category": "important",
-      "publishedAt": "2025-02-23T00:00",
-      "createdAt": "2025-02-23T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:41:52.837Z"
-    },
-    {
-      "id": "ann-002",
-      "conferenceId": "conf-2025",
-      "title": "CHỦ ĐỀ: PHÒNG BỆNH CHỦ ĐỘNG TƯƠNG LAI VỮNG BỀN",
-      "content": "<p>Hội nghị năm nay tập trung vào chủ đề <strong>Phòng bệnh chủ động - Tương lai vững bền</strong>, với các chuyên đề quan trọng về y học dự phòng và chăm sóc sức khỏe cộng đồng.</p><p>Các phiên báo cáo sẽ bao gồm:</p><ul><li>Phòng bệnh RSV ở trẻ em</li><li>Quản lý rối loạn lipid máu</li><li>Y học gia đình và chăm sóc sức khỏe toàn diện</li><li>Điều trị ung thư hiện đại</li></ul><blockquote>dgdf dfg sdfsdfsdfsdfdsfsdf</blockquote><blockquote><br></blockquote><blockquote><img src=\"/uploads/image-1762536643419-805840819.gif\"></blockquote><blockquote><br></blockquote><p><img src=\"/uploads/image-1762536681961-830552102.png\"></p>",
-      "excerpt": "Chủ đề chính của hội nghị năm 2025",
-      "featuredImageUrl": "/uploads/image-1762536241529-522691807.png",
-      "category": "general",
-      "publishedAt": "2025-02-23T13:00",
-      "createdAt": "2025-02-25T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:31:24.004Z"
-    },
-    {
-      "id": "ann-003",
-      "conferenceId": "conf-2025",
-      "title": "THÔNG BÁO HỘI NGHỊ KHOA HỌC LIÊN NGÀNH LẦN THỨ 4",
-      "content": "<p>Ban tổ chức trân trọng thông báo về Hội nghị Khoa học Liên ngành lần thứ 4 sẽ được tổ chức vào ngày <strong>20-21/09/2025</strong> tại Đại học Y Dược TP.HCM.</p><p>Đăng ký tham dự mở từ ngày 01/03/2025. Hạn chót nộp bài báo cáo: 30 tháng 6 năm 2025.</p>",
-      "excerpt": "Thông tin chính thức về thời gian và địa điểm tổ chức",
-      "featuredImageUrl": "/uploads/image-1762537321299-812423248.jpg",
-      "category": "important",
-      "publishedAt": "2025-02-18T00:00",
-      "createdAt": "2025-02-18T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:42:02.714Z"
-    },
-    {
-      "title": "gfđfgdgdfgdfgdfg",
-      "content": "<p>dfg dfg</p><p><br></p><p>df g</p><p> dfg</p><p> dfg</p><p> dfg</p><p>df g</p><p>df fg </p><p>dfgd</p><p>g df</p><p>gdf </p><p>gdf</p><p> g</p><p>d g</p><p>fd </p><p>dfg</p><p> dfg</p><p><img src=\"/uploads/image-1762536769715-686385374.png\"></p>",
-      "excerpt": "dfg dfgdf g dfg dfg dfg dfg df gdf",
-      "featuredImageUrl": "/uploads/image-1762536752643-677676882.jpeg",
-      "category": "general",
-      "publishedAt": "2025-11-07T17:32",
-      "id": "announcement-1762536774807-z5auq1f08",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T17:32:54.807Z",
-      "updatedAt": "2025-11-07T17:32:54.807Z"
-    },
-    {
-      "title": "dfs df sdf sdf sd",
-      "content": "<p>df dret ẻ df dfg dfg d</p>",
-      "excerpt": "ghffdhbhgfd df  fd",
-      "featuredImageUrl": "/uploads/image-1762536882978-980374536.png",
-      "category": "important",
-      "publishedAt": "2025-11-07T17:34",
-      "id": "announcement-1762536895890-veaqk7bov",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T17:34:55.890Z",
-      "updatedAt": "2025-11-07T17:34:55.890Z"
-    },
-    {
-      "title": "d fg dfg df gdf",
-      "content": "<p>fg dfg dfg dfg dfg dfg</p>",
-      "excerpt": "d fgd fgdf gdf gdf g",
-      "featuredImageUrl": "/uploads/image-1762537173439-125323792.png",
-      "category": "general",
-      "publishedAt": "2025-11-07T17:39",
-      "id": "announcement-1762537181599-rjl67md5k",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T17:39:41.599Z",
-      "updatedAt": "2025-11-07T17:39:41.599Z"
-    }
-  ],
   "sessions": [
     {
-      "id": "sess-001",
-      "conferenceId": "conf-2025",
+      "id": "session-1762539711829-7gxhd9e9g",
+      "conferenceId": "conf-2026",
       "day": 1,
       "title": "PHIÊN TOÀN THỂ - Chủ đề: PHÒNG BỆNH CHỦ ĐỘNG - TƯƠNG LAI VỮNG BỀN",
       "track": "Toàn thể",
@@ -160,13 +84,13 @@
           "url": "/materials/session-001-materials.pdf"
         }
       ],
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-06T15:40:58.085Z",
+      "createdAt": "2025-11-07T18:21:51.829Z",
+      "updatedAt": "2025-11-07T18:21:51.829Z",
       "capacity": 100
     },
     {
-      "id": "sess-002",
-      "conferenceId": "conf-2025",
+      "id": "session-1762539711829-2inlykpzl",
+      "conferenceId": "conf-2026",
       "day": 1,
       "title": "Y HỌC GIA ĐÌNH 1 - Chủ đề: Y HỌC GIA ĐÌNH - ĐỔI MỚI QUẢN LÝ SỨC KHỎE TOÀN DIỆN",
       "track": "Y học gia đình",
@@ -202,13 +126,13 @@
         }
       ],
       "materials": [],
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "createdAt": "2025-11-07T18:21:51.829Z",
+      "updatedAt": "2025-11-07T18:21:51.829Z",
       "capacity": 50
     },
     {
-      "id": "sess-003",
-      "conferenceId": "conf-2025",
+      "id": "session-1762539711829-72zny0ito",
+      "conferenceId": "conf-2026",
       "day": 2,
       "title": "Khai mạc - Giới thiệu đại biểu",
       "track": "Khai mạc",
@@ -239,13 +163,13 @@
         }
       ],
       "materials": [],
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "createdAt": "2025-11-07T18:21:51.829Z",
+      "updatedAt": "2025-11-07T18:21:51.829Z",
       "capacity": 150
     },
     {
-      "id": "sess-004",
-      "conferenceId": "conf-2025",
+      "id": "session-1762539711829-dqo1x6yw5",
+      "conferenceId": "conf-2026",
       "day": 2,
       "title": "UNG THƯ HỌC - Chủ đề: XU HƯỚNG MỚI TRONG ĐIỀU TRỊ UNG THƯ",
       "track": "Ung thư học",
@@ -322,15 +246,15 @@
           "url": "https://www.youtube.com/watch?v=example"
         }
       ],
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "createdAt": "2025-11-07T18:21:51.829Z",
+      "updatedAt": "2025-11-07T18:21:51.829Z",
       "capacity": 75
     }
   ],
   "speakers": [
     {
-      "id": "speaker-001",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711829-vb9todm06",
+      "conferenceId": "conf-2026",
       "name": "Trần Thanh Vỹ",
       "title": "Phó Giám đốc Bệnh viện Chợ Rẫy",
       "credentials": "TS.BS",
@@ -338,12 +262,12 @@
       "photoUrl": "/uploads/image-1762523270915-441216648.png",
       "bio": "Chuyên gia hàng đầu về phẫu thuật tim mạch với hơn 20 năm kinh nghiệm. Đã thực hiện hơn 5000 ca phẫu thuật tim mạch thành công.",
       "role": "moderator",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:47:52.452Z"
+      "createdAt": "2025-11-07T18:21:51.829Z",
+      "updatedAt": "2025-11-07T18:21:51.829Z"
     },
     {
-      "id": "speaker-002",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711830-t3vt7khjg",
+      "conferenceId": "conf-2026",
       "name": "Trần Minh Bảo Luân",
       "title": "Trưởng khoa Tim mạch",
       "credentials": "TS.BS",
@@ -351,12 +275,12 @@
       "photoUrl": "/uploads/image-1762523275626-765548050.png",
       "bio": "Chuyên gia điều trị can thiệp tim mạch, giảng viên Đại học Y Dược TP.HCM. Tham gia nhiều nghiên cứu quốc tế về bệnh mạch vành.",
       "role": "moderator",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:47:56.568Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "speaker-003",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711830-yj1rza9ae",
+      "conferenceId": "conf-2026",
       "name": "Nguyễn Văn An",
       "title": "Giảng viên Đại học Y Dược",
       "credentials": "PGS.TS",
@@ -364,12 +288,12 @@
       "photoUrl": "/uploads/image-1762523302371-385748027.png",
       "bio": "Chuyên gia về bệnh đái tháo đường và rối loạn chuyển hóa. Tác giả của nhiều công trình nghiên cứu về quản lý đái tháo đường trong cộng đồng.",
       "role": "speaker",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:48:23.381Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "speaker-004",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711830-l99aj8bjx",
+      "conferenceId": "conf-2026",
       "name": "Lê Thị Hương",
       "title": "Trưởng khoa Y học gia đình",
       "credentials": "TS.BS",
@@ -377,12 +301,12 @@
       "photoUrl": "/uploads/image-1762523282015-807028829.jpg",
       "bio": "Chuyên gia y học gia đình với 15 năm kinh nghiệm. Tiên phong trong việc phát triển mô hình y học gia đình tại Việt Nam.",
       "role": "both",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:48:03.325Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "speaker-005",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711830-dqz1ip1k1",
+      "conferenceId": "conf-2026",
       "name": "Phạm Minh Tuấn",
       "title": "Giám đốc Trung tâm Ung bướu",
       "credentials": "GS.TS",
@@ -390,12 +314,12 @@
       "photoUrl": "/uploads/image-1762523296899-38553040.png",
       "bio": "Chuyên gia hàng đầu về điều trị ung thư tại Việt Nam. Chủ trì nhiều dự án nghiên cứu quốc tế về liệu pháp miễn dịch và điều trị đích.",
       "role": "both",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:48:18.028Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "speaker-006",
-      "conferenceId": "conf-2025",
+      "id": "speaker-1762539711830-nthwwima6",
+      "conferenceId": "conf-2026",
       "name": "Hoàng Thị Mai",
       "title": "Phó trưởng khoa Nội tiết",
       "credentials": "TS.BS",
@@ -403,54 +327,54 @@
       "photoUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop&crop=faces",
       "bio": "Chuyên sâu về điều trị đái tháo đường type 2 và các biến chứng mạch máu. Tham gia nhiều chương trình đào tạo bác sĩ điều trị đái tháo đường.",
       "role": "speaker",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-01-01T00:00:00.000Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     }
   ],
   "sponsors": [
     {
-      "id": "sponsor-001",
-      "conferenceId": "conf-2025",
+      "id": "sponsor-1762539711830-idec1iuh6",
+      "conferenceId": "conf-2026",
       "name": "Pfizer Vietnam",
       "logoUrl": "/uploads/image-1762523126912-258459565.png",
       "tier": "diamond",
       "websiteUrl": "https://www.pfizer.com",
       "displayOrder": 1,
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:45:32.329Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "sponsor-002",
-      "conferenceId": "conf-2025",
+      "id": "sponsor-1762539711830-sc40i3iqd",
+      "conferenceId": "conf-2026",
       "name": "BioMed Sciences",
       "logoUrl": "/uploads/image-1762523145715-324011926.png",
       "tier": "gold",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 1,
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:45:47.207Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "sponsor-004",
-      "conferenceId": "conf-2025",
+      "id": "sponsor-1762539711830-cnos3tdq1",
+      "conferenceId": "conf-2026",
       "name": "Ferring Pharmaceuticals",
       "logoUrl": "/uploads/image-1762523169392-374828375.jpg",
       "tier": "silver",
       "websiteUrl": "https://www.ferring.com",
       "displayOrder": 1,
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:46:10.838Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
-      "id": "sponsor-005",
-      "conferenceId": "conf-2025",
+      "id": "sponsor-1762539711830-j3ainesjf",
+      "conferenceId": "conf-2026",
       "name": "HealthCare Solutions Vietnam",
       "logoUrl": "/uploads/image-1762523184316-242119812.jpg",
       "tier": "bronze",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 1,
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:46:25.375Z"
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
       "name": "innomed",
@@ -458,10 +382,10 @@
       "tier": "supporting",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 0,
-      "id": "sponsor-1762523777265-wj1yjuyf7",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T13:56:17.265Z",
-      "updatedAt": "2025-11-07T15:42:24.729Z"
+      "id": "sponsor-1762539711830-dzuemrwxx",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
       "name": "msd",
@@ -469,10 +393,10 @@
       "tier": "supporting",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 2,
-      "id": "sponsor-1762523788113-r70r2iwr4",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T13:56:28.113Z",
-      "updatedAt": "2025-11-07T15:43:45.616Z"
+      "id": "sponsor-1762539711830-ibw92gk2h",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
       "name": "esasd",
@@ -480,10 +404,10 @@
       "tier": "supporting",
       "websiteUrl": "https://www.medipharm.com",
       "displayOrder": 0,
-      "id": "sponsor-1762523798383-ju7g3kune",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T13:56:38.383Z",
-      "updatedAt": "2025-11-07T15:42:32.993Z"
+      "id": "sponsor-1762539711830-ees480xt8",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
       "name": "asd",
@@ -491,10 +415,10 @@
       "tier": "supporting",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 0,
-      "id": "sponsor-1762523807032-t7jlb14v6",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T13:56:47.032Z",
-      "updatedAt": "2025-11-07T15:42:37.305Z"
+      "id": "sponsor-1762539711830-04rmy4f5t",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
     },
     {
       "name": "dfgdfg",
@@ -502,10 +426,24 @@
       "tier": "supporting",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 1,
-      "id": "sponsor-1762523815015-qtzqt81eh",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T13:56:55.015Z",
-      "updatedAt": "2025-11-07T15:43:40.676Z"
+      "id": "sponsor-1762539711830-oreyrwuab",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:21:51.830Z",
+      "updatedAt": "2025-11-07T18:21:51.830Z"
+    }
+  ],
+  "announcements": [
+    {
+      "title": "dfgdfgdfg",
+      "content": "<p>dfg df dfdf g</p>",
+      "excerpt": "dg dfg dfg",
+      "featuredImageUrl": "/uploads/image-1762540130456-461610445.png",
+      "category": "general",
+      "publishedAt": "2025-11-07T18:28",
+      "id": "announcement-1762540137156-qev788q9g",
+      "conferenceId": "conf-2026",
+      "createdAt": "2025-11-07T18:28:57.156Z",
+      "updatedAt": "2025-11-07T18:28:57.156Z"
     }
   ],
   "whitelists": []

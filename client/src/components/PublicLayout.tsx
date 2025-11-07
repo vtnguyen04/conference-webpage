@@ -6,13 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import type { Conference } from "@shared/schema";
 import { cn } from "@/lib/utils"; 
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -71,7 +64,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
       <header className={cn(
         "sticky top-0 z-50 w-full transition-all duration-200",
         scrolled 
-          ? "bg-white/98 dark:bg-slate-900/98 shadow-md" 
+          ? "bg-white/90 dark:bg-slate-900/90 shadow-md" 
           : "bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800"
       )}>
         <div className="container mx-auto px-4">

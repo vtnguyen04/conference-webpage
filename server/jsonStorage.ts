@@ -386,6 +386,11 @@ export class JSONStorage {
     return data?.announcements || [];
   }
 
+  async getAnnouncement(year: number, id: string): Promise<Announcement | undefined> {
+    const data = readData(year);
+    return data?.announcements.find(announcement => announcement.id === id);
+  }
+
   async createAnnouncement(year: number, announcement: Omit<Announcement, "id" | "createdAt" | "updatedAt">): Promise<Announcement> {
     const data = readData(year);
     if (!data) throw new Error("Conference not found");

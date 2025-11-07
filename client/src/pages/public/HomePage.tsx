@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -109,14 +109,12 @@ export default function HomePage() {
     other: 'ĐƠN VỊ HỖ TRỢ',
   };
 
-  const speakerMap = useMemo(() => {
-    return speakers.reduce((acc, speaker) => {
-      acc[speaker.id] = speaker;
-      return acc;
-    }, {} as Record<string, Speaker>);
-  }, [speakers]);
+  const speakerMap: Record<string, Speaker> = speakers.reduce((acc, speaker) => {
+    acc[speaker.id] = speaker;
+    return acc;
+  }, {} as Record<string, Speaker>);
 
-  const sessionsBySlot = useMemo(() => {
+  const sessionsBySlot: Record<string, Session[]> = (() => {
     const grouped: Record<string, Session[]> = {};
     const sortedSessions = [...sessions].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
@@ -132,7 +130,7 @@ export default function HomePage() {
       grouped[combinedKey].push(session);
     }
     return grouped;
-  }, [sessions]);
+  })();
 
   const sortedSlots = Object.keys(sessionsBySlot).sort();
 
@@ -167,7 +165,7 @@ export default function HomePage() {
           <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 text-white bg-black/50 hover:bg-black/70 border-none" />
         </Carousel>
 
-        <div className="absolute inset-0 bg-slate-900/60 z-0"></div>
+        <div className="absolute inset-0 bg-slate-900/80 z-0"></div>
 
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 relative z-10">
           <div className="max-w-5xl mx-auto text-center">

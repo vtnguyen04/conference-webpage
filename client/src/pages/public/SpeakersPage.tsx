@@ -3,6 +3,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 import type { Speaker } from "@shared/schema";
+import { PageHeader } from "@/components/PageHeader";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "wouter";
 
 export default function SpeakersPage() {
   const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
@@ -68,12 +78,29 @@ export default function SpeakersPage() {
   );
 
   return (
-    <div className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-12" data-testid="text-speakers-title">
-            Chủ tọa & Diễn giả
-          </h1>
+    <>
+      <PageHeader
+        title="Chủ tọa & Diễn giả"
+        subtitle="Gặp gỡ các chuyên gia hàng đầu và những người có tầm ảnh hưởng sẽ chia sẻ kiến thức tại hội nghị."
+      >
+        <Breadcrumb className="mb-4 mx-auto">
+          <BreadcrumbList className="text-white justify-center">
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild className="text-white">
+                <Link href="/">Trang chủ</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-white">Chủ tọa & Diễn giả</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </PageHeader>
+
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
 
           {/* Moderators Section */}
           {moderators.length > 0 && (
@@ -114,6 +141,7 @@ export default function SpeakersPage() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

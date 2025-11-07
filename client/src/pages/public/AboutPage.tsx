@@ -1,5 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Conference } from "@shared/schema";
+import { PageHeader } from "@/components/PageHeader";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "wouter";
 
 export default function AboutPage() {
   const { data: conference, isLoading } = useQuery<Conference>({
@@ -18,13 +28,29 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-8" data-testid="text-about-title">
-            Giới thiệu hội nghị
-          </h1>
+    <>
+      <PageHeader
+        title="Giới thiệu hội nghị"
+        subtitle="Tìm hiểu thêm về mục tiêu, lịch sử và những người đứng sau sự kiện của chúng tôi."
+      >
+        <Breadcrumb className="mb-4 mx-auto">
+          <BreadcrumbList className="text-white justify-center">
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild className="text-white">
+                <Link href="/">Trang chủ</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-white">Giới thiệu</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </PageHeader>
 
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
           {conference?.introContent ? (
             <div
               className="prose prose-lg max-w-none"
@@ -77,8 +103,9 @@ export default function AboutPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};

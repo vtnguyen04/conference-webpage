@@ -8,6 +8,16 @@ import { Clock, MapPin, User } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Conference, Session, Speaker } from "@shared/schema";
+import { PageHeader } from "@/components/PageHeader";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "wouter";
 
 export default function ProgramPage() {
   const { data: conference } = useQuery<Conference>({
@@ -63,14 +73,30 @@ export default function ProgramPage() {
   }
 
   return (
-    <div className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-8" data-testid="text-program-title">
-            Chương trình hội nghị
-          </h1>
+    <>
+      <PageHeader
+        title="Chương trình hội nghị"
+        subtitle="Khám phá lịch trình chi tiết các phiên, bài thuyết trình và diễn giả của chúng tôi."
+      >
+        <Breadcrumb className="mb-4 mx-auto">
+          <BreadcrumbList className="text-white justify-center">
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild className="text-white">
+                <Link href="/">Trang chủ</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-white">Chương trình hội nghị</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </PageHeader>
 
-          <Tabs defaultValue={sortedSlots[0]} className="w-full">
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <Tabs defaultValue={sortedSlots[0]} className="w-full">
             <TabsList className="w-full justify-start mb-8 flex-wrap h-auto gap-2">
               {sortedSlots.map(slot => {
                 const [date, timeOfDay] = slot.split('_');
@@ -140,6 +166,7 @@ export default function ProgramPage() {
           </Tabs>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

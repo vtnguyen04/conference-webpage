@@ -8,5 +8,4 @@ vite.config.ts.*
 .local/
 attached_assets/
 .env
-client/public/uploads/
-public/uploads/
+commit.md

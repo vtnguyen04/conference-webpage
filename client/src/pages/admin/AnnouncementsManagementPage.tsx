@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import {
   Select,
   SelectContent,
@@ -29,9 +31,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Announcement, InsertAnnouncement } from "@shared/schema";
@@ -55,9 +57,11 @@ export default function AnnouncementsManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const quillRef = useRef<ReactQuill>(null);
 
   const { data: announcements = [] } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
+    staleTime: 0, // Ensure data is always considered stale for immediate refetching
   });
 
   const form = useForm<InsertAnnouncement>({
@@ -77,8 +81,8 @@ export default function AnnouncementsManagementPage() {
       return await apiRequest("POST", "/api/announcements", data);
     },
     onSuccess: () => {
-      toast({ title: "Tạo thông báo thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
+      console.log('Invalidating announcements query...');
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"], exact: true });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -92,8 +96,8 @@ export default function AnnouncementsManagementPage() {
       return await apiRequest("PUT", `/api/announcements/${id}`, data);
     },
     onSuccess: () => {
-      toast({ title: "Cập nhật thông báo thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
+      console.log('Invalidating announcements query...');
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"], exact: true });
       setIsDialogOpen(false);
       setEditingAnnouncement(null);
       form.reset();
@@ -109,7 +113,8 @@ export default function AnnouncementsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa thông báo thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/announcements"] });
+      console.log('Invalidating announcements query...');
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"], exact: true });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -156,10 +161,88 @@ export default function AnnouncementsManagementPage() {
     }
   };
 
-  const handleGetUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/objects/upload", {}) as unknown as { url: string; method: "PUT" };
-    return { method: response.method, url: response.url };
+  const handleFeaturedImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, fieldOnChange: (value: string) => void) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    // If editing, send old image path for deletion
+    if (editingAnnouncement?.featuredImageUrl) {
+      formData.append('oldImagePath', editingAnnouncement.featuredImageUrl);
+    }
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+      console.log('Featured image upload response:', result);
+      fieldOnChange(result.imagePath);
+      toast({ title: 'Tải ảnh đại diện thành công' });
+    } catch (error) {
+      console.error('Error uploading featured image:', error);
+      toast({ title: 'Lỗi tải ảnh đại diện', description: 'Không thể tải ảnh lên.', variant: 'destructive' });
+    }
   };
+
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files ? input.files[0] : null;
+      console.log('Selected file:', file);
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          console.log('Sending image upload request...');
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const result = await response.json();
+          console.log('Image upload response:', result);
+          const imageUrl = result.imagePath; // Assuming the backend returns { imagePath: '/uploads/image.jpg' }
+          console.log('Image URL to insert into Quill:', imageUrl);
+
+          // Get the current cursor position
+          const quill = quillRef.current?.getEditor(); // Access Quill editor instance using ref
+          console.log('Quill editor instance:', quill);
+          if (quill) {
+            const range = quill.getSelection();
+            if (range) {
+              quill.insertEmbed(range.index, 'image', imageUrl);
+            }
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          toast({ title: 'Lỗi tải ảnh lên', description: 'Không thể tải ảnh lên.', variant: 'destructive' });
+        }
+      }
+    };
+  };
+
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler,
+      },
+    },
+  }), []);
 
   const sortedAnnouncements = [...announcements].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
@@ -257,23 +340,22 @@ export default function AnnouncementsManagementPage() {
               <FormField
                 control={form.control}
                 name="featuredImageUrl"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Ảnh đại diện</FormLabel>
-                    {field.value && (
+                    {value && (
                       <div className="mb-2">
-                        <img src={field.value} alt="Preview" className="h-32 w-full object-cover rounded-lg" />
+                        <img src={value} alt="Preview" className="h-32 w-full object-cover rounded-lg" />
                       </div>
                     )}
                     <FormControl>
-                      <ObjectUploader
-                        onGetUploadParameters={handleGetUploadParameters}
-                        onComplete={(result) => field.onChange(result.uploadURL)}
-                        acceptedFileTypes="image/*"
-                        buttonClassName="w-full"
-                      >
-                        <span>Tải ảnh lên</span>
-                      </ObjectUploader>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => handleFeaturedImageUpload(event, onChange)}
+                        data-testid="input-featured-image"
+                        {...fieldProps}
+                      />
                     </FormControl>
                     <FormDescription>
                       Tải lên ảnh đại diện cho thông báo
@@ -314,17 +396,29 @@ export default function AnnouncementsManagementPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
+              <Controller
                 name="content"
+                control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nội dung</FormLabel>
                     <FormControl>
-                      <Textarea {...field} rows={8} data-testid="input-announcement-content" />
+                      <ReactQuill
+                        ref={quillRef}
+                        theme="snow"
+                        value={field.value}
+                        onChange={(content, delta, source, editor) => {
+                          console.log('Quill onChange - content:', content);
+                          console.log('Quill onChange - field.value before:', field.value);
+                          field.onChange(content);
+                          console.log('Quill onChange - field.value after:', form.getValues('content'));
+                        }}
+                        className="min-h-[200px]"
+                        modules={modules}
+                      />
                     </FormControl>
                     <FormDescription>
-                      Nội dung chi tiết (hỗ trợ HTML/Markdown)
+                      Nội dung chi tiết của thông báo/bài viết
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

@@ -14,13 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
@@ -121,7 +114,7 @@ export default function ConferencePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="text-conference-title">
+        <h1 className="text-2xl font-semibold text-gray-900" data-testid="text-conference-title">
           Quản lý hội nghị
         </h1>
         <Button
@@ -129,32 +122,34 @@ export default function ConferencePage() {
           onClick={handleClone}
           disabled={!activeConference || cloneMutation.isPending}
           data-testid="button-clone-conference"
+          className="whitespace-nowrap"
         >
           <Copy className="mr-2 h-4 w-4" />
           Sao chép sang năm mới
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin hội nghị</CardTitle>
+      <Card className="border border-gray-200">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-medium">Thông tin hội nghị</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="year"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Năm *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Năm *</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           {...field}
                           onChange={(e) => field.onChange(parseInt(e.target.value))}
                           data-testid="input-year"
+                          className="h-9"
                         />
                       </FormControl>
                       <FormMessage />
@@ -167,9 +162,9 @@ export default function ConferencePage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tên hội nghị *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Tên hội nghị *</FormLabel>
                       <FormControl>
-                        <Input {...field} data-testid="input-name" />
+                        <Input {...field} data-testid="input-name" className="h-9" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -181,9 +176,9 @@ export default function ConferencePage() {
                   name="theme"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Chủ đề</FormLabel>
+                      <FormLabel className="text-sm font-medium">Chủ đề</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-theme" />
+                        <Input {...field} value={field.value || ""} data-testid="input-theme" className="h-9" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -195,9 +190,9 @@ export default function ConferencePage() {
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Địa điểm</FormLabel>
+                      <FormLabel className="text-sm font-medium">Địa điểm</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-location" />
+                        <Input {...field} value={field.value || ""} data-testid="input-location" className="h-9" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,9 +204,9 @@ export default function ConferencePage() {
                   name="contactEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email liên hệ</FormLabel>
+                      <FormLabel className="text-sm font-medium">Email liên hệ</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" />
+                        <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" className="h-9" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -223,9 +218,9 @@ export default function ConferencePage() {
                   name="contactPhone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Số điện thoại</FormLabel>
+                      <FormLabel className="text-sm font-medium">Số điện thoại</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-contact-phone" />
+                        <Input {...field} value={field.value || ""} data-testid="input-contact-phone" className="h-9" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,7 +232,7 @@ export default function ConferencePage() {
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ngày bắt đầu *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Ngày bắt đầu *</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
@@ -245,6 +240,7 @@ export default function ConferencePage() {
                           value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
                           onChange={(e) => field.onChange(new Date(e.target.value))}
                           data-testid="input-start-date"
+                          className="h-9"
                         />
                       </FormControl>
                       <FormMessage />
@@ -257,7 +253,7 @@ export default function ConferencePage() {
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ngày kết thúc *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Ngày kết thúc *</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
@@ -265,6 +261,7 @@ export default function ConferencePage() {
                           value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
                           onChange={(e) => field.onChange(new Date(e.target.value))}
                           data-testid="input-end-date"
+                          className="h-9"
                         />
                       </FormControl>
                       <FormMessage />
@@ -278,32 +275,14 @@ export default function ConferencePage() {
                 name="introContent"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nội dung giới thiệu</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        rows={6}
-                        data-testid="textarea-intro-content"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="registrationNote1"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ghi chú đăng ký 1</FormLabel>
+                    <FormLabel className="text-sm font-medium">Nội dung giới thiệu</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         value={field.value || ""}
                         rows={4}
-                        data-testid="textarea-reg-note-1"
+                        data-testid="textarea-intro-content"
+                        className="resize-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -311,32 +290,55 @@ export default function ConferencePage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="registrationNote2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ghi chú đăng ký 2</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        rows={6}
-                        data-testid="textarea-reg-note-2"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="registrationNote1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Ghi chú đăng ký 1</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          rows={3}
+                          data-testid="textarea-reg-note-1"
+                          className="resize-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="grid md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="registrationNote2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Ghi chú đăng ký 2</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          rows={3}
+                          data-testid="textarea-reg-note-2"
+                          className="resize-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo hội nghị</FormLabel>
+                      <FormLabel className="text-sm font-medium">Logo hội nghị</FormLabel>
                       <FormControl>
                         <ImageUploader
                           currentImageUrl={field.value}
@@ -353,7 +355,7 @@ export default function ConferencePage() {
                   name="bannerUrls"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Banners Hội nghị</FormLabel>
+                      <FormLabel className="text-sm font-medium">Banners Hội nghị</FormLabel>
                       <FormControl>
                         <MultiImageManager
                           value={field.value || []}
@@ -367,9 +369,16 @@ export default function ConferencePage() {
                 />
               </div>
 
-              <Button type="submit" disabled={updateMutation.isPending} data-testid="button-save-conference">
-                {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-              </Button>
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <Button 
+                  type="submit" 
+                  disabled={updateMutation.isPending} 
+                  data-testid="button-save-conference"
+                  className="min-w-24"
+                >
+                  {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>
