@@ -9,3 +9,4 @@ vite.config.ts.*
 attached_assets/
 .env
 client/public/uploads/
+public/uploads/
