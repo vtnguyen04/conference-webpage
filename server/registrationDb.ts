@@ -8,7 +8,7 @@ import type {
   BatchRegistrationRequest,
   Session,
 } from "@shared/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import QRCode from "qrcode";
 
 // ============================================================================
@@ -394,7 +394,7 @@ export async function getRegistrationStats(year: number) {
     allCheckIns = await db
       .select()
       .from(checkIns)
-      .where(sql`${checkIns.registrationId} = ANY(CAST(${registrationIds} AS text[]))`);
+      .where(inArray(checkIns.registrationId, registrationIds));
   }
 
   const uniqueCheckedInAttendees = new Set(
