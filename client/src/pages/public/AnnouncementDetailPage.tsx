@@ -104,6 +104,35 @@ export default function AnnouncementDetailPage() {
                   className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg"
                 />
               )}
+
+              {announcement.pdfUrl && (
+                <div className="mb-8 p-4 border rounded-lg bg-gray-50">
+                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <FileText className="h-6 w-6 text-primary" />
+                    Tài liệu đính kèm
+                  </h2>
+                  <div className="aspect-w-16 aspect-h-9 mb-4">
+                    <iframe
+                      src={announcement.pdfUrl}
+                      width="100%"
+                      height="500px"
+                      style={{ border: 'none' }}
+                      title="Tài liệu thông báo"
+                    >
+                      This browser does not support PDFs. Please download the PDF to view it.
+                    </iframe>
+                  </div>
+                  <a
+                    href={announcement.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  >
+                    <FileText className="h-5 w-5 mr-2" />
+                    Tải xuống PDF
+                  </a>
+                </div>
+              )}
   
               <Card className="mb-8">
                 <CardContent className="p-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

@@ -394,7 +394,7 @@ export async function getRegistrationStats(year: number) {
     allCheckIns = await db
       .select()
       .from(checkIns)
-      .where(sql`${checkIns.registrationId} = ANY(${registrationIds})`);
+      .where(sql`${checkIns.registrationId} = ANY(CAST(${registrationIds} AS text[]))`);
   }
 
   const uniqueCheckedInAttendees = new Set(

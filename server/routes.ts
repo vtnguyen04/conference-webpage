@@ -41,13 +41,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Helper function to delete image files
-function deleteImageFile(imagePath: string) {
-  if (imagePath && imagePath.startsWith('/uploads/')) {
-    const filePath = path.join(process.cwd(), "public", imagePath);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`Deleted image file: ${filePath}`);
+// Helper function to delete files
+function deleteFile(filePathRelative: string) {
+  if (filePathRelative && filePathRelative.startsWith('/uploads/')) {
+    const absolutePath = path.join(process.cwd(), "public", filePathRelative);
+    if (fs.existsSync(absolutePath)) {
+      fs.unlinkSync(absolutePath);
+      console.log(`Deleted file: ${absolutePath}`);
     }
   }
 }
@@ -282,6 +282,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error uploading image:", error);
       res.status(500).json({ message: error.message || "Failed to upload image." });
+    }
+  });
+
+  // Local PDF upload route
+  app.post('/api/upload-pdf', upload.single('pdf'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+
+      const pdfPath = `/uploads/${req.file.filename}`;
+
+      // Handle oldPdfPath for deletion if provided
+      const oldPdfPath = req.body.oldPdfPath;
+      if (oldPdfPath) {
+        deleteFile(oldPdfPath); // Use the generic deleteFile function
+      }
+
+      res.json({ pdfPath });
+    } catch (error: any) {
+      console.error("Error uploading PDF:", error);
+      res.status(500).json({ message: error.message || "Failed to upload PDF." });
     }
   });
 

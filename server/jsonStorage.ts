@@ -63,13 +63,13 @@ function writeData(year: number, data: ConferenceData): void {
   }
 }
 
-// Helper function to delete image files
-function deleteImageFile(imagePath: string) {
-  if (imagePath && imagePath.startsWith('/uploads/')) {
-    const filePath = join(process.cwd(), "public", imagePath);
-    if (existsSync(filePath)) {
-      unlinkSync(filePath);
-      console.log(`Deleted image file: ${filePath}`);
+// Helper function to delete files
+function deleteFile(filePathRelative: string) {
+  if (filePathRelative && filePathRelative.startsWith('/uploads/')) {
+    const absolutePath = join(process.cwd(), "public", filePathRelative);
+    if (existsSync(absolutePath)) {
+      unlinkSync(absolutePath);
+      console.log(`Deleted file: ${absolutePath}`);
     }
   }
 }
@@ -419,7 +419,11 @@ export class JSONStorage {
 
     // If a new featuredImageUrl is provided and it's different from the old one, delete the old image
     if (updates.featuredImageUrl && updates.featuredImageUrl !== oldAnnouncement.featuredImageUrl) {
-      deleteImageFile(oldAnnouncement.featuredImageUrl);
+      deleteFile(oldAnnouncement.featuredImageUrl);
+    }
+    // If a new pdfUrl is provided and it's different from the old one, delete the old PDF
+    if (updates.pdfUrl && updates.pdfUrl !== oldAnnouncement.pdfUrl) {
+      deleteFile(oldAnnouncement.pdfUrl);
     }
 
     data.announcements[index] = {
@@ -438,7 +442,8 @@ export class JSONStorage {
 
     const announcementToDelete = data.announcements.find(a => a.id === id);
     if (announcementToDelete) {
-      deleteImageFile(announcementToDelete.featuredImageUrl);
+      deleteFile(announcementToDelete.featuredImageUrl);
+      deleteFile(announcementToDelete.pdfUrl); // Delete associated PDF file
     }
 
     data.announcements = data.announcements.filter(a => a.id !== id);

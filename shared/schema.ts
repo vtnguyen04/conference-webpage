@@ -260,6 +260,7 @@ export interface Announcement {
   content: string; // HTML/Markdown
   excerpt: string;
   featuredImageUrl: string;
+  pdfUrl?: string; // New field for PDF URL
   category: "general" | "important" | "deadline";
   publishedAt: string;
   createdAt: string;
@@ -373,6 +374,7 @@ export const insertAnnouncementSchema = z.object({
   content: z.string(),
   excerpt: z.string(),
   featuredImageUrl: z.string().optional().or(z.literal("")),
+  pdfUrl: z.string().optional().or(z.literal("")), // New field for PDF URL
   category: z.enum(["general", "important", "deadline"]).default("general"),
   publishedAt: z.string().optional(),
 });

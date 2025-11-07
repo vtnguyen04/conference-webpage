@@ -128,6 +128,7 @@ export default function AnnouncementsManagementPage() {
       content: "",
       excerpt: "",
       featuredImageUrl: "",
+      pdfUrl: "", // Clear pdfUrl
       category: "general",
       publishedAt: new Date().toISOString().slice(0, 16),
     });
@@ -141,6 +142,7 @@ export default function AnnouncementsManagementPage() {
       content: announcement.content,
       excerpt: announcement.excerpt,
       featuredImageUrl: announcement.featuredImageUrl,
+      pdfUrl: announcement.pdfUrl, // Populate pdfUrl
       category: announcement.category,
       publishedAt: new Date(announcement.publishedAt).toISOString().slice(0, 16),
     });
@@ -185,6 +187,33 @@ export default function AnnouncementsManagementPage() {
     } catch (error) {
       console.error('Error uploading featured image:', error);
       toast({ title: 'Lỗi tải ảnh đại diện', description: 'Không thể tải ảnh lên.', variant: 'destructive' });
+    }
+  };
+
+  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>, fieldOnChange: (value: string) => void) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    // If editing, send old PDF path for deletion
+    if (editingAnnouncement?.pdfUrl) {
+      formData.append('oldPdfPath', editingAnnouncement.pdfUrl);
+    }
+
+    try {
+      const response = await fetch('/api/upload-pdf', { // Use the new PDF upload endpoint
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+      console.log('PDF upload response:', result);
+      fieldOnChange(result.pdfPath);
+      toast({ title: 'Tải tệp PDF thành công' });
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      toast({ title: 'Lỗi tải tệp PDF', description: 'Không thể tải tệp PDF lên.', variant: 'destructive' });
     }
   };
 
@@ -359,6 +388,37 @@ export default function AnnouncementsManagementPage() {
                     </FormControl>
                     <FormDescription>
                       Tải lên ảnh đại diện cho thông báo
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="pdfUrl"
+                render={({ field: { value, onChange, ...fieldProps } }) => (
+                  <FormItem>
+                    <FormLabel>Tệp PDF đính kèm</FormLabel>
+                    {value && (
+                      <div className="mb-2 flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <a href={value} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                          Xem tệp PDF hiện tại
+                        </a>
+                      </div>
+                    )}
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(event) => handlePdfUpload(event, onChange)}
+                        data-testid="input-announcement-pdf"
+                        {...fieldProps}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Tải lên tệp PDF đính kèm cho thông báo (ví dụ: hợp đồng, nội quy)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
