@@ -30,10 +30,11 @@ export default function Login() {
 
     // Bước 2: Chờ cho useAuth() cập nhật xong VÀ kiểm tra kết quả của nó
     // refetch() sẽ trả về trạng thái query mới nhất.
-    const { isSuccess } = await refetch();
+    const refetchResult = await refetch();
+    const isSuccess = refetchResult.isSuccess;
 
     // Bước 3: CHỈ chuyển trang NẾU việc cập nhật trạng thái đã thành công
-    if (isSuccess) {
+    if (isSuccess && refetchResult.data) {
       toast({
         title: "Đăng nhập thành công",
         description: "Chào mừng đến trang quản trị. Đang chuyển hướng...",

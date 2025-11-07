@@ -41,14 +41,14 @@ export function AdminApp() {
 
   // BƯỚC 2: NẾU NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP VÀ ĐANG CỐ VÀO TRANG LOGIN,
   // TỰ ĐỘNG CHUYỂN HỌ ĐẾN TRANG ADMIN.
-  if (isAuthenticated && location === "/login") {
+  if (isAuthenticated && location === "/admin/login") {
     return <Redirect to="/admin" />;
   }
   
   // BƯỚC 3: SAU KHI ĐÃ XỬ LÝ CÁC TRƯỜNG HỢP TRÊN, TIẾN HÀNH ĐIỀU HƯỚNG BÌNH THƯỜNG
   return (
     <Switch>
-      <Route path="/login" component={Login} />
+      <Route path="/admin/login" component={Login} />
 
         {/* Sử dụng một "catch-all" Route không có path để xử lý TẤT CẢ các trường hợp còn lại */}
         <Route>

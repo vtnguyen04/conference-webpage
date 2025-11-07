@@ -389,10 +389,13 @@ export async function getRegistrationStats(year: number) {
   
   // Get all check-ins for this year's registrations
   const registrationIds = allRegistrations.map(r => r.id);
-  const allCheckIns = await db
-    .select()
-    .from(checkIns)
-    .where(sql`${checkIns.registrationId} = ANY(${registrationIds})`);
+  let allCheckIns: CheckIn[] = [];
+  if (registrationIds.length > 0) {
+    allCheckIns = await db
+      .select()
+      .from(checkIns)
+      .where(sql`${checkIns.registrationId} = ANY(${registrationIds})`);
+  }
 
   const uniqueCheckedInAttendees = new Set(
     allCheckIns.map(c => {

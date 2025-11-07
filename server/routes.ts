@@ -13,9 +13,8 @@ import {
   getRegistrationStats,
   getSessionCapacityStatus,
 } from "./registrationDb";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { ObjectPermission } from "./objectAcl";
+import { setupAuth } from "./sessionAuth";
+
 import nodemailer from "nodemailer";
 import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, batchRegistrationRequestSchema } from "@shared/schema";
 console.log('insertSponsorSchema:', insertSponsorSchema);
@@ -198,11 +197,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
+
+      // For the simple admin login, if userId is "admin", return a dummy user
+      if (userId === "admin") {
+        return res.json({
+          id: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: "admin",
+        });
+      }
+
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.post('/api/logout', (req: any, res) => {
+    console.log('Logout endpoint hit.');
+    console.log('req.session:', req.session);
+    if (!req.session) {
+      console.log('No active session to destroy.');
+      res.clearCookie('connect.sid');
+      return res.json({ message: "Logged out successfully (no active session)" });
+    }
+    req.session.destroy((err: any) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ message: "Failed to log out" });
+      }
+      console.log('Session destroyed. Clearing cookie.');
+      res.clearCookie('connect.sid'); // Clear session cookie
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  app.post('/api/login', async (req: any, res) => {
+    try {
+      const { email, password } = req.body;
+
+      // For now, a very basic admin login
+      if (email === "admin@example.com" && password === process.env.ADMIN_PASSWORD) {
+        req.session.userId = "admin"; // Set a dummy user ID for the session
+        req.session.save((err: any) => {
+          if (err) {
+            console.error("Error saving session after login:", err);
+            return res.status(500).json({ message: "Failed to save session" });
+          }
+          return res.json({ message: "Login successful" });
+        });
+      } else {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to login" });
     }
   });
 
@@ -504,6 +557,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(announcements);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch announcements" });
+    }
+  });
+
+  app.get('/api/announcements/:id', async (req, res) => {
+    try {
+      console.log(`Fetching announcement with ID: ${req.params.id}`);
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const announcement = await jsonStorage.getAnnouncement(conference.year, req.params.id);
+      if (!announcement) {
+        return res.status(404).json({ message: "Announcement not found" });
+      }
+      res.json(announcement);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch announcement" });
     }
   });
 
@@ -843,134 +913,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public object serving
-  app.get("/public-objects/:filePath(*)", async (req, res) => {
+  // Public object serving from local filesystem
+  app.get("/uploads/:filePath(*)", (req, res) => {
     const filePath = req.params.filePath;
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const file = await objectStorageService.searchPublicObject(filePath);
-      if (!file) {
-        return res.status(404).json({ error: "File not found" });
-      }
-      objectStorageService.downloadObject(file, res);
-    } catch (error) {
-      console.error("Error searching for public object:", error);
-      return res.status(500).json({ error: "Internal server error" });
+    const absolutePath = path.join(uploadDir, filePath);
+    if (fs.existsSync(absolutePath)) {
+      res.sendFile(absolutePath);
+    } else {
+      res.status(404).json({ error: "File not found" });
     }
   });
 
-  // Protected object serving with ACL check
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    const userId = (req.session as any).userId;
-    const userEmail = (req.session as any).userEmail;
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      const canAccess = await objectStorageService.canAccessObjectEntity({
-        objectFile,
-        userId: userId,
-        userEmail: userEmail,
-        requestedPermission: ObjectPermission.READ,
-      });
-      if (!canAccess) {
-        return res.sendStatus(401);
-      }
-      objectStorageService.downloadObject(objectFile, res);
-    } catch (error) {
-      console.error("Error checking object access:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
-    }
-  });
 
-  // Object storage upload URL generation
-  app.post('/api/objects/upload', async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const url = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ url, method: "PUT" as const });
-    } catch (error: any) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ message: error.message });
-    }
-  });
 
-  // Face photo upload with ACL
-  app.put('/api/face-photos', async (req, res) => {
-    if (!req.body.facePhotoURL) {
-      return res.status(400).json({ error: "facePhotoURL is required" });
-    }
 
-    const userId = (req.session as any).userId;
 
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.facePhotoURL,
-        {
-          owner: userId,
-          visibility: "private",
-        },
-      );
 
-      res.status(200).json({ objectPath });
-    } catch (error) {
-      console.error("Error setting face photo:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Logo upload with ACL
-  app.put('/api/logos', async (req, res) => {
-    if (!req.body.logoURL) {
-      return res.status(400).json({ error: "logoURL is required" });
-    }
-
-    const userId = (req.session as any).userId;
-
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.logoURL,
-        {
-          owner: userId,
-          visibility: "public",
-        },
-      );
-
-      res.status(200).json({ objectPath });
-    } catch (error) {
-      console.error("Error setting logo:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Banner upload with ACL
-  app.put('/api/banners', async (req, res) => {
-    if (!req.body.bannerURL) {
-      return res.status(400).json({ error: "bannerURL is required" });
-    }
-
-    const userId = (req.session as any).userId;
-
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.bannerURL,
-        {
-          owner: userId,
-          visibility: "public",
-        },
-      );
-
-      res.status(200).json({ objectPath });
-    } catch (error) {
-      console.error("Error setting banner:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
