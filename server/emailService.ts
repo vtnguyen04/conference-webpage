@@ -42,6 +42,33 @@ export async function sendRegistrationConfirmationEmail(to: string, conferenceNa
     throw error;
   }
 }
+
+export async function sendConfirmationReminderEmail(to: string, conferenceName: string, registrationDetails: any) {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM,
+    to: to,
+    subject: `Reminder: Please Confirm Your Registration for ${conferenceName}`,
+    html: `
+      <h1>Reminder: Please Confirm Your Registration for ${conferenceName}!</h1>
+      <p>Dear ${registrationDetails.name},</p>
+      <p>You recently registered for ${conferenceName}. To complete your registration, please confirm your email address by clicking the link below:</p>
+      <p><a href="${process.env.BASE_URL}/api/registrations/confirm/${registrationDetails.confirmationToken}">Confirm Registration</a></p>
+      <p>If you have already confirmed, please disregard this email.</p>
+      <p>We look forward to seeing you there!</p>
+      <p>Best regards,</p>
+      <p>The ${conferenceName} Team</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Confirmation reminder email sent to ${to}`);
+  } catch (error) {
+    console.error(`Error sending confirmation reminder email to ${to}:`, error);
+    throw error;
+  }
+}
+
 export async function sendCmeCertificateEmail(to: string, userName: string, sessionTitle: string, certificate: Buffer) {
   const mailOptions = {
     from: process.env.EMAIL_FROM,

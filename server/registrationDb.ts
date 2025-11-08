@@ -8,7 +8,7 @@ import type {
   BatchRegistrationRequest,
   Session,
 } from "@shared/schema";
-import { eq, and, sql, inArray, or, ilike } from "drizzle-orm";
+import { eq, and, sql, inArray, or, ilike, isNull } from "drizzle-orm";
 import QRCode from "qrcode";
 import { sendRegistrationConfirmationEmail } from "./emailService";
 import crypto from "crypto";
@@ -171,22 +171,23 @@ export async function batchRegisterSessions(
   try {
     const createdRegistrations = await db.transaction(async (tx) => {
       // Check if already registered for any of these sessions
-      const existingRegistrations = await tx
-        .select()
-        .from(registrations)
-        .where(
-          and(
-            eq(registrations.email, email),
-            eq(registrations.conferenceYear, conferenceYear)
+      // Check if already registered for any of these sessions
+      for (const sessionId of sessionIds) {
+        const existingRegistration = await tx
+          .select()
+          .from(registrations)
+          .where(
+            and(
+              eq(registrations.email, email),
+              eq(registrations.conferenceYear, conferenceYear),
+              eq(registrations.sessionId, sessionId)
+            )
           )
-        );
+          .limit(1);
 
-      const alreadyRegisteredSessions = existingRegistrations
-        .filter(r => sessionIds.includes(r.sessionId))
-        .map(r => r.sessionId);
-
-      if (alreadyRegisteredSessions.length > 0) {
-        throw new Error(`Already registered for sessions: ${alreadyRegisteredSessions.join(", ")}`);
+        if (existingRegistration.length > 0) {
+          throw new Error(`Already registered for session: ${sessionId}`);
+        }
       }
 
       // Sort sessions by ID to prevent deadlocks
@@ -381,6 +382,54 @@ export async function searchRegistrations(year: number, query: string): Promise<
         )
       )
     );
+}
+
+/**
+ * Get pending registrations that are due for a reminder
+ */
+export async function getPendingRegistrationsDueForReminder(
+  conferenceYear: number,
+  reminderIntervalHours: number,
+  maxReminders: number
+): Promise<Registration[]> {
+  const now = new Date();
+  const reminderCutoff = new Date(now.getTime() - reminderIntervalHours * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(registrations)
+    .where(
+      and(
+        eq(registrations.conferenceYear, conferenceYear),
+        eq(registrations.status, "pending"),
+        registrations.confirmationTokenExpires ? sql`${registrations.confirmationTokenExpires} > ${now}` : undefined,
+        sql`${registrations.reminderCount} < ${maxReminders}`,
+        or(
+          isNull(registrations.lastReminderSentAt),
+          sql`${registrations.lastReminderSentAt} < ${reminderCutoff}`
+        )
+      )
+    );
+}
+
+/**
+ * Update a registration's reminder status (increment count, set last sent time)
+ */
+export async function updateRegistrationReminderStatus(registrationId: string): Promise<void> {
+  await db
+    .update(registrations)
+    .set({
+      reminderCount: sql`${registrations.reminderCount} + 1`,
+      lastReminderSentAt: new Date(),
+    })
+    .where(eq(registrations.id, registrationId));
+}
+
+/**
+ * Cancel and delete an unconfirmed registration
+ */
+export async function cancelAndDeleteUnconfirmedRegistration(registrationId: string): Promise<void> {
+  await db.delete(registrations).where(eq(registrations.id, registrationId));
 }
 
 // ============================================================================

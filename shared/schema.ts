@@ -67,6 +67,8 @@ export const registrations = pgTable("registrations", {
   emailSent: boolean("email_sent").default(false),
   confirmationToken: varchar("confirmation_token"),
   confirmationTokenExpires: timestamp("confirmation_token_expires"),
+  reminderCount: integer("reminder_count").notNull().default(0),
+  lastReminderSentAt: timestamp("last_reminder_sent_at"),
   
   registeredAt: timestamp("registered_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -75,6 +77,7 @@ export const registrations = pgTable("registrations", {
   index("idx_registrations_session").on(table.sessionId),
   index("idx_registrations_email").on(table.email),
   index("idx_registrations_email_session").on(table.email, table.sessionId),
+  index("idx_registrations_confirmation_token").on(table.confirmationToken),
 ]);
 
 export const insertRegistrationSchema = createInsertSchema(registrations).omit({

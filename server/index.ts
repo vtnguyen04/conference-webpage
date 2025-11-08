@@ -51,11 +51,13 @@ app.use((req, res, next) => {
 });
 
 import { startReminderService } from "./reminderService";
+import { startConfirmationReminderService } from "./confirmationReminderService";
 
 (async () => {
   const server = await registerRoutes(app);
 
   startReminderService();
+  startConfirmationReminderService();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
