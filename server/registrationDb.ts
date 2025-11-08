@@ -89,7 +89,12 @@ export async function getSessionRegistrationCount(
   const result = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(registrations)
-    .where(eq(registrations.sessionId, sessionId));
+    .where(
+      and(
+        eq(registrations.sessionId, sessionId),
+        eq(registrations.status, "confirmed")
+      )
+    );
   
   return result[0]?.count || 0;
 }
@@ -134,10 +139,11 @@ export async function createRegistration(
 export async function batchRegisterSessions(
   request: BatchRegistrationRequest,
   sessions: Session[],
-  isWhitelisted: boolean
+  // isWhitelisted: boolean
 ): Promise<{
   success: boolean;
   registrations?: Registration[];
+  confirmationToken?: string | null;
   error?: string;
   failedSessions?: string[];
 }> {
@@ -228,7 +234,9 @@ export async function batchRegisterSessions(
       for (const sessionId of sessionIds) {
         // Generate unique QR code data
         const qrData = `CONF-${conferenceYear}-${sessionId}-${email}-${Date.now()}`;
-        const qrCodeImage = await QRCode.toDataURL(qrData);
+        const qrCodeFileName = `qr-${Date.now()}.png`;
+        const qrCodePath = `/uploads/${qrCodeFileName}`;
+        await QRCode.toFile(`public${qrCodePath}`, qrData, { width: 150, margin: 1 });
 
         const confirmationToken = crypto.randomBytes(32).toString("hex");
         const confirmationTokenExpires = new Date(Date.now() + 3600000); // 1 hour
@@ -245,7 +253,7 @@ export async function batchRegisterSessions(
             position: position || null,
             cmeCertificateRequested,
             status: "pending",
-            qrCode: qrCodeImage,
+            qrCode: qrCodePath,
             confirmationToken,
             confirmationTokenExpires,
           })
@@ -254,27 +262,13 @@ export async function batchRegisterSessions(
         allRegistrations.push(registration);
       }
 
-      for (const registration of allRegistrations) {
-        // Assuming conferenceName can be derived or passed. For now, using a placeholder.
-        const conferenceName = `Conference ${conferenceYear}`; 
-        await sendRegistrationConfirmationEmail(
-          registration.email,
-          conferenceName,
-          {
-            name: registration.fullName,
-            email: registration.email,
-            confirmationToken: registration.confirmationToken,
-            // Add other relevant details from registration object
-          }
-        );
-      }
-
       return allRegistrations;
     });
 
     return {
       success: true,
       registrations: createdRegistrations,
+      confirmationToken: createdRegistrations[0]?.confirmationToken,
     };
   } catch (error: any) {
     console.error("Batch registration transaction error:", error);
@@ -467,10 +461,11 @@ export async function getCheckInsByRegistration(
  */
 export async function getCheckInsBySession(
   sessionId: string
-): Promise<CheckIn[]> {
+): Promise<any[]> {
   return await db
     .select()
     .from(checkIns)
+    .leftJoin(registrations, eq(checkIns.registrationId, registrations.id))
     .where(eq(checkIns.sessionId, sessionId));
 }
 
@@ -552,6 +547,8 @@ export async function getSessionCapacityStatus(
       const capacity = session.capacity || null;
       const available = capacity ? Math.max(0, capacity - registered) : null;
       const isFull = capacity ? registered >= capacity : false;
+
+      console.log(`Session: ${session.title}, Registered: ${registered}, Capacity: ${capacity}`);
 
       return {
         sessionId: session.id,

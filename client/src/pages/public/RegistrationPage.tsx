@@ -199,8 +199,7 @@ export default function RegistrationPage() {
         sessionIds: data.sessionIds,
         conferenceYear: conference?.year,
       });
-      const result = await response.json() as SuccessData;
-      return result;
+      return response as SuccessData;
     },
     onSuccess: (data) => {
       setRegistrationState('pendingConfirmation');

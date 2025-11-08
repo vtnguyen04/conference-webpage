@@ -14,14 +14,14 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-11-08T05:52:57.053Z",
-    "registrationNote1": "koikl",
-    "registrationNote2": "hghg",
-    "filesToDelete": [],
-    "bannerUrls": [
-      "/uploads/image-1762581165232-829985944.jpg",
-      "/uploads/image-1762581175183-823765189.jpg"
-    ]
+    "updatedAt": "2025-11-08T18:51:15.582Z",
+    "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
+    "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy chứng nhận đào tạo liên tục (CME), vui lòng chọn vào cột Cấp Giấy chứng nhận của một chủ đề.\nPhí cấp giấy chứng nhận đào tạo liên tục (CME) là 500.000đ",
+    "filesToDelete": [
+      "/uploads/image-1762581175183-823765189.jpg",
+      "/uploads/image-1762581165232-829985944.jpg"
+    ],
+    "bannerUrls": []
   },
   "announcements": [
     {
@@ -327,6 +327,33 @@
       "createdAt": "2025-01-01T00:00:00.000Z",
       "updatedAt": "2025-01-01T00:00:00.000Z",
       "capacity": 75
+    },
+    {
+      "day": 1,
+      "title": "dfgdfg",
+      "track": "",
+      "description": "dfgdfgdfgdf",
+      "descriptionMd": "",
+      "startTime": "2025-11-08T23:33",
+      "endTime": "2025-11-10T23:33",
+      "room": "dfgdfg",
+      "type": "dfgdfg",
+      "chairIds": [],
+      "agendaItems": [
+        {
+          "timeSlot": "07g00-07g30",
+          "title": "DFGDFG",
+          "speakerId": null,
+          "notes": "dfgdfgdfg"
+        }
+      ],
+      "materials": [],
+      "capacity": 122,
+      "allowCmeCertificate": true,
+      "conferenceId": "conf-2025",
+      "id": "session-1762619626551-f4owwjk8q",
+      "createdAt": "2025-11-08T16:33:46.551Z",
+      "updatedAt": "2025-11-08T16:33:46.551Z"
     }
   ],
   "speakers": [
@@ -414,12 +441,12 @@
       "id": "sponsor-001",
       "conferenceId": "conf-2025",
       "name": "Pfizer Vietnam",
-      "logoUrl": "/uploads/image-1762523126912-258459565.png",
+      "logoUrl": "/uploads/image-1762628636917-633613821.png",
       "tier": "diamond",
       "websiteUrl": "https://www.pfizer.com",
       "displayOrder": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:45:32.329Z"
+      "updatedAt": "2025-11-08T19:03:59.995Z"
     },
     {
       "id": "sponsor-002",

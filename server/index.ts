@@ -52,8 +52,18 @@ app.use((req, res, next) => {
 
 import { startReminderService } from "./reminderService";
 import { startConfirmationReminderService } from "./confirmationReminderService";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 (async () => {
+  try {
+    await db.execute(sql`SELECT 1`);
+    log("Database connection successful");
+  } catch (error) {
+    log("Database connection failed:", error);
+    process.exit(1);
+  }
+
   const server = await registerRoutes(app);
 
   startReminderService();

@@ -52,7 +52,8 @@ export default function RegistrationsPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa đăng ký thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/registrations"] });
+      queryClient.invalidateQueries({ queryKey: ["registrations", ""] });
+      queryClient.invalidateQueries({ queryKey: ["registrations", debouncedSearchQuery] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });

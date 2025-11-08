@@ -24,9 +24,24 @@ export default function CheckinPage() {
     queryKey: ["/api/conferences/active"],
   });
 
+  useEffect(() => {
+    console.log("Active conference:", conference);
+  }, [conference]);
+
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.year],
-    enabled: !!conference,
+    enabled: !!conference?.year,
+    select: (data) => {
+      console.log("All sessions:", data);
+      const now = new Date();
+      const ongoingSessions = data.filter(session => {
+        const startTime = new Date(session.startTime);
+        const endTime = new Date(session.endTime);
+        return now >= startTime && now <= endTime;
+      });
+      console.log("Ongoing sessions:", ongoingSessions);
+      return ongoingSessions;
+    }
   });
 
   const { data: recentCheckIns = [] } = useQuery<CheckInWithDetails[]>({
