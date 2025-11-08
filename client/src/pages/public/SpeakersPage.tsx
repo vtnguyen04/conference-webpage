@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
 import type { Conference } from "@shared/schema";
+import { useEffect, useRef } from "react";
 
 export default function SpeakersPage() {
   const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
@@ -23,6 +24,14 @@ export default function SpeakersPage() {
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (speakers.length > 0 && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [speakers]);
 
   const moderators = speakers.filter((s) => s.role === "moderator");
   const regularSpeakers = speakers.filter((s) => s.role === "speaker");
@@ -104,7 +113,7 @@ export default function SpeakersPage() {
         </Breadcrumb>
       </PageHeader>
 
-      <div className="py-16 md:py-24">
+      <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
 
@@ -142,7 +151,7 @@ export default function SpeakersPage() {
                 <p className="text-muted-foreground" data-testid="text-no-speakers">
                   Danh sách chủ tọa và diễn giả đang được cập nhật.
                 </p>
-              </CardContent>
+              </CardContent>.
             </Card>
           )}
         </div>

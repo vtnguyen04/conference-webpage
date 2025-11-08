@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useEffect, useRef } from "react";
 
 // Định nghĩa tên các hạng tài trợ như trong HomePage
 const tierNames: Record<string, string> = {
@@ -33,6 +34,14 @@ export default function SponsorsPage() {
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sponsors.length > 0 && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [sponsors]);
 
   if (isLoading) {
     return (
@@ -82,7 +91,7 @@ export default function SponsorsPage() {
       </PageHeader>
 
       {/* PHẦN 2: NỘI DUNG TRANG VỚI STYLE ĐÃ SỬA ĐÚNG TỪ HOMEPAGE */}
-      <div className="py-20 bg-gradient-to-b from-slate-50 to-white relative">
+      <div ref={mainContentRef} className="py-20 bg-gradient-to-b from-slate-50 to-white relative">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="space-y-16 max-w-6xl mx-auto">
             {tierOrder.map(tier => {
