@@ -121,6 +121,19 @@ export default function AnnouncementsManagementPage() {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/admin/announcements/all");
+    },
+    onSuccess: () => {
+      toast({ title: "Xóa tất cả thông báo thành công" });
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"], exact: true });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleAdd = () => {
     setEditingAnnouncement(null);
     form.reset({
@@ -152,6 +165,12 @@ export default function AnnouncementsManagementPage() {
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Bạn có chắc muốn xóa thông báo "${title}"?`)) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ thông báo? Hành động này không thể hoàn tác.")) {
+      deleteAllMutation.mutate();
     }
   };
 
@@ -283,10 +302,21 @@ export default function AnnouncementsManagementPage() {
         <h1 className="text-3xl font-bold" data-testid="text-announcements-mgmt-title">
           Quản lý thông báo
         </h1>
-        <Button onClick={handleAdd} data-testid="button-add-announcement">
-          <Plus className="mr-2 h-4 w-4" />
-          Thêm thông báo
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDeleteAll}
+            variant="destructive"
+            data-testid="button-delete-all-announcements"
+            disabled={deleteAllMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Xóa tất cả
+          </Button>
+          <Button onClick={handleAdd} data-testid="button-add-announcement">
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm thông báo
+          </Button>
+        </div>
       </div>
 
       <Card>

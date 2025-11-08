@@ -76,7 +76,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ currentImageUrl, o
           <p>Drag 'n' drop an image here, or click to select one</p>
         )}
       </div>
-      <Button onClick={() => getRootProps().onClick && getRootProps().onClick({} as any)} disabled={isUploading}>
+      <Button onClick={getRootProps().onClick} disabled={isUploading}>
         {isUploading ? 'Uploading...' : 'Change Image'}
       </Button>
     </div>

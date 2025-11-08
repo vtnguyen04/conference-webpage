@@ -8,8 +8,10 @@ import type {
   BatchRegistrationRequest,
   Session,
 } from "@shared/schema";
-import { eq, and, sql, inArray } from "drizzle-orm";
+import { eq, and, sql, inArray, or, ilike } from "drizzle-orm";
 import QRCode from "qrcode";
+import { sendRegistrationConfirmationEmail } from "./emailService";
+import crypto from "crypto";
 
 // ============================================================================
 // SESSION-BASED REGISTRATION OPERATIONS (PostgreSQL)
@@ -109,6 +111,18 @@ export async function createRegistration(
       qrCode: qrCodeImage,
     })
     .returning();
+
+  // Send confirmation email for single registration
+  const conferenceName = `Conference ${data.conferenceYear}`; // Placeholder
+  await sendRegistrationConfirmationEmail(
+    registration.email,
+    conferenceName,
+    {
+      name: registration.fullName,
+      email: registration.email,
+      // Add other relevant details from registration object
+    }
+  );
 
   return registration;
 }
@@ -215,6 +229,9 @@ export async function batchRegisterSessions(
         const qrData = `CONF-${conferenceYear}-${sessionId}-${email}-${Date.now()}`;
         const qrCodeImage = await QRCode.toDataURL(qrData);
 
+        const confirmationToken = crypto.randomBytes(32).toString("hex");
+        const confirmationTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+
         const [registration] = await tx
           .insert(registrations)
           .values({
@@ -226,12 +243,29 @@ export async function batchRegisterSessions(
             organization: organization || null,
             position: position || null,
             cmeCertificateRequested,
-            status: "confirmed",
+            status: "pending",
             qrCode: qrCodeImage,
+            confirmationToken,
+            confirmationTokenExpires,
           })
           .returning();
 
         allRegistrations.push(registration);
+      }
+
+      for (const registration of allRegistrations) {
+        // Assuming conferenceName can be derived or passed. For now, using a placeholder.
+        const conferenceName = `Conference ${conferenceYear}`; 
+        await sendRegistrationConfirmationEmail(
+          registration.email,
+          conferenceName,
+          {
+            name: registration.fullName,
+            email: registration.email,
+            confirmationToken: registration.confirmationToken,
+            // Add other relevant details from registration object
+          }
+        );
       }
 
       return allRegistrations;
@@ -316,6 +350,37 @@ export async function cancelRegistration(
  */
 export async function deleteRegistrationsByYear(year: number): Promise<void> {
   await db.delete(registrations).where(eq(registrations.conferenceYear, year));
+}
+
+/**
+ * Delete a single registration by ID
+ */
+export async function deleteRegistration(id: string): Promise<boolean> {
+  const result = await db
+    .delete(registrations)
+    .where(eq(registrations.id, id))
+    .returning();
+
+  return result.length > 0;
+}
+
+/**
+ * Search registrations by full name or email
+ */
+export async function searchRegistrations(year: number, query: string): Promise<Registration[]> {
+  const lowerCaseQuery = query.toLowerCase();
+  return await db
+    .select()
+    .from(registrations)
+    .where(
+      and(
+        eq(registrations.conferenceYear, year),
+        or(
+          ilike(registrations.fullName, `%${lowerCaseQuery}%`),
+          ilike(registrations.email, `%${lowerCaseQuery}%`)
+        )
+      )
+    );
 }
 
 // ============================================================================

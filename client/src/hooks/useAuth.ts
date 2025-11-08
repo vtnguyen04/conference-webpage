@@ -16,20 +16,19 @@ export function useAuth() {
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
-        const response = await apiRequest("GET", "/api/auth/user");
-        if (response.status === 401) {
-          return null; // Not authenticated
-        }
-        return await response.json();
+        const user = await apiRequest("GET", "/api/auth/user");
+        return user as AuthUser;
       } catch (err: any) {
-        if (err.message.includes("401")) {
-          return null; // Explicitly return null for unauthorized
+        // apiRequest now throws an error for non-ok responses
+        // Check if the error message indicates a 401 Unauthorized status
+        if (err.message && err.message.includes("401")) {
+          return null; // Not authenticated
         }
         throw err; // Re-throw other errors
       }
     },
     staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Cache data for 10 minutes
+    gcTime: 10 * 60 * 1000, // Garbage collect data after 10 minutes
     retry: false, // Do not retry on auth checks
     refetchOnWindowFocus: false, // Do not refetch on window focus
   });

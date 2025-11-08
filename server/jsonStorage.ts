@@ -248,13 +248,17 @@ export class JSONStorage {
     }
 
     // Delete all associated files
-    deleteFile(data.conference.logoUrl);
+    if (data.conference.logoUrl) {
+      deleteFile(data.conference.logoUrl);
+    }
     data.conference.bannerUrls?.forEach(deleteFile);
     data.speakers?.forEach(speaker => deleteFile(speaker.photoUrl));
     data.sponsors?.forEach(sponsor => deleteFile(sponsor.logoUrl));
     data.announcements?.forEach(announcement => {
       deleteFile(announcement.featuredImageUrl);
-      deleteFile(announcement.pdfUrl);
+      if (announcement.pdfUrl) {
+        deleteFile(announcement.pdfUrl);
+      }
     });
     data.sightseeing?.forEach(sightseeing => deleteFile(sightseeing.featuredImageUrl));
 
@@ -333,10 +337,23 @@ export class JSONStorage {
     writeData(year, data);
   }
 
+  async deleteAllSessions(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    data.sessions = [];
+    writeData(year, data);
+  }
+
   // Similar methods for speakers, sponsors, announcements, registrations, whitelists, checkIns
   async getSpeakers(year: number): Promise<Speaker[]> {
     const data = readData(year);
     return data?.speakers || [];
+  }
+
+  async getSpeakerById(year: number, id: string): Promise<Speaker | undefined> {
+    const data = readData(year);
+    return data?.speakers.find(speaker => speaker.id === id);
   }
 
   async createSpeaker(year: number, speaker: Omit<Speaker, "id" | "createdAt" | "updatedAt">): Promise<Speaker> {
@@ -393,9 +410,23 @@ export class JSONStorage {
     writeData(year, data);
   }
 
+  async deleteAllSpeakers(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    data.speakers.forEach(speaker => deleteFile(speaker.photoUrl));
+    data.speakers = [];
+    writeData(year, data);
+  }
+
   async getSponsors(year: number): Promise<Sponsor[]> {
     const data = readData(year);
     return data?.sponsors || [];
+  }
+
+  async getSponsorById(year: number, id: string): Promise<Sponsor | undefined> {
+    const data = readData(year);
+    return data?.sponsors.find(sponsor => sponsor.id === id);
   }
 
   async createSponsor(year: number, sponsor: Omit<Sponsor, "id" | "createdAt" | "updatedAt">): Promise<Sponsor> {
@@ -452,6 +483,15 @@ export class JSONStorage {
     writeData(year, data);
   }
 
+  async deleteAllSponsors(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    data.sponsors.forEach(sponsor => deleteFile(sponsor.logoUrl));
+    data.sponsors = [];
+    writeData(year, data);
+  }
+
   async getAnnouncements(year: number): Promise<Announcement[]> {
     const data = readData(year);
     return data?.announcements || [];
@@ -494,7 +534,7 @@ export class JSONStorage {
       deleteFile(oldAnnouncement.featuredImageUrl);
     }
     // If a new pdfUrl is provided and it's different from the old one, delete the old PDF
-    if (updates.pdfUrl && updates.pdfUrl !== oldAnnouncement.pdfUrl) {
+    if (updates.pdfUrl && updates.pdfUrl !== oldAnnouncement.pdfUrl && oldAnnouncement.pdfUrl) {
       deleteFile(oldAnnouncement.pdfUrl);
     }
 
@@ -515,10 +555,26 @@ export class JSONStorage {
     const announcementToDelete = data.announcements.find(a => a.id === id);
     if (announcementToDelete) {
       deleteFile(announcementToDelete.featuredImageUrl);
-      deleteFile(announcementToDelete.pdfUrl); // Delete associated PDF file
+      if (announcementToDelete.pdfUrl) {
+        deleteFile(announcementToDelete.pdfUrl); // Delete associated PDF file
+      }
     }
 
     data.announcements = data.announcements.filter(a => a.id !== id);
+    writeData(year, data);
+  }
+
+  async deleteAllAnnouncements(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    data.announcements.forEach(announcement => {
+      deleteFile(announcement.featuredImageUrl);
+      if (announcement.pdfUrl) {
+        deleteFile(announcement.pdfUrl);
+      }
+    });
+    data.announcements = [];
     writeData(year, data);
   }
 
@@ -599,6 +655,15 @@ export class JSONStorage {
     }
 
     data.sightseeing = data.sightseeing.filter(s => s.id !== id);
+    writeData(year, data);
+  }
+
+  async deleteAllSightseeing(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    data.sightseeing.forEach(sightseeing => deleteFile(sightseeing.featuredImageUrl));
+    data.sightseeing = [];
     writeData(year, data);
   }
 
@@ -690,7 +755,7 @@ export class JSONStorage {
         ...s,
         id: `speaker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        photoUrl: cloneFile(s.photoUrl),
+        photoUrl: cloneFile(s.photoUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -699,7 +764,7 @@ export class JSONStorage {
         ...s,
         id: `sponsor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        logoUrl: cloneFile(s.logoUrl),
+        logoUrl: cloneFile(s.logoUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -708,8 +773,8 @@ export class JSONStorage {
         ...a,
         id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        featuredImageUrl: cloneFile(a.featuredImageUrl),
-        pdfUrl: cloneFile(a.pdfUrl),
+        featuredImageUrl: cloneFile(a.featuredImageUrl) || '',
+        pdfUrl: cloneFile(a.pdfUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -718,7 +783,7 @@ export class JSONStorage {
         ...s,
         id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        featuredImageUrl: cloneFile(s.featuredImageUrl),
+        featuredImageUrl: cloneFile(s.featuredImageUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));

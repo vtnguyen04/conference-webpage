@@ -2,9 +2,8 @@ import {
   users,
   registrations,
   checkIns,
-  auditLogs,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type Registration,
   type InsertRegistration,
   type CheckIn,
@@ -20,7 +19,6 @@ import {
   type Announcement,
   type InsertAnnouncement,
   type Whitelist,
-  type InsertWhitelist,
   type DashboardStats,
 } from "@shared/schema";
 import { db } from "./db";
@@ -44,7 +42,7 @@ function deleteImageFile(imagePath: string) {
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
   
   // Conference operations (delegated to jsonStorage)
   getConferences(): Promise<Conference[]>;
@@ -117,7 +115,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: InsertUser): Promise<User> {
     // Fetch the existing user to check for old profile image URL
     let oldUser: User | undefined;
     if (userData.id) { // If updating an existing user
@@ -157,7 +155,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConferenceById(id: string): Promise<Conference | undefined> {
-    return jsonStorage.getConference(parseInt(id));
+    return jsonStorage.getConferenceByYear(parseInt(id));
   }
 
   async createConference(conferenceData: InsertConference): Promise<Conference> {
@@ -182,7 +180,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSession(conferenceId: string, sessionData: InsertSession): Promise<Session> {
-    return jsonStorage.createSession(parseInt(conferenceId), sessionData);
+    return jsonStorage.createSession(parseInt(conferenceId), { ...sessionData, conferenceId });
   }
 
   async updateSession(conferenceId: string, id: string, sessionData: Partial<InsertSession>): Promise<Session | undefined> {
@@ -199,11 +197,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSpeakerById(conferenceId: string, id: string): Promise<Speaker | undefined> {
-    return jsonStorage.getSpeaker(parseInt(conferenceId), id);
+    return jsonStorage.getSpeakerById(parseInt(conferenceId), id);
   }
 
   async createSpeaker(conferenceId: string, speakerData: InsertSpeaker): Promise<Speaker> {
-    return jsonStorage.createSpeaker(parseInt(conferenceId), speakerData);
+    return jsonStorage.createSpeaker(parseInt(conferenceId), { ...speakerData, conferenceId, photoUrl: speakerData.photoUrl || '' });
   }
 
   async updateSpeaker(conferenceId: string, id: string, speakerData: Partial<InsertSpeaker>): Promise<Speaker | undefined> {
@@ -220,11 +218,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSponsorById(conferenceId: string, id: string): Promise<Sponsor | undefined> {
-    return jsonStorage.getSponsor(parseInt(conferenceId), id);
+    return jsonStorage.getSponsorById(parseInt(conferenceId), id);
   }
 
   async createSponsor(conferenceId: string, sponsorData: InsertSponsor): Promise<Sponsor> {
-    return jsonStorage.createSponsor(parseInt(conferenceId), sponsorData);
+    return jsonStorage.createSponsor(parseInt(conferenceId), { ...sponsorData, conferenceId, logoUrl: sponsorData.logoUrl || '', websiteUrl: sponsorData.websiteUrl || '' });
   }
 
   async updateSponsor(conferenceId: string, id: string, sponsorData: Partial<InsertSponsor>): Promise<Sponsor | undefined> {
@@ -245,7 +243,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createAnnouncement(conferenceId: string, announcementData: InsertAnnouncement): Promise<Announcement> {
-    return jsonStorage.createAnnouncement(parseInt(conferenceId), announcementData);
+    return jsonStorage.createAnnouncement(parseInt(conferenceId), { ...announcementData, conferenceId, views: 0, featuredImageUrl: announcementData.featuredImageUrl || '', pdfUrl: announcementData.pdfUrl || '', publishedAt: announcementData.publishedAt || '' });
   }
 
   async updateAnnouncement(conferenceId: string, id: string, announcementData: Partial<InsertAnnouncement>): Promise<Announcement | undefined> {
@@ -259,7 +257,7 @@ export class DatabaseStorage implements IStorage {
   // Registration operations
   async getRegistrations(conferenceId: string): Promise<Registration[]> {
     return await db.select().from(registrations)
-      .where(eq(registrations.conferenceId, parseInt(conferenceId)))
+      .where(eq(registrations.conferenceYear, parseInt(conferenceId)))
       .orderBy(desc(registrations.registeredAt));
   }
 
@@ -271,7 +269,7 @@ export class DatabaseStorage implements IStorage {
   async getRegistrationByEmail(conferenceId: string, email: string): Promise<Registration | undefined> {
     const [registration] = await db.select().from(registrations)
       .where(and(
-        eq(registrations.conferenceId, parseInt(conferenceId)),
+        eq(registrations.conferenceYear, parseInt(conferenceId)),
         eq(registrations.email, email)
       ));
     return registration;
@@ -285,7 +283,7 @@ export class DatabaseStorage implements IStorage {
   async updateRegistration(id: string, registrationData: Partial<InsertRegistration>): Promise<Registration | undefined> {
     const [registration] = await db
       .update(registrations)
-      .set({ ...registrationData, updatedAt: new Date() })
+      .set({ ...registrationData })
       .where(eq(registrations.id, id))
       .returning();
     return registration;
@@ -309,10 +307,10 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Check-in operations
-  async getCheckIns(conferenceId: string): Promise<CheckIn[]> {
+  async getCheckIns(conferenceId: string): Promise<any[]> {
     return await db.select().from(checkIns)
       .innerJoin(registrations, eq(checkIns.registrationId, registrations.id))
-      .where(eq(registrations.conferenceId, parseInt(conferenceId)))
+      .where(eq(registrations.conferenceYear, parseInt(conferenceId)))
       .orderBy(desc(checkIns.checkedInAt));
   }
 
@@ -336,12 +334,12 @@ export class DatabaseStorage implements IStorage {
   async getStats(conferenceId: string): Promise<DashboardStats> {
     const [regCount] = await db.select({ count: sql<number>`count(*)` })
       .from(registrations)
-      .where(eq(registrations.conferenceId, parseInt(conferenceId)));
+      .where(eq(registrations.conferenceYear, parseInt(conferenceId)));
     
     const [checkInCount] = await db.select({ count: sql<number>`count(*)` })
       .from(checkIns)
       .innerJoin(registrations, eq(checkIns.registrationId, registrations.id))
-      .where(eq(registrations.conferenceId, parseInt(conferenceId)));
+      .where(eq(registrations.conferenceYear, parseInt(conferenceId)));
 
     const contentStats = await jsonStorage.getContentStats(parseInt(conferenceId));
 

@@ -1,7 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { jsonStorage } from "./jsonStorage";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import { registrations } from "@shared/schema";
 import {
   getRegistrationsByYear,
   getRegistrationsBySession,
@@ -13,11 +16,18 @@ import {
   getRegistrationStats,
   getSessionCapacityStatus,
   deleteRegistrationsByYear,
+  deleteRegistration,
+  searchRegistrations,
 } from "./registrationDb";
+import { generateCmeCertificate } from "./certificateService";
+import { sendCmeCertificateEmail } from "./emailService";
 import {
   createContactMessage,
   getContactMessages,
   getContactMessagesCount,
+  deleteContactMessage,
+  deleteAllContactMessages,
+  searchContactMessages,
 } from "./contactDb";
 import { setupAuth } from "./sessionAuth";
 
@@ -81,7 +91,7 @@ async function sendConsolidatedRegistrationEmail(
     room: string;
     qrCode: string;
   }>
-) {
+): Promise<boolean> {
   try {
     const sessionRows = sessions.map((session, index) => `
       <tr>
@@ -187,8 +197,10 @@ async function sendConsolidatedRegistrationEmail(
       subject: `Xác nhận đăng ký ${sessions.length} phiên - ${conferenceName}`,
       html,
     });
+    return true;
   } catch (error) {
     console.error("Failed to send email:", error);
+    return false;
   }
 }
 
@@ -215,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const user = await storage.getUser(userId);
+      const user = await dbStorage.getUser(userId);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -416,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       const data = insertSessionSchema.parse(req.body);
-      const session = await jsonStorage.createSession(conference.year, data);
+      const session = await jsonStorage.createSession(conference.year, { ...data, conferenceId: conference.id });
       res.json(session);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -449,6 +461,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/admin/sessions/all', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllSessions(conference.year);
+      res.json({ success: true, message: "All sessions deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Speaker routes
   app.get('/api/speakers', async (req, res) => {
     try {
@@ -470,7 +495,730 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       const data = insertSpeakerSchema.parse(req.body);
-      const speaker = await jsonStorage.createSpeaker(conference.year, data);
+      const speaker = await jsonStorage.createSpeaker(conference.year, { ...data, conferenceId: conference.id, photoUrl: data.photoUrl || '' });
+      res.json(speaker);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/speakers/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateSpeaker(conference.year, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/speakers/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteSpeaker(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/speakers/all', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllSpeakers(conference.year);
+      res.json({ success: true, message: "All speakers deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Note: Session-Speaker association is now managed via agendaItems array in Session JSON
+  // No separate junction table needed
+
+  // Sponsor routes
+  app.get('/api/sponsors', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const sponsors = await jsonStorage.getSponsors(conference.year);
+      res.json(sponsors);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sponsors" });
+    }
+  });
+
+  app.post('/api/sponsors', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertSponsorSchema.parse(req.body);
+      const sponsor = await jsonStorage.createSponsor(conference.year, { ...data, conferenceId: conference.id, logoUrl: data.logoUrl || '', websiteUrl: data.websiteUrl || '' });
+      res.json(sponsor);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/sponsors/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateSponsor(conference.year, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/sponsors/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteSponsor(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/sponsors/all', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllSponsors(conference.year);
+      res.json({ success: true, message: "All sponsors deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Whitelist management routes
+  app.get('/api/whitelists', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const whitelists = await jsonStorage.getWhitelists(conference.year);
+      res.json(whitelists);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch whitelists" });
+    }
+  });
+
+  app.post('/api/whitelists', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const whitelist = await jsonStorage.addToWhitelist(conference.year, req.body.email);
+      res.json(whitelist);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/whitelists/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.removeFromWhitelist(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Announcement routes
+  app.get('/api/announcements', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const announcements = await jsonStorage.getAnnouncements(conference.year);
+      res.json(announcements);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch announcements" });
+    }
+  });
+
+  app.get('/api/announcements/:id', async (req, res) => {
+    try {
+      console.log(`Fetching announcement with ID: ${req.params.id}`);
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const announcement = await jsonStorage.getAnnouncement(conference.year, req.params.id);
+      if (!announcement) {
+        return res.status(404).json({ message: "Announcement not found" });
+      }
+      res.json(announcement);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch announcement" });
+    }
+  });
+
+  app.post('/api/announcements', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertAnnouncementSchema.parse(req.body);
+      const announcement = await jsonStorage.createAnnouncement(conference.year, { ...data, conferenceId: conference.id, views: 0, featuredImageUrl: data.featuredImageUrl || '', pdfUrl: data.pdfUrl || '', publishedAt: data.publishedAt || '' });
+      res.json(announcement);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/announcements/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateAnnouncement(conference.year, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/announcements/:id/view', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.incrementAnnouncementViews(conference.year, req.params.id);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/announcements/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAnnouncement(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/announcements/all', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllAnnouncements(conference.year);
+      res.json({ success: true, message: "All announcements deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Sightseeing routes
+  app.get('/api/sightseeing', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const sightseeing = await jsonStorage.getSightseeing(conference.year);
+      res.json(sightseeing);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sightseeing" });
+    }
+  });
+
+  app.get('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const sightseeing = await jsonStorage.getSightseeingById(conference.year, req.params.id);
+      if (!sightseeing) {
+        return res.status(404).json({ message: "Sightseeing not found" });
+      }
+      res.json(sightseeing);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch sightseeing" });
+    }
+  });
+
+  app.post('/api/sightseeing', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertSightseeingSchema.parse(req.body);
+      const sightseeing = await jsonStorage.createSightseeing(conference.year, { ...data, conferenceId: conference.id, featuredImageUrl: data.featuredImageUrl || '' });
+      res.json(sightseeing);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateSightseeing(conference.year, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteSightseeing(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/sightseeing/all', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllSightseeing(conference.year);
+      res.json({ success: true, message: "All sightseeing items deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // SESSION-BASED REGISTRATION ROUTES
+  app.get('/api/registrations/confirm/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const registration = await db.select().from(registrations).where(eq(registrations.confirmationToken, token)).limit(1);
+
+      if (!registration.length) {
+        return res.status(400).send("Invalid confirmation token.");
+      }
+
+      const reg = registration[0];
+
+      if (reg.confirmationTokenExpires && new Date(reg.confirmationTokenExpires) < new Date()) {
+        return res.status(400).send("Confirmation token has expired.");
+      }
+
+      await db.update(registrations).set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null }).where(eq(registrations.id, reg.id));
+
+      res.send("Registration confirmed successfully!");
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get all registrations for current conference year
+  app.get('/api/registrations', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const registrations = await getRegistrationsByYear(conference.year);
+      res.json(registrations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch registrations" });
+    }
+  });
+
+  app.get('/api/registrations/export', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).send("No active conference found.");
+      }
+      const registrations = await getRegistrationsByYear(conference.year);
+
+      // CSV Headers
+      const headers = [
+        "ID", "Họ và tên", "Email", "Điện thoại", "Tổ chức", "Chức danh",
+        "Phiên đăng ký", "Yêu cầu CME", "Trạng thái", "Thời gian đăng ký"
+      ];
+
+      // Map registrations to CSV rows
+      const csvRows = [];
+      for (const r of registrations) {
+        const session = await jsonStorage.getSession(conference.year, r.sessionId);
+        csvRows.push([
+          `"${r.id}"`, // Wrap in quotes to handle commas in IDs if any
+          `"${r.fullName}"`, 
+          `"${r.email}"`, 
+          `"${r.phone}"`, 
+          `"${r.organization || ''}"`, 
+          `"${r.position || ''}"`, 
+          `"${session?.title || ''}"`, 
+          `"${r.cmeCertificateRequested ? 'Có' : 'Không'}"`, 
+          `"${r.status}"`, 
+          `"${r.registeredAt ? new Date(r.registeredAt).toLocaleString() : ''}"`
+        ].join(","));
+      }
+
+      const csvContent = [headers.join(","), ...csvRows].join("\n");
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename=registrations-${conference.year}.csv`);
+      res.send(csvContent);
+
+    } catch (error) {
+      console.error("Error exporting registrations:", error);
+      res.status(500).send("Failed to export registrations");
+    }
+  });
+
+  // Get registrations for a specific session
+  app.get('/api/registrations/session/:sessionId', async (req, res) => {
+    try {
+      const registrations = await getRegistrationsBySession(req.params.sessionId);
+      res.json(registrations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch session registrations" });
+    }
+  });
+
+  // Batch register for multiple sessions
+  app.post('/api/registrations/batch', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+
+      // Validate request body
+      const requestData = batchRegistrationRequestSchema.parse({
+        ...req.body,
+        conferenceYear: conference.year,
+      });
+
+      // Check whitelist validation (skip in development mode)
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const isWhitelisted = isDevelopment || await jsonStorage.checkWhitelist(conference.year, requestData.email);
+      if (!isWhitelisted) {
+        return res.status(403).json({ 
+          message: "Email not on the approved whitelist. Please contact the organizers." 
+        });
+      }
+
+      // Get all sessions for the conference
+      const allSessions = await jsonStorage.getSessions(conference.year);
+
+      // Perform batch registration (validates capacity, overlap, creates QR codes)
+      const result = await batchRegisterSessions(
+        requestData,
+        allSessions,
+        isWhitelisted
+      );
+
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: result.error,
+          failedSessions: result.failedSessions 
+        });
+      }
+
+      // Send ONE consolidated confirmation email with all sessions
+      let emailSent = false;
+      if (result.registrations && result.registrations.length > 0) {
+        const sessionDetails = result.registrations
+          .map((registration) => {
+            const session = allSessions.find(s => s.id === registration.sessionId);
+            if (!session) return null;
+            
+            const startTime = new Date(session.startTime);
+            const endTime = new Date(session.endTime);
+            const sessionTime = `${startTime.toLocaleDateString('vi-VN', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })} | ${startTime.toLocaleTimeString('vi-VN', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })} - ${endTime.toLocaleTimeString('vi-VN', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}`;
+            
+            return {
+              title: session.title,
+              time: sessionTime,
+              room: session.room,
+              qrCode: registration.qrCode,
+            };
+          })
+          .filter(Boolean) as Array<{
+            title: string;
+            time: string;
+            room: string;
+            qrCode: string;
+          }>;
+
+        if (sessionDetails.length > 0) {
+          emailSent = await sendConsolidatedRegistrationEmail(
+            requestData.email,
+            requestData.fullName,
+            conference.name,
+            requestData.cmeCertificateRequested,
+            sessionDetails
+          );
+        }
+      }
+
+      res.json({ 
+        success: true,
+        registrations: result.registrations,
+        emailSent: emailSent,
+        message: `Successfully registered for ${result.registrations?.length} sessions`
+      });
+    } catch (error: any) {
+      console.error("Batch registration error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get session capacity status
+  app.get('/api/sessions/capacity', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const sessions = await jsonStorage.getSessions(conference.year);
+      const capacityStatus = await getSessionCapacityStatus(sessions);
+      res.json(capacityStatus);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch capacity status" });
+    }
+  });
+
+  // SESSION-BASED CHECK-IN ROUTES
+  // Get check-ins for a specific session
+  app.get('/api/check-ins/session/:sessionId', async (req, res) => {
+    try {
+      const checkIns = await getCheckInsBySession(req.params.sessionId);
+      res.json(checkIns);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch check-ins" });
+    }
+  });
+
+  // Create check-in for a session registration
+  app.post('/api/check-ins', async (req, res) => {
+    try {
+      const { qrData, sessionId } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "Session ID is required" });
+      }
+
+      // Parse QR code data: CONF-{year}-{sessionId}-{email}-{timestamp}
+      const parts = qrData.split('-');
+      if (parts.length < 4) {
+        return res.status(400).json({ message: "Invalid QR code format" });
+      }
+
+      const [, year, qrSessionId, ...emailParts] = parts;
+      // Email might contain dashes, so rejoin
+      const emailWithTimestamp = emailParts.join('-');
+      const email = emailWithTimestamp.substring(0, emailWithTimestamp.lastIndexOf('-'));
+      
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+
+      // Find the registration for this email and session
+      const registrations = await getRegistrationsByEmail(email, conference.year);
+      const registration = registrations.find(r => r.sessionId === sessionId);
+
+      if (!registration) {
+        return res.status(404).json({ message: "Registration not found for this session" });
+      }
+
+      // Check for duplicate check-in
+      const alreadyCheckedIn = await isCheckedIn(registration.id, sessionId);
+      if (alreadyCheckedIn) {
+        return res.status(400).json({ message: "Already checked in for this session" });
+      }
+
+      // Create check-in record
+      const checkIn = await createCheckIn({
+        registrationId: registration.id,
+        sessionId,
+        method: 'qr',
+      });
+
+      if (registration.cmeCertificateRequested) {
+        const session = await jsonStorage.getSession(conference.year, sessionId);
+        if (session) {
+          const certificate = await generateCmeCertificate(registration.fullName, session.title);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, certificate);
+        }
+      }
+
+      res.json(checkIn);
+    } catch (error: any) {
+      console.error("Check-in error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ANALYTICS ROUTES
+  app.get('/api/admin/stats', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json({ 
+          totalRegistrations: 0, 
+          uniqueAttendees: 0,
+          totalCheckIns: 0, 
+          uniqueCheckedInAttendees: 0,
+          totalSessions: 0, 
+          totalSponsors: 0 
+        });
+      }
+
+      // Get content stats from JSON storage
+      const contentStats = await jsonStorage.getContentStats(conference.year);
+
+      // Get registration/check-in stats from PostgreSQL
+      const regStats = await getRegistrationStats(conference.year);
+
+      res.json({
+        ...contentStats,
+        ...regStats,
+      });
+    } catch (error) {
+      console.error("Stats error:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  app.get('/api/analytics', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json({});
+      }
+
+      // Get combined stats
+      const contentStats = await jsonStorage.getContentStats(conference.year);
+      const regStats = await getRegistrationStats(conference.year);
+
+      res.json({
+        ...contentStats,
+        ...regStats,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Public object serving from local filesystem
+  app.get("/uploads/:filePath(*)", (req, res) => {
+    const filePath = req.params.filePath;
+    const absolutePath = path.join(uploadDir, filePath);
+    if (fs.existsSync(absolutePath)) {
+      res.sendFile(absolutePath);
+    } else {
+      res.status(404).json({ error: "File not found" });
+    }
+  });
+
+
+
+// ... (rest of the file)
+
+  // Contact Message Routes
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { recaptcha, ...data } = contactFormSchema.parse(req.body);
+      const message = await createContactMessage(data);
+      res.json(message);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/contact-messages', async (req, res) => {
+    try {
+      // This should be a protected route in a real app
+      const messages = await getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact messages" });
+    }
+  });
+
+  // Speaker routes
+  app.get('/api/speakers', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const speakers = await jsonStorage.getSpeakers(conference.year);
+      res.json(speakers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch speakers" });
+    }
+  });
+
+  app.post('/api/speakers', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertSpeakerSchema.parse(req.body);
+      const speaker = await jsonStorage.createSpeaker(conference.year, { ...data, conferenceId: conference.id, photoUrl: data.photoUrl || '' });
       res.json(speaker);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -527,7 +1275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       const data = insertSponsorSchema.parse(req.body);
-      const sponsor = await jsonStorage.createSponsor(conference.year, data);
+      const sponsor = await jsonStorage.createSponsor(conference.year, { ...data, conferenceId: conference.id, logoUrl: data.logoUrl || '', websiteUrl: data.websiteUrl || '' });
       res.json(sponsor);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -638,7 +1386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       const data = insertAnnouncementSchema.parse(req.body);
-      const announcement = await jsonStorage.createAnnouncement(conference.year, data);
+      const announcement = await jsonStorage.createAnnouncement(conference.year, { ...data, conferenceId: conference.id, views: 0, featuredImageUrl: data.featuredImageUrl || '', pdfUrl: data.pdfUrl || '', publishedAt: data.publishedAt || '' });
       res.json(announcement);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -721,7 +1469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       const data = insertSightseeingSchema.parse(req.body);
-      const sightseeing = await jsonStorage.createSightseeing(conference.year, data);
+      const sightseeing = await jsonStorage.createSightseeing(conference.year, { ...data, conferenceId: conference.id, featuredImageUrl: data.featuredImageUrl || '' });
       res.json(sightseeing);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -755,6 +1503,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SESSION-BASED REGISTRATION ROUTES
+  app.get('/api/registrations/confirm/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const registration = await db.select().from(registrations).where(eq(registrations.confirmationToken, token)).limit(1);
+
+      if (!registration.length) {
+        return res.status(400).send("Invalid confirmation token.");
+      }
+
+      const reg = registration[0];
+
+      if (reg.confirmationTokenExpires && new Date(reg.confirmationTokenExpires) < new Date()) {
+        return res.status(400).send("Confirmation token has expired.");
+      }
+
+      await db.update(registrations).set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null }).where(eq(registrations.id, reg.id));
+
+      res.send("Registration confirmed successfully!");
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Get all registrations for current conference year
   app.get('/api/registrations', async (req, res) => {
     try {
@@ -784,9 +1555,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ];
 
       // Map registrations to CSV rows
-      const csvRows = registrations.map(r => {
-        const session = jsonStorage.getSession(conference.year, r.sessionId); // Assuming jsonStorage has getSession
-        return [
+      const csvRows = [];
+      for (const r of registrations) {
+        const session = await jsonStorage.getSession(conference.year, r.sessionId);
+        csvRows.push([
           `"${r.id}"`, // Wrap in quotes to handle commas in IDs if any
           `"${r.fullName}"`, 
           `"${r.email}"`, 
@@ -796,9 +1568,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `"${session?.title || ''}"`, 
           `"${r.cmeCertificateRequested ? 'Có' : 'Không'}"`, 
           `"${r.status}"`, 
-          `"${new Date(r.registeredAt).toLocaleString()}"`
-        ].join(",");
-      });
+          `"${r.registeredAt ? new Date(r.registeredAt).toLocaleString() : ''}"`
+        ].join(","));
+      }
 
       const csvContent = [headers.join(","), ...csvRows].join("\n");
 
@@ -863,6 +1635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Send ONE consolidated confirmation email with all sessions
+      let emailSent = false;
       if (result.registrations && result.registrations.length > 0) {
         const sessionDetails = result.registrations
           .map((registration) => {
@@ -899,7 +1672,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }>;
 
         if (sessionDetails.length > 0) {
-          await sendConsolidatedRegistrationEmail(
+          emailSent = await sendConsolidatedRegistrationEmail(
             requestData.email,
             requestData.fullName,
             conference.name,
@@ -912,6 +1685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true,
         registrations: result.registrations,
+        emailSent: emailSent,
         message: `Successfully registered for ${result.registrations?.length} sessions`
       });
     } catch (error: any) {
@@ -991,6 +1765,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId,
         method: 'qr',
       });
+
+      if (registration.cmeCertificateRequested) {
+        const session = await jsonStorage.getSession(conference.year, sessionId);
+        if (session) {
+          const certificate = await generateCmeCertificate(registration.fullName, session.title);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, certificate);
+        }
+      }
 
       res.json(checkIn);
     } catch (error: any) {
@@ -1092,6 +1874,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ count });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch contact messages count" });
+    }
+  });
+
+  app.get('/api/admin/contact-messages/search', async (req, res) => {
+    try {
+      const query = req.query.query as string;
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required." });
+      }
+      const messages = await searchContactMessages(query);
+      res.json(messages);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/contact-messages/:id', async (req, res) => {
+    try {
+      const success = await deleteContactMessage(req.params.id);
+      if (success) {
+        res.json({ success: true, message: "Contact message deleted." });
+      } else {
+        res.status(404).json({ message: "Contact message not found." });
+      }
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/contact-messages/all', async (req, res) => {
+    try {
+      await deleteAllContactMessages();
+      res.json({ success: true, message: "All contact messages deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/registrations/:id', async (req, res) => {
+    try {
+      const success = await deleteRegistration(req.params.id);
+      if (success) {
+        res.json({ success: true, message: "Registration deleted." });
+      } else {
+        res.status(404).json({ message: "Registration not found." });
+      }
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/admin/registrations/search', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const query = req.query.query as string;
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required." });
+      }
+      const registrations = await searchRegistrations(conference.year, query);
+      res.json(registrations);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   });
 

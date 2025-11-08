@@ -49,6 +49,7 @@ type RegistrationFormData = z.infer<typeof registrationSchema>;
 interface SuccessData {
   success: boolean;
   registrations?: any[];
+  emailSent?: boolean;
 }
 
 export default function RegistrationPage() {
@@ -201,14 +202,24 @@ export default function RegistrationPage() {
       const result = await response.json() as SuccessData;
       return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setRegistrationState('pendingConfirmation');
-      form.reset(); // Clear the form after submission
-      toast({
-        title: "Đăng ký thành công!",
-        description: "Vui lòng kiểm tra email của bạn để xác nhận đăng ký và nhận mã QR.",
-      });
+      form.reset();
       queryClient.invalidateQueries({ queryKey: ['/api/sessions/capacity'] });
+
+      if (data.emailSent) {
+        toast({
+          title: "Đăng ký thành công!",
+          description: "Vui lòng kiểm tra email của bạn để xác nhận đăng ký và nhận mã QR.",
+        });
+      } else {
+        toast({
+          title: "Đăng ký thành công nhưng có lỗi gửi email",
+          description: "Đăng ký của bạn đã được ghi nhận, nhưng chúng tôi không thể gửi email xác nhận. Vui lòng liên hệ ban tổ chức.",
+          variant: "destructive",
+          duration: 10000,
+        });
+      }
     },
     onError: (error: any) => {
       toast({

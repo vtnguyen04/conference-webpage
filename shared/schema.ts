@@ -83,8 +83,6 @@ export const insertRegistrationSchema = createInsertSchema(registrations).omit({
   emailSent: true,
   registeredAt: true,
   createdAt: true,
-  confirmationToken: true,
-  confirmationTokenExpires: true,
 });
 
 export type InsertRegistration = z.infer<typeof insertRegistrationSchema>;
@@ -301,6 +299,8 @@ export interface Whitelist {
   name: string;
   createdAt: string;
 }
+
+export type InsertWhitelist = Omit<Whitelist, "id" | "createdAt">;
 
 export interface DashboardStats {
   totalRegistrations: number;

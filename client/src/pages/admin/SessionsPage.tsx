@@ -119,6 +119,19 @@ export default function SessionsPage() {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/admin/sessions/all");
+    },
+    onSuccess: () => {
+      toast({ title: "Xóa tất cả phiên họp thành công" });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleAdd = () => {
     setEditingSession(null);
     form.reset({
@@ -165,6 +178,12 @@ export default function SessionsPage() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ phiên họp? Hành động này không thể hoàn tác.")) {
+      deleteAllMutation.mutate();
+    }
+  };
+
   const onSubmit = (data: InsertSession) => {
     if (editingSession) {
       updateMutation.mutate({ id: editingSession.id, data });
@@ -187,10 +206,21 @@ export default function SessionsPage() {
         <h1 className="text-3xl font-bold" data-testid="text-sessions-title">
           Quản lý phiên họp
         </h1>
-        <Button onClick={handleAdd} data-testid="button-add-session">
-          <Plus className="mr-2 h-4 w-4" />
-          Thêm phiên họp
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDeleteAll}
+            variant="destructive"
+            data-testid="button-delete-all-sessions"
+            disabled={deleteAllMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Xóa tất cả
+          </Button>
+          <Button onClick={handleAdd} data-testid="button-add-session">
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm phiên họp
+          </Button>
+        </div>
       </div>
 
       {Object.keys(sessionsByDay).sort().map((day) => (

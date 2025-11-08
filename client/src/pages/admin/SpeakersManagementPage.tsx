@@ -108,6 +108,19 @@ export default function SpeakersManagementPage() {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/admin/speakers/all");
+    },
+    onSuccess: () => {
+      toast({ title: "Xóa tất cả diễn giả thành công" });
+      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleAdd = () => {
     setEditingSpeaker(null);
     form.reset({
@@ -142,6 +155,12 @@ export default function SpeakersManagementPage() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ diễn giả? Hành động này không thể hoàn tác.")) {
+      deleteAllMutation.mutate();
+    }
+  };
+
   const onSubmit = (data: InsertSpeaker) => {
     if (editingSpeaker) {
       updateMutation.mutate({ id: editingSpeaker.id, data });
@@ -159,10 +178,21 @@ export default function SpeakersManagementPage() {
         <h1 className="text-3xl font-bold" data-testid="text-speakers-mgmt-title">
           Quản lý diễn giả & chủ tọa
         </h1>
-        <Button onClick={handleAdd} data-testid="button-add-speaker">
-          <Plus className="mr-2 h-4 w-4" />
-          Thêm diễn giả
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDeleteAll}
+            variant="destructive"
+            data-testid="button-delete-all-speakers"
+            disabled={deleteAllMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Xóa tất cả
+          </Button>
+          <Button onClick={handleAdd} data-testid="button-add-speaker">
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm diễn giả
+          </Button>
+        </div>
       </div>
 
       {moderators.length > 0 && (

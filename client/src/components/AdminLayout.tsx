@@ -58,25 +58,21 @@ const menuItems = [
     href: "/admin/sessions", 
     icon: Calendar, 
     label: "Phiên họp",
-    badge: "12"
   },
   { 
     href: "/admin/speakers", 
     icon: Users, 
     label: "Diễn giả",
-    badge: "8"
   },
   { 
     href: "/admin/sponsors", 
     icon: Award, 
     label: "Nhà tài trợ",
-    badge: "5"
   },
   { 
     href: "/admin/announcements", 
     icon: Megaphone, 
     label: "Thông báo",
-    badge: "3"
   },
   { 
     href: "/admin/sightseeing", 
@@ -87,13 +83,11 @@ const menuItems = [
     href: "/admin/registrations", 
     icon: UserCheck, 
     label: "Đăng ký",
-    badge: "24"
   },
   { 
     href: "/admin/checkin", 
     icon: UserCheck, 
     label: "Check-in",
-    badge: "New"
   },
   { 
     href: "/admin/analytics", 
@@ -104,11 +98,6 @@ const menuItems = [
     href: "/admin/contact-messages",
     icon: Mail,
     label: "Tin nhắn liên hệ"
-  },
-  { 
-    href: "/admin/settings", 
-    icon: Settings, 
-    label: "Cài đặt"
   },
 ];
 
@@ -209,15 +198,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                           {sidebarOpen && (
                             <div className="flex-1 flex items-center justify-between">
                               <span className="font-medium text-sm">{item.label}</span>
-                              
-                              {item.badge && (
-                                <Badge 
-                                  variant="secondary"
-                                  className="text-xs px-1.5 py-0 h-5 bg-blue-100 text-blue-700"
-                                >
-                                  {item.badge}
-                                </Badge>
-                              )}
                             </div>
                           )}
                         </div>

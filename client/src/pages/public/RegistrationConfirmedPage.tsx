@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { CheckCircle2, QrCode } from "lucide-react";
+import { CheckCircle2, QrCode, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";

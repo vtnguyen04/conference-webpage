@@ -94,6 +94,19 @@ export default function SightseeingManagementPage() {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/admin/sightseeing/all");
+    },
+    onSuccess: () => {
+      toast({ title: "Xóa tất cả địa điểm tham quan thành công" });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"], exact: true });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleAdd = () => {
     setEditingSightseeing(null);
     form.reset({
@@ -119,6 +132,12 @@ export default function SightseeingManagementPage() {
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Bạn có chắc muốn xóa địa điểm "${title}"?`)) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan? Hành động này không thể hoàn tác.")) {
+      deleteAllMutation.mutate();
     }
   };
 
@@ -213,10 +232,21 @@ export default function SightseeingManagementPage() {
         <h1 className="text-3xl font-bold">
           Quản lý địa điểm tham quan
         </h1>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
-          Thêm địa điểm
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDeleteAll}
+            variant="destructive"
+            data-testid="button-delete-all-sightseeing"
+            disabled={deleteAllMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Xóa tất cả
+          </Button>
+          <Button onClick={handleAdd}>
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm địa điểm
+          </Button>
+        </div>
       </div>
 
       <Card>

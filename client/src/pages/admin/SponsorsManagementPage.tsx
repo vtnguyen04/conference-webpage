@@ -122,6 +122,19 @@ export default function SponsorsManagementPage() {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/admin/sponsors/all");
+    },
+    onSuccess: () => {
+      toast({ title: "Xóa tất cả nhà tài trợ thành công" });
+      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleAdd = () => {
     setEditingSponsor(null);
     form.reset({
@@ -152,6 +165,12 @@ export default function SponsorsManagementPage() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ nhà tài trợ? Hành động này không thể hoàn tác.")) {
+      deleteAllMutation.mutate();
+    }
+  };
+
   const onSubmit = (data: InsertSponsor) => {
     if (editingSponsor) {
       updateMutation.mutate({ id: editingSponsor.id, data });
@@ -178,10 +197,21 @@ export default function SponsorsManagementPage() {
         <h1 className="text-3xl font-bold" data-testid="text-sponsors-mgmt-title">
           Quản lý nhà tài trợ
         </h1>
-        <Button onClick={handleAdd} data-testid="button-add-sponsor">
-          <Plus className="mr-2 h-4 w-4" />
-          Thêm nhà tài trợ
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDeleteAll}
+            variant="destructive"
+            data-testid="button-delete-all-sponsors"
+            disabled={deleteAllMutation.isPending}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Xóa tất cả
+          </Button>
+          <Button onClick={handleAdd} data-testid="button-add-sponsor">
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm nhà tài trợ
+          </Button>
+        </div>
       </div>
 
       {sortedTiers.map((tier) => (

@@ -50,8 +50,12 @@ app.use((req, res, next) => {
   next();
 });
 
+import { startReminderService } from "./reminderService";
+
 (async () => {
   const server = await registerRoutes(app);
+
+  startReminderService();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
