@@ -54,7 +54,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
 
   const otherNavItems = [
     { href: "/registration-venues", label: "CÁC KỲ HỘI NGHỊ" },
-    { href: "/venues", label: "ĐỊA ĐIỂM THAM QUAN" },
+    { href: "/sightseeing", label: "ĐỊA ĐIỂM THAM QUAN" },
     { href: "/contact", label: "LIÊN HỆ" },
   ];
 

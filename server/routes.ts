@@ -16,7 +16,7 @@ import {
 import { setupAuth } from "./sessionAuth";
 
 import nodemailer from "nodemailer";
-import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, batchRegistrationRequestSchema } from "@shared/schema";
+import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema } from "@shared/schema";
 console.log('insertSponsorSchema:', insertSponsorSchema);
 import multer from "multer";
 import path from "path";
@@ -633,6 +633,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       await jsonStorage.deleteAnnouncement(conference.year, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Sightseeing routes
+  app.get('/api/sightseeing', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.json([]);
+      }
+      const sightseeing = await jsonStorage.getSightseeing(conference.year);
+      res.json(sightseeing);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sightseeing" });
+    }
+  });
+
+  app.get('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const sightseeing = await jsonStorage.getSightseeingById(conference.year, req.params.id);
+      if (!sightseeing) {
+        return res.status(404).json({ message: "Sightseeing not found" });
+      }
+      res.json(sightseeing);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sightseeing" });
+    }
+  });
+
+  app.post('/api/sightseeing', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertSightseeingSchema.parse(req.body);
+      const sightseeing = await jsonStorage.createSightseeing(conference.year, data);
+      res.json(sightseeing);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateSightseeing(conference.year, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/sightseeing/:id', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteSightseeing(conference.year, req.params.id);
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });

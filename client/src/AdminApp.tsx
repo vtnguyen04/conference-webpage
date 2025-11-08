@@ -14,6 +14,7 @@ import AnnouncementsManagementPage from "@/pages/admin/AnnouncementsManagementPa
 import RegistrationsPage from "@/pages/admin/RegistrationsPage";
 import CheckinPage from "@/pages/admin/CheckinPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import SightseeingManagementPage from "@/pages/admin/SightseeingManagementPage";
 
 // Shared pages
 import Login from "@/pages/Login";
@@ -63,6 +64,7 @@ export function AdminApp() {
                 <Route path="/admin/speakers" component={SpeakersManagementPage} />
                 <Route path="/admin/sponsors" component={SponsorsManagementPage} />
                 <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
+                <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
                 <Route path="/admin/registrations" component={RegistrationsPage} />
                 <Route path="/admin/checkin" component={CheckinPage} />
                 <Route path="/admin/analytics" component={AnalyticsPage} />

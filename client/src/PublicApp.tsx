@@ -8,6 +8,8 @@ import SpeakersPage from "@/pages/public/SpeakersPage";
 import SponsorsPage from "@/pages/public/SponsorsPage";
 import AnnouncementsPage from "@/pages/public/AnnouncementsPage";
 import AnnouncementDetailPage from "@/pages/public/AnnouncementDetailPage";
+import SightseeingPage from "@/pages/public/SightseeingPage";
+import SightseeingDetailPage from "@/pages/public/SightseeingDetailPage";
 import RegistrationPage from "@/pages/public/RegistrationPage";
 import RegistrationConfirmedPage from "@/pages/public/RegistrationConfirmedPage";
 import RegistrationFailedPage from "@/pages/public/RegistrationFailedPage";
@@ -28,6 +30,8 @@ export function PublicApp() {
         <Route path="/sponsors" component={SponsorsPage} />
         <Route path="/announcements/:id" component={AnnouncementDetailPage} />
         <Route path="/announcements" component={AnnouncementsPage} />
+        <Route path="/sightseeing/:id" component={SightseeingDetailPage} />
+        <Route path="/sightseeing" component={SightseeingPage} />
         <Route path="/register" component={RegistrationPage} />
         <Route path="/registration-confirmed" component={RegistrationConfirmedPage} />
         <Route path="/registration-failed" component={RegistrationFailedPage} />

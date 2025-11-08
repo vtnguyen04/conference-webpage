@@ -73,6 +73,11 @@ const menuItems = [
     badge: "3"
   },
   { 
+    href: "/admin/sightseeing", 
+    icon: Building, 
+    label: "Địa điểm tham quan"
+  },
+  { 
     href: "/admin/registrations", 
     icon: UserCheck, 
     label: "Đăng ký",

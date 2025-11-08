@@ -7,6 +7,7 @@ import type {
   Sponsor,
   Announcement,
   Whitelist,
+  Sightseeing,
 } from "@shared/schema";
 
 const DATA_DIR = join(process.cwd(), "server", "data");
@@ -19,6 +20,7 @@ interface ConferenceData {
   speakers: Speaker[];
   sponsors: Sponsor[];
   announcements: Announcement[];
+  sightseeing: Sightseeing[];
   whitelists: Whitelist[];
 }
 
@@ -170,6 +172,7 @@ export class JSONStorage {
       speakers: [],
       sponsors: [],
       announcements: [],
+      sightseeing: [],
       whitelists: [],
     };
 
@@ -447,6 +450,73 @@ export class JSONStorage {
     }
 
     data.announcements = data.announcements.filter(a => a.id !== id);
+    writeData(year, data);
+  }
+
+  async getSightseeing(year: number): Promise<Sightseeing[]> {
+    const data = readData(year);
+    return data?.sightseeing || [];
+  }
+
+  async getSightseeingById(year: number, id: string): Promise<Sightseeing | undefined> {
+    const data = readData(year);
+    return data?.sightseeing.find(s => s.id === id);
+  }
+
+  async createSightseeing(year: number, sightseeing: Omit<Sightseeing, "id" | "createdAt" | "updatedAt">): Promise<Sightseeing> {
+    const data = readData(year);
+    if (!data) throw new Error("Conference not found");
+
+    if (!data.sightseeing) {
+      data.sightseeing = [];
+    }
+
+    const newSightseeing: Sightseeing = {
+      ...sightseeing,
+      id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      conferenceId: data.conference.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    data.sightseeing.push(newSightseeing);
+    writeData(year, data);
+    return newSightseeing;
+  }
+
+  async updateSightseeing(year: number, id: string, updates: Partial<Sightseeing>): Promise<Sightseeing | undefined> {
+    const data = readData(year);
+    if (!data) return undefined;
+
+    const index = data.sightseeing.findIndex(s => s.id === id);
+    if (index === -1) return undefined;
+
+    const oldSightseeing = data.sightseeing[index];
+
+    if (updates.featuredImageUrl && updates.featuredImageUrl !== oldSightseeing.featuredImageUrl) {
+      deleteFile(oldSightseeing.featuredImageUrl);
+    }
+
+    data.sightseeing[index] = {
+      ...oldSightseeing,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    writeData(year, data);
+    return data.sightseeing[index];
+  }
+
+  async deleteSightseeing(year: number, id: string): Promise<void> {
+    const data = readData(year);
+    if (!data) return;
+
+    const sightseeingToDelete = data.sightseeing.find(s => s.id === id);
+    if (sightseeingToDelete) {
+      deleteFile(sightseeingToDelete.featuredImageUrl);
+    }
+
+    data.sightseeing = data.sightseeing.filter(s => s.id !== id);
     writeData(year, data);
   }
 

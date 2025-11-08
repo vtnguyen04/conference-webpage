@@ -267,6 +267,18 @@ export interface Announcement {
   updatedAt: string;
 }
 
+// Sightseeing (stored in JSON)
+export interface Sightseeing {
+  id: string;
+  conferenceId: string;
+  title: string;
+  content: string; // HTML/Markdown
+  excerpt: string;
+  featuredImageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Whitelist (optional - can be in JSON or DB)
 export interface Whitelist {
   id: string;
@@ -380,6 +392,16 @@ export const insertAnnouncementSchema = z.object({
 });
 
 export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+
+// Sightseeing validation schema
+export const insertSightseeingSchema = z.object({
+  title: z.string().min(1),
+  content: z.string(),
+  excerpt: z.string(),
+  featuredImageUrl: z.string().optional().or(z.literal("")),
+});
+
+export type InsertSightseeing = z.infer<typeof insertSightseeingSchema>;
 
 // ============================================================================
 // BATCH REGISTRATION SCHEMA (Frontend sends this for multi-session registration)
