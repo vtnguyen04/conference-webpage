@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,14 @@ export default function ProgramPage() {
     queryKey: ["/api/speakers"],
     enabled: !!conference,
   });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sessions.length > 0 && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [sessions]);
 
   const speakerMap = useMemo(() => {
     return speakers.reduce((acc, speaker) => {
@@ -77,6 +85,7 @@ export default function ProgramPage() {
       <PageHeader
         title="Chương trình hội nghị"
         subtitle="Khám phá lịch trình chi tiết các phiên, bài thuyết trình và diễn giả của chúng tôi."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">
@@ -93,7 +102,7 @@ export default function ProgramPage() {
         </Breadcrumb>
       </PageHeader>
 
-      <div className="py-16 md:py-24">
+      <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <Tabs defaultValue={sortedSlots[0]} className="w-full">

@@ -10,11 +10,19 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
+import { useEffect, useRef } from "react";
 
 export default function AboutPage() {
   const { data: conference, isLoading } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (conference && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [conference]);
 
   if (isLoading) {
     return (
@@ -32,6 +40,7 @@ export default function AboutPage() {
       <PageHeader
         title="Giới thiệu hội nghị"
         subtitle="Tìm hiểu thêm về mục tiêu, lịch sử và những người đứng sau sự kiện của chúng tôi."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">
@@ -48,7 +57,7 @@ export default function AboutPage() {
         </Breadcrumb>
       </PageHeader>
 
-      <div className="py-16 md:py-24">
+      <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
           {conference?.introContent ? (

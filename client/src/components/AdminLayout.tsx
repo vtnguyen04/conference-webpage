@@ -20,6 +20,7 @@ import {
   Search,
   Menu,
   Building,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +94,11 @@ const menuItems = [
     href: "/admin/analytics", 
     icon: BarChart3, 
     label: "Phân tích"
+  },
+  {
+    href: "/admin/contact-messages",
+    icon: Mail,
+    label: "Tin nhắn liên hệ"
   },
   { 
     href: "/admin/settings", 
@@ -303,22 +309,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                   <h1 className="text-xl font-semibold text-gray-900">
                     {menuItems.find(item => item.href === location)?.label || "Tổng quan"}
                   </h1>
-                </div>
-                
-                {/* Quick Stats */}
-                <div className="flex items-center gap-6">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900">1,248</div>
-                    <div className="text-xs text-gray-500">Đăng ký</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900">24</div>
-                    <div className="text-xs text-gray-500">Diễn giả</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900">5</div>
-                    <div className="text-xs text-gray-500">Tài trợ</div>
-                  </div>
                 </div>
               </div>
             </div>

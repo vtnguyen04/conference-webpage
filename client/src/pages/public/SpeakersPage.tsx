@@ -13,10 +13,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
+import type { Conference } from "@shared/schema";
 
 export default function SpeakersPage() {
   const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers"],
+  });
+
+  const { data: conference } = useQuery<Conference>({
+    queryKey: ["/api/conferences/active"],
   });
 
   const moderators = speakers.filter((s) => s.role === "moderator");
@@ -82,6 +87,7 @@ export default function SpeakersPage() {
       <PageHeader
         title="Chủ tọa & Diễn giả"
         subtitle="Gặp gỡ các chuyên gia hàng đầu và những người có tầm ảnh hưởng sẽ chia sẻ kiến thức tại hội nghị."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">

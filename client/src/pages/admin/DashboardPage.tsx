@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, Calendar, Award } from "lucide-react";
+import { Users, UserCheck, Calendar, Award, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import type { Conference } from "@shared/schema";
@@ -12,6 +12,10 @@ interface DashboardStats {
   totalSponsors: number;
 }
 
+interface ContactMessagesStats {
+  count: number;
+}
+
 export default function DashboardPage() {
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
@@ -19,6 +23,10 @@ export default function DashboardPage() {
 
   const { data: stats } = useQuery<DashboardStats>({
     queryKey: ["/api/admin/stats"],
+  });
+
+  const { data: contactMessagesStats } = useQuery<ContactMessagesStats>({
+    queryKey: ["/api/stats/contact-messages"],
   });
 
   const statCards = [
@@ -49,6 +57,13 @@ export default function DashboardPage() {
       icon: Award,
       color: "text-purple-500",
       href: "/admin/sponsors",
+    },
+    {
+      title: "Tin nhắn liên hệ",
+      value: contactMessagesStats?.count || 0,
+      icon: Mail,
+      color: "text-red-500",
+      href: "/admin/contact-messages",
     },
   ];
 

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Sponsor } from "@shared/schema";
+import type { Sponsor, Conference } from "@shared/schema";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
@@ -28,6 +28,10 @@ const tierOrder = ['diamond', 'gold', 'silver', 'bronze', 'supporting', 'other']
 export default function SponsorsPage() {
   const { data: sponsors = [], isLoading } = useQuery<Sponsor[]>({
     queryKey: ["/api/sponsors"],
+  });
+
+  const { data: conference } = useQuery<Conference>({
+    queryKey: ["/api/conferences/active"],
   });
 
   if (isLoading) {
@@ -60,6 +64,7 @@ export default function SponsorsPage() {
       <PageHeader
         title="Đơn vị tài trợ"
         subtitle="Cảm ơn sự đồng hành và hỗ trợ quý báu từ các đối tác của chúng tôi."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">

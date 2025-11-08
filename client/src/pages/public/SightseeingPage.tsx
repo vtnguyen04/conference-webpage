@@ -12,10 +12,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
+import type { Conference } from "@shared/schema";
 
 export default function SightseeingPage() {
   const { data: sightseeing = [], isLoading } = useQuery<Sightseeing[]>({
     queryKey: ["/api/sightseeing"],
+  });
+
+  const { data: conference } = useQuery<Conference>({
+    queryKey: ["/api/conferences/active"],
   });
 
   if (isLoading) {
@@ -34,6 +39,7 @@ export default function SightseeingPage() {
       <PageHeader
         title="Địa điểm tham quan"
         subtitle="Khám phá những địa điểm thú vị và hấp dẫn gần nơi diễn ra hội nghị."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">

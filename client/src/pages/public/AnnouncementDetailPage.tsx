@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import type { Announcement } from "@shared/schema";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,19 +11,48 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Tag, FileText } from "lucide-react";
+import { Calendar, Tag, FileText, Eye, Facebook } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
   const announcementId = params.id;
+  const queryClient = useQueryClient();
+  const mainContentRef = useRef<HTMLDivElement>(null);
 
   const { data: announcement, isLoading, error } = useQuery<Announcement>({
     queryKey: ["/api/announcements", announcementId],
     queryFn: () => fetch(`/api/announcements/${announcementId}`).then((res) => res.json()),
     enabled: !!announcementId, // Only run query if announcementId is available
   });
+
+  const incrementViewMutation = useMutation({
+    mutationFn: () => fetch(`/api/announcements/${announcementId}/view`, { method: "POST" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements", announcementId] });
+    },
+  });
+
+  useEffect(() => {
+    if (announcementId) {
+      incrementViewMutation.mutate();
+    }
+  }, [announcementId]);
+
+  useEffect(() => {
+    if (announcement && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [announcement]);
+
+  const handleFacebookShare = () => {
+    const url = window.location.href;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookShareUrl, "_blank", "width=600,height=400");
+  };
 
   if (isLoading) {
     return (
@@ -61,8 +90,9 @@ export default function AnnouncementDetailPage() {
     return (
       <>
         <PageHeader
-          title=""
+          title="Thông báo"
           subtitle=""
+          bannerImageUrl={announcement.featuredImageUrl}
         >
           <Breadcrumb className="mb-4 mx-auto">
             <BreadcrumbList className="text-white justify-center">
@@ -85,7 +115,7 @@ export default function AnnouncementDetailPage() {
           </Breadcrumb>
         </PageHeader>
   
-        <div className="py-16 md:py-24">
+        <div ref={mainContentRef} className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center uppercase">
@@ -97,16 +127,40 @@ export default function AnnouncementDetailPage() {
                 </p>
               )}
   
-              {announcement.featuredImageUrl && (
-                <img
-                  src={announcement.featuredImageUrl}
-                  alt={announcement.title}
-                  className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg"
-                />
-              )}
+              <div className="flex justify-between items-center mb-8">
+                <Card>
+                  <CardContent className="p-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    {announcement.publishedAt && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
+                      </div>
+                    )}
+                    {announcement.category && (
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4" />
+                        <span>{announcement.category === 'important' ? 'Quan trọng' : announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo chung'}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      <span>{announcement.views} lượt xem</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Button onClick={handleFacebookShare} variant="outline">
+                  <Facebook className="h-4 w-4 mr-2" />
+                  Chia sẻ
+                </Button>
+              </div>
+  
+              <div
+                className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: announcement.content }}
+              />
 
               {announcement.pdfUrl && (
-                <div className="mb-8 p-4 border rounded-lg bg-gray-50">
+                <div className="mt-8 p-4 border rounded-lg bg-gray-50">
                   <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <FileText className="h-6 w-6 text-primary" />
                     Tài liệu đính kèm
@@ -133,28 +187,6 @@ export default function AnnouncementDetailPage() {
                   </a>
                 </div>
               )}
-  
-              <Card className="mb-8">
-                <CardContent className="p-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  {announcement.publishedAt && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
-                    </div>
-                  )}
-                  {announcement.category && (
-                    <div className="flex items-center gap-2">
-                      <Tag className="h-4 w-4" />
-                      <span>{announcement.category === 'important' ? 'Quan trọng' : announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo chung'}</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-  
-              <div
-                className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: announcement.content }}
-              />
             </div>
           </div>
         </div>

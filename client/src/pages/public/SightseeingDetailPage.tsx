@@ -11,17 +11,32 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, Facebook } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
 
 export default function SightseeingDetailPage() {
   const params = useParams();
   const sightseeingId = params.id;
+  const mainContentRef = useRef<HTMLDivElement>(null);
 
   const { data: sightseeing, isLoading, error } = useQuery<Sightseeing>({
     queryKey: ["/api/sightseeing", sightseeingId],
     queryFn: () => fetch(`/api/sightseeing/${sightseeingId}`).then((res) => res.json()),
     enabled: !!sightseeingId,
   });
+
+  useEffect(() => {
+    if (sightseeing && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [sightseeing]);
+
+  const handleFacebookShare = () => {
+    const url = window.location.href;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookShareUrl, "_blank", "width=600,height=400");
+  };
 
   if (isLoading) {
     return (
@@ -59,8 +74,9 @@ export default function SightseeingDetailPage() {
     return (
       <>
         <PageHeader
-          title=""
+          title="Địa điểm tham quan"
           subtitle=""
+          bannerImageUrl={sightseeing.featuredImageUrl}
         >
           <Breadcrumb className="mb-4 mx-auto">
             <BreadcrumbList className="text-white justify-center">
@@ -83,7 +99,7 @@ export default function SightseeingDetailPage() {
           </Breadcrumb>
         </PageHeader>
   
-        <div className="py-16 md:py-24">
+        <div ref={mainContentRef} className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center uppercase">
@@ -95,18 +111,17 @@ export default function SightseeingDetailPage() {
                 </p>
               )}
   
-              {sightseeing.featuredImageUrl && (
-                <img
-                  src={sightseeing.featuredImageUrl}
-                  alt={sightseeing.title}
-                  className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg"
-                />
-              )}
-  
               <div
                 className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: sightseeing.content }}
               />
+
+              <div className="mt-8 flex justify-end">
+                <Button onClick={handleFacebookShare} variant="outline">
+                  <Facebook className="h-4 w-4 mr-2" />
+                  Chia sẻ lên Facebook
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -23,6 +23,16 @@ import type { Conference, Session } from "@shared/schema";
 import { CheckCircle2, AlertCircle, Calendar, Clock, MapPin, Users, Mail } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
+import { PageHeader } from "@/components/PageHeader";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "wouter";
 
 const registrationSchema = z.object({
   fullName: z.string().min(2, "Vui lòng nhập họ tên đầy đủ"),
@@ -35,6 +45,11 @@ const registrationSchema = z.object({
 });
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
+
+interface SuccessData {
+  success: boolean;
+  registrations?: any[];
+}
 
 export default function RegistrationPage() {
   const { toast } = useToast();
@@ -237,13 +252,29 @@ export default function RegistrationPage() {
   }
 
   return (
+    <>
+    <PageHeader
+      title="Đăng ký tham dự"
+      subtitle="Điền vào biểu mẫu dưới đây để đăng ký tham gia hội nghị của chúng tôi."
+      bannerImageUrl={conference?.bannerUrls?.[0]}
+    >
+      <Breadcrumb className="mb-4 mx-auto">
+        <BreadcrumbList className="text-white justify-center">
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild className="text-white">
+              <Link href="/">Trang chủ</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="text-white">Đăng ký</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </PageHeader>
     <div className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-8" data-testid="text-registration-title">
-            Đăng ký tham dự
-          </h1>
-
           {conference?.registrationNote1 && (
             <div className="prose prose-sm max-w-none bg-muted/50 border-l-4 border-primary p-4 rounded-r-lg mb-8">
               <p dangerouslySetInnerHTML={{ __html: conference.registrationNote1.replace(/\n/g, '<br />') }} />
@@ -554,6 +585,7 @@ export default function RegistrationPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

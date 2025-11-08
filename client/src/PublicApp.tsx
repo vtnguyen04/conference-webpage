@@ -13,6 +13,7 @@ import SightseeingDetailPage from "@/pages/public/SightseeingDetailPage";
 import RegistrationPage from "@/pages/public/RegistrationPage";
 import RegistrationConfirmedPage from "@/pages/public/RegistrationConfirmedPage";
 import RegistrationFailedPage from "@/pages/public/RegistrationFailedPage";
+import ContactPage from "@/pages/public/ContactPage";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 
@@ -35,6 +36,7 @@ export function PublicApp() {
         <Route path="/register" component={RegistrationPage} />
         <Route path="/registration-confirmed" component={RegistrationConfirmedPage} />
         <Route path="/registration-failed" component={RegistrationFailedPage} />
+        <Route path="/contact" component={ContactPage} />
         <Route component={NotFound} />
       </Switch>
     </PublicLayout>

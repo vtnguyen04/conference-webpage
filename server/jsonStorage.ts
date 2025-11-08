@@ -402,6 +402,7 @@ export class JSONStorage {
       ...announcement,
       id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       conferenceId: data.conference.id,
+      views: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -451,6 +452,19 @@ export class JSONStorage {
 
     data.announcements = data.announcements.filter(a => a.id !== id);
     writeData(year, data);
+  }
+
+  async incrementAnnouncementViews(year: number, id: string): Promise<Announcement | undefined> {
+    const data = readData(year);
+    if (!data) return undefined;
+
+    const index = data.announcements.findIndex(a => a.id === id);
+    if (index === -1) return undefined;
+
+    data.announcements[index].views = (data.announcements[index].views || 0) + 1;
+
+    writeData(year, data);
+    return data.announcements[index];
   }
 
   async getSightseeing(year: number): Promise<Sightseeing[]> {

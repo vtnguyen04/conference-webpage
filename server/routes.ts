@@ -13,10 +13,15 @@ import {
   getRegistrationStats,
   getSessionCapacityStatus,
 } from "./registrationDb";
+import {
+  createContactMessage,
+  getContactMessages,
+  getContactMessagesCount,
+} from "./contactDb";
 import { setupAuth } from "./sessionAuth";
 
 import nodemailer from "nodemailer";
-import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema } from "@shared/schema";
+import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema } from "@shared/schema";
 console.log('insertSponsorSchema:', insertSponsorSchema);
 import multer from "multer";
 import path from "path";
@@ -626,6 +631,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/announcements/:id/view', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.incrementAnnouncementViews(conference.year, req.params.id);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.delete('/api/announcements/:id', async (req, res) => {
     try {
       const conference = await jsonStorage.getActiveConference();
@@ -1018,9 +1036,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+// ... (rest of the file)
 
+  // Contact Message Routes
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { recaptcha, ...data } = contactFormSchema.parse(req.body);
+      const message = await createContactMessage(data);
+      res.json(message);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
 
+  app.get('/api/contact-messages', async (req, res) => {
+    try {
+      // This should be a protected route in a real app
+      const messages = await getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact messages" });
+    }
+  });
 
+  app.get('/api/stats/contact-messages', async (req, res) => {
+    try {
+      const count = await getContactMessagesCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact messages count" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

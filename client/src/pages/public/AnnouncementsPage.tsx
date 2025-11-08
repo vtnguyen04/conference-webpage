@@ -15,11 +15,25 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
+import type { Conference } from "@shared/schema";
+import { useEffect, useRef } from "react";
 
 export default function AnnouncementsPage() {
   const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
   });
+
+  const { data: conference } = useQuery<Conference>({
+    queryKey: ["/api/conferences/active"],
+  });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (announcements.length > 0 && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [announcements]);
 
   if (isLoading) {
     return (
@@ -67,6 +81,7 @@ export default function AnnouncementsPage() {
       <PageHeader
         title="Tin tức & Thông báo"
         subtitle="Cập nhật mới nhất về hội nghị, các sự kiện quan trọng và thông tin liên quan."
+        bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">
@@ -83,7 +98,7 @@ export default function AnnouncementsPage() {
         </Breadcrumb>
       </PageHeader>
 
-      <div className="py-16 md:py-24 bg-gray-50">
+      <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             {/* Featured Announcements - Tin nổi bật */}

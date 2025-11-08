@@ -15,6 +15,7 @@ import RegistrationsPage from "@/pages/admin/RegistrationsPage";
 import CheckinPage from "@/pages/admin/CheckinPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import SightseeingManagementPage from "@/pages/admin/SightseeingManagementPage";
+import ContactMessagesPage from "@/pages/admin/ContactMessagesPage";
 
 // Shared pages
 import Login from "@/pages/Login";
@@ -68,6 +69,7 @@ export function AdminApp() {
                 <Route path="/admin/registrations" component={RegistrationsPage} />
                 <Route path="/admin/checkin" component={CheckinPage} />
                 <Route path="/admin/analytics" component={AnalyticsPage} />
+                <Route path="/admin/contact-messages" component={ContactMessagesPage} />
 
                 {/* Route gốc /admin ở cuối cùng */}
                 <Route path="/admin" component={DashboardPage} />

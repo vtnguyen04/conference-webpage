@@ -136,6 +136,19 @@ export const auditLogs = pgTable("audit_logs", {
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
 
+// Contact Messages table
+export const contactMessages = pgTable("contact_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+});
+
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = typeof contactMessages.$inferInsert;
+
 // ============================================================================
 // RELATIONS
 // ============================================================================
@@ -261,6 +274,7 @@ export interface Announcement {
   excerpt: string;
   featuredImageUrl: string;
   pdfUrl?: string; // New field for PDF URL
+  views: number;
   category: "general" | "important" | "deadline";
   publishedAt: string;
   createdAt: string;
@@ -402,6 +416,17 @@ export const insertSightseeingSchema = z.object({
 });
 
 export type InsertSightseeing = z.infer<typeof insertSightseeingSchema>;
+
+// Contact Message validation schema
+export const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  subject: z.string().min(1, "Subject is required"),
+  message: z.string().min(1, "Message is required"),
+  recaptcha: z.boolean().refine(val => val === true, {
+    message: "You must confirm you are not a robot.",
+  }),
+});
 
 // ============================================================================
 // BATCH REGISTRATION SCHEMA (Frontend sends this for multi-session registration)
