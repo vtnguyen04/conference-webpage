@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,6 +54,13 @@ interface SuccessData {
 export default function RegistrationPage() {
   const { toast } = useToast();
   const [registrationState, setRegistrationState] = useState<'form' | 'pendingConfirmation'>('form');
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
@@ -272,7 +279,7 @@ export default function RegistrationPage() {
         </BreadcrumbList>
       </Breadcrumb>
     </PageHeader>
-    <div className="py-16 md:py-24">
+    <div ref={mainContentRef} className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {conference?.registrationNote1 && (
