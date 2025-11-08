@@ -222,9 +222,13 @@ export default function RegistrationPage() {
       }
     },
     onError: (error: any) => {
+      let description = error.message || "Có lỗi xảy ra. Vui lòng thử lại.";
+      if (error.message && error.message.includes("Already registered for session:")) {
+        description = "Bạn đã đăng ký một hoặc nhiều phiên đã chọn. Vui lòng kiểm tra lại các phiên đã đăng ký của bạn.";
+      }
       toast({
         title: "Đăng ký thất bại",
-        description: error.message || "Có lỗi xảy ra. Vui lòng thử lại.",
+        description: description,
         variant: "destructive",
       });
     },

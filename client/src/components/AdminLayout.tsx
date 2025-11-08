@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query"; // Import useQuery
 import {
   LayoutDashboard,
   FileText,
@@ -112,6 +113,19 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { refetch: refetchAuth } = useAuth();
 
+  // Fetch contact message count
+  const { data: contactMessageCount = { count: 0 } } = useQuery<{ count: number }>({
+    queryKey: ["/api/stats/contact-messages"],
+    queryFn: async () => {
+      const response = await fetch("/api/stats/contact-messages");
+      if (!response.ok) {
+        throw new Error("Failed to fetch contact message count");
+      }
+      return response.json();
+    },
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -198,6 +212,11 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                           {sidebarOpen && (
                             <div className="flex-1 flex items-center justify-between">
                               <span className="font-medium text-sm">{item.label}</span>
+                              {item.href === "/admin/contact-messages" && contactMessageCount.count > 0 && (
+                                <Badge variant="destructive" className="ml-2">
+                                  {contactMessageCount.count}
+                                </Badge>
+                              )}
                             </div>
                           )}
                         </div>
