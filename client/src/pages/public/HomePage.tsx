@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
 // Section Header Component
-const SectionHeader = ({ title, subtitle, accentColor = "bg-blue-600" }: { title: string; subtitle: string; accentColor?: string }) => (
+const SectionHeader = ({ title, subtitle, accentColor = "bg-blue-600", cta }: { title: string; subtitle: string; accentColor?: string; cta?: React.ReactNode }) => (
   <div className="text-center mb-16 relative">
     <div className="relative inline-block">
       <div className={`absolute -left-20 top-1/2 w-16 h-0.5 ${accentColor}`}></div>
@@ -30,6 +30,7 @@ const SectionHeader = ({ title, subtitle, accentColor = "bg-blue-600" }: { title
       <div className={`w-12 h-0.5 ${accentColor}`}></div>
       <div className={`w-2 h-2 ${accentColor} rounded-full`}></div>
     </div>
+    {cta && <div className="mt-8">{cta}</div>}
   </div>
 );
 
@@ -312,61 +313,74 @@ export default function HomePage() {
               title="Thông báo" 
               subtitle="Cập nhật mới nhất từ Ban Tổ chức"
               accentColor="bg-blue-600"
-            />
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {announcements.slice(0, 6).map((announcement: Announcement) => (
-                <Card 
-                  key={announcement.id} 
-                  className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 group"
-                  data-testid={`card-announcement-${announcement.id}`}
-                >
-                  {announcement.featuredImageUrl && (
-                    <div className="relative aspect-video overflow-hidden bg-slate-100">
-                      <img 
-                        src={announcement.featuredImageUrl} 
-                        alt={announcement.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="bg-blue-600 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wide shadow-lg">
-                          {announcement.category === 'important' ? 'Quan trọng' : 
-                           announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo'}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-0 right-0 w-0 h-0 border-l-[40px] border-l-transparent border-b-[40px] border-b-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                  )}
-                  <CardContent className="p-6 relative">
-                    <div className="absolute top-0 left-0 w-1 h-0 bg-blue-600 group-hover:h-full transition-all duration-300"></div>
-                    {announcement.publishedAt && (
-                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-3 uppercase tracking-wide font-semibold">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
-                      </div>
-                    )}
-                    <h3 className="font-bold text-lg line-clamp-2 mb-3 text-slate-900 group-hover:text-blue-600 transition-colors">
-                      {announcement.title}
-                    </h3>
-                    {announcement.excerpt && (
-                      <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
-                        {announcement.excerpt}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {announcements.length > 6 && (
-              <div className="text-center mt-12">
+              cta={
                 <Link href="/announcements">
-                  <Button variant="outline" size="lg" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-8">
+                  <Button variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-8">
                     Xem tất cả thông báo
                   </Button>
                 </Link>
-              </div>
-            )}
+              }
+            />
+
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[Autoplay({ delay: 2000, stopOnInteraction: true })]}
+              className="w-full max-w-7xl mx-auto"
+            >
+              <CarouselContent className="-ml-6">
+                {announcements.map((announcement: Announcement) => (
+                  <CarouselItem key={announcement.id} className="md:basis-1/2 lg:basis-1/3 pl-6">
+                    <Link href={`/announcements/${announcement.id}`}>
+                      <a className="block h-full">
+                        <Card 
+                          className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 group h-full flex flex-col"
+                          data-testid={`card-announcement-${announcement.id}`}
+                        >
+                          {announcement.featuredImageUrl && (
+                            <div className="relative aspect-video overflow-hidden bg-slate-100">
+                              <img 
+                                src={announcement.featuredImageUrl} 
+                                alt={announcement.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute top-4 left-4">
+                                <span className="bg-blue-600 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wide shadow-lg">
+                                  {announcement.category === 'important' ? 'Quan trọng' : 
+                                   announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo'}
+                                </span>
+                              </div>
+                              <div className="absolute bottom-0 right-0 w-0 h-0 border-l-[40px] border-l-transparent border-b-[40px] border-b-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                          )}
+                          <CardContent className="p-6 relative flex-1 flex flex-col">
+                            <div className="absolute top-0 left-0 w-1 h-0 bg-blue-600 group-hover:h-full transition-all duration-300"></div>
+                            {announcement.publishedAt && (
+                              <div className="flex items-center gap-2 text-xs text-slate-500 mb-3 uppercase tracking-wide font-semibold">
+                                <Calendar className="h-3.5 w-3.5" />
+                                <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
+                              </div>
+                            )}
+                            <h3 className="font-bold text-lg line-clamp-2 mb-3 text-slate-900 group-hover:text-blue-600 transition-colors flex-grow">
+                              {announcement.title}
+                            </h3>
+                            {announcement.excerpt && (
+                              <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed mt-auto">
+                                {announcement.excerpt}
+                              </p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </a>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-4 md:-left-12 border-2 border-slate-300 hover:border-blue-600" />
+              <CarouselNext className="-right-4 md:-right-12 border-2 border-slate-300 hover:border-blue-600" />
+            </Carousel>
           </div>
         </ScrollAnimatedSection>
       )}
@@ -500,6 +514,13 @@ export default function HomePage() {
               title="Chủ tọa & Diễn giả" 
               subtitle="Đội ngũ chuyên gia hàng đầu"
               accentColor="bg-blue-600"
+              cta={
+                <Link href="/speakers">
+                  <Button variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-8">
+                    Xem tất cả
+                  </Button>
+                </Link>
+              }
             />
 
             <Carousel
@@ -507,6 +528,7 @@ export default function HomePage() {
                 align: "start",
                 loop: true,
               }}
+              plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
               className="w-full max-w-6xl mx-auto"
             >
               <CarouselContent className="-ml-6">

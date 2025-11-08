@@ -4,7 +4,7 @@
     "year": 2025,
     "name": "HỘI NGHỊ Y HỌC 09 & Y HỌC LIÊN NGÀNH LẦN THỨ 4",
     "theme": "Phòng bệnh chủ động - Tương lai vững bền",
-    "logoUrl": "/uploads/image-1762526185031-504495387.png",
+    "logoUrl": "/uploads/image-1762581157771-278532741.png",
     "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
     "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị Y học 09 & Y học Liên ngành lần thứ 4 là sự kiện y khoa quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Phòng bệnh chủ động - Tương lai vững bền</strong> tập trung vào các xu hướng mới trong y học dự phòng, chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
     "startDate": "2025-09-20T00:00:00.000Z",
@@ -14,13 +14,13 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-11-07T14:36:25.599Z",
+    "updatedAt": "2025-11-08T05:52:57.053Z",
     "registrationNote1": "koikl",
     "registrationNote2": "hghg",
     "filesToDelete": [],
     "bannerUrls": [
-      "/uploads/image-1762523949701-618862630.jpg",
-      "/uploads/image-1762523983376-134636834.jpg"
+      "/uploads/image-1762581165232-829985944.jpg",
+      "/uploads/image-1762581175183-823765189.jpg"
     ]
   },
   "announcements": [
@@ -32,9 +32,10 @@
       "excerpt": "Hướng dẫn đăng ký thông tin xuất hóa đơn tham dự hội nghị",
       "featuredImageUrl": "/uploads/image-1762537310855-644681712.jpg",
       "category": "important",
-      "publishedAt": "2025-02-23T00:00",
+      "publishedAt": "2025-02-22T17:00",
       "createdAt": "2025-02-23T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:41:52.837Z"
+      "updatedAt": "2025-11-08T05:45:24.260Z",
+      "views": 6
     },
     {
       "id": "ann-002",
@@ -44,9 +45,10 @@
       "excerpt": "Chủ đề chính của hội nghị năm 2025",
       "featuredImageUrl": "/uploads/image-1762536241529-522691807.png",
       "category": "general",
-      "publishedAt": "2025-02-23T13:00",
+      "publishedAt": "2025-02-23T06:00",
       "createdAt": "2025-02-25T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:31:24.004Z"
+      "updatedAt": "2025-11-08T05:45:31.549Z",
+      "views": 2
     },
     {
       "id": "ann-003",
@@ -78,11 +80,11 @@
       "excerpt": "ghffdhbhgfd df  fd",
       "featuredImageUrl": "/uploads/image-1762536882978-980374536.png",
       "category": "important",
-      "publishedAt": "2025-11-07T17:34",
+      "publishedAt": "2025-11-07T10:34",
       "id": "announcement-1762536895890-veaqk7bov",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T17:34:55.890Z",
-      "updatedAt": "2025-11-07T17:34:55.890Z"
+      "updatedAt": "2025-11-08T05:45:34.288Z"
     },
     {
       "title": "d fg dfg df gdf",
@@ -90,11 +92,11 @@
       "excerpt": "d fgd fgdf gdf gdf g",
       "featuredImageUrl": "/uploads/image-1762537173439-125323792.png",
       "category": "general",
-      "publishedAt": "2025-11-07T17:39",
+      "publishedAt": "2025-11-07T10:39",
       "id": "announcement-1762537181599-rjl67md5k",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T17:39:41.599Z",
-      "updatedAt": "2025-11-07T17:39:41.599Z"
+      "updatedAt": "2025-11-08T05:45:37.738Z"
     }
   ],
   "sessions": [
@@ -335,11 +337,11 @@
       "title": "Phó Giám đốc Bệnh viện Chợ Rẫy",
       "credentials": "TS.BS",
       "specialty": "Phẫu thuật lồng ngực - Tim mạch",
-      "photoUrl": "/uploads/image-1762523270915-441216648.png",
+      "photoUrl": "/uploads/image-1762580987478-107498206.png",
       "bio": "Chuyên gia hàng đầu về phẫu thuật tim mạch với hơn 20 năm kinh nghiệm. Đã thực hiện hơn 5000 ca phẫu thuật tim mạch thành công.",
       "role": "moderator",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:47:52.452Z"
+      "updatedAt": "2025-11-08T05:49:49.585Z"
     },
     {
       "id": "speaker-002",
@@ -348,11 +350,11 @@
       "title": "Trưởng khoa Tim mạch",
       "credentials": "TS.BS",
       "specialty": "Can thiệp tim mạch",
-      "photoUrl": "/uploads/image-1762523275626-765548050.png",
+      "photoUrl": "/uploads/image-1762581001069-581557764.jpg",
       "bio": "Chuyên gia điều trị can thiệp tim mạch, giảng viên Đại học Y Dược TP.HCM. Tham gia nhiều nghiên cứu quốc tế về bệnh mạch vành.",
       "role": "moderator",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:47:56.568Z"
+      "updatedAt": "2025-11-08T05:50:03.923Z"
     },
     {
       "id": "speaker-003",
@@ -374,11 +376,11 @@
       "title": "Trưởng khoa Y học gia đình",
       "credentials": "TS.BS",
       "specialty": "Y học gia đình và chăm sóc sức khỏe ban đầu",
-      "photoUrl": "/uploads/image-1762523282015-807028829.jpg",
+      "photoUrl": "/uploads/image-1762581008632-161152679.png",
       "bio": "Chuyên gia y học gia đình với 15 năm kinh nghiệm. Tiên phong trong việc phát triển mô hình y học gia đình tại Việt Nam.",
       "role": "both",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:48:03.325Z"
+      "updatedAt": "2025-11-08T05:50:10.032Z"
     },
     {
       "id": "speaker-005",

@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from "fs";
-import { join } from "path";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, copyFileSync } from "fs";
+import { join, extname } from "path";
 import type {
   Conference,
   Session,
@@ -59,7 +59,8 @@ function writeData(year: number, data: ConferenceData): void {
   const filePath = getFilePath(year);
   try {
     writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
-  } catch (error) {
+  }
+  catch (error) {
     console.error(`Error writing ${filePath}:`, error);
     throw error;
   }
@@ -73,6 +74,33 @@ function deleteFile(filePathRelative: string) {
       unlinkSync(absolutePath);
       console.log(`Deleted file: ${absolutePath}`);
     }
+  }
+}
+
+function cloneFile(filePathRelative: string | null | undefined): string | undefined {
+  if (!filePathRelative || !filePathRelative.startsWith('/uploads/')) {
+    return filePathRelative ?? undefined;
+  }
+
+  const sourcePath = join(process.cwd(), "public", filePathRelative);
+  if (!existsSync(sourcePath)) {
+    return filePathRelative;
+  }
+
+  const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  const extension = extname(filePathRelative);
+  const newFilename = `image-${uniqueSuffix}${extension}`;
+  const newRelativePath = `/uploads/${newFilename}`;
+  const destinationPath = join(process.cwd(), "public", "uploads", newFilename);
+
+  try {
+    copyFileSync(sourcePath, destinationPath);
+    console.log(`Cloned file from ${filePathRelative} to ${newRelativePath}`);
+    return newRelativePath;
+  } catch (error) {
+    console.error(`Failed to clone file ${filePathRelative}:`, error);
+    // Return original path as a fallback to avoid breaking the cloning process
+    return filePathRelative;
   }
 }
 
@@ -188,7 +216,7 @@ export class JSONStorage {
 
     // Delete old logo if updated
     if (updates.logoUrl && updates.logoUrl !== oldConference.logoUrl) {
-      deleteImageFile(oldConference.logoUrl);
+      deleteFile(oldConference.logoUrl);
     }
 
     // Delete old banners if updated
@@ -197,7 +225,7 @@ export class JSONStorage {
       const newBannerUrls = new Set(updates.bannerUrls);
       oldBannerUrls.forEach(url => {
         if (!newBannerUrls.has(url)) {
-          deleteImageFile(url);
+          deleteFile(url);
         }
       });
     }
@@ -339,7 +367,7 @@ export class JSONStorage {
 
     // If a new photoUrl is provided and it's different from the old one, delete the old photo
     if (updates.photoUrl && updates.photoUrl !== oldSpeaker.photoUrl) {
-      deleteImageFile(oldSpeaker.photoUrl);
+      deleteFile(oldSpeaker.photoUrl);
     }
 
     data.speakers[index] = {
@@ -358,7 +386,7 @@ export class JSONStorage {
 
     const speakerToDelete = data.speakers.find(s => s.id === id);
     if (speakerToDelete) {
-      deleteImageFile(speakerToDelete.photoUrl);
+      deleteFile(speakerToDelete.photoUrl);
     }
 
     data.speakers = data.speakers.filter(s => s.id !== id);
@@ -398,7 +426,7 @@ export class JSONStorage {
 
     // If a new logoUrl is provided and it's different from the old one, delete the old logo
     if (updates.logoUrl && updates.logoUrl !== oldSponsor.logoUrl) {
-      deleteImageFile(oldSponsor.logoUrl);
+      deleteFile(oldSponsor.logoUrl);
     }
 
     data.sponsors[index] = {
@@ -417,7 +445,7 @@ export class JSONStorage {
 
     const sponsorToDelete = data.sponsors.find(s => s.id === id);
     if (sponsorToDelete) {
-      deleteImageFile(sponsorToDelete.logoUrl);
+      deleteFile(sponsorToDelete.logoUrl);
     }
 
     data.sponsors = data.sponsors.filter(s => s.id !== id);
@@ -634,8 +662,8 @@ export class JSONStorage {
       year: toYear,
       name: sourceData.conference.name.replace(fromYear.toString(), toYear.toString()),
       theme: sourceData.conference.theme,
-      logoUrl: sourceData.conference.logoUrl,
-      bannerUrls: sourceData.conference.bannerUrls, // Copy bannerUrls
+      logoUrl: cloneFile(sourceData.conference.logoUrl),
+      bannerUrls: sourceData.conference.bannerUrls?.map(cloneFile) as string[],
       introContent: sourceData.conference.introContent,
       registrationNote1: sourceData.conference.registrationNote1,
       registrationNote2: sourceData.conference.registrationNote2,
@@ -647,7 +675,7 @@ export class JSONStorage {
       isActive: false, // New cloned conference is not active by default
     });
 
-    // Clone sessions, speakers, sponsors (not registrations/check-ins)
+    // Clone sessions, speakers, sponsors, etc., with deep copy for files
     const newData = readData(toYear);
     if (newData) {
       newData.sessions = sourceData.sessions.map(s => ({
@@ -662,7 +690,7 @@ export class JSONStorage {
         ...s,
         id: `speaker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        photoUrl: s.photoUrl,
+        photoUrl: cloneFile(s.photoUrl),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -671,7 +699,7 @@ export class JSONStorage {
         ...s,
         id: `sponsor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
-        logoUrl: s.logoUrl,
+        logoUrl: cloneFile(s.logoUrl),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -680,6 +708,8 @@ export class JSONStorage {
         ...a,
         id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
+        featuredImageUrl: cloneFile(a.featuredImageUrl),
+        pdfUrl: cloneFile(a.pdfUrl),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
@@ -688,6 +718,7 @@ export class JSONStorage {
         ...s,
         id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConference.id,
+        featuredImageUrl: cloneFile(s.featuredImageUrl),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
