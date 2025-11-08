@@ -33,8 +33,12 @@ export default function SpeakersPage() {
     }
   }, [speakers]);
 
-  const moderators = speakers.filter((s) => s.role === "moderator");
-  const regularSpeakers = speakers.filter((s) => s.role === "speaker");
+  const moderators = speakers.filter(
+    (s) => s.role === "moderator" || s.role === "both"
+  );
+  const regularSpeakers = speakers.filter(
+    (s) => s.role === "speaker" || s.role === "both"
+  );
 
   if (isLoading) {
     return (

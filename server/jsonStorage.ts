@@ -212,6 +212,46 @@ export class JSONStorage {
     return data.conference;
   }
 
+  async deleteConference(year: number): Promise<void> {
+    const data = readData(year);
+    if (!data) {
+      // If data doesn't exist, there's nothing to delete.
+      return;
+    }
+
+    // Delete all associated files
+    deleteFile(data.conference.logoUrl);
+    data.conference.bannerUrls?.forEach(deleteFile);
+    data.speakers?.forEach(speaker => deleteFile(speaker.photoUrl));
+    data.sponsors?.forEach(sponsor => deleteFile(sponsor.logoUrl));
+    data.announcements?.forEach(announcement => {
+      deleteFile(announcement.featuredImageUrl);
+      deleteFile(announcement.pdfUrl);
+    });
+    data.sightseeing?.forEach(sightseeing => deleteFile(sightseeing.featuredImageUrl));
+
+    // Delete the JSON file itself
+    const filePath = getFilePath(year);
+    if (existsSync(filePath)) {
+      unlinkSync(filePath);
+      console.log(`Deleted data file: ${filePath}`);
+    }
+  }
+
+  async setActiveConference(yearToActivate: number): Promise<void> {
+    const allConfs = await this.getAllConferences();
+    for (const c of allConfs) {
+      const data = readData(c.year);
+      if (data) {
+        const shouldBeActive = data.conference.year === yearToActivate;
+        if (data.conference.isActive !== shouldBeActive) {
+          data.conference.isActive = shouldBeActive;
+          writeData(c.year, data);
+        }
+      }
+    }
+  }
+
   // Sessions operations
   async getSessions(year: number): Promise<Session[]> {
     const data = readData(year);
@@ -634,6 +674,29 @@ export class JSONStorage {
         logoUrl: s.logoUrl,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+      }));
+
+      newData.announcements = sourceData.announcements.map(a => ({
+        ...a,
+        id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        conferenceId: newConference.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
+      newData.sightseeing = sourceData.sightseeing.map(s => ({
+        ...s,
+        id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        conferenceId: newConference.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
+      newData.whitelists = sourceData.whitelists.map(w => ({
+        ...w,
+        id: `wl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        conferenceId: newConference.id,
+        createdAt: new Date().toISOString(),
       }));
 
       writeData(toYear, newData);

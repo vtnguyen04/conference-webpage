@@ -14,6 +14,7 @@ import {
 import { Link } from "wouter";
 import type { Conference } from "@shared/schema";
 import { useEffect, useRef } from "react";
+import { Building } from "lucide-react"; // nếu bạn đang dùng icon
 
 export default function SightseeingPage() {
   const { data: sightseeing = [], isLoading } = useQuery<Sightseeing[]>({

@@ -12,6 +12,7 @@ import {
   isCheckedIn,
   getRegistrationStats,
   getSessionCapacityStatus,
+  deleteRegistrationsByYear,
 } from "./registrationDb";
 import {
   createContactMessage,
@@ -365,6 +366,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(cloned);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/conferences/:year/activate', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+      await jsonStorage.setActiveConference(year);
+      res.json({ success: true, message: `Conference ${year} activated.` });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/conferences/:year', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+
+      // First, delete related data from the database
+      await deleteRegistrationsByYear(year);
+
+      // Then, delete the JSON file and associated assets
+      await jsonStorage.deleteConference(year);
+
+      res.json({ success: true, message: `Conference ${year} and all its data deleted.` });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

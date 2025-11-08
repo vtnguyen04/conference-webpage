@@ -16,6 +16,7 @@ import CheckinPage from "@/pages/admin/CheckinPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import SightseeingManagementPage from "@/pages/admin/SightseeingManagementPage";
 import ContactMessagesPage from "@/pages/admin/ContactMessagesPage";
+import ConferencesManagementPage from "@/pages/admin/ConferencesManagementPage";
 
 // Shared pages
 import Login from "@/pages/Login";
@@ -61,6 +62,7 @@ export function AdminApp() {
               <Switch>
                 {/* Đảm bảo thứ tự vẫn đúng: cụ thể nhất ở trên */}
                 <Route path="/admin/conference" component={ConferencePage} />
+                <Route path="/admin/conferences" component={ConferencesManagementPage} />
                 <Route path="/admin/sessions" component={SessionsPage} />
                 <Route path="/admin/speakers" component={SpeakersManagementPage} />
                 <Route path="/admin/sponsors" component={SponsorsManagementPage} />

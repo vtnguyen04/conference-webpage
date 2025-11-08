@@ -311,6 +311,13 @@ export async function cancelRegistration(
   return result.length > 0;
 }
 
+/**
+ * Delete all registrations for a conference year
+ */
+export async function deleteRegistrationsByYear(year: number): Promise<void> {
+  await db.delete(registrations).where(eq(registrations.conferenceYear, year));
+}
+
 // ============================================================================
 // CHECK-IN OPERATIONS (PostgreSQL)
 // ============================================================================

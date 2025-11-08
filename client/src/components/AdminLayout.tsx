@@ -50,6 +50,11 @@ const menuItems = [
     label: "Hội nghị"
   },
   { 
+    href: "/admin/conferences", 
+    icon: Building, 
+    label: "Quản lý hội nghị"
+  },
+  { 
     href: "/admin/sessions", 
     icon: Calendar, 
     label: "Phiên họp",
