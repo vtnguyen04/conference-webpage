@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
 import type { Conference } from "@shared/schema";
+import { useEffect, useRef } from "react";
 
 export default function SightseeingPage() {
   const { data: sightseeing = [], isLoading } = useQuery<Sightseeing[]>({
@@ -22,6 +23,14 @@ export default function SightseeingPage() {
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sightseeing.length > 0 && mainContentRef.current) {
+      mainContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [sightseeing]);
 
   if (isLoading) {
     return (
@@ -56,7 +65,7 @@ export default function SightseeingPage() {
         </Breadcrumb>
       </PageHeader>
 
-      <div className="py-16 md:py-24 bg-gray-50">
+      <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <section>
