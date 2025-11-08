@@ -154,12 +154,19 @@ export default function RegistrationPage() {
   const disabledSessions = useMemo(() => {
     const disabled = new Set<string>();
     const selected = sessions.filter(s => sessionIds.includes(s.id));
+    const now = new Date();
 
     const hasPlenary = selected.some(s => s.track === 'Toàn thể');
     const hasMorningBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() < 12);
     const hasAfternoonBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() >= 12);
 
     sessions.forEach(session => {
+      // Disable if session has already ended
+      if (new Date(session.endTime) < now) {
+        disabled.add(session.id);
+        return;
+      }
+
       if (sessionIds.includes(session.id)) return;
 
       const isMorning = new Date(session.startTime).getHours() < 12;
@@ -201,7 +208,7 @@ export default function RegistrationPage() {
         title: "Đăng ký thành công!",
         description: "Vui lòng kiểm tra email của bạn để xác nhận đăng ký và nhận mã QR.",
       });
-      // Invalidate queries will happen after successful email confirmation
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions/capacity'] });
     },
     onError: (error: any) => {
       toast({
@@ -432,7 +439,8 @@ export default function RegistrationPage() {
                                 const capacityInfo = capacityMap[session.id];
                                 const spotsRemaining = capacityInfo?.available ?? undefined;
                                 const isFull = capacityInfo?.isFull ?? false;
-                                const isDisabled = isFull || disabledSessions.has(session.id);
+                                const hasEnded = new Date(session.endTime) < new Date();
+                                const isDisabled = isFull || disabledSessions.has(session.id) || hasEnded;
 
                                 return (
                                   <Card 
@@ -457,20 +465,25 @@ export default function RegistrationPage() {
                                             <h5 className="font-semibold text-sm leading-tight" data-testid={`text-session-title-${session.id}`}>
                                               {session.title}
                                             </h5>
-                                            {session.capacity && (
-                                              <div className="flex items-center gap-1 text-xs whitespace-nowrap">
-                                                <Users className="h-3 w-3" />
-                                                <span data-testid={`text-capacity-${session.id}`}>
-                                                  {isFull ? (
-                                                    <span className="text-destructive font-medium">Hết chỗ</span>
-                                                  ) : (
-                                                    <span className="text-muted-foreground">
-                                                      {spotsRemaining}/{session.capacity}
-                                                    </span>
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                              {hasEnded && (
+                                                <span className="text-xs font-medium text-red-500 bg-red-100 px-2 py-1 rounded">Đã kết thúc</span>
+                                              )}
+                                              {session.capacity && !hasEnded && (
+                                                <div className="flex items-center gap-1 text-xs whitespace-nowrap">
+                                                  <Users className="h-3 w-3" />
+                                                  <span data-testid={`text-capacity-${session.id}`}>
+                                                    {isFull ? (
+                                                      <span className="text-destructive font-medium">Hết chỗ</span>
+                                                    ) : (
+                                                      <span className="text-muted-foreground">
+                                                        {spotsRemaining}/{session.capacity}
+                                                      </span>
+                                                    )}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
                                           </div>
 
                                           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
