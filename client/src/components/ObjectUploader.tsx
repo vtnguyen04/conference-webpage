@@ -1,106 +1,60 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 interface ObjectUploaderProps {
-  maxNumberOfFiles?: number;
-  maxFileSize?: number;
-  acceptedFileTypes?: string;
-  onGetUploadParameters: () => Promise<{
-    method: "PUT";
-    url: string;
-  }>;
-  onComplete?: (result: { uploadURL: string }) => void;
-  buttonClassName?: string;
+  onFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onDelete: () => void;
   children: ReactNode;
+  currentFileUrl?: string;
+  isUploading: boolean;
+  isDeleting: boolean;
+  acceptedFileTypes?: string;
+  buttonClassName?: string;
 }
 
 export function ObjectUploader({
-  maxNumberOfFiles = 1,
-  maxFileSize = 10485760,
-  acceptedFileTypes = "image/*",
-  onGetUploadParameters,
-  onComplete,
-  buttonClassName,
+  onFileSelect,
+  onDelete,
   children,
+  currentFileUrl,
+  isUploading,
+  isDeleting,
+  acceptedFileTypes = "image/*",
+  buttonClassName,
 }: ObjectUploaderProps) {
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const file = files[0];
-
-    if (file.size > maxFileSize) {
-      toast({
-        title: "File too large",
-        description: `Maximum file size is ${Math.round(maxFileSize / 1024 / 1024)}MB`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setUploading(true);
-      const { url } = await onGetUploadParameters();
-
-      const response = await fetch(url, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const uploadURL = url.split("?")[0];
-      onComplete?.({ uploadURL });
-
-      toast({
-        title: "Success",
-        description: "File uploaded successfully",
-      });
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload file. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
 
   return (
-    <div>
+    <div className="flex items-center gap-2">
       <input
         ref={fileInputRef}
         type="file"
         accept={acceptedFileTypes}
-        onChange={handleFileSelect}
+        onChange={onFileSelect}
         style={{ display: "none" }}
         data-testid="input-file-upload"
       />
       <Button
         onClick={() => fileInputRef.current?.click()}
         className={buttonClassName}
-        disabled={uploading}
+        disabled={isUploading || isDeleting}
         data-testid="button-upload"
         type="button"
       >
-        {uploading ? "Uploading..." : children}
+        {isUploading ? "Đang tải lên..." : children}
       </Button>
+      {currentFileUrl && (
+        <>
+          <a href={currentFileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+            Xem tệp hiện tại
+          </a>
+          <Button variant="destructive" size="sm" onClick={onDelete} disabled={isUploading || isDeleting}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </>
+      )}
     </div>
   );
 }

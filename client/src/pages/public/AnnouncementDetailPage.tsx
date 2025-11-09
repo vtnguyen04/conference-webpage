@@ -167,7 +167,7 @@ export default function AnnouncementDetailPage() {
                   </h2>
                   <div className="aspect-w-16 aspect-h-9 mb-4">
                     <iframe
-                      src={announcement.pdfUrl}
+                      src={`${import.meta.env.VITE_BASE_URL}${announcement.pdfUrl}`}
                       width="100%"
                       height="500px"
                       style={{ border: 'none' }}
@@ -177,7 +177,7 @@ export default function AnnouncementDetailPage() {
                     </iframe>
                   </div>
                   <a
-                    href={announcement.pdfUrl}
+                    href={`${import.meta.env.VITE_BASE_URL}${announcement.pdfUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"

@@ -4,7 +4,7 @@
     "year": 2025,
     "name": "HỘI NGHỊ Y HỌC 09 & Y HỌC LIÊN NGÀNH LẦN THỨ 4",
     "theme": "Phòng bệnh chủ động - Tương lai vững bền",
-    "logoUrl": "/uploads/image-1762581157771-278532741.png",
+    "logoUrl": "/uploads/image-1762686038940-166856766.png",
     "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
     "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị Y học 09 & Y học Liên ngành lần thứ 4 là sự kiện y khoa quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Phòng bệnh chủ động - Tương lai vững bền</strong> tập trung vào các xu hướng mới trong y học dự phòng, chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
     "startDate": "2025-09-20T00:00:00.000Z",
@@ -14,89 +14,69 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-11-08T18:51:15.582Z",
+    "updatedAt": "2025-11-09T11:06:58.571Z",
     "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
     "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy chứng nhận đào tạo liên tục (CME), vui lòng chọn vào cột Cấp Giấy chứng nhận của một chủ đề.\nPhí cấp giấy chứng nhận đào tạo liên tục (CME) là 500.000đ",
     "filesToDelete": [
-      "/uploads/image-1762581175183-823765189.jpg",
-      "/uploads/image-1762581165232-829985944.jpg"
+      "/uploads/image-1762674811408-218662510.jpg"
     ],
-    "bannerUrls": []
+    "bannerUrls": [
+      "/uploads/banners-1762686415815-646277182.jpg",
+      "/uploads/banners-1762686415816-860217402.jpg"
+    ]
   },
   "announcements": [
     {
       "id": "ann-001",
       "conferenceId": "conf-2025",
-      "title": "CÁCH THỨC ĐĂNG KÍ THÔNG TIN XUẤT HÓA ĐƠN - HỘI NGHỊ KHOA HỌC Y HỌC LIÊN NGÀNH LẦN THỨ 4",
-      "content": "<p>Kính gửi quý Thầy/Cô và các bạn học viên,</p><p>Ban tổ chức xin hướng dẫn cách thức đăng ký thông tin xuất hóa đơn cho Hội nghị Khoa học Y học Liên ngành lần thứ 4.</p><p>Quý vị vui lòng điền đầy đủ thông tin doanh nghiệp để nhận hóa đơn VAT.</p>",
-      "excerpt": "Hướng dẫn đăng ký thông tin xuất hóa đơn tham dự hội nghị",
-      "featuredImageUrl": "/uploads/image-1762537310855-644681712.jpg",
+      "title": "Thông báo Hội nghị khoa học liên ngành lần thứ 4",
+      "content": "<p><strong style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Trường Y - Đại học Y Dược Thành phố Hồ Chí Minh trân trọng thông báo về việc triển khai Hội nghị Khoa học Liên ngành lần thứ 4 với chủ đề “Phòng bệnh chủ động - Tương lai vững bền”. Hội nghị Khoa học Liên ngành là sự kiện thường niên quan trọng, nơi các chuyên gia, các nhà khoa học và quý đồng nghiệp cùng nhau chia sẻ những thành tựu nghiên cứu mới nhất, cập nhật kiến thức chuyên môn và thảo luận các vấn đề thời sự trong lĩnh vực y học.</strong></p><p><br></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_01.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_02.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_03.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_04.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_05.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_06.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_07.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_08.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><span class=\"ql-cursor\">﻿</span><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_09.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p>",
+      "excerpt": "Trường Y - Đại học Y Dược Thành phố Hồ Chí Minh trân trọng thông báo về việc triển khai Hội nghị Khoa học Liên ngành lần thứ 4 với chủ đề “Phòng bệnh chủ động - Tương lai vững bền”. Hội nghị Khoa học Liên ngành là sự kiện thường niên quan trọng, nơi các chuyên gia, các nhà khoa học và quý đồng nghiệp cùng nhau chia sẻ những thành tựu nghiên cứu mới nhất, cập nhật kiến thức chuyên môn và thảo luận các vấn đề thời sự trong lĩnh vực y học.",
+      "featuredImageUrl": "/uploads/image-1762687098279-240647983.png",
       "category": "important",
-      "publishedAt": "2025-02-22T17:00",
+      "publishedAt": "2025-11-09T06:00",
       "createdAt": "2025-02-23T00:00:00.000Z",
-      "updatedAt": "2025-11-08T05:45:24.260Z",
-      "views": 6
+      "updatedAt": "2025-11-09T11:18:30.343Z",
+      "views": 12,
+      "pdfUrl": "/uploads/pdf-1762687073707-344052222.pdf"
     },
     {
       "id": "ann-002",
       "conferenceId": "conf-2025",
-      "title": "CHỦ ĐỀ: PHÒNG BỆNH CHỦ ĐỘNG TƯƠNG LAI VỮNG BỀN",
-      "content": "<p>Hội nghị năm nay tập trung vào chủ đề <strong>Phòng bệnh chủ động - Tương lai vững bền</strong>, với các chuyên đề quan trọng về y học dự phòng và chăm sóc sức khỏe cộng đồng.</p><p>Các phiên báo cáo sẽ bao gồm:</p><ul><li>Phòng bệnh RSV ở trẻ em</li><li>Quản lý rối loạn lipid máu</li><li>Y học gia đình và chăm sóc sức khỏe toàn diện</li><li>Điều trị ung thư hiện đại</li></ul><blockquote>dgdf dfg sdfsdfsdfsdfdsfsdf</blockquote><blockquote><br></blockquote><blockquote><img src=\"/uploads/image-1762536643419-805840819.gif\"></blockquote><blockquote><br></blockquote><p><img src=\"/uploads/image-1762536681961-830552102.png\"></p>",
+      "title": "Chủ đề: Phòng bệnh chủ động – Tương lai vững bền",
+      "content": "<p><strong>HỘI NGHỊ Y HỌC LIÊN NGÀNH – LẦN THỨ 4</strong></p><p><strong>Chủ đề:</strong>&nbsp;<strong>Phòng bệnh chủ động – Tương lai vững bền</strong></p><p>Trường Y – Đại học Y Dược TP. Hồ Chí Minh trân trọng thông báo và kính mời quý thầy cô, quý đồng nghiệp và quý đại biểu tham dự&nbsp;<strong>Hội nghị Y học Liên ngành lần thứ 4</strong>, sự kiện khoa học thường niên nơi các chuyên gia y tế chia sẻ nghiên cứu, cập nhật kiến thức và thảo luận các vấn đề thời sự trong lĩnh vực y học.</p><p><strong>Thông tin Hội nghị</strong></p><p class=\"ql-align-justify\">🗓 Thời gian:&nbsp;<strong>20/09/2025</strong></p><p class=\"ql-align-justify\">📍 Địa điểm:&nbsp;<strong>Tòa nhà 15 tầng, Đại học Y Dược TP.HCM, số 217 Hồng Bàng, P. Chợ Lớn, TP.HCM</strong></p><p class=\"ql-align-justify\">👥 Quy mô:&nbsp;<strong>30&nbsp;phiên báo cáo khoa học</strong>, thuộc các chuyên ngành&nbsp;Nội, Ngoại, Sản, Nhi,&nbsp;Ung bướu, Vaccine , Y học gia đình, Chấn thương chỉnh hình, Gây mê hồi sức, Vi sinh, Lão khoa, Nhãn khoa, Tiết niệu,&nbsp;Hồi sức cấp cứu, Thần kinh, và nhiều lĩnh vực khác.</p><p><strong>Đăng ký tham dự</strong></p><p class=\"ql-align-justify\">Thực hiện đăng ký trực tuyến tại:&nbsp;<a href=\"https://hnkhkt.ump.edu.vn/dang-ky-tham-du.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://hnkhkt.ump.edu.vn/dang-ky-tham-du.html</a></p><p class=\"ql-align-justify\">Thời gian đăng ký:&nbsp;<strong>01/08 – 08/09/2025</strong>&nbsp;(hoặc đến khi đủ số lượng đại biểu).</p><p class=\"ql-align-justify\">Lưu ý: Quý đại biểu cần giữ lại&nbsp;<strong>mã QR check-in</strong>&nbsp;để điểm danh và làm post-test.</p><p><strong>Phí tham dự quyền lợi</strong></p><p class=\"ql-align-justify\">Tham dự miễn phí (không cấp CME)</p><p class=\"ql-align-justify\">Đăng ký tham dự có cấp Giấy chứng nhận: 500.000đ/ phiên (bao gồm giấy chứng nhận CME, teabreak, cơm trưa)</p><p class=\"ql-align-justify\">Riêng phiên Chấn thương chỉnh hình - phục hồi chức năng (phải đăng kí cả 02 phiên sáng - chiều. ): 1.000.000đ</p><p><strong>Điều kiện cấp giấy CME</strong></p><p class=\"ql-align-justify\">Đóng phí tham dự theo quy định</p><p class=\"ql-align-justify\">Tham dự tối thiểu 90% thời lượng chương trình: Check in bằng mã QR tại hội nghị.&nbsp;</p><p class=\"ql-align-justify\">Hoàn thành post-test với điểm ≥ 60% và cung cấp bằng cấp phù hợp: Thực hiện tại Website Hội nghị.&nbsp;</p><p><strong>Thông tin liên hệ:&nbsp;</strong></p><p>Phòng Khoa học – Đào tạo – Đối Ngoại, Trường Y – Đại học Y Dược TP.HCM</p><p>📍 Địa chỉ: Lầu 2, tòa nhà 15 tầng, 217 Hồng Bàng, P. Chợ Lớn, TP.HCM</p><p>✉️ cmeyhocliennganh@ump.edu.vn</p><p>Chương trình chi tiết hội nghị:&nbsp;<a href=\"https://drive.google.com/file/d/1DoVfJ6M_Orxa4C3t4_USse3BfvGO-hvY/view?usp=sharing\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://drive.google.com/file/d/1DoVfJ6M_Orxa4C3t4_USse3BfvGO-hvY/view?usp=sharing</a></p><p>&nbsp;</p><blockquote>Thông báo đăng kí:&nbsp;<a href=\"https://hnkhkt.ump.edu.vn/thong-bao-hoi-nghi-khoa-hoc-lien-nganh-lan-thu-4-7132503948.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://hnkhkt.ump.edu.vn/thong-bao-hoi-nghi-khoa-hoc-lien-nganh-lan-thu-4-7132503948.html</a></blockquote>",
       "excerpt": "Chủ đề chính của hội nghị năm 2025",
-      "featuredImageUrl": "/uploads/image-1762536241529-522691807.png",
+      "featuredImageUrl": "/uploads/image-1762686861435-199234682.jpg",
       "category": "general",
-      "publishedAt": "2025-02-23T06:00",
+      "publishedAt": "2025-11-09T12:00",
       "createdAt": "2025-02-25T00:00:00.000Z",
-      "updatedAt": "2025-11-08T05:45:31.549Z",
-      "views": 2
+      "updatedAt": "2025-11-09T11:14:52.908Z",
+      "views": 2,
+      "pdfUrl": ""
     },
     {
       "id": "ann-003",
       "conferenceId": "conf-2025",
-      "title": "THÔNG BÁO HỘI NGHỊ KHOA HỌC LIÊN NGÀNH LẦN THỨ 4",
-      "content": "<p>Ban tổ chức trân trọng thông báo về Hội nghị Khoa học Liên ngành lần thứ 4 sẽ được tổ chức vào ngày <strong>20-21/09/2025</strong> tại Đại học Y Dược TP.HCM.</p><p>Đăng ký tham dự mở từ ngày 01/03/2025. Hạn chót nộp bài báo cáo: 30 tháng 6 năm 2025.</p>",
-      "excerpt": "Thông tin chính thức về thời gian và địa điểm tổ chức",
-      "featuredImageUrl": "/uploads/image-1762537321299-812423248.jpg",
+      "title": "Thư mời họp mặt nhà tài trợ Hội nghị Y học liên ngành 2025",
+      "content": "<h2 class=\"ql-align-justify\"><strong>Lời đầu tiên, Trường Y, Đại học Y Dược TP. Hồ Chí Minh xin gửi đến Quý Công ty lời chúc sức khoẻ, hạnh phúc và thành công. Với mục tiêu nâng cao chất lượng chăm sóc sức khoẻ cộng đồng và thúc đẩy chiến lược phòng ngừa tiên phát và thứ phát các bệnh lý thường gặp, Trường Y, Đại học Y Dược TP. Hồ Chí Minh tổ chức:</strong></h2><h2 class=\"ql-align-justify\"><strong>HỘI NGHỊ Y HỌC LIÊN NGÀNH - LẦN THỨ 4</strong></h2><h2 class=\"ql-align-justify\"><strong>Chủ đề: “PHÒNG BỆNH CHỦ ĐỘNG - TƯƠNG LAI VỮNG BỀN”</strong></h2><p class=\"ql-align-justify\"><img src=\"https://hnkhkt.ump.edu.vn/Media/files/[Web%20HNKH][Thong%20bao]Thu%CC%9B%20mo%CC%9B%CC%80i%20ho%CC%A3p%20ma%CC%A3%CC%86t%20nha%CC%80%20ta%CC%80i%20tro%CC%9B%CC%A3%202025%20July%2028_Page_1.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"1200\" width=\"793\"></p><p class=\"ql-align-justify\"><img src=\"https://hnkhkt.ump.edu.vn/Media/files/[Web%20HNKH][Thong%20bao]Thu%CC%9B%20mo%CC%9B%CC%80i%20ho%CC%A3p%20ma%CC%A3%CC%86t%20nha%CC%80%20ta%CC%80i%20tro%CC%9B%CC%A3%202025%20July%2028_Page_2.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"1200\" width=\"782\"></p><p class=\"ql-align-right\"><em>Nguồn phát hành:</em>&nbsp;<strong>Hội nghị Y học liên ngành</strong></p>",
+      "excerpt": "Lời đầu tiên, Trường Y, Đại học Y Dược TP. Hồ Chí Minh xin gửi đến Quý Công ty lời chúc sức khoẻ, hạnh phúc và thành công. Với mục tiêu nâng cao chất lượng chăm sóc sức khoẻ cộng đồng và thúc đẩy chiến lược phòng ngừa tiên phát và thứ phát các bệnh lý thường gặp, Trường Y, Đại học Y Dược TP. Hồ Chí Minh tổ chức:\n\nHỘI NGHỊ Y HỌC LIÊN NGÀNH - LẦN THỨ 4",
+      "featuredImageUrl": "/uploads/image-1762687263848-721365326.png",
       "category": "important",
-      "publishedAt": "2025-02-18T00:00",
+      "publishedAt": "2025-11-09T03:00",
       "createdAt": "2025-02-18T00:00:00.000Z",
-      "updatedAt": "2025-11-07T17:42:02.714Z"
+      "updatedAt": "2025-11-09T11:21:06.952Z"
     },
     {
-      "title": "gfđfgdgdfgdfgdfg",
-      "content": "<p>dfg dfg</p><p><br></p><p>df g</p><p> dfg</p><p> dfg</p><p> dfg</p><p>df g</p><p>df fg </p><p>dfgd</p><p>g df</p><p>gdf </p><p>gdf</p><p> g</p><p>d g</p><p>fd </p><p>dfg</p><p> dfg</p><p><img src=\"/uploads/image-1762536769715-686385374.png\"></p>",
-      "excerpt": "dfg dfgdf g dfg dfg dfg dfg df gdf",
-      "featuredImageUrl": "/uploads/image-1762536752643-677676882.jpeg",
+      "title": "Cách thức đăng kí thông tin xuất hóa đơn - Hội nghị khoa học liên ngành lần 4",
+      "content": "<p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Ban tổ chức dự Hội nghị Khoa học Liên ngành - Lần thứ 4 xin thông báo:</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Quý đại biểu có nhu cầu xuất hóa đơn xin vui lòng điền thông đầy đủ thông tin vào&nbsp;</span><a href=\"https://hnkhkt.ump.edu.vn/Media/files/School%20of%20Medicine/2025/Announcement/PHIEU%20YEU%20CAU%20XUAT%20HOA%20DON.docx\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(77, 77, 230);\">Phiếu yêu cầu xuất hóa đơn</a><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">&nbsp;và gửi kèm ảnh chụp ủy nhiệm chi của ngân hàng gửi về Trung tâm đào tạo nhân lực y tế theo nhu cầu xã hội theo:</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Email:&nbsp;</span><a href=\"mailto:hoadonchpt@gmail.com\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(77, 153, 230);\">hoadonchpt@gmail.com</a></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Số điện thoại:&nbsp;</span><span style=\"color: rgb(77, 153, 230); background-color: rgb(255, 255, 255);\">(028) 3853920</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Trân trọng.</span></p>",
+      "excerpt": "Cách thức đăng kí thông tin xuất hóa đơn - Hội nghị khoa học liên ngành lần 4",
+      "featuredImageUrl": "/uploads/image-1762686809286-592729750.jpg",
       "category": "general",
-      "publishedAt": "2025-11-07T17:32",
+      "publishedAt": "2025-11-06T20:32",
       "id": "announcement-1762536774807-z5auq1f08",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T17:32:54.807Z",
-      "updatedAt": "2025-11-07T17:32:54.807Z"
-    },
-    {
-      "title": "dfs df sdf sdf sd",
-      "content": "<p>df dret ẻ df dfg dfg d</p>",
-      "excerpt": "ghffdhbhgfd df  fd",
-      "featuredImageUrl": "/uploads/image-1762536882978-980374536.png",
-      "category": "important",
-      "publishedAt": "2025-11-07T10:34",
-      "id": "announcement-1762536895890-veaqk7bov",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T17:34:55.890Z",
-      "updatedAt": "2025-11-08T05:45:34.288Z"
-    },
-    {
-      "title": "d fg dfg df gdf",
-      "content": "<p>fg dfg dfg dfg dfg dfg</p>",
-      "excerpt": "d fgd fgdf gdf gdf g",
-      "featuredImageUrl": "/uploads/image-1762537173439-125323792.png",
-      "category": "general",
-      "publishedAt": "2025-11-07T10:39",
-      "id": "announcement-1762537181599-rjl67md5k",
-      "conferenceId": "conf-2025",
-      "createdAt": "2025-11-07T17:39:41.599Z",
-      "updatedAt": "2025-11-08T05:45:37.738Z"
+      "updatedAt": "2025-11-09T11:13:37.405Z"
     }
   ],
   "sessions": [
@@ -364,11 +344,11 @@
       "title": "Phó Giám đốc Bệnh viện Chợ Rẫy",
       "credentials": "TS.BS",
       "specialty": "Phẫu thuật lồng ngực - Tim mạch",
-      "photoUrl": "/uploads/image-1762580987478-107498206.png",
+      "photoUrl": "/uploads/image-1762686022363-319514011.png",
       "bio": "Chuyên gia hàng đầu về phẫu thuật tim mạch với hơn 20 năm kinh nghiệm. Đã thực hiện hơn 5000 ca phẫu thuật tim mạch thành công.",
       "role": "moderator",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-08T05:49:49.585Z"
+      "updatedAt": "2025-11-09T11:00:24.107Z"
     },
     {
       "id": "speaker-002",
@@ -441,100 +421,100 @@
       "id": "sponsor-001",
       "conferenceId": "conf-2025",
       "name": "Pfizer Vietnam",
-      "logoUrl": "/uploads/image-1762628636917-633613821.png",
+      "logoUrl": "/uploads/image-1762686723200-915514859.png",
       "tier": "diamond",
       "websiteUrl": "https://www.pfizer.com",
       "displayOrder": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-08T19:03:59.995Z"
+      "updatedAt": "2025-11-09T11:12:04.837Z"
     },
     {
       "id": "sponsor-002",
       "conferenceId": "conf-2025",
       "name": "BioMed Sciences",
-      "logoUrl": "/uploads/image-1762523145715-324011926.png",
+      "logoUrl": "/uploads/image-1762687897872-949796320.png",
       "tier": "gold",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:45:47.207Z"
+      "updatedAt": "2025-11-09T11:31:39.496Z"
     },
     {
       "id": "sponsor-004",
       "conferenceId": "conf-2025",
       "name": "Ferring Pharmaceuticals",
-      "logoUrl": "/uploads/image-1762523169392-374828375.jpg",
+      "logoUrl": "/uploads/image-1762687908250-372591507.jpg",
       "tier": "silver",
       "websiteUrl": "https://www.ferring.com",
       "displayOrder": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:46:10.838Z"
+      "updatedAt": "2025-11-09T11:31:49.202Z"
     },
     {
       "id": "sponsor-005",
       "conferenceId": "conf-2025",
       "name": "HealthCare Solutions Vietnam",
-      "logoUrl": "/uploads/image-1762523184316-242119812.jpg",
+      "logoUrl": "/uploads/image-1762687916518-723599205.jpg",
       "tier": "bronze",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "updatedAt": "2025-11-07T13:46:25.375Z"
+      "updatedAt": "2025-11-09T11:31:57.839Z"
     },
     {
       "name": "innomed",
-      "logoUrl": "/uploads/image-1762523772647-798375876.jpg",
+      "logoUrl": "/uploads/image-1762687924721-306269305.png",
       "tier": "supporting",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 0,
       "id": "sponsor-1762523777265-wj1yjuyf7",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T13:56:17.265Z",
-      "updatedAt": "2025-11-07T15:42:24.729Z"
+      "updatedAt": "2025-11-09T11:32:05.901Z"
     },
     {
       "name": "msd",
-      "logoUrl": "/uploads/image-1762523782562-186223986.png",
+      "logoUrl": "/uploads/image-1762687942545-139884261.png",
       "tier": "supporting",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 2,
       "id": "sponsor-1762523788113-r70r2iwr4",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T13:56:28.113Z",
-      "updatedAt": "2025-11-07T15:43:45.616Z"
+      "updatedAt": "2025-11-09T11:32:23.507Z"
     },
     {
       "name": "esasd",
-      "logoUrl": "/uploads/image-1762523793088-816738635.jpg",
+      "logoUrl": "/uploads/image-1762687929164-673328184.png",
       "tier": "supporting",
       "websiteUrl": "https://www.medipharm.com",
       "displayOrder": 0,
       "id": "sponsor-1762523798383-ju7g3kune",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T13:56:38.383Z",
-      "updatedAt": "2025-11-07T15:42:32.993Z"
+      "updatedAt": "2025-11-09T11:32:10.273Z"
     },
     {
       "name": "asd",
-      "logoUrl": "/uploads/image-1762523803524-432149791.png",
+      "logoUrl": "/uploads/image-1762687933422-996697201.jpg",
       "tier": "supporting",
       "websiteUrl": "https://www.healthcare.vn",
       "displayOrder": 0,
       "id": "sponsor-1762523807032-t7jlb14v6",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T13:56:47.032Z",
-      "updatedAt": "2025-11-07T15:42:37.305Z"
+      "updatedAt": "2025-11-09T11:32:14.558Z"
     },
     {
       "name": "dfgdfg",
-      "logoUrl": "/uploads/image-1762523811513-527430791.jpg",
+      "logoUrl": "/uploads/image-1762687938138-905097092.jpg",
       "tier": "supporting",
       "websiteUrl": "https://www.biomed.com",
       "displayOrder": 1,
       "id": "sponsor-1762523815015-qtzqt81eh",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-07T13:56:55.015Z",
-      "updatedAt": "2025-11-07T15:43:40.676Z"
+      "updatedAt": "2025-11-09T11:32:19.091Z"
     }
   ],
   "whitelists": [],
@@ -543,11 +523,11 @@
       "title": "Một số địa điểm tham quan trải nghiệm tại TP. HCM",
       "content": "<p class=\"ql-align-justify\"><strong>1. Dinh Độc Lập (Independence Palace)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Đây là một công trình trong nhà hoàn hảo để tránh những cơn mưa bất chợt. Bạn có thể dành hàng giờ để tham quan các phòng ốc, tìm hiểu về lịch sử mà không bị ảnh hưởng bởi thời tiết. Hơn nữa, khuôn viên cây xanh rộng lớn của Dinh sau cơn mưa sẽ trở nên tươi mát và đầy sức sống, rất lý tưởng để dạo chơi và chụp ảnh.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Khám phá kiến trúc, tìm hiểu các sự kiện lịch sử quan trọng của Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/1-10.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"789\" width=\"1600\"></p><p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\"><strong>2. Phố lồng đèn Lương Nhữ Học, Phường Chợ Lớn</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Đây chính là địa điểm mang đậm dấu ấn mùa thu nhất Sài Gòn. Cứ vào dịp Tết Trung Thu (thường rơi vào tháng 8 âm lịch), con phố này lại trở nên rực rỡ với hàng ngàn chiếc lồng đèn đủ màu sắc, hình dáng. Đây là trải nghiệm văn hóa đặc sắc và là nơi để bạn có những bức ảnh \"check-in\" tuyệt đẹp.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Dạo phố, mua sắm lồng đèn, chụp ảnh và hòa mình vào không khí lễ hội.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/pho-long-den-2016-congancomvn-13.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"850\" width=\"1382\"></p><p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\"><strong>3. Bảo tàng Chứng tích Chiến tranh (War Remnants Museum)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Tương tự Dinh Độc Lập, đây là một điểm tham quan trong nhà, giúp bạn có một lịch trình liền mạch không bị gián đoạn bởi mưa. Bảo tàng mang đến một góc nhìn sâu sắc về lịch sử Việt Nam, là một trải nghiệm đáng giá và đầy cảm xúc.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Tham quan các khu trưng bày hiện vật, hình ảnh và câu chuyện về các cuộc chiến tranh tại Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/291a4f41-bao-tang-chung-tich-chien-tranh-1.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"600\" width=\"1000\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>4. Bưu điện Trung tâm Sài Gòn và Nhà thờ Đức Bà</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Bưu điện Trung tâm với kiến trúc cổ kính là một không gian trong nhà tuyệt đẹp để tham quan. Sau những cơn mưa, khu vực quảng trường trước Nhà thờ Đức Bà trở nên sạch sẽ, không khí trong lành và ánh nắng xiên lúc chiều tà tạo nên một khung cảnh rất lãng mạn, cổ điển kiểu châu Âu.</p><p class=\"ql-align-justify\"><strong>Hoạt động:&nbsp;</strong>Chiêm ngưỡng kiến trúc độc đáo của Bưu điện, gửi bưu thiếp và chụp ảnh với cụm kiến trúc biểu tượng của thành phố.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/nha-tho-duc-ba-buu-dien-trung-tam-sai-gon.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"530\" width=\"800\"></p><p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\"><strong>5. Saigon Skydeck tại Tháp tài chính Bitexco</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Ngắm nhìn thành phố từ trên cao khi một cơn mưa đang kéo đến hoặc vừa đi qua là một trải nghiệm vô cùng đặc biệt. Bạn sẽ được chứng kiến một Sài Gòn hùng vĩ, và nếu may mắn, bạn sẽ bắt được khoảnh khắc cầu vồng tuyệt đẹp sau mưa. Đây là một cách độc đáo để cảm nhận sự thay đổi của đất trời Sài Gòn.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Quan sát toàn cảnh 360 độ của thành phố, sử dụng ống nhòm để xem các địa danh và thưởng thức cà phê từ trên cao.</p><p class=\"ql-align-justify\"><strong>Gợi ý thêm:&nbsp;</strong>Mùa thu Sài Gòn là thời điểm lý tưởng để ngồi trong một quán cà phê có cửa sổ lớn, đọc một cuốn sách và ngắm những hạt mưa rơi. Chúc bạn có một chuyến đi thật nhiều trải nghiệm thú&nbsp;</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/Eon-Coffee-Shop.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p><p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\"><strong>6.Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;</strong></p><p class=\"ql-align-justify\">Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;của TP.HCM là một công trình giao thông hiện đại và cũng là một \"điểm tham quan\" mới rất được người dân và du khách quan tâm. Dưới đây là những thông tin tổng quan về tuyến Metro để bạn tham khảo cho chuyến tham quan của mình.</p><p class=\"ql-align-justify\">Thời gian hoạt động:&nbsp;Thường từ khoảng 5:00 sáng đến 22:00 tối hàng ngày.</p><p class=\"ql-align-justify\"><strong>Tần suất:</strong></p><p class=\"ql-align-justify\"><strong>Giờ cao điểm:</strong>&nbsp;Khoảng 8 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giờ bình thường:&nbsp;</strong>Khoảng 12 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giá vé:</strong>&nbsp;Vé được tính theo chặng. Giá vé lượt dao động từ khoảng 7.000 VNĐ đến 20.000 VNĐ cho toàn tuyến. Bạn có thể mua vé tại các máy bán vé tự động ở nhà ga.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/metro-so-1-ben-thanh-suoi-tien-36-1735785711.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p>",
       "excerpt": "Một số địa điểm tham quan trải nghiệm tại TP. HCM",
-      "featuredImageUrl": "/uploads/image-1762579637528-910986083.jpg",
+      "featuredImageUrl": "/uploads/image-1762687964256-660979203.jpg",
       "id": "sightseeing-1762579667635-seehe9gvk",
       "conferenceId": "conf-2025",
       "createdAt": "2025-11-08T05:27:47.635Z",
-      "updatedAt": "2025-11-08T05:27:47.635Z"
+      "updatedAt": "2025-11-09T11:32:46.842Z"
     }
   ]
 }

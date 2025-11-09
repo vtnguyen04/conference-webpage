@@ -1,84 +1,63 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from './ui/button';
-import { toast } from '../hooks/use-toast';
-import { queryClient } from '../lib/queryClient'; // Import queryClient
+import { Trash2, UploadCloud } from 'lucide-react';
 
 interface ImageUploaderProps {
-  currentImageUrl?: string;
-  onUploadSuccess: (newImagePath: string) => void;
+  onDrop: (acceptedFiles: File[]) => void;
+  onDelete: () => void;
+  preview?: string;
+  isUploading: boolean;
+  isDeleting: boolean;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ currentImageUrl, onUploadSuccess }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
-
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-    if (currentImageUrl) {
-      formData.append('oldImagePath', currentImageUrl);
-    }
-
-    setIsUploading(true);
-    setPreview(URL.createObjectURL(file)); // Show preview immediately
-
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Upload failed');
-      }
-
-      const result = await response.json();
-      onUploadSuccess(result.imagePath);
-
-      // Invalidate query cache to reflect changes immediately
-      queryClient.invalidateQueries({ queryKey: ['/api/conferences/active'] });
-      // We can make this more specific if needed, but for now, this is robust.
-
-      toast({ title: 'Success', description: 'Image uploaded successfully.' });
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast({ title: 'Error', description: error.message || 'Could not upload image.', variant: 'destructive' });
-      setPreview(currentImageUrl); // Revert preview on error
-    } finally {
-      setIsUploading(false);
-    }
-  }, [currentImageUrl, onUploadSuccess]);
-
+export const ImageUploader: React.FC<ImageUploaderProps> = ({
+  onDrop,
+  onDelete,
+  preview,
+  isUploading,
+  isDeleting,
+}) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] },
     multiple: false,
+    disabled: isUploading || isDeleting,
   });
 
   return (
-    <div className="flex flex-col items-center space-y-4">
+    <div className="flex items-center space-x-4">
       <div
         {...getRootProps()}
-        className={`w-48 h-48 border-2 border-dashed rounded-lg flex items-center justify-center text-center p-4 cursor-pointer transition-colors 
-        ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+        className={`w-40 h-40 border-2 border-dashed rounded-lg flex items-center justify-center text-center p-2 cursor-pointer transition-colors relative group
+        ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 dark:border-gray-600'}
+        ${(isUploading || isDeleting) && 'cursor-not-allowed opacity-50'}`}
       >
         <input {...getInputProps()} />
         {isUploading ? (
-          <p>Uploading...</p>
+          <div className="flex flex-col items-center gap-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="text-xs">Đang tải lên...</p>
+          </div>
         ) : preview ? (
-          <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain" />
+          <>
+            <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain rounded-md" />
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+              <p className="text-white text-sm">Nhấp để thay đổi</p>
+            </div>
+          </>
         ) : (
-          <p>Drag 'n' drop an image here, or click to select one</p>
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <UploadCloud className="h-8 w-8" />
+            <p className="text-xs">Kéo thả hoặc nhấp để tải ảnh lên</p>
+          </div>
         )}
       </div>
-      <Button onClick={getRootProps().onClick} disabled={isUploading}>
-        {isUploading ? 'Uploading...' : 'Change Image'}
-      </Button>
+      {preview && !isUploading && (
+        <Button variant="ghost" size="icon" onClick={onDelete} disabled={isDeleting} className="text-destructive self-start">
+          <Trash2 className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   );
 };

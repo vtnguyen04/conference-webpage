@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { Button } from './ui/button';
-import { ImageUploader } from './ImageUploader';
-import { Trash2, Plus } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
+import { Trash2, Plus, UploadCloud } from 'lucide-react';
+import { apiUploadFile } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 interface MultiImageManagerProps {
@@ -12,23 +12,45 @@ interface MultiImageManagerProps {
 }
 
 export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = [], onChange, onDelete }) => {
-  const [isAdding, setIsAdding] = useState(false);
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Ensure value is always an array
-  const urls = Array.isArray(value) ? value : [];
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return;
 
-  const handleUploadSuccess = (newImagePath: string) => {
-    onChange([...urls, newImagePath]);
-    setIsAdding(false);
-  };
+    const formData = new FormData();
+    acceptedFiles.forEach(file => {
+      formData.append('banners', file);
+    });
+
+    setIsUploading(true);
+    try {
+      const result = await apiUploadFile('/api/upload/banners', formData);
+      const newImagePaths = result.imagePaths || [];
+      onChange([...(value || []), ...newImagePaths]);
+      toast({ title: `${newImagePaths.length} banner(s) uploaded successfully` });
+    } catch (error: any) {
+      toast({ title: 'Error uploading banners', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  }, [value, onChange, toast]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] },
+    multiple: true,
+    disabled: isUploading,
+  });
 
   const handleDelete = (imagePathToDelete: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) {
+    if (!confirm('Are you sure you want to delete this banner?')) {
       return;
     }
-    // Instead of deleting immediately, notify the parent to stage the deletion
     onDelete(imagePathToDelete);
   };
+
+  const urls = Array.isArray(value) ? value : [];
 
   return (
     <div className="space-y-4 p-4 border rounded-lg">
@@ -43,23 +65,28 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
             </div>
           </div>
         ))}
-
-        {isAdding && (
-          <div className="p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center">
-            <ImageUploader 
-              onUploadSuccess={handleUploadSuccess} 
-            />
-            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)} className="mt-2">Cancel</Button>
-          </div>
-        )}
       </div>
 
-      {!isAdding && (
-        <Button variant="outline" onClick={() => setIsAdding(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Banner
-        </Button>
-      )}
+      <div
+        {...getRootProps()}
+        className={`p-6 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-colors
+        ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 dark:border-gray-600'}
+        ${isUploading && 'cursor-not-allowed opacity-50'}`}
+      >
+        <input {...getInputProps()} />
+        {isUploading ? (
+          <>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+            <p>Đang tải lên...</p>
+          </>
+        ) : (
+          <>
+            <UploadCloud className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="font-semibold">Kéo thả hoặc nhấp để tải lên</p>
+            <p className="text-xs text-muted-foreground">Tải lên nhiều banner cùng lúc</p>
+          </>
+        )}
+      </div>
     </div>
   );
 };
