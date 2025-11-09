@@ -21,8 +21,8 @@ export async function generateCmeCertificate(
   const { width, height } = firstPage.getSize();
   
   // Load fonts
-  const fontPath = path.join(process.cwd(), 'server', 'fonts', 'font-times-new-roman', 'SVN-Times New Roman Bold.ttf'); // SVN-Times New Roman Bold
-  const regularFontPath = path.join(process.cwd(), 'server', 'fonts', 'font-times-new-roman', 'SVN-Times New Roman.ttf'); // SVN-Times New Roman Regular
+  const fontPath = path.join(process.cwd(), 'server', 'fonts', 'arial', 'ARIALBD.TTF'); // Arial Bold
+  const regularFontPath = path.join(process.cwd(), 'server', 'fonts', 'arial', 'ARIAL.TTF'); // Arial Regular
   
   let embeddedFont; // For bold text (userName)
   let embeddedRegularFont; // For other text (if any, currently not used)
@@ -34,7 +34,7 @@ export async function generateCmeCertificate(
     const regularFontBytes = await fs.readFile(regularFontPath);
     embeddedRegularFont = await pdfDoc.embedFont(regularFontBytes);
   } catch (error) {
-    console.warn('Could not load custom SVN-Times New Roman font. Falling back to Helvetica.', error);
+    console.warn('Could not load custom Arial font. Falling back to Helvetica.', error);
     embeddedFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     embeddedRegularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   }
@@ -46,23 +46,14 @@ export async function generateCmeCertificate(
   // 1. VỊ TRÍ TÊN NGƯỜI DÙNG
   const placeholderCenterY = height * 0.52; // Khoảng 52% từ dưới lên
   
-  // 2. VẼ TÊN NGƯỜI DÙNG (Màu đỏ tối, đổ bóng, uppercase)
+  // 2. VẼ TÊN NGƯỜI DÙNG (Màu đỏ sáng, uppercase, không đổ bóng)
   const displayUserName = userName.toUpperCase();
-  const userNameFontSize = 32; // Reduced size again
+  const userNameFontSize = 32; // Set size to 32
   const userNameTextWidth = embeddedFont.widthOfTextAtSize(displayUserName, userNameFontSize);
   const userNameX = (width - userNameTextWidth) / 2; // Center
-  const userNameY = placeholderCenterY + 25; // Moved up further
+  const userNameY = placeholderCenterY + 25; // Keep position
 
-  // Draw shadow
-  firstPage.drawText(displayUserName, {
-    x: userNameX + 2, // Offset for shadow
-    y: userNameY - 2, // Offset for shadow
-    font: embeddedFont,
-    size: userNameFontSize,
-    color: rgb(0.3, 0.3, 0.3), // Dark gray for shadow
-  });
-  
-  // Draw main text
+  // Draw main text (no shadow)
   firstPage.drawText(displayUserName, {
     x: userNameX,
     y: userNameY,

@@ -58,6 +58,7 @@ export const registrations = sqliteTable("registrations", {
   
   // Session-specific options
   cmeCertificateRequested: integer("cme_certificate_requested", { mode: "boolean" }).notNull().default(false),
+  conferenceCertificateSent: integer("conference_certificate_sent", { mode: "boolean" }).notNull().default(false), // NEW FIELD
   
   // QR code and status
   qrCode: text("qr_code"), // Unique QR code for this session registration
