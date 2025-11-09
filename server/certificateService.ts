@@ -8,7 +8,6 @@ import fontkit from '@pdf-lib/fontkit';
  */
 export async function generateCmeCertificate(
   userName: string, 
-  sessionTitle: string // sessionTitle will be ignored as per new requirement
 ): Promise<Buffer> {
   const templatePath = path.join(process.cwd(), 'server', 'data', 'certificate.pdf');
   const existingPdfBytes = await fs.readFile(templatePath);

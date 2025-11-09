@@ -139,6 +139,7 @@ export async function createRegistration(
     createdAt: new Date(),
     registeredAt: new Date(),
     cmeCertificateRequested: data.cmeCertificateRequested || false,
+    conferenceCertificateSent: false, // NEW FIELD
     emailSent: false,
     reminderCount: 0,
   };
@@ -248,6 +249,7 @@ export async function batchRegisterSessions(
           organization: organization || null,
           position: position || null,
           cmeCertificateRequested,
+          conferenceCertificateSent: false, // NEW FIELD
           status: "pending",
           qrCode: qrCodeDataURL, // Store data URL
           confirmationToken,

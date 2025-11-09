@@ -4,7 +4,7 @@ import { storage as dbStorage } from "./storage";
 import { jsonStorage } from "./jsonStorage";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { registrations } from "@shared/schema";
+import { registrations as registrationsTable } from "@shared/schema"; // Renamed import to avoid conflict
 import {
   getRegistrationsByYear,
   getRegistrationsBySession,
@@ -805,7 +805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/registrations/confirm/:token', async (req, res) => {
     try {
       const { token } = req.params;
-      const registration = await db.select().from(registrations).where(eq(registrations.confirmationToken, token)).limit(1);
+      const registration = await db.select().from(registrationsTable).where(eq(registrationsTable.confirmationToken, token)).limit(1);
 
       if (!registration.length) {
         return res.status(400).send("Invalid confirmation token.");
@@ -817,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).send("Confirmation token has expired.");
       }
 
-      await db.update(registrations).set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null }).where(eq(registrations.id, reg.id));
+      await db.update(registrationsTable).set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null }).where(eq(registrationsTable.id, reg.id));
 
       // Send success email with QR codes
       const conference = await jsonStorage.getActiveConference();
@@ -1153,10 +1153,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         method: 'qr',
       });
 
-      if (registration.cmeCertificateRequested) {
+      if (registration.cmeCertificateRequested && !registration.conferenceCertificateSent) { // NEW CONDITION
         if (session) {
-          const certificate = await generateCmeCertificate(registration.fullName, session.title);
-          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
+          const certificate = await generateCmeCertificate(registration.fullName);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, "", conference.name, certificate); // Pass empty string
+          
+          // Update registration to mark certificate as sent
+          await db.update(registrationsTable).set({ conferenceCertificateSent: true }).where(eq(registrationsTable.id, registration.id)).run(); // NEW UPDATE
         }
       }
 
@@ -1175,7 +1178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const registration = await db.query.registrations.findFirst({
-        where: eq(registrations.id, registrationId),
+        where: eq(registrationsTable.id, registrationId),
       });
 
       if (!registration) {
@@ -1203,10 +1206,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const conference = await jsonStorage.getActiveConference();
       const session = conference ? await jsonStorage.getSession(conference.year, registration.sessionId) : null;
 
-      if (registration.cmeCertificateRequested) {
+      if (registration.cmeCertificateRequested && !registration.conferenceCertificateSent) { // NEW CONDITION
         if (session && conference) { // Ensure both session and conference are available
-          const certificate = await generateCmeCertificate(registration.fullName, session.title);
-          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
+          const certificate = await generateCmeCertificate(registration.fullName);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, "", conference.name, certificate); // Pass empty string
+          
+          // Update registration to mark certificate as sent
+          await db.update(registrationsTable).set({ conferenceCertificateSent: true }).where(eq(registrationsTable.id, registration.id)).run(); // NEW UPDATE
         }
       }
 
