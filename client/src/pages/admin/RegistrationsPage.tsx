@@ -91,6 +91,11 @@ export default function RegistrationsPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
+  console.log("RegistrationsPage: Rendering");
+  console.log("RegistrationsPage: debouncedSearchQuery =", debouncedSearchQuery);
+  console.log("RegistrationsPage: page =", page);
+  console.log("RegistrationsPage: limit =", limit);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -102,28 +107,50 @@ export default function RegistrationsPage() {
     };
   }, [searchQuery]);
 
-  const { data, isLoading } = useQuery<{ data: Registration[], total: number }>({
+  const { data, isLoading, isError, error } = useQuery<{ data: Registration[], total: number }>({
     queryKey: ["registrations", debouncedSearchQuery, page, limit],
     queryFn: async () => {
       const url = debouncedSearchQuery
         ? `/api/admin/registrations/search?query=${debouncedSearchQuery}&page=${page}&limit=${limit}`
         : `/api/registrations?page=${page}&limit=${limit}`;
+      console.log("RegistrationsPage: Fetching registrations from URL =", url);
       return apiRequest("GET", url);
     },
+    // No 'enabled' property explicitly set, so it defaults to true
   });
+
+  console.log("RegistrationsPage: useQuery data =", data);
+  console.log("RegistrationsPage: useQuery isLoading =", isLoading);
+  console.log("RegistrationsPage: useQuery isError =", isError);
+  if (isError) {
+    console.error("RegistrationsPage: useQuery error =", error);
+  }
 
   const registrations = data?.data || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
 
-  const { data: conference } = useQuery<Conference | null>({
+  const { data: conference, isLoading: isConferenceLoading, isError: isConferenceError, error: conferenceError } = useQuery<Conference | null>({
     queryKey: ["/api/conferences/active"],
   });
 
-  const { data: sessions = [] } = useQuery<Session[]>({
+  console.log("RegistrationsPage: conference data =", conference);
+  console.log("RegistrationsPage: isConferenceLoading =", isConferenceLoading);
+  if (isConferenceError) {
+    console.error("RegistrationsPage: conference error =", conferenceError);
+  }
+
+  const { data: sessions = [], isLoading: isSessionsLoading, isError: isSessionsError, error: sessionsError } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.year],
-    enabled: !!conference,
+    enabled: !!conference, // This is important!
   });
+
+  console.log("RegistrationsPage: sessions data =", sessions);
+  console.log("RegistrationsPage: isSessionsLoading =", isSessionsLoading);
+  console.log("RegistrationsPage: sessions enabled =", !!conference);
+  if (isSessionsError) {
+    console.error("RegistrationsPage: sessions error =", sessionsError);
+  }
 
   const sessionsMap = useMemo(() => 
     new Map(sessions.map(s => [s.id, s])),

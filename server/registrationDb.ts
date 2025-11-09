@@ -198,20 +198,18 @@ export async function batchRegisterSessions(
   // Step 3: Perform all database operations in a transaction
   try {
     // Pre-generate QR codes outside the transaction
-    const qrCodeDetails: { sessionId: string; qrCodePath: string }[] = [];
+    const qrCodeDetails: { sessionId: string; qrCodeDataURL: string }[] = [];
     for (const sessionId of sessionIds) {
-      console.log(`DEBUG: Generating QR for sessionId: ${sessionId}`); // Added logging
-      const qrData = `CONF|${conferenceYear}|${sessionId}|${email}|${Date.now()}`; // Changed delimiter to '|'      
-      const qrCodeFileName = `qr-${Date.now()}-${sessionId}.png`; // Added sessionId to filename for uniqueness
-      const qrCodePath = `/uploads/${qrCodeFileName}`;
-      await QRCode.toFile(`public${qrCodePath}`, qrData, { width: 150, margin: 1 });
-      qrCodeDetails.push({ sessionId, qrCodePath });
+      console.log(`DEBUG: Generating QR for sessionId: ${sessionId}`);
+      const qrData = `CONF|${conferenceYear}|${sessionId}|${email}|${Date.now()}`;
+      const qrCodeDataURL = await QRCode.toDataURL(qrData); // Generate data URL
+      qrCodeDetails.push({ sessionId, qrCodeDataURL });
     }
 
-    const createdRegistrations = db.transaction((tx) => { // Removed 'async'
+    const createdRegistrations = db.transaction((tx) => {
       // Check if already registered for any of these sessions
       for (const sessionId of sessionIds) {
-        const existingRegistration = tx // Removed 'await'
+        const existingRegistration = tx
           .select()
           .from(registrations)
           .where(
@@ -234,8 +232,8 @@ export async function batchRegisterSessions(
       
       for (const sessionId of sessionIds) {
         const id = randomUUID();
-        // Retrieve pre-generated QR code path
-        const { qrCodePath } = qrCodeDetails.find(d => d.sessionId === sessionId)!;
+        // Retrieve pre-generated QR code data URL
+        const { qrCodeDataURL } = qrCodeDetails.find(d => d.sessionId === sessionId)!;
 
         const confirmationToken = crypto.randomBytes(32).toString("hex");
         const confirmationTokenExpires = new Date(Date.now() + 3600000).toISOString(); // 1 hour
@@ -251,7 +249,7 @@ export async function batchRegisterSessions(
           position: position || null,
           cmeCertificateRequested,
           status: "pending",
-          qrCode: qrCodePath,
+          qrCode: qrCodeDataURL, // Store data URL
           confirmationToken,
           confirmationTokenExpires: new Date(Date.now() + 3600000), // 1 hour
           createdAt: new Date(),
@@ -260,7 +258,7 @@ export async function batchRegisterSessions(
           reminderCount: 0,
         };
 
-        tx // Removed 'await'
+        tx
           .insert(registrations)
           .values(newRegistration)
           .run();

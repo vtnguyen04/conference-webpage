@@ -633,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all registrations for current conference year
+  // Get all registrations for current conference year (Paginated for frontend)
   app.get('/api/registrations', async (req, res) => {
     try {
       const conference = await jsonStorage.getActiveConference();
@@ -643,6 +643,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const { registrations: regs, total } = await getRegistrationsByYear(conference.year, page, limit);
+      res.json({ data: regs, total }); // Correct response for paginated data
+    } catch (error) {
+      console.error("Error fetching paginated registrations:", error); // Added specific error logging
+      res.status(500).json({ message: "Failed to fetch registrations" });
+    }
+  });
+
+  app.get('/api/registrations/export', async (req, res) => {
+    try {
+      const conference = await jsonStorage.getActiveConference();
+      if (!conference) {
+        return res.status(404).send("No active conference found.");
+      }
       const { registrations } = await getRegistrationsByYear(conference.year, 1, Number.MAX_SAFE_INTEGER);
 
       // CSV Headers
@@ -1185,6 +1198,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId: registration.sessionId,
         method: 'manual',
       });
+
+      // Fetch conference and session details for certificate generation
+      const conference = await jsonStorage.getActiveConference();
+      const session = conference ? await jsonStorage.getSession(conference.year, registration.sessionId) : null;
+
+      if (registration.cmeCertificateRequested) {
+        if (session && conference) { // Ensure both session and conference are available
+          const certificate = await generateCmeCertificate(registration.fullName, session.title);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
+        }
+      }
 
       res.json(checkIn);
     } catch (error: any) {

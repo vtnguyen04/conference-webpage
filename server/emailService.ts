@@ -18,7 +18,7 @@ const emailStyles = `
   .header h1 { margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; }
   .content { padding: 30px 40px 20px; }
   .content p { margin: 0 0 15px; font-size: 16px; color: #374151; }
-  .button { background-color: #335CFF; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; }
+  .button { background-color: #2040C0; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; }
   .footer { padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; }
   .footer p { margin: 0 0 10px; font-size: 14px; color: #6b7280; }
 `;
@@ -92,20 +92,36 @@ export async function sendConsolidatedRegistrationEmail(
   sessions: Array<{ title: string; time: string; room: string; qrCode: string; }>
 ): Promise<boolean> {
   try {
-    const sessionRows = sessions.map((session, index) => `
-      <tr>
-        <td colspan="2" style="padding: 20px 0; ${index > 0 ? 'border-top: 2px solid #e5e7eb;' : ''}">
-          <h3 style="margin: 0 0 10px 0; color: #335CFF;">${session.title}</h3>
-          <p style="margin: 5px 0; color: #666;">
-            <strong>Thời gian:</strong> ${session.time}<br/>
-            <strong>Địa điểm:</strong> ${session.room}
-          </p>
-          <div style="margin-top: 15px;">
-            <img src="${process.env.BASE_URL}${session.qrCode}" alt="QR Code - ${session.title}" style="width: 200px; height: 200px; border: 2px solid #335CFF; border-radius: 8px;" />
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    const attachments: any[] = [];
+    const sessionRows = sessions.map((session, index) => {
+      const cid = `qrcode_${index}`; // Use index for unique Content-ID
+      
+      // Extract base64 data from data URL
+      const base64Data = session.qrCode.split(',')[1];
+      if (base64Data) {
+        attachments.push({
+          filename: `qrcode-${index}.png`, // Use index for filename
+          content: Buffer.from(base64Data, 'base64'),
+          contentType: 'image/png',
+          cid: cid, // Reference in HTML
+        });
+      }
+
+      return `
+        <tr>
+          <td colspan="2" style="padding: 20px 0; ${index > 0 ? 'border-top: 2px solid #e5e7eb;' : ''}">
+            <h3 style="margin: 0 0 10px 0; color: #335CFF;">${session.title}</h3>
+            <p style="margin: 5px 0; color: #666;">
+              <strong>Thời gian:</strong> ${session.time}<br/>
+              <strong>Địa điểm:</strong> ${session.room}
+            </p>
+            <div style="margin-top: 15px;">
+              <img src="cid:${cid}" alt="QR Code - ${session.title}" style="width: 200px; height: 200px; border: 2px solid #335CFF; border-radius: 8px;" />
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     const cmeNote = cmeCertificateRequested ? `
       <div style="padding: 12px; background-color: #FEF3C7; border-left: 4px solid #FFC857; margin: 15px 0;">
@@ -143,6 +159,7 @@ export async function sendConsolidatedRegistrationEmail(
       to: email,
       subject: `Xác nhận đăng ký ${sessions.length} phiên - ${conferenceName}`,
       html,
+      attachments: attachments,
     });
     console.log(`Consolidated registration email sent to ${email}`);
     return true;
