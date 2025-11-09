@@ -32,15 +32,15 @@ export default function CheckinPage() {
     queryKey: ["/api/sessions", conference?.year],
     enabled: !!conference?.year,
     select: (data) => {
-      console.log("All sessions:", data);
       const now = new Date();
-      const ongoingSessions = data.filter(session => {
+      const filteredSessions = data.filter(session => {
         const startTime = new Date(session.startTime);
         const endTime = new Date(session.endTime);
-        return now >= startTime && now <= endTime;
+        // Session is currently happening if its start time has passed and end time has not yet passed
+        return startTime <= now && endTime >= now;
       });
-      console.log("Ongoing sessions:", ongoingSessions);
-      return ongoingSessions;
+      console.log("Filtered sessions (currently happening):", filteredSessions);
+      return filteredSessions;
     }
   });
 
@@ -49,33 +49,65 @@ export default function CheckinPage() {
     enabled: !!selectedSessionId,
   });
 
+  // Reset selectedSessionId if the session is no longer in the filtered list
+  useEffect(() => {
+    if (selectedSessionId && !sessions.some(s => s.id === selectedSessionId)) {
+      setSelectedSessionId("");
+    }
+  }, [sessions, selectedSessionId]);
+
   const checkInMutation = useMutation({
     mutationFn: async (qrData: string) => {
       if (!selectedSessionId) {
         throw new Error("Vui lòng chọn phiên trước");
       }
-      return await apiRequest("POST", "/api/check-ins", { 
-        qrData, 
-        sessionId: selectedSessionId 
-      });
+      try {
+        const response = await apiRequest("POST", "/api/check-ins", { 
+          qrData, 
+          sessionId: selectedSessionId 
+        });
+        console.log("API check-in response:", response);
+        return response;
+      } catch (error: any) {
+        // If it's a 400 "Already checked in" error, treat it as a success for react-query's onSuccess callback
+        if (error.message.includes("400: {\"message\":\"Already checked in for this session\"}")) {
+          console.log("Treating 'Already checked in' as a success for react-query.");
+          // Return a resolved promise with a specific payload that onSuccess can interpret
+          return { status: 400, message: "Already checked in for this session" };
+        }
+        throw error; // Re-throw other errors to trigger onError
+      }
     },
-    onSuccess: () => {
-      toast({ title: "Check-in thành công!" });
+    onSuccess: (data) => { // data will contain the response from mutationFn
+      console.log("Check-in onSuccess callback fired.", data);
+      if (data && data.status === 400 && data.message === "Already checked in for this session") {
+        toast({ title: "Đã check-in", description: "Người tham dự đã được check-in cho phiên này.", variant: "default" });
+      } else {
+        toast({ title: "Check-in thành công!" });
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/check-ins/session", selectedSessionId] });
       stopScanning();
     },
     onError: (error: any) => {
+      console.log("Check-in onError callback fired:", error);
       toast({
         title: "Lỗi check-in",
         description: error.message,
         variant: "destructive",
       });
+      // stopScanning() is now handled by onSuccess for "Already checked in" case
+      // For other errors, we might still want to stop the scanner, or let it continue.
+      // For now, only stop on success or specific handled errors.
     },
   });
 
   const startScanning = async () => {
     try {
-      setScanning(true);
+      // Set scanning to true first to ensure the qr-reader div is rendered
+      setScanning(true); 
+      // Wait for the DOM to update before initializing Html5Qrcode
+      await new Promise(resolve => setTimeout(resolve, 0)); 
+
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
 
@@ -104,15 +136,21 @@ export default function CheckinPage() {
   };
 
   const stopScanning = async () => {
+    console.log("stopScanning called.");
     if (scannerRef.current) {
+      console.log("scannerRef.current exists. Attempting to stop scanner.");
       try {
         await scannerRef.current.stop();
         scannerRef.current = null;
+        console.log("Scanner stopped successfully.");
       } catch (error) {
         console.error("Error stopping scanner:", error);
       }
+    } else {
+      console.log("scannerRef.current is null. Scanner not active.");
     }
     setScanning(false);
+    console.log("setScanning(false) called.");
   };
 
   useEffect(() => {

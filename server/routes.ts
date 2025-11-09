@@ -488,15 +488,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Session routes
+  app.get('/api/sessions/:year', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+      const sessions = await jsonStorage.getSessions(year);
+      console.log(`API /api/sessions/${year}: Fetched sessions:`, sessions);
+      res.json(sessions);
+    } catch (error) {
+      console.error(`API /api/sessions/${req.params.year}: Failed to fetch sessions:`, error);
+      res.status(500).json({ message: "Failed to fetch sessions" });
+    }
+  });
+
   app.get('/api/sessions', async (req, res) => {
     try {
       const conference = await jsonStorage.getActiveConference();
+      console.log("API /api/sessions: Active conference:", conference);
       if (!conference) {
+        console.log("API /api/sessions: No active conference found, returning empty array.");
         return res.json([]);
       }
       const sessions = await jsonStorage.getSessions(conference.year);
+      console.log("API /api/sessions: Fetched sessions:", sessions);
       res.json(sessions);
     } catch (error) {
+      console.error("API /api/sessions: Failed to fetch sessions:", error);
       res.status(500).json({ message: "Failed to fetch sessions" });
     }
   });
@@ -1412,20 +1428,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Session ID is required" });
       }
 
-      // Parse QR code data: CONF-{year}-{sessionId}-{email}-{timestamp}
-      const parts = qrData.split('-');
-      if (parts.length < 4) {
+      // Parse QR code data: CONF|{year}|{sessionId}|{email}|{timestamp}
+      const parts = qrData.split('|'); // <--- CHANGED FROM ',' TO '|'
+      if (parts.length < 5) {
         return res.status(400).json({ message: "Invalid QR code format" });
       }
 
-      const [, year, qrSessionId, ...emailParts] = parts;
-      // Email might contain dashes, so rejoin
-      const emailWithTimestamp = emailParts.join('-');
-      const email = emailWithTimestamp.substring(0, emailWithTimestamp.lastIndexOf('-'));
+      const [, qrYearStr, qrSessionId, email, timestampStr] = parts; // Directly extract email and timestamp
+      const qrYear = parseInt(qrYearStr);
+      // No need to rejoin emailParts as email is now directly extracted
+      // const emailWithTimestamp = emailParts.join('-');
+      // const email = emailWithTimestamp.substring(0, emailWithTimestamp.lastIndexOf('-'));
       
       const conference = await jsonStorage.getActiveConference();
       if (!conference) {
         return res.status(404).json({ message: "No active conference" });
+      }
+
+      // Validate QR code data against current conference and selected session
+      if (qrYear !== conference.year) {
+        console.warn(`Check-in failed: QR code year (${qrYear}) does not match conference year (${conference.year}).`);
+        return res.status(400).json({ message: "QR code is for a different conference year." });
+      }
+      // Log values for debugging
+      console.log(`Debugging Check-in: qrSessionId=${qrSessionId}, sessionIdFromRequestBody=${sessionId}`);
+      if (qrSessionId !== sessionId) {
+        console.warn(`Check-in failed: QR code session ID (${parts}) does not match selected session ID (${sessionId}).`);
+        return res.status(400).json({ message: "QR code is for a different session than the one selected." });
       }
 
       // Find the session to check its time
@@ -1434,20 +1463,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Session not found" });
       }
 
-      // Check if the check-in is within the allowed time window
-      const now = new Date();
-      const startTime = new Date(session.startTime);
-      const endTime = new Date(session.endTime);
-      const checkinWindowStart = new Date(startTime.getTime() - 30 * 60 * 1000); // 30 minutes before
-      const checkinWindowEnd = new Date(endTime.getTime() + 30 * 60 * 1000); // 30 minutes after
-
-      if (now < checkinWindowStart || now > checkinWindowEnd) {
-        return res.status(400).json({ message: `Check-in is only allowed from ${checkinWindowStart.toLocaleTimeString()} to ${checkinWindowEnd.toLocaleTimeString()}` });
-      }
-
       // Find the registration for this email and session
       const registrations = await getRegistrationsByEmail(email, conference.year);
-      const registration = registrations.find(r => r.sessionId === sessionId);
+      const registration = registrations.find(r => r.sessionId === qrSessionId); // Use qrSessionId here
 
       if (!registration) {
         return res.status(404).json({ message: "Registration not found for this session" });
@@ -1568,6 +1586,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const count = await getContactMessagesCount();
       res.json({ count });
     } catch (error) {
+      console.error("Error fetching contact messages count:", error);
       res.status(500).json({ message: "Failed to fetch contact messages count" });
     }
   });

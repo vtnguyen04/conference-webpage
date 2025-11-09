@@ -1,19 +1,18 @@
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import connectPg from "connect-pg-simple";
+import connectSqlite3 from "connect-sqlite3";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    ttl: sessionTtl,
-    tableName: "sessions",
+  const SQLiteStore = connectSqlite3(session);
+  const sessionStore = new SQLiteStore({
+    db: 'sessions.db',
+    table: 'sessions',
+    dir: './server/data', // Store session file in server/data
   });
   return session({
     secret: process.env.SESSION_SECRET!,
-    store: sessionStore,
+    store: sessionStore as any,
     resave: false,
     saveUninitialized: false,
     cookie: {

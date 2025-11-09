@@ -330,8 +330,8 @@
     },
     {
       "day": 1,
-      "title": "dfgdfg",
-      "track": "",
+      "title": "Y Học vui vẻ",
+      "track": "Y học gia đình",
       "description": "dfgdfgdfgdf",
       "descriptionMd": "",
       "startTime": "2025-11-08T23:33",
@@ -353,7 +353,7 @@
       "conferenceId": "conf-2025",
       "id": "session-1762619626551-f4owwjk8q",
       "createdAt": "2025-11-08T16:33:46.551Z",
-      "updatedAt": "2025-11-08T16:33:46.551Z"
+      "updatedAt": "2025-11-08T20:27:43.425Z"
     }
   ],
   "speakers": [

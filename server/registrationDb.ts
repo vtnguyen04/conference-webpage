@@ -8,13 +8,14 @@ import type {
   BatchRegistrationRequest,
   Session,
 } from "@shared/schema";
-import { eq, and, sql, inArray, or, ilike, isNull } from "drizzle-orm";
+import { eq, and, sql, inArray, or, like, isNull, gt, lt } from "drizzle-orm";
 import QRCode from "qrcode";
 import { sendRegistrationConfirmationEmail } from "./emailService";
 import crypto from "crypto";
+import { randomUUID } from "crypto";
 
 // ============================================================================
-// SESSION-BASED REGISTRATION OPERATIONS (PostgreSQL)
+// SESSION-BASED REGISTRATION OPERATIONS (SQLite)
 // ============================================================================
 
 /**
@@ -26,7 +27,8 @@ export async function getRegistrationsByYear(
   return await db
     .select()
     .from(registrations)
-    .where(eq(registrations.conferenceYear, year));
+    .where(eq(registrations.conferenceYear, year))
+    .all();
 }
 
 /**
@@ -38,7 +40,8 @@ export async function getRegistrationsBySession(
   return await db
     .select()
     .from(registrations)
-    .where(eq(registrations.sessionId, sessionId));
+    .where(eq(registrations.sessionId, sessionId))
+    .all();
 }
 
 /**
@@ -56,7 +59,8 @@ export async function getRegistrationsByEmail(
         eq(registrations.email, email),
         eq(registrations.conferenceYear, year)
       )
-    );
+    )
+    .all();
 }
 
 /**
@@ -75,7 +79,8 @@ export async function isRegisteredForSession(
         eq(registrations.sessionId, sessionId)
       )
     )
-    .limit(1);
+    .limit(1)
+    .all();
   
   return existing.length > 0;
 }
@@ -87,16 +92,17 @@ export async function getSessionRegistrationCount(
   sessionId: string
 ): Promise<number> {
   const result = await db
-    .select({ count: sql<number>`count(*)::int` })
+    .select({ count: sql<number>`count(*)` })
     .from(registrations)
     .where(
       and(
         eq(registrations.sessionId, sessionId),
         eq(registrations.status, "confirmed")
       )
-    );
+    )
+    .get();
   
-  return result[0]?.count || 0;
+  return Number(result?.count || 0);
 }
 
 /**
@@ -105,31 +111,41 @@ export async function getSessionRegistrationCount(
 export async function createRegistration(
   data: InsertRegistration
 ): Promise<Registration> {
+  const id = randomUUID();
   // Generate unique QR code data
-  const qrData = `CONF-${data.conferenceYear}-${data.sessionId}-${data.email}-${Date.now()}`;
+  const qrData = `CONF|${data.conferenceYear}|${data.sessionId}|${data.email}|${Date.now()}`; // Changed delimiter to '|'
   const qrCodeImage = await QRCode.toDataURL(qrData);
 
-  const [registration] = await db
+  const newRegistration = {
+    ...data,
+    id,
+    qrCode: qrCodeImage,
+    status: "pending",
+    createdAt: new Date(),
+    registeredAt: new Date(),
+    cmeCertificateRequested: data.cmeCertificateRequested || false,
+    emailSent: false,
+    reminderCount: 0,
+  };
+
+  await db
     .insert(registrations)
-    .values({
-      ...data,
-      qrCode: qrCodeImage,
-    })
-    .returning();
+    .values(newRegistration)
+    .run();
 
   // Send confirmation email for single registration
   const conferenceName = `Conference ${data.conferenceYear}`; // Placeholder
   await sendRegistrationConfirmationEmail(
-    registration.email,
+    newRegistration.email,
     conferenceName,
     {
-      name: registration.fullName,
-      email: registration.email,
+      name: newRegistration.fullName,
+      email: newRegistration.email,
       // Add other relevant details from registration object
     }
   );
 
-  return registration;
+  return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;
 }
 
 /**
@@ -139,7 +155,6 @@ export async function createRegistration(
 export async function batchRegisterSessions(
   request: BatchRegistrationRequest,
   sessions: Session[],
-  // isWhitelisted: boolean
 ): Promise<{
   success: boolean;
   registrations?: Registration[];
@@ -149,11 +164,7 @@ export async function batchRegisterSessions(
 }> {
   const { conferenceYear, sessionIds, email, fullName, phone, organization, position, cmeCertificateRequested } = request;
 
-  // Step 1: Validate whitelist (if required)
-  // Note: Whitelist check should be done by the calling code
-  // This function assumes whitelist validation is already done
-
-  // Step 2: Get session details for the requested sessions
+  // Step 1: Get session details for the requested sessions
   const requestedSessions = sessions.filter(s => sessionIds.includes(s.id));
 
   if (requestedSessions.length !== sessionIds.length) {
@@ -163,7 +174,7 @@ export async function batchRegisterSessions(
     };
   }
 
-  // Step 3: Check time overlap
+  // Step 2: Check time overlap
   const hasOverlap = checkSessionTimeOverlap(requestedSessions);
   if (hasOverlap) {
     return {
@@ -172,14 +183,23 @@ export async function batchRegisterSessions(
     };
   }
 
-  // Step 4-6: Perform all database operations in a transaction
-  // This ensures atomicity: either all registrations succeed or none do
+  // Step 3: Perform all database operations in a transaction
   try {
-    const createdRegistrations = await db.transaction(async (tx) => {
-      // Check if already registered for any of these sessions
+    // Pre-generate QR codes outside the transaction
+    const qrCodeDetails: { sessionId: string; qrCodePath: string }[] = [];
+    for (const sessionId of sessionIds) {
+      console.log(`DEBUG: Generating QR for sessionId: ${sessionId}`); // Added logging
+      const qrData = `CONF|${conferenceYear}|${sessionId}|${email}|${Date.now()}`; // Changed delimiter to '|'      
+      const qrCodeFileName = `qr-${Date.now()}-${sessionId}.png`; // Added sessionId to filename for uniqueness
+      const qrCodePath = `/uploads/${qrCodeFileName}`;
+      await QRCode.toFile(`public${qrCodePath}`, qrData, { width: 150, margin: 1 });
+      qrCodeDetails.push({ sessionId, qrCodePath });
+    }
+
+    const createdRegistrations = db.transaction((tx) => { // Removed 'async'
       // Check if already registered for any of these sessions
       for (const sessionId of sessionIds) {
-        const existingRegistration = await tx
+        const existingRegistration = tx // Removed 'await'
           .select()
           .from(registrations)
           .where(
@@ -189,42 +209,11 @@ export async function batchRegisterSessions(
               eq(registrations.sessionId, sessionId)
             )
           )
-          .limit(1);
+          .limit(1)
+          .all();
 
         if (existingRegistration.length > 0) {
           throw new Error(`Already registered for session: ${sessionId}`);
-        }
-      }
-
-      // Sort sessions by ID to prevent deadlocks
-      // This ensures all transactions acquire locks in the same order
-      // NOTE: This prevents most deadlocks but edge cases with complex concurrent
-      // patterns (non-overlapping session sets) may still occur. For high-concurrency
-      // production use, consider: (1) persisting sessions in SQL with FOR UPDATE,
-      // or (2) using a global registration queue/serialization mechanism.
-      const sortedSessions = [...requestedSessions].sort((a, b) => 
-        a.id.localeCompare(b.id)
-      );
-
-      // Acquire advisory locks for each session to serialize capacity checks
-      // This prevents race conditions even when sessions have zero registrations
-      for (const session of sortedSessions) {
-        if (session.capacity) {
-          // Use PostgreSQL advisory lock based on session ID
-          // This serializes ALL transactions trying to register for this session
-          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${session.id}))`);
-          
-          // Now count registrations atomically (lock is held)
-          const result = await tx
-            .select({ count: sql<number>`count(*)::int` })
-            .from(registrations)
-            .where(eq(registrations.sessionId, session.id));
-          
-          const currentCount = result[0]?.count || 0;
-          
-          if (currentCount >= session.capacity) {
-            throw new Error(`Session "${session.title}" is full (${currentCount}/${session.capacity})`);
-          }
         }
       }
 
@@ -232,34 +221,45 @@ export async function batchRegisterSessions(
       const allRegistrations: Registration[] = [];
       
       for (const sessionId of sessionIds) {
-        // Generate unique QR code data
-        const qrData = `CONF-${conferenceYear}-${sessionId}-${email}-${Date.now()}`;
-        const qrCodeFileName = `qr-${Date.now()}.png`;
-        const qrCodePath = `/uploads/${qrCodeFileName}`;
-        await QRCode.toFile(`public${qrCodePath}`, qrData, { width: 150, margin: 1 });
+        const id = randomUUID();
+        // Retrieve pre-generated QR code path
+        const { qrCodePath } = qrCodeDetails.find(d => d.sessionId === sessionId)!;
 
         const confirmationToken = crypto.randomBytes(32).toString("hex");
-        const confirmationTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+        const confirmationTokenExpires = new Date(Date.now() + 3600000).toISOString(); // 1 hour
 
-        const [registration] = await tx
+        const newRegistration = {
+          id,
+          conferenceYear,
+          sessionId,
+          fullName,
+          email,
+          phone,
+          organization: organization || null,
+          position: position || null,
+          cmeCertificateRequested,
+          status: "pending",
+          qrCode: qrCodePath,
+          confirmationToken,
+          confirmationTokenExpires: new Date(Date.now() + 3600000), // 1 hour
+          createdAt: new Date(),
+          registeredAt: new Date(),
+          emailSent: false,
+          reminderCount: 0,
+        };
+
+        tx // Removed 'await'
           .insert(registrations)
-          .values({
-            conferenceYear,
-            sessionId,
-            fullName,
-            email,
-            phone,
-            organization: organization || null,
-            position: position || null,
-            cmeCertificateRequested,
-            status: "pending",
-            qrCode: qrCodePath,
-            confirmationToken,
-            confirmationTokenExpires,
-          })
-          .returning();
+          .values(newRegistration)
+          .run();
 
-        allRegistrations.push(registration);
+        // Convert date strings back to Date objects for response
+        allRegistrations.push({
+          ...newRegistration,
+          createdAt: new Date(newRegistration.createdAt),
+          registeredAt: new Date(newRegistration.registeredAt),
+          confirmationTokenExpires: new Date(newRegistration.confirmationTokenExpires),
+        } as Registration);
       }
 
       return allRegistrations;
@@ -335,16 +335,16 @@ export async function cancelRegistration(
     .update(registrations)
     .set({ status: "cancelled" })
     .where(eq(registrations.id, registrationId))
-    .returning();
+    .run();
 
-  return result.length > 0;
+  return result.changes > 0;
 }
 
 /**
  * Delete all registrations for a conference year
  */
 export async function deleteRegistrationsByYear(year: number): Promise<void> {
-  await db.delete(registrations).where(eq(registrations.conferenceYear, year));
+  await db.delete(registrations).where(eq(registrations.conferenceYear, year)).run();
 }
 
 /**
@@ -354,9 +354,9 @@ export async function deleteRegistration(id: string): Promise<boolean> {
   const result = await db
     .delete(registrations)
     .where(eq(registrations.id, id))
-    .returning();
+    .run();
 
-  return result.length > 0;
+  return result.changes > 0;
 }
 
 /**
@@ -371,11 +371,12 @@ export async function searchRegistrations(year: number, query: string): Promise<
       and(
         eq(registrations.conferenceYear, year),
         or(
-          ilike(registrations.fullName, `%${lowerCaseQuery}%`),
-          ilike(registrations.email, `%${lowerCaseQuery}%`)
+          like(registrations.fullName, `%${lowerCaseQuery}%`),
+          like(registrations.email, `%${lowerCaseQuery}%`)
         )
       )
-    );
+    )
+    .all();
 }
 
 /**
@@ -387,7 +388,7 @@ export async function getPendingRegistrationsDueForReminder(
   maxReminders: number
 ): Promise<Registration[]> {
   const now = new Date();
-  const reminderCutoff = new Date(now.getTime() - reminderIntervalHours * 60 * 60 * 1000);
+  const reminderCutoff = new Date(Date.now() - reminderIntervalHours * 60 * 60 * 1000);
 
   return await db
     .select()
@@ -396,38 +397,49 @@ export async function getPendingRegistrationsDueForReminder(
       and(
         eq(registrations.conferenceYear, conferenceYear),
         eq(registrations.status, "pending"),
-        registrations.confirmationTokenExpires ? sql`${registrations.confirmationTokenExpires} > ${now}` : undefined,
-        sql`${registrations.reminderCount} < ${maxReminders}`,
+        gt(registrations.confirmationTokenExpires, now),
+        lt(registrations.reminderCount, maxReminders),
         or(
           isNull(registrations.lastReminderSentAt),
-          sql`${registrations.lastReminderSentAt} < ${reminderCutoff}`
+          lt(registrations.lastReminderSentAt, reminderCutoff)
         )
       )
-    );
+    )
+    .all();
 }
+
 
 /**
  * Update a registration's reminder status (increment count, set last sent time)
  */
 export async function updateRegistrationReminderStatus(registrationId: string): Promise<void> {
-  await db
-    .update(registrations)
-    .set({
-      reminderCount: sql`${registrations.reminderCount} + 1`,
-      lastReminderSentAt: new Date(),
-    })
-    .where(eq(registrations.id, registrationId));
+  const registration = await db
+    .select()
+    .from(registrations)
+    .where(eq(registrations.id, registrationId))
+    .get();
+
+  if (registration) {
+    await db
+      .update(registrations)
+      .set({
+        reminderCount: registration.reminderCount + 1,
+        lastReminderSentAt: new Date(),
+      })
+      .where(eq(registrations.id, registrationId))
+      .run();
+  }
 }
 
 /**
  * Cancel and delete an unconfirmed registration
  */
 export async function cancelAndDeleteUnconfirmedRegistration(registrationId: string): Promise<void> {
-  await db.delete(registrations).where(eq(registrations.id, registrationId));
+  await db.delete(registrations).where(eq(registrations.id, registrationId)).run();
 }
 
 // ============================================================================
-// CHECK-IN OPERATIONS (PostgreSQL)
+// CHECK-IN OPERATIONS (SQLite)
 // ============================================================================
 
 /**
@@ -436,12 +448,24 @@ export async function cancelAndDeleteUnconfirmedRegistration(registrationId: str
 export async function createCheckIn(
   data: InsertCheckIn
 ): Promise<CheckIn> {
-  const [checkIn] = await db
-    .insert(checkIns)
-    .values(data)
-    .returning();
+  const id = randomUUID();
+  const newCheckIn = {
+    ...data,
+    id,
+    checkedInAt: new Date(),
+    createdAt: new Date(),
+  };
 
-  return checkIn;
+  await db
+    .insert(checkIns)
+    .values(newCheckIn)
+    .run();
+
+  return {
+    ...newCheckIn,
+    checkedInAt: new Date(newCheckIn.checkedInAt),
+    createdAt: new Date(newCheckIn.createdAt),
+  } as CheckIn;
 }
 
 /**
@@ -453,7 +477,8 @@ export async function getCheckInsByRegistration(
   return await db
     .select()
     .from(checkIns)
-    .where(eq(checkIns.registrationId, registrationId));
+    .where(eq(checkIns.registrationId, registrationId))
+    .all();
 }
 
 /**
@@ -466,7 +491,8 @@ export async function getCheckInsBySession(
     .select()
     .from(checkIns)
     .leftJoin(registrations, eq(checkIns.registrationId, registrations.id))
-    .where(eq(checkIns.sessionId, sessionId));
+    .where(eq(checkIns.sessionId, sessionId))
+    .all();
 }
 
 /**
@@ -485,7 +511,8 @@ export async function isCheckedIn(
         eq(checkIns.sessionId, sessionId)
       )
     )
-    .limit(1);
+    .limit(1)
+    .all();
 
   return existing.length > 0;
 }
@@ -510,7 +537,8 @@ export async function getRegistrationStats(year: number) {
     allCheckIns = await db
       .select()
       .from(checkIns)
-      .where(inArray(checkIns.registrationId, registrationIds));
+      .where(inArray(checkIns.registrationId, registrationIds))
+      .all();
   }
 
   const uniqueCheckedInAttendees = new Set(

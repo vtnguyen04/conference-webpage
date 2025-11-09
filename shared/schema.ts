@@ -1,14 +1,10 @@
 import { sql } from "drizzle-orm";
 import {
-  pgTable,
-  varchar,
+  sqliteTable,
   text,
-  timestamp,
-  boolean,
   integer,
   index,
-  jsonb,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -18,27 +14,29 @@ import { z } from "zod";
 // ============================================================================
 
 // Session storage table (required for express-session)
-export const sessions = pgTable(
+export const sessions = sqliteTable(
   "sessions",
   {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
+    sid: text("sid").primaryKey(),
+    sess: text("sess", { mode: "json" }).notNull(), // JSON stored as text
+    expire: integer("expire", { mode: "timestamp_ms" }).notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => ({
+    expireIdx: index("IDX_session_expire").on(table.expire),
+  })
 );
 
 // Users table (admins, staff)
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique().notNull(),
-  passwordHash: varchar("password_hash"),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  role: varchar("role").notNull().default("user"), // admin, editor, user
-  profileImageUrl: varchar("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email: text("email").unique().notNull(),
+  passwordHash: text("password_hash"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  role: text("role").notNull().default("user"), // admin, editor, user
+  profileImageUrl: text("profile_image_url"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
 });
 
 export type User = typeof users.$inferSelect;
@@ -46,39 +44,39 @@ export type InsertUser = typeof users.$inferInsert;
 
 // Registrations table - SESSION-BASED (1 registration = 1 person + 1 session)
 // Each session registration has its own QR code and confirmation email
-export const registrations = pgTable("registrations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const registrations = sqliteTable("registrations", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   conferenceYear: integer("conference_year").notNull(), // 2025, 2026, etc.
-  sessionId: varchar("session_id").notNull(), // Session ID from JSON (e.g., "sess-001")
+  sessionId: text("session_id").notNull(), // Session ID from JSON (e.g., "sess-001")
   
   // Attendee information
   fullName: text("full_name").notNull(),
-  email: varchar("email").notNull(),
-  phone: varchar("phone").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
   organization: text("organization"),
   position: text("position"),
   
   // Session-specific options
-  cmeCertificateRequested: boolean("cme_certificate_requested").notNull().default(false),
+  cmeCertificateRequested: integer("cme_certificate_requested", { mode: "boolean" }).notNull().default(false),
   
   // QR code and status
   qrCode: text("qr_code"), // Unique QR code for this session registration
-  status: varchar("status").notNull().default("pending"), // pending, confirmed, cancelled
-  emailSent: boolean("email_sent").default(false),
-  confirmationToken: varchar("confirmation_token"),
-  confirmationTokenExpires: timestamp("confirmation_token_expires"),
+  status: text("status").notNull().default("pending"), // pending, confirmed, cancelled
+  emailSent: integer("email_sent", { mode: "boolean" }).default(false),
+  confirmationToken: text("confirmation_token"),
+  confirmationTokenExpires: integer("confirmation_token_expires", { mode: "timestamp_ms" }),
   reminderCount: integer("reminder_count").notNull().default(0),
-  lastReminderSentAt: timestamp("last_reminder_sent_at"),
+  lastReminderSentAt: integer("last_reminder_sent_at", { mode: "timestamp_ms" }),
   
-  registeredAt: timestamp("registered_at").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_registrations_year").on(table.conferenceYear),
-  index("idx_registrations_session").on(table.sessionId),
-  index("idx_registrations_email").on(table.email),
-  index("idx_registrations_email_session").on(table.email, table.sessionId),
-  index("idx_registrations_confirmation_token").on(table.confirmationToken),
-]);
+  registeredAt: integer("registered_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+}, (table) => ({
+  yearIdx: index("idx_registrations_year").on(table.conferenceYear),
+  sessionIdx: index("idx_registrations_session").on(table.sessionId),
+  emailIdx: index("idx_registrations_email").on(table.email),
+  emailSessionIdx: index("idx_registrations_email_session").on(table.email, table.sessionId),
+  confirmationTokenIdx: index("idx_registrations_confirmation_token").on(table.confirmationToken),
+}));
 
 export const insertRegistrationSchema = createInsertSchema(registrations).omit({
   id: true,
@@ -91,25 +89,22 @@ export const insertRegistrationSchema = createInsertSchema(registrations).omit({
 export type InsertRegistration = z.infer<typeof insertRegistrationSchema>;
 export type Registration = typeof registrations.$inferSelect;
 
-// REMOVED: registrationSessions table - no longer needed with session-based registration
-// REMOVED: tickets table - QR codes now stored directly in registrations table
-
 // Check-ins table (record of who attended which sessions)
-export const checkIns = pgTable("check_ins", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  registrationId: varchar("registration_id")
+export const checkIns = sqliteTable("check_ins", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  registrationId: text("registration_id")
     .notNull()
     .references(() => registrations.id, { onDelete: "cascade" }),
-  sessionId: varchar("session_id").notNull(), // References session ID from JSON
-  method: varchar("method").notNull().default("qr"), // qr, manual, face
-  deviceId: varchar("device_id"),
-  checkedInAt: timestamp("checked_in_at").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_checkins_reg").on(table.registrationId),
-  index("idx_checkins_session").on(table.sessionId),
-  index("idx_checkins_checked_at").on(table.checkedInAt),
-]);
+  sessionId: text("session_id").notNull(), // References session ID from JSON
+  method: text("method").notNull().default("qr"), // qr, manual, face
+  deviceId: text("device_id"),
+  checkedInAt: integer("checked_in_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+}, (table) => ({
+  regIdx: index("idx_checkins_reg").on(table.registrationId),
+  sessionIdx: index("idx_checkins_session").on(table.sessionId),
+  checkedAtIdx: index("idx_checkins_checked_at").on(table.checkedInAt),
+}));
 
 export const insertCheckInSchema = createInsertSchema(checkIns).omit({
   id: true,
@@ -121,30 +116,30 @@ export type InsertCheckIn = z.infer<typeof insertCheckInSchema>;
 export type CheckIn = typeof checkIns.$inferSelect;
 
 // Audit logs (track admin changes)
-export const auditLogs = pgTable("audit_logs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
-  action: varchar("action").notNull(), // create, update, delete, clone_year, etc.
-  entityType: varchar("entity_type").notNull(), // conference, session, speaker, etc.
-  entityId: varchar("entity_id"),
-  metadata: jsonb("metadata"), // Additional context
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_audit_logs_user").on(table.userId),
-  index("idx_audit_logs_created").on(table.createdAt),
-]);
+export const auditLogs = sqliteTable("audit_logs", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+  action: text("action").notNull(), // create, update, delete, clone_year, etc.
+  entityType: text("entity_type").notNull(), // conference, session, speaker, etc.
+  entityId: text("entity_id"),
+  metadata: text("metadata", { mode: "json" }), // Additional context stored as JSON text
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
+}, (table) => ({
+  userIdx: index("idx_audit_logs_user").on(table.userId),
+  createdIdx: index("idx_audit_logs_created").on(table.createdAt),
+}));
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
 
 // Contact Messages table
-export const contactMessages = pgTable("contact_messages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  email: varchar("email").notNull(),
+export const contactMessages = sqliteTable("contact_messages", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
-  submittedAt: timestamp("submitted_at").defaultNow(),
+  submittedAt: integer("submitted_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
 });
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -184,12 +179,12 @@ export interface Conference {
   name: string;
   theme: string;
   logoUrl: string;
-  bannerUrls: string[]; // Changed from bannerUrl
+  bannerUrls: string[];
   introContent: string; // HTML/Markdown
-  registrationNote1: string; // New field
-  registrationNote2: string; // New field
-  startDate: Date; // Changed from string
-  endDate: Date; // Changed from string
+  registrationNote1: string;
+  registrationNote2: string;
+  startDate: Date;
+  endDate: Date;
   location: string;
   contactEmail: string;
   contactPhone: string;
@@ -274,7 +269,7 @@ export interface Announcement {
   content: string; // HTML/Markdown
   excerpt: string;
   featuredImageUrl: string;
-  pdfUrl?: string; // New field for PDF URL
+  pdfUrl?: string;
   views: number;
   category: "general" | "important" | "deadline";
   publishedAt: string;
@@ -322,12 +317,12 @@ export const insertConferenceSchema = z.object({
   name: z.string().min(1),
   theme: z.string().optional().or(z.literal("")),
   logoUrl: z.string().optional().or(z.literal("")),
-  bannerUrls: z.array(z.string()).optional(), // Changed from bannerUrl
+  bannerUrls: z.array(z.string()).optional(),
   introContent: z.string().optional().or(z.literal("")),
-  registrationNote1: z.string().optional().or(z.literal("")), // New field
-  registrationNote2: z.string().optional().or(z.literal("")), // New field
-  startDate: z.date(), // Changed from string
-  endDate: z.date(), // Changed from string
+  registrationNote1: z.string().optional().or(z.literal("")),
+  registrationNote2: z.string().optional().or(z.literal("")),
+  startDate: z.date(),
+  endDate: z.date(),
   location: z.string().optional().or(z.literal("")),
   contactEmail: z.string().email().optional().or(z.literal("")),
   contactPhone: z.string().optional().or(z.literal("")),
@@ -339,7 +334,7 @@ export type InsertConference = z.infer<typeof insertConferenceSchema>;
 // Agenda Item schema - Complete structure for conference program
 export const agendaItemSchema = z.object({
   timeSlot: z.string(), // "07g00-07g30", "09g00-09g15"
-  title: z.string(), // "Khai mạ", "Phát biểu khai mạc", etc.
+  title: z.string(), // "Khai mạc", "Phát biểu khai mạc", etc.
   speakerId: z.string().nullable().optional(), // Speaker ID (null if no speaker)
   notes: z.string().optional(), // Additional notes (optional)
 });
@@ -403,7 +398,7 @@ export const insertAnnouncementSchema = z.object({
   content: z.string(),
   excerpt: z.string(),
   featuredImageUrl: z.string().optional().or(z.literal("")),
-  pdfUrl: z.string().optional().or(z.literal("")), // New field for PDF URL
+  pdfUrl: z.string().optional().or(z.literal("")),
   category: z.enum(["general", "important", "deadline"]).default("general"),
   publishedAt: z.string().optional(),
 });

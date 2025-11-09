@@ -1,20 +1,30 @@
 import { db } from "./db";
 import { contactMessages } from "@shared/schema";
 import type { ContactMessage, InsertContactMessage } from "@shared/schema";
-import { eq, sql, or, ilike } from "drizzle-orm";
+import { eq, sql, or, like, ilike } from "drizzle-orm";
 
 /**
  * Create a new contact message
  */
+import { randomUUID } from "crypto";
+
+// ...
+
 export async function createContactMessage(
   data: Omit<InsertContactMessage, "id" | "submittedAt">
 ): Promise<ContactMessage> {
-  const [message] = await db
-    .insert(contactMessages)
-    .values(data)
-    .returning();
+  const id = randomUUID();
+  const newMessage = {
+    ...data,
+    id,
+    submittedAt: new Date(),
+  };
 
-  return message;
+  await db
+    .insert(contactMessages)
+    .values(newMessage);
+
+  return newMessage as ContactMessage;
 }
 
 /**
@@ -29,10 +39,10 @@ export async function getContactMessages(): Promise<ContactMessage[]> {
  */
 export async function getContactMessagesCount(): Promise<number> {
   const result = await db
-    .select({ count: sql<number>`count(*)::int` })
+    .select({ count: sql`count(*)` })
     .from(contactMessages);
   
-  return result[0]?.count || 0;
+  return Number(result[0]?.count || 0);
 }
 
 /**
@@ -41,10 +51,9 @@ export async function getContactMessagesCount(): Promise<number> {
 export async function deleteContactMessage(id: string): Promise<boolean> {
   const result = await db
     .delete(contactMessages)
-    .where(eq(contactMessages.id, id))
-    .returning();
+    .where(eq(contactMessages.id, id));
 
-  return result.length > 0;
+  return result.changes > 0;
 }
 
 /**
@@ -64,8 +73,8 @@ export async function searchContactMessages(query: string): Promise<ContactMessa
     .from(contactMessages)
     .where(
       or(
-        ilike(contactMessages.name, `%${lowerCaseQuery}%`),
-        ilike(contactMessages.email, `%${lowerCaseQuery}%`)
+        like(contactMessages.name, `%${lowerCaseQuery}%`),
+        like(contactMessages.email, `%${lowerCaseQuery}%`)
       )
     )
     .orderBy(contactMessages.submittedAt);
