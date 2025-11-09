@@ -3,6 +3,7 @@
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Admin pages
 import DashboardPage from "@/pages/admin/DashboardPage";
@@ -21,8 +22,8 @@ import ConferencesManagementPage from "@/pages/admin/ConferencesManagementPage";
 // Shared pages
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
-import { useAuth } from "@/hooks/useAuth"; // <-- Import useAuth
-import { Loader2 } from "lucide-react"; // <-- Import Loader
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 /**
  * Component gốc của ứng dụng Admin.
@@ -55,31 +56,33 @@ export function AdminApp() {
 
         {/* Sử dụng một "catch-all" Route không có path để xử lý TẤT CẢ các trường hợp còn lại */}
         <Route>
-          {/* Đặt ProtectedRoute ở đây để bảo vệ tất cả các trang bên trong */}
-          <ProtectedRoute>
-            <AdminLayout>
-              {/* Bên trong khu vực được bảo vệ, chúng ta có một Switch thứ hai để chọn đúng trang */}
-              <Switch>
-                {/* Đảm bảo thứ tự vẫn đúng: cụ thể nhất ở trên */}
-                <Route path="/admin/conference" component={ConferencePage} />
-                <Route path="/admin/conferences" component={ConferencesManagementPage} />
-                <Route path="/admin/sessions" component={SessionsPage} />
-                <Route path="/admin/speakers" component={SpeakersManagementPage} />
-                <Route path="/admin/sponsors" component={SponsorsManagementPage} />
-                <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
-                <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
-                <Route path="/admin/registrations" component={RegistrationsPage} />
-                <Route path="/admin/checkin" component={CheckinPage} />
-                <Route path="/admin/analytics" component={AnalyticsPage} />
-                <Route path="/admin/contact-messages" component={ContactMessagesPage} />
+          {/* Đặt SidebarProvider ở đây để bao bọc tất cả các trang cần context của nó */}
+          <SidebarProvider>
+            <ProtectedRoute>
+              <AdminLayout>
+                {/* Bên trong khu vực được bảo vệ, chúng ta có một Switch thứ hai để chọn đúng trang */}
+                <Switch>
+                  {/* Đảm bảo thứ tự vẫn đúng: cụ thể nhất ở trên */}
+                  <Route path="/admin/conference" component={ConferencePage} />
+                  <Route path="/admin/conferences" component={ConferencesManagementPage} />
+                  <Route path="/admin/sessions" component={SessionsPage} />
+                  <Route path="/admin/speakers" component={SpeakersManagementPage} />
+                  <Route path="/admin/sponsors" component={SponsorsManagementPage} />
+                  <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
+                  <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
+                  <Route path="/admin/registrations" component={RegistrationsPage} />
+                  <Route path="/admin/checkin" component={CheckinPage} />
+                  <Route path="/admin/analytics" component={AnalyticsPage} />
+                  <Route path="/admin/contact-messages" component={ContactMessagesPage} />
 
-                {/* Route gốc /admin ở cuối cùng */}
-                <Route path="/admin" component={DashboardPage} />
-                
-                <Route component={NotFound} />
-              </Switch>
-            </AdminLayout>
-          </ProtectedRoute>
+                  {/* Route gốc /admin ở cuối cùng */}
+                  <Route path="/admin" component={DashboardPage} />
+                  
+                  <Route component={NotFound} />
+                </Switch>
+              </AdminLayout>
+            </ProtectedRoute>
+          </SidebarProvider>
          </Route>
     </Switch>
   );

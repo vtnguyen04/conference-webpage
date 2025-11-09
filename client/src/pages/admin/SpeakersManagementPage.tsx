@@ -35,15 +35,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import type { Speaker, InsertSpeaker, Conference } from "@shared/schema";
 import { insertSpeakerSchema } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 
 export default function SpeakersManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data: speakers = [] } = useQuery<Speaker[]>({
+  const { data: speakers = [] } = useQuery<Speaker[]> ({
     queryKey: ["/api/speakers"],
   });
 
@@ -70,7 +72,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo diễn giả thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -85,7 +87,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật diễn giả thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
       setIsDialogOpen(false);
       setEditingSpeaker(null);
       form.reset();
@@ -101,7 +103,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa diễn giả thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -114,7 +116,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả diễn giả thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -166,6 +168,45 @@ export default function SpeakersManagementPage() {
       updateMutation.mutate({ id: editingSpeaker.id, data });
     } else {
       createMutation.mutate(data);
+    }
+  };
+
+  const handleImageUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    const file = files[0];
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const oldPhotoUrl = form.getValues("photoUrl");
+    if (oldPhotoUrl) {
+      formData.append("oldImagePath", oldPhotoUrl);
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await apiUploadFile("/api/upload", formData);
+      form.setValue("photoUrl", result.imagePath, { shouldValidate: true });
+      toast({ title: "Tải ảnh lên thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi tải ảnh lên", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    const currentPhotoUrl = form.getValues("photoUrl");
+    if (!currentPhotoUrl) return;
+    if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", `/api/upload?filePath=${currentPhotoUrl}`);
+      form.setValue("photoUrl", "", { shouldValidate: true });
+      toast({ title: "Xóa ảnh thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -332,8 +373,11 @@ export default function SpeakersManagementPage() {
                     <FormLabel>Ảnh diễn giả</FormLabel>
                     <FormControl>
                       <ImageUploader
-                        currentImageUrl={field.value}
-                        onUploadSuccess={(newPath) => field.onChange(newPath)}
+                        preview={field.value}
+                        onDrop={handleImageUpload}
+                        onDelete={handleImageDelete}
+                        isUploading={isUploading}
+                        isDeleting={isDeleting}
                       />
                     </FormControl>
                     <FormDescription>

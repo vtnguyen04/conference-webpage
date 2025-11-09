@@ -24,15 +24,19 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 
 const ContactMessagesPage: React.FC = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 10; // Number of items per page
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
+      setPage(1); // Reset to first page on new search
     }, 500); // 500ms debounce delay
 
     return () => {
@@ -40,18 +44,22 @@ const ContactMessagesPage: React.FC = () => {
     };
   }, [searchQuery]);
 
-  const { data: messages, isLoading, isError, error } = useQuery<ContactMessage[]>({
-    queryKey: ['contactMessages', debouncedSearchQuery],
-    queryFn: async (): Promise<ContactMessage[]> => {
-      let url = "/api/contact-messages";
+  const { data, isLoading, isError, error } = useQuery<{ data: ContactMessage[], total: number }>({
+    queryKey: ['contactMessages', debouncedSearchQuery, page, limit],
+    queryFn: async (): Promise<{ data: ContactMessage[], total: number }> => {
+      let url = `/api/contact-messages?page=${page}&limit=${limit}`;
       if (debouncedSearchQuery) {
-        url = `/api/admin/contact-messages/search?query=${debouncedSearchQuery}`;
+        url = `/api/admin/contact-messages/search?query=${debouncedSearchQuery}&page=${page}&limit=${limit}`;
       }
       const response = await apiRequest("GET", url);
-      return response as ContactMessage[];
+      return response as { data: ContactMessage[], total: number };
     },
-    enabled: !!debouncedSearchQuery || searchQuery === '', // Only run query if debounced value exists or no search is active
+    enabled: true, // Always run query
   });
+
+  const messages = data?.data || [];
+  const totalMessages = data?.total || 0;
+  const totalPages = Math.ceil(totalMessages / limit);
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -59,7 +67,7 @@ const ContactMessagesPage: React.FC = () => {
     },
     onSuccess: () => {
       toast({ title: "Xóa tin nhắn thành công" });
-      queryClient.invalidateQueries({ queryKey: ["contactMessages"] });
+      queryClient.invalidateQueries({ queryKey: ["contactMessages", debouncedSearchQuery, page, limit] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -72,7 +80,7 @@ const ContactMessagesPage: React.FC = () => {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả tin nhắn thành công" });
-      queryClient.invalidateQueries({ queryKey: ["contactMessages"] });
+      queryClient.invalidateQueries({ queryKey: ["contactMessages"] }); // Invalidate all contact messages queries
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -188,6 +196,25 @@ const ContactMessagesPage: React.FC = () => {
             )}
           </TableBody>
         </Table>
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink onClick={() => setPage(i + 1)} isActive={page === i + 1}>
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </CardContent>
     </Card>
   );

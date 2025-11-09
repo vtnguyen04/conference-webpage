@@ -33,8 +33,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import type { Sponsor, InsertSponsor, Conference } from "@shared/schema";
 import { insertSponsorSchema } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ImageUploader } from "@/components/ImageUploader"; // Import the new uploader
+import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
+import { ImageUploader } from "@/components/ImageUploader";
 
 const tierLabels: Record<string, string> = {
   diamond: "Kim cương",
@@ -58,6 +58,8 @@ export default function SponsorsManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: sponsors = [] } = useQuery<Sponsor[]>({
     queryKey: ["/api/sponsors"],
@@ -84,7 +86,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo nhà tài trợ thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -99,7 +101,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật nhà tài trợ thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
       setIsDialogOpen(false);
       setEditingSponsor(null);
       form.reset();
@@ -115,7 +117,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa nhà tài trợ thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -128,7 +130,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả nhà tài trợ thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -176,6 +178,45 @@ export default function SponsorsManagementPage() {
       updateMutation.mutate({ id: editingSponsor.id, data });
     } else {
       createMutation.mutate(data);
+    }
+  };
+
+  const handleImageUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    const file = files[0];
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const oldImageUrl = form.getValues("logoUrl");
+    if (oldImageUrl) {
+      formData.append("oldImagePath", oldImageUrl);
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await apiUploadFile("/api/upload", formData);
+      form.setValue("logoUrl", result.imagePath, { shouldValidate: true });
+      toast({ title: "Tải ảnh lên thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi tải ảnh lên", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    const currentLogoUrl = form.getValues("logoUrl");
+    if (!currentLogoUrl) return;
+    if (!confirm("Bạn có chắc muốn xóa logo này?")) return;
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", `/api/upload?filePath=${currentLogoUrl}`);
+      form.setValue("logoUrl", "", { shouldValidate: true });
+      toast({ title: "Xóa ảnh thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -313,8 +354,11 @@ export default function SponsorsManagementPage() {
                     <FormLabel>Logo</FormLabel>
                     <FormControl>
                       <ImageUploader
-                        currentImageUrl={field.value}
-                        onUploadSuccess={(newPath) => field.onChange(newPath)}
+                        preview={field.value}
+                        onDrop={handleImageUpload}
+                        onDelete={handleImageDelete}
+                        isUploading={isUploading}
+                        isDeleting={isDeleting}
                       />
                     </FormControl>
                     <FormDescription>

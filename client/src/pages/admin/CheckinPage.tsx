@@ -18,6 +18,8 @@ export default function CheckinPage() {
   const { toast } = useToast();
   const [scanning, setScanning] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const limit = 10; // Number of items per page
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   const { data: conference } = useQuery<Conference | null>({
@@ -44,15 +46,24 @@ export default function CheckinPage() {
     }
   });
 
-  const { data: recentCheckIns = [] } = useQuery<CheckInWithDetails[]>({
-    queryKey: ["/api/check-ins/session", selectedSessionId],
+  const { data: checkInsData } = useQuery<{ data: CheckInWithDetails[], total: number }>({
+    queryKey: ["/api/check-ins/session", selectedSessionId, page, limit],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/check-ins/session/${selectedSessionId}?page=${page}&limit=${limit}`);
+      return response as { data: CheckInWithDetails[], total: number };
+    },
     enabled: !!selectedSessionId,
   });
+
+  const recentCheckIns = checkInsData?.data || [];
+  const totalCheckIns = checkInsData?.total || 0;
+  const totalPages = Math.ceil(totalCheckIns / limit);
 
   // Reset selectedSessionId if the session is no longer in the filtered list
   useEffect(() => {
     if (selectedSessionId && !sessions.some(s => s.id === selectedSessionId)) {
       setSelectedSessionId("");
+      setPage(1); // Reset page when session changes
     }
   }, [sessions, selectedSessionId]);
 
@@ -85,7 +96,7 @@ export default function CheckinPage() {
       } else {
         toast({ title: "Check-in thành công!" });
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/check-ins/session", selectedSessionId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/check-ins/session", selectedSessionId, page, limit] });
       stopScanning();
     },
     onError: (error: any) => {
@@ -250,7 +261,7 @@ export default function CheckinPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Check-in phiên này</span>
-                <Badge variant="secondary" data-testid="badge-checkin-count">{recentCheckIns.length}</Badge>
+                <Badge variant="secondary" data-testid="badge-checkin-count">{totalCheckIns}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -275,6 +286,25 @@ export default function CheckinPage() {
                 <p className="text-muted-foreground text-center py-8">
                   Chưa có check-in nào cho phiên này.
                 </p>
+              )}
+              {totalPages > 1 && (
+                <Pagination className="mt-4">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <PaginationItem key={i}>
+                        <PaginationLink onClick={() => setPage(i + 1)} isActive={page === i + 1}>
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               )}
             </CardContent>
           </Card>

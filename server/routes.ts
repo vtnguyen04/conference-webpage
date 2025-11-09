@@ -405,6 +405,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Local multiple banner upload route
+  app.post('/api/upload/banners', upload.array('banners', 5), async (req, res) => {
+    try {
+      if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
+        return res.status(400).json({ message: "No files uploaded." });
+      }
+
+      const files = req.files as Express.Multer.File[];
+      const imagePaths = files.map(file => `/uploads/${file.filename}`);
+
+      res.json({ imagePaths });
+    } catch (error: any) {
+      console.error("Error uploading banners:", error);
+      res.status(500).json({ message: error.message || "Failed to upload banners." });
+    }
+  });
+
   // Conference routes
   app.get('/api/conferences', async (req, res) => {
     try {
@@ -440,7 +457,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conference) {
         return res.status(404).json({ message: "No active conference found" });
       }
-      const updated = await jsonStorage.updateConference(conference.year, req.body);
+      
+      const { filesToDelete, ...updates } = req.body;
+
+      // Handle deletion of banners marked for deletion
+      if (Array.isArray(filesToDelete)) {
+        filesToDelete.forEach(filePath => {
+          deleteFile(filePath);
+        });
+      }
+
+      const updated = await jsonStorage.updateConference(conference.year, updates);
       res.json(updated);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -688,6 +715,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conference) {
         return res.status(404).json({ message: "No active conference" });
       }
+      const existingAnnouncement = await jsonStorage.getAnnouncement(conference.year, req.params.id);
+      if (!existingAnnouncement) {
+        return res.status(404).json({ message: "Announcement not found" });
+      }
+
+      // Handle featuredImageUrl replacement
+      if (req.body.featuredImageUrl && existingAnnouncement.featuredImageUrl && req.body.featuredImageUrl !== existingAnnouncement.featuredImageUrl) {
+        deleteFile(existingAnnouncement.featuredImageUrl);
+      } else if (!req.body.featuredImageUrl && existingAnnouncement.featuredImageUrl) {
+        deleteFile(existingAnnouncement.featuredImageUrl);
+      }
+
+      // Handle pdfUrl replacement
+      if (req.body.pdfUrl && existingAnnouncement.pdfUrl && req.body.pdfUrl !== existingAnnouncement.pdfUrl) {
+        deleteFile(existingAnnouncement.pdfUrl);
+      } else if (!req.body.pdfUrl && existingAnnouncement.pdfUrl) {
+        deleteFile(existingAnnouncement.pdfUrl);
+      }
+
       const updated = await jsonStorage.updateAnnouncement(conference.year, req.params.id, req.body);
       res.json(updated);
     } catch (error: any) {
@@ -804,28 +850,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/sightseeing/all', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      await jsonStorage.deleteAllSightseeing(conference.year);
-      res.json({ success: true, message: "All sightseeing items deleted." });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
   // Get all registrations for current conference year
   app.get('/api/registrations', async (req, res) => {
     try {
       const conference = await jsonStorage.getActiveConference();
       if (!conference) {
-        return res.json([]);
+        return res.json({ data: [], total: 0 });
       }
-      const registrations = await getRegistrationsByYear(conference.year);
-      res.json(registrations);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { registrations, total } = await getRegistrationsByYear(conference.year, page, limit);
+      res.json({ data: registrations, total });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch registrations" });
     }
@@ -976,160 +1011,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "No active conference" });
       }
       await jsonStorage.removeFromWhitelist(conference.year, req.params.id);
-      res.json({ success: true });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  // Announcement routes
-  app.get('/api/announcements', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.json([]);
-      }
-      const announcements = await jsonStorage.getAnnouncements(conference.year);
-      res.json(announcements);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch announcements" });
-    }
-  });
-
-  app.get('/api/announcements/:id', async (req, res) => {
-    try {
-      console.log(`Fetching announcement with ID: ${req.params.id}`);
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const announcement = await jsonStorage.getAnnouncement(conference.year, req.params.id);
-      if (!announcement) {
-        return res.status(404).json({ message: "Announcement not found" });
-      }
-      res.json(announcement);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch announcement" });
-    }
-  });
-
-  app.post('/api/announcements', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const data = insertAnnouncementSchema.parse(req.body);
-      const announcement = await jsonStorage.createAnnouncement(conference.year, { ...data, conferenceId: conference.id, views: 0, featuredImageUrl: data.featuredImageUrl || '', pdfUrl: data.pdfUrl || '', publishedAt: data.publishedAt || '' });
-      res.json(announcement);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.put('/api/announcements/:id', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const updated = await jsonStorage.updateAnnouncement(conference.year, req.params.id, req.body);
-      res.json(updated);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.post('/api/announcements/:id/view', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const updated = await jsonStorage.incrementAnnouncementViews(conference.year, req.params.id);
-      res.json(updated);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.delete('/api/announcements/:id', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      await jsonStorage.deleteAnnouncement(conference.year, req.params.id);
-      res.json({ success: true });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  // Sightseeing routes
-  app.get('/api/sightseeing', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.json([]);
-      }
-      const sightseeing = await jsonStorage.getSightseeing(conference.year);
-      res.json(sightseeing);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch sightseeing" });
-    }
-  });
-
-  app.get('/api/sightseeing/:id', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const sightseeing = await jsonStorage.getSightseeingById(conference.year, req.params.id);
-      if (!sightseeing) {
-        return res.status(404).json({ message: "Sightseeing not found" });
-      }
-      res.json(sightseeing);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch sightseeing" });
-    }
-  });
-
-  app.post('/api/sightseeing', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const data = insertSightseeingSchema.parse(req.body);
-      const sightseeing = await jsonStorage.createSightseeing(conference.year, { ...data, conferenceId: conference.id, featuredImageUrl: data.featuredImageUrl || '' });
-      res.json(sightseeing);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.put('/api/sightseeing/:id', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const updated = await jsonStorage.updateSightseeing(conference.year, req.params.id, req.body);
-      res.json(updated);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.delete('/api/sightseeing/:id', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      await jsonStorage.deleteSightseeing(conference.year, req.params.id);
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1408,12 +1289,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get check-ins for a specific session
   app.get('/api/check-ins/session/:sessionId', async (req, res) => {
     try {
-      const results = await getCheckInsBySession(req.params.sessionId);
-      const checkIns = results.map(result => ({
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { checkIns, total } = await getCheckInsBySession(req.params.sessionId, page, limit);
+      const formattedCheckIns = checkIns.map(result => ({
         ...result.checkIns,
         registration: result.registrations,
       }));
-      res.json(checkIns);
+      res.json({ data: formattedCheckIns, total });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch check-ins" });
     }
@@ -1498,6 +1381,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/check-ins/manual', async (req, res) => {
+    try {
+      const { registrationId } = req.body;
+      if (!registrationId) {
+        return res.status(400).json({ message: "Registration ID is required" });
+      }
+
+      const registration = await db.query.registrations.findFirst({
+        where: eq(registrations.id, registrationId),
+      });
+
+      if (!registration) {
+        return res.status(404).json({ message: "Registration not found" });
+      }
+
+      if (registration.status !== "confirmed") {
+        return res.status(400).json({ message: "Registration not confirmed" });
+      }
+
+      // Check for duplicate check-in
+      const alreadyCheckedIn = await isCheckedIn(registration.id, registration.sessionId);
+      if (alreadyCheckedIn) {
+        return res.status(400).json({ message: "Already checked in for this session" });
+      }
+
+      // Create check-in record
+      const checkIn = await createCheckIn({
+        registrationId: registration.id,
+        sessionId: registration.sessionId,
+        method: 'manual',
+      });
+
+      res.json(checkIn);
+    } catch (error: any) {
+      console.error("Manual check-in error:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ANALYTICS ROUTES
   app.get('/api/admin/stats', async (req, res) => {
     try {
@@ -1573,21 +1495,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/contact-messages', async (req, res) => {
     try {
-      // This should be a protected route in a real app
-      const messages = await getContactMessages();
-      res.json(messages);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { messages, total } = await getContactMessages(page, limit);
+      res.json({ data: messages, total });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch contact messages" });
-    }
-  });
-
-  app.get('/api/stats/contact-messages', async (req, res) => {
-    try {
-      const count = await getContactMessagesCount();
-      res.json({ count });
-    } catch (error) {
-      console.error("Error fetching contact messages count:", error);
-      res.status(500).json({ message: "Failed to fetch contact messages count" });
     }
   });
 
@@ -1597,8 +1510,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!query) {
         return res.status(400).json({ message: "Search query is required." });
       }
-      const messages = await searchContactMessages(query);
-      res.json(messages);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { messages, total } = await searchContactMessages(query, page, limit);
+      res.json({ data: messages, total });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -1639,6 +1554,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/upload', async (req, res) => {
+    try {
+      const { filePath } = req.query;
+      if (!filePath || typeof filePath !== 'string') {
+        return res.status(400).json({ message: "File path is required as a query parameter." });
+      }
+      deleteFile(filePath);
+      res.json({ success: true, message: `File ${filePath} deleted.` });
+    } catch (error: any) {
+      console.error("Error deleting file:", error);
+      res.status(500).json({ message: error.message || "Failed to delete file." });
+    }
+  });
+
   app.get('/api/admin/registrations/search', async (req, res) => {
     try {
       const conference = await jsonStorage.getActiveConference();
@@ -1649,8 +1578,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!query) {
         return res.status(400).json({ message: "Search query is required." });
       }
-      const registrations = await searchRegistrations(conference.year, query);
-      res.json(registrations);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { registrations, total } = await searchRegistrations(conference.year, query, page, limit);
+      res.json({ data: registrations, total });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

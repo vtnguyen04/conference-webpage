@@ -19,16 +19,31 @@ import { randomUUID } from "crypto";
 // ============================================================================
 
 /**
- * Get all registrations for a conference year
+ * Get all registrations for a conference year with pagination
  */
 export async function getRegistrationsByYear(
-  year: number
-): Promise<Registration[]> {
-  return await db
+  year: number,
+  page: number,
+  limit: number
+): Promise<{ registrations: Registration[]; total: number }> {
+  const offset = (page - 1) * limit;
+  const data = await db
     .select()
     .from(registrations)
     .where(eq(registrations.conferenceYear, year))
+    .limit(limit)
+    .offset(offset)
     .all();
+  
+  const totalResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(registrations)
+    .where(eq(registrations.conferenceYear, year))
+    .get();
+  
+  const total = Number(totalResult?.count || 0);
+
+  return { registrations: data, total };
 }
 
 /**
@@ -360,23 +375,42 @@ export async function deleteRegistration(id: string): Promise<boolean> {
 }
 
 /**
- * Search registrations by full name or email
+ * Search registrations by full name or email with pagination
  */
-export async function searchRegistrations(year: number, query: string): Promise<Registration[]> {
+export async function searchRegistrations(
+  year: number,
+  query: string,
+  page: number,
+  limit: number
+): Promise<{ registrations: Registration[]; total: number }> {
   const lowerCaseQuery = query.toLowerCase();
-  return await db
+  const offset = (page - 1) * limit;
+
+  const where = and(
+    eq(registrations.conferenceYear, year),
+    or(
+      like(registrations.fullName, `%${lowerCaseQuery}%`),
+      like(registrations.email, `%${lowerCaseQuery}%`)
+    )
+  );
+
+  const data = await db
     .select()
     .from(registrations)
-    .where(
-      and(
-        eq(registrations.conferenceYear, year),
-        or(
-          like(registrations.fullName, `%${lowerCaseQuery}%`),
-          like(registrations.email, `%${lowerCaseQuery}%`)
-        )
-      )
-    )
+    .where(where)
+    .limit(limit)
+    .offset(offset)
     .all();
+
+  const totalResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(registrations)
+    .where(where)
+    .get();
+
+  const total = Number(totalResult?.count || 0);
+
+  return { registrations: data, total };
 }
 
 /**
@@ -456,10 +490,14 @@ export async function createCheckIn(
     createdAt: new Date(),
   };
 
-  await db
-    .insert(checkIns)
-    .values(newCheckIn)
-    .run();
+  db.transaction((tx) => {
+    tx.insert(checkIns).values(newCheckIn).run();
+    tx
+      .update(registrations)
+      .set({ status: "checked-in" })
+      .where(eq(registrations.id, data.registrationId))
+      .run();
+  });
 
   return {
     ...newCheckIn,
@@ -482,17 +520,32 @@ export async function getCheckInsByRegistration(
 }
 
 /**
- * Get check-ins for a session
+ * Get check-ins for a session with pagination
  */
 export async function getCheckInsBySession(
-  sessionId: string
-): Promise<any[]> {
-  return await db
+  sessionId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<{ checkIns: any[], total: number }> {
+  const offset = (page - 1) * limit;
+
+  const checkInsData = await db
     .select()
     .from(checkIns)
     .leftJoin(registrations, eq(checkIns.registrationId, registrations.id))
     .where(eq(checkIns.sessionId, sessionId))
+    .limit(limit)
+    .offset(offset)
     .all();
+
+  const totalResult = await db
+    .select({ count: sql`count(*)` })
+    .from(checkIns)
+    .where(eq(checkIns.sessionId, sessionId));
+  
+  const total = Number(totalResult[0]?.count || 0);
+
+  return { checkIns: checkInsData, total };
 }
 
 /**
@@ -525,7 +578,7 @@ export async function isCheckedIn(
  * Get registration and check-in statistics for a conference year
  */
 export async function getRegistrationStats(year: number) {
-  const allRegistrations = await getRegistrationsByYear(year);
+  const { registrations: allRegistrations } = await getRegistrationsByYear(year, 1, Number.MAX_SAFE_INTEGER);
   
   const totalRegistrations = allRegistrations.length;
   const uniqueAttendees = new Set(allRegistrations.map(r => r.email)).size;

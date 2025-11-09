@@ -1,41 +1,120 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Calendar, MapPin, Award, Trash2, Search } from "lucide-react";
+import { Download, Calendar, MapPin, Award, Trash2, Search, UserCheck } from "lucide-react";
 import type { Registration, Session, Conference } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+
+// New component for a single registration row
+const RegistrationRow = ({
+  registration,
+  session,
+  onDelete,
+  onCheckIn,
+  isCheckInLoading,
+}: {
+  registration: Registration;
+  session?: Session;
+  onDelete: (id: string) => void;
+  onCheckIn: (registrationId: string) => void;
+  isCheckInLoading: boolean;
+}) => {
+  return (
+    <TableRow data-testid={`registration-row-${registration.id}`}>
+      <TableCell>
+        <div className="font-semibold">{registration.fullName}</div>
+        <div className="text-sm text-muted-foreground">{registration.email}</div>
+      </TableCell>
+      <TableCell>
+        <div>{session?.title || "N/A"}</div>
+        {session && (
+          <div className="text-xs text-muted-foreground">
+            {new Date(session.startTime).toLocaleString("vi-VN")}
+          </div>
+        )}
+      </TableCell>
+      <TableCell>
+        <Badge variant={registration.status === "confirmed" ? "default" : "secondary"}>
+          {registration.status}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        {registration.cmeCertificateRequested && (
+          <Badge variant="secondary" className="gap-1">
+            <Award className="h-3 w-3" />
+            CME
+          </Badge>
+        )}
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onCheckIn(registration.id)}
+          disabled={isCheckInLoading || registration.status === 'checked-in'}
+          data-testid={`button-checkin-registration-${registration.id}`}
+        >
+          <UserCheck className="mr-2 h-4 w-4" />
+          Check-in
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(registration.id)}
+          data-testid={`button-delete-registration-${registration.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
 
 export default function RegistrationsPage() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 500); // 500ms debounce delay
+      setPage(1); // Reset to first page on new search
+    }, 500);
 
     return () => {
       clearTimeout(timer);
     };
   }, [searchQuery]);
 
-  const { data: registrations = [] } = useQuery<Registration[]>({
-    queryKey: ["registrations", debouncedSearchQuery],
-    queryFn: async (): Promise<Registration[]> => {
-      let url = "/api/registrations";
-      if (debouncedSearchQuery) {
-        url = `/api/admin/registrations/search?query=${debouncedSearchQuery}`;
-      }
-      const response = await apiRequest("GET", url);
-      return response as Registration[];
+  const { data, isLoading } = useQuery<{ data: Registration[], total: number }>({
+    queryKey: ["registrations", debouncedSearchQuery, page, limit],
+    queryFn: async () => {
+      const url = debouncedSearchQuery
+        ? `/api/admin/registrations/search?query=${debouncedSearchQuery}&page=${page}&limit=${limit}`
+        : `/api/registrations?page=${page}&limit=${limit}`;
+      return apiRequest("GET", url);
     },
-    enabled: !!debouncedSearchQuery || searchQuery === '', // Only run query if debounced value exists or no search is active
   });
+
+  const registrations = data?.data || [];
+  const total = data?.total || 0;
+  const totalPages = Math.ceil(total / limit);
 
   const { data: conference } = useQuery<Conference | null>({
     queryKey: ["/api/conferences/active"],
@@ -46,29 +125,49 @@ export default function RegistrationsPage() {
     enabled: !!conference,
   });
 
+  const sessionsMap = useMemo(() => 
+    new Map(sessions.map(s => [s.id, s])),
+  [sessions]);
+
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/admin/registrations/${id}`);
-    },
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/admin/registrations/${id}`),
     onSuccess: () => {
       toast({ title: "Xóa đăng ký thành công" });
-      queryClient.invalidateQueries({ queryKey: ["registrations", ""] });
-      queryClient.invalidateQueries({ queryKey: ["registrations", debouncedSearchQuery] });
+      queryClient.invalidateQueries({ queryKey: ["registrations", debouncedSearchQuery, page, limit] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
 
-  const getSessionById = (sessionId: string) => {
-    return sessions.find(s => s.id === sessionId);
-  };
+  const checkInMutation = useMutation({
+    mutationFn: (registrationId: string) => apiRequest("POST", `/api/check-ins/manual`, { registrationId }),
+    onSuccess: () => {
+      toast({ title: "Check-in thành công" });
+      queryClient.invalidateQueries({ queryKey: ["registrations", debouncedSearchQuery, page, limit] });
+    },
+    onError: (error: any) => {
+      console.error("Check-in error:", error);
+      let errorMessage = "Đã có lỗi xảy ra trong quá trình check-in.";
+      try {
+        const errorData = JSON.parse(error.message.substring(error.message.indexOf('{')));
+        if (errorData.message === "Registration not confirmed") {
+          errorMessage = "Đăng ký chưa được xác nhận.";
+        } else if (errorData.message === "Already checked in for this session") {
+          errorMessage = "Đăng ký này đã được check-in.";
+        } else {
+          errorMessage = errorData.message || errorMessage;
+        }
+      } catch (e) {
+        // Fallback to generic message
+      }
+      toast({ title: "Lỗi check-in", description: errorMessage, variant: "destructive" });
+    },
+  });
 
   const handleExportCSV = async () => {
     try {
-      const response = await fetch("/api/registrations/export", {
-        credentials: "include",
-      });
+      const response = await fetch("/api/registrations/export", { credentials: "include" });
       if (!response.ok) throw new Error("Failed to export");
       
       const blob = await response.blob();
@@ -82,6 +181,7 @@ export default function RegistrationsPage() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Export failed:", error);
+      toast({ title: "Lỗi xuất file", description: "Không thể xuất file CSV.", variant: "destructive" });
     }
   };
 
@@ -91,7 +191,11 @@ export default function RegistrationsPage() {
     }
   };
 
-  const uniqueAttendees = new Set(registrations.map(r => r.email)).size;
+  const handleCheckIn = (registrationId: string) => {
+    checkInMutation.mutate(registrationId);
+  };
+
+  const uniqueAttendees = useMemo(() => new Set(registrations.map(r => r.email)).size, [registrations]);
 
   return (
     <div className="space-y-6">
@@ -123,7 +227,7 @@ export default function RegistrationsPage() {
             <CardTitle className="text-sm font-medium">Tổng đăng ký phiên</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold" data-testid="stat-total-registrations">{registrations.length}</p>
+            <p className="text-3xl font-bold" data-testid="stat-total-registrations">{total}</p>
           </CardContent>
         </Card>
         <Card>
@@ -138,72 +242,65 @@ export default function RegistrationsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách đăng ký theo phiên ({registrations.length})</CardTitle>
+          <CardTitle>Danh sách đăng ký ({total})</CardTitle>
         </CardHeader>
         <CardContent>
-          {registrations.length > 0 ? (
-            <div className="space-y-2">
-              {registrations.map((registration) => {
-                const session = getSessionById(registration.sessionId);
-                return (
-                  <div key={registration.id} className="border p-4 rounded-lg space-y-2" data-testid={`registration-item-${registration.id}`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold">{registration.fullName}</h3>
-                          {registration.cmeCertificateRequested && (
-                            <Badge variant="secondary" className="gap-1">
-                              <Award className="h-3 w-3" />
-                              CME
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{registration.email}</p>
-                        {registration.organization && (
-                          <p className="text-sm text-muted-foreground">{registration.organization}</p>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge variant={registration.status === "confirmed" ? "default" : "secondary"}>
-                          {registration.status}
-                        </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(registration.id)}
-                          data-testid={`button-delete-registration-${registration.id}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {session && (
-                      <div className="bg-muted/50 p-3 rounded-md space-y-1" data-testid={`session-info-${registration.sessionId}`}>
-                        <p className="font-medium text-sm" data-testid="text-session-title">{session.title}</p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1" data-testid="text-session-date">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(session.startTime).toLocaleDateString('vi-VN')}
-                          </span>
-                          <span className="flex items-center gap-1" data-testid="text-session-room">
-                            <MapPin className="h-3 w-3" />
-                            {session.room}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              Chưa có đăng ký nào.
-            </p>
-          )}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Họ và tên</TableHead>
+                <TableHead>Phiên</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Yêu cầu</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    Đang tải...
+                  </TableCell>
+                </TableRow>
+              ) : registrations.length > 0 ? (
+                registrations.map((registration) => (
+                  <RegistrationRow
+                    key={registration.id}
+                    registration={registration}
+                    session={sessionsMap.get(registration.sessionId)}
+                    onDelete={handleDelete}
+                    onCheckIn={handleCheckIn}
+                    isCheckInLoading={checkInMutation.isLoading}
+                  />
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24">
+                    Chưa có đăng ký nào.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+          </PaginationItem>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <PaginationItem key={i}>
+              <PaginationLink onClick={() => setPage(i + 1)} isActive={page === i + 1}>
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

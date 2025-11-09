@@ -28,10 +28,25 @@ export async function createContactMessage(
 }
 
 /**
- * Get all contact messages
+ * Get all contact messages with pagination
  */
-export async function getContactMessages(): Promise<ContactMessage[]> {
-  return await db.select().from(contactMessages).orderBy(contactMessages.submittedAt);
+export async function getContactMessages(page: number = 1, limit: number = 10): Promise<{ messages: ContactMessage[], total: number }> {
+  const offset = (page - 1) * limit;
+
+  const messages = await db
+    .select()
+    .from(contactMessages)
+    .orderBy(contactMessages.submittedAt)
+    .limit(limit)
+    .offset(offset);
+
+  const totalResult = await db
+    .select({ count: sql`count(*)` })
+    .from(contactMessages);
+  
+  const total = Number(totalResult[0]?.count || 0);
+
+  return { messages, total };
 }
 
 /**
@@ -64,18 +79,31 @@ export async function deleteAllContactMessages(): Promise<void> {
 }
 
 /**
- * Search contact messages by name, email, or subject
+ * Search contact messages by name, email, or subject with pagination
  */
-export async function searchContactMessages(query: string): Promise<ContactMessage[]> {
+export async function searchContactMessages(query: string, page: number = 1, limit: number = 10): Promise<{ messages: ContactMessage[], total: number }> {
   const lowerCaseQuery = query.toLowerCase();
-  return await db
+  const offset = (page - 1) * limit;
+
+  const whereClause = or(
+    like(contactMessages.name, `%${lowerCaseQuery}%`),
+    like(contactMessages.email, `%${lowerCaseQuery}%`)
+  );
+
+  const messages = await db
     .select()
     .from(contactMessages)
-    .where(
-      or(
-        like(contactMessages.name, `%${lowerCaseQuery}%`),
-        like(contactMessages.email, `%${lowerCaseQuery}%`)
-      )
-    )
-    .orderBy(contactMessages.submittedAt);
+    .where(whereClause)
+    .orderBy(contactMessages.submittedAt)
+    .limit(limit)
+    .offset(offset);
+
+  const totalResult = await db
+    .select({ count: sql`count(*)` })
+    .from(contactMessages)
+    .where(whereClause);
+  
+  const total = Number(totalResult[0]?.count || 0);
+
+  return { messages, total };
 }

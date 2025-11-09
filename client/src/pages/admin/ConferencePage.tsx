@@ -17,7 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { Copy } from "lucide-react";
 import type { Conference, InsertConference } from "@shared/schema";
 import { insertConferenceSchema } from "@shared/schema";
@@ -25,6 +25,8 @@ import { insertConferenceSchema } from "@shared/schema";
 export default function ConferencePage() {
   const { toast } = useToast();
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isLogoDeleting, setIsLogoDeleting] = useState(false);
 
   const { data: conferences = [] } = useQuery<Conference[]>({
     queryKey: ["/api/conferences"],
@@ -71,8 +73,8 @@ export default function ConferencePage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/conferences"] });
-      queryClient.refetchQueries({ queryKey: ["/api/conferences/active"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conferences/active"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
       setFilesToDelete([]); // Clear staged deletions on success
     },
     onError: (error: any) => {
@@ -86,7 +88,7 @@ export default function ConferencePage() {
     },
     onSuccess: () => {
       toast({ title: "Sao chép hội nghị thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/conferences"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
     },
   });
 
@@ -108,6 +110,52 @@ export default function ConferencePage() {
     const newYear = activeConference ? activeConference.year + 1 : new Date().getFullYear() + 1;
     if (confirm(`Sao chép hội nghị sang năm ${newYear}?`)) {
       cloneMutation.mutate(newYear);
+    }
+  };
+
+  const handleLogoDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const oldLogoUrl = form.getValues("logoUrl");
+    if (oldLogoUrl) {
+      formData.append("oldImagePath", oldLogoUrl);
+    }
+
+    setIsLogoUploading(true);
+
+    try {
+      const result = await apiUploadFile("/api/upload", formData);
+      form.setValue("logoUrl", result.imagePath, { shouldValidate: true });
+      toast({ title: 'Tải logo thành công' });
+    } catch (error: any) {
+      console.error('Error uploading logo:', error);
+      toast({ title: 'Lỗi tải logo', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLogoUploading(false);
+    }
+  };
+
+  const handleLogoDelete = async () => {
+    const currentLogoUrl = form.getValues("logoUrl");
+    if (!currentLogoUrl || !confirm("Bạn có chắc muốn xóa logo này?")) {
+      return;
+    }
+
+    setIsLogoDeleting(true);
+
+    try {
+      await apiRequest("DELETE", `/api/upload?filePath=${currentLogoUrl}`);
+      form.setValue("logoUrl", "", { shouldValidate: true });
+      toast({ title: 'Thành công', description: 'Logo đã được xóa thành công.' });
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast({ title: 'Lỗi', description: error.message || 'Không thể xóa logo.', variant: 'destructive' });
+    } finally {
+      setIsLogoDeleting(false);
     }
   };
 
@@ -341,8 +389,11 @@ export default function ConferencePage() {
                       <FormLabel className="text-sm font-medium">Logo hội nghị</FormLabel>
                       <FormControl>
                         <ImageUploader
-                          currentImageUrl={field.value}
-                          onUploadSuccess={(newPath) => form.setValue("logoUrl", newPath)}
+                          onDrop={handleLogoDrop}
+                          onDelete={handleLogoDelete}
+                          preview={field.value}
+                          isUploading={isLogoUploading}
+                          isDeleting={isLogoDeleting}
                         />
                       </FormControl>
                       <FormMessage />

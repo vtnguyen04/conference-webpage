@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,19 +22,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useMemo, useRef } from "react";
 import type { Sightseeing, InsertSightseeing } from "@shared/schema";
 import { insertSightseeingSchema } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
+import { ImageUploader } from "@/components/ImageUploader";
 
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSightseeing, setEditingSightseeing] = useState<Sightseeing | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const quillRef = useRef<ReactQuill>(null);
 
   const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
@@ -57,7 +60,8 @@ export default function SightseeingManagementPage() {
       return await apiRequest("POST", "/api/sightseeing", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"], exact: true });
+      toast({ title: "Tạo địa điểm thành công" });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -71,7 +75,8 @@ export default function SightseeingManagementPage() {
       return await apiRequest("PUT", `/api/sightseeing/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"], exact: true });
+      toast({ title: "Cập nhật địa điểm thành công" });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
       setIsDialogOpen(false);
       setEditingSightseeing(null);
       form.reset();
@@ -87,7 +92,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa địa điểm thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"], exact: true });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -100,7 +105,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả địa điểm tham quan thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"], exact: true });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -149,27 +154,42 @@ export default function SightseeingManagementPage() {
     }
   };
 
-  const handleFeaturedImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, fieldOnChange: (value: string) => void) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const handleImageDrop = async (files: File[]) => {
+    if (files.length === 0) return;
+    const file = files[0];
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
-    if (editingSightseeing?.featuredImageUrl) {
-      formData.append('oldImagePath', editingSightseeing.featuredImageUrl);
+    const oldImageUrl = form.getValues("featuredImageUrl");
+    if (oldImageUrl) {
+      formData.append("oldImagePath", oldImageUrl);
     }
 
+    setIsUploading(true);
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
-      fieldOnChange(result.imagePath);
-      toast({ title: 'Tải ảnh đại diện thành công' });
-    } catch (error) {
-      toast({ title: 'Lỗi tải ảnh đại diện', description: 'Không thể tải ảnh lên.', variant: 'destructive' });
+      const result = await apiUploadFile("/api/upload", formData);
+      form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
+      toast({ title: "Tải ảnh lên thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi tải ảnh lên", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    const currentImageUrl = form.getValues("featuredImageUrl");
+    if (!currentImageUrl) return;
+    if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", `/api/upload?filePath=${currentImageUrl}`);
+      form.setValue("featuredImageUrl", "", { shouldValidate: true });
+      toast({ title: "Xóa ảnh thành công" });
+    } catch (error: any) {
+      toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -317,20 +337,16 @@ export default function SightseeingManagementPage() {
               <FormField
                 control={form.control}
                 name="featuredImageUrl"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Ảnh đại diện</FormLabel>
-                    {value && (
-                      <div className="mb-2">
-                        <img src={value} alt="Preview" className="h-32 w-full object-cover rounded-lg" />
-                      </div>
-                    )}
                     <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => handleFeaturedImageUpload(event, onChange)}
-                        {...fieldProps}
+                      <ImageUploader
+                        preview={field.value}
+                        onDrop={handleImageDrop}
+                        onDelete={handleImageDelete}
+                        isUploading={isUploading}
+                        isDeleting={isDeleting}
                       />
                     </FormControl>
                     <FormDescription>
