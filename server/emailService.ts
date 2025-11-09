@@ -18,7 +18,7 @@ const emailStyles = `
   .header h1 { margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; }
   .content { padding: 30px 40px 20px; }
   .content p { margin: 0 0 15px; font-size: 16px; color: #374151; }
-  .button { background-color: #2040C0; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; }
+  .button { background-color: #7c91e6ff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; }
   .footer { padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; }
   .footer p { margin: 0 0 10px; font-size: 14px; color: #6b7280; }
 `;
