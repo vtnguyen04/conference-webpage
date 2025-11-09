@@ -10,7 +10,7 @@ import type {
 } from "@shared/schema";
 import { eq, and, sql, inArray, or, like, isNull, gt, lt } from "drizzle-orm";
 import QRCode from "qrcode";
-import { sendRegistrationConfirmationEmail } from "./emailService";
+import { sendRegistrationVerificationEmail } from "./emailService";
 import crypto from "crypto";
 import { randomUUID } from "crypto";
 
@@ -150,14 +150,11 @@ export async function createRegistration(
 
   // Send confirmation email for single registration
   const conferenceName = `Conference ${data.conferenceYear}`; // Placeholder
-  await sendRegistrationConfirmationEmail(
+  await sendRegistrationVerificationEmail(
     newRegistration.email,
+    newRegistration.fullName,
     conferenceName,
-    {
-      name: newRegistration.fullName,
-      email: newRegistration.email,
-      // Add other relevant details from registration object
-    }
+    newRegistration.confirmationToken!
   );
 
   return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;

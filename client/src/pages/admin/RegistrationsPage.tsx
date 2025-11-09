@@ -270,7 +270,7 @@ export default function RegistrationsPage() {
                     session={sessionsMap.get(registration.sessionId)}
                     onDelete={handleDelete}
                     onCheckIn={handleCheckIn}
-                    isCheckInLoading={checkInMutation.isLoading}
+                    isCheckInLoading={checkInMutation.isPending}
                   />
                 ))
               ) : (
@@ -287,7 +287,7 @@ export default function RegistrationsPage() {
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+            <PaginationPrevious onClick={() => setPage(p => Math.max(1, p - 1))} />
           </PaginationItem>
           {Array.from({ length: totalPages }, (_, i) => (
             <PaginationItem key={i}>
@@ -297,7 +297,7 @@ export default function RegistrationsPage() {
             </PaginationItem>
           ))}
           <PaginationItem>
-            <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+            <PaginationNext onClick={() => setPage(p => Math.min(totalPages, p + 1))} />
           </PaginationItem>
         </PaginationContent>
       </Pagination>

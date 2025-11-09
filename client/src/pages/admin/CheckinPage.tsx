@@ -9,6 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { QrCode, CheckCircle, X, Calendar, MapPin } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import type { Conference, Session, CheckIn, Registration } from "@shared/schema";
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 
 interface CheckInWithDetails extends CheckIn {
   registration?: Registration;
@@ -291,7 +292,7 @@ export default function CheckinPage() {
                 <Pagination className="mt-4">
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+                      <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} />
                     </PaginationItem>
                     {Array.from({ length: totalPages }, (_, i) => (
                       <PaginationItem key={i}>
@@ -301,7 +302,7 @@ export default function CheckinPage() {
                       </PaginationItem>
                     ))}
                     <PaginationItem>
-                      <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+                      <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} />
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>

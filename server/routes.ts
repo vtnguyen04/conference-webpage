@@ -20,7 +20,7 @@ import {
   searchRegistrations,
 } from "./registrationDb";
 import { generateCmeCertificate } from "./certificateService";
-import { sendCmeCertificateEmail } from "./emailService";
+import { sendCmeCertificateEmail, sendRegistrationVerificationEmail, sendConsolidatedRegistrationEmail } from "./emailService";
 import {
   createContactMessage,
   getContactMessages,
@@ -642,20 +642,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const { registrations, total } = await getRegistrationsByYear(conference.year, page, limit);
-      res.json({ data: registrations, total });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch registrations" });
-    }
-  });
-
-  app.get('/api/registrations/export', async (req, res) => {
-    try {
-      const conference = await jsonStorage.getActiveConference();
-      if (!conference) {
-        return res.status(404).send("No active conference found.");
-      }
-      const registrations = await getRegistrationsByYear(conference.year);
+      const { registrations: regs, total } = await getRegistrationsByYear(conference.year, page, limit);
+      const { registrations } = await getRegistrationsByYear(conference.year, 1, Number.MAX_SAFE_INTEGER);
 
       // CSV Headers
       const headers = [
@@ -929,8 +917,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conference) {
         return res.json([]);
       }
-      const registrations = await getRegistrationsByYear(conference.year);
-      res.json(registrations);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { registrations: regs, total } = await getRegistrationsByYear(conference.year, page, limit);
+      res.json({ data: regs, total });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch registrations" });
     }
@@ -942,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conference) {
         return res.status(404).send("No active conference found.");
       }
-      const registrations = await getRegistrationsByYear(conference.year);
+      const { registrations } = await getRegistrationsByYear(conference.year, 1, Number.MAX_SAFE_INTEGER);
 
       // CSV Headers
       const headers = [
@@ -1033,11 +1023,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send ONE verification email
       let emailSent = false;
       if (result.confirmationToken) {
-        emailSent = await sendVerificationEmail(
+        emailSent = await sendRegistrationVerificationEmail(
           requestData.email,
           requestData.fullName,
           conference.name,
-          result.confirmationToken
+          result.confirmationToken!
         );
       }
 
@@ -1153,7 +1143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (registration.cmeCertificateRequested) {
         if (session) {
           const certificate = await generateCmeCertificate(registration.fullName, session.title);
-          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, certificate);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
         }
       }
 

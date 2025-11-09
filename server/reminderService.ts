@@ -33,7 +33,7 @@ export function startReminderService() {
       if (timeDiff > 23 * 3600 * 1000 && timeDiff < 25 * 3600 * 1000) {
         const confirmedRegistrations = await db.select().from(registrations).where(and(eq(registrations.sessionId, session.id), eq(registrations.status, 'confirmed')));
         for (const registration of confirmedRegistrations) {
-          await sendReminderEmail(registration.email, session.title, '1 day');
+          await sendReminderEmail(registration.email, session.title, '1 day', activeConference.name);
         }
       }
 
@@ -41,7 +41,7 @@ export function startReminderService() {
       if (timeDiff > 59 * 60 * 1000 && timeDiff < 61 * 60 * 1000) {
         const confirmedRegistrations = await db.select().from(registrations).where(and(eq(registrations.sessionId, session.id), eq(registrations.status, 'confirmed')));
         for (const registration of confirmedRegistrations) {
-          await sendReminderEmail(registration.email, session.title, '1 hour');
+          await sendReminderEmail(registration.email, session.title, '1 hour', activeConference.name);
         }
       }
 
@@ -49,7 +49,7 @@ export function startReminderService() {
       if (timeDiff > 14 * 60 * 1000 && timeDiff < 16 * 60 * 1000) {
         const confirmedRegistrations = await db.select().from(registrations).where(and(eq(registrations.sessionId, session.id), eq(registrations.status, 'confirmed')));
         for (const registration of confirmedRegistrations) {
-          await sendReminderEmail(registration.email, session.title, '15 minutes');
+          await sendReminderEmail(registration.email, session.title, '15 minutes', activeConference.name);
         }
       }
     }

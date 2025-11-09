@@ -200,7 +200,7 @@ const ContactMessagesPage: React.FC = () => {
           <Pagination className="mt-4">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1} />
+                <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => (
                 <PaginationItem key={i}>
@@ -210,7 +210,7 @@ const ContactMessagesPage: React.FC = () => {
                 </PaginationItem>
               ))}
               <PaginationItem>
-                <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} disabled={page === totalPages} />
+                <PaginationNext onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
