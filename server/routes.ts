@@ -903,9 +903,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               color: #374151;
             }
             a {
-              color: #335CFF;
+              background-color: #335CFF; /* Dark blue background */
+              color: #ffffff; /* White text */
+              padding: 10px 20px; /* Add some padding to make it look like a button */
+              border-radius: 5px; /* Rounded corners */
               text-decoration: none;
               font-weight: bold;
+              display: inline-block; /* Make it behave like a block element for padding */
             }
           </style>
         </head>
