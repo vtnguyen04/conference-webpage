@@ -8,8 +8,6 @@ import { eq, sql, or, like, ilike } from "drizzle-orm";
  */
 import { randomUUID } from "crypto";
 
-// ...
-
 export async function createContactMessage(
   data: Omit<InsertContactMessage, "id" | "submittedAt">
 ): Promise<ContactMessage> {
