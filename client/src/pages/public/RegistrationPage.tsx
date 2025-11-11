@@ -69,7 +69,7 @@ export default function RegistrationPage() {
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions"],
-    enabled: !!conference?.year,
+    enabled: !!conference?.slug,
   });
 
   const { data: capacityData = [] } = useQuery<Array<{
@@ -81,7 +81,7 @@ export default function RegistrationPage() {
     isFull: boolean;
   }>>({
     queryKey: ["/api/sessions/capacity"],
-    enabled: !!conference?.year,
+    enabled: !!conference?.slug,
   });
 
   const capacityMap = useMemo(() => {
@@ -197,7 +197,7 @@ export default function RegistrationPage() {
         position: data.position || undefined,
         cmeCertificateRequested: data.cmeCertificateRequested,
         sessionIds: data.sessionIds,
-        conferenceYear: conference?.year,
+        conferenceSlug: conference?.slug,
       });
       return response as SuccessData;
     },
@@ -548,23 +548,12 @@ export default function RegistrationPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Lợi ích tham dự</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <p>Cập nhật kiến thức y khoa mới nhất</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <p>Giao lưu với chuyên gia hàng đầu</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <p>Nhận chứng chỉ CME cho từng phiên</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <p>Tài liệu hội nghị đầy đủ</p>
-                  </div>
+                <CardContent className="prose prose-sm max-w-none">
+                  {conference?.registrationBenefits ? (
+                    <div dangerouslySetInnerHTML={{ __html: conference.registrationBenefits.replace(/\n/g, '<br />') }} />
+                  ) : (
+                    <p>Thông tin lợi ích tham dự sẽ được cập nhật sớm.</p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -572,16 +561,12 @@ export default function RegistrationPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Lưu ý</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm space-y-2">
-                  <p className="text-muted-foreground">
-                    Bạn có thể chọn nhiều phiên tham dự. Mỗi phiên sẽ có mã QR riêng.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Sau khi đăng ký, bạn sẽ nhận email xác nhận với tất cả mã QR.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Vui lòng mang theo mã QR khi tham dự để check-in nhanh chóng.
-                  </p>
+                <CardContent className="prose prose-sm max-w-none">
+                  {conference?.registrationRules ? (
+                    <div dangerouslySetInnerHTML={{ __html: conference.registrationRules.replace(/\n/g, '<br />') }} />
+                  ) : (
+                    <p>Thông tin lưu ý sẽ được cập nhật sớm.</p>
+                  )}
                 </CardContent>
               </Card>
 

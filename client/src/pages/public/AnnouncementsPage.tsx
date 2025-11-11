@@ -14,17 +14,27 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from "wouter";
+import { Link, useRoute } from "wouter";
 import type { Conference } from "@shared/schema";
 import { useEffect, useRef } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function AnnouncementsPage() {
-  const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
-    queryKey: ["/api/announcements"],
+  const [, params] = useRoute("/conference/:slug/announcements");
+  const slug = params?.slug;
+
+  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
+  const { data: conference } = useQuery<Conference>({
+    queryKey: [conferenceQueryKey],
+    queryFn: () => apiRequest("GET", conferenceQueryKey),
   });
 
-  const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+  const conferenceId = conference?.id;
+  const announcementsApiUrl = slug ? `/api/announcements/slug/${slug}` : "/api/announcements";
+  const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
+    queryKey: ["announcements", slug || "active"], // Unique key for React Query
+    queryFn: () => apiRequest("GET", announcementsApiUrl),
+    enabled: !!conferenceId,
   });
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -76,6 +86,10 @@ export default function AnnouncementsPage() {
     }
   };
 
+  const getLinkUrl = (announcementId: string) => {
+    return slug ? `/conference/${slug}/announcements/${announcementId}` : `/announcements/${announcementId}`;
+  }
+
   return (
     <>
       <PageHeader
@@ -110,8 +124,8 @@ export default function AnnouncementsPage() {
                   <div className="w-12 h-0.5 bg-blue-600"></div>
                 </div>
                 <div className="grid lg:grid-cols-2 gap-8">
-                  {featuredAnnouncements.map((announcement, index) => (
-                    <Link key={announcement.id} href={`/announcements/${announcement.id}`}>
+                  {featuredAnnouncements.map((announcement) => (
+                    <Link key={announcement.id} href={getLinkUrl(announcement.id)}>
                       <Card className="overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group h-full">
                         {announcement.featuredImageUrl && (
                           <div className="aspect-video overflow-hidden">
@@ -168,7 +182,7 @@ export default function AnnouncementsPage() {
               {regularAnnouncements.length > 0 ? (
                 <div className="space-y-6">
                   {regularAnnouncements.map((announcement) => (
-                    <Link key={announcement.id} href={`/announcements/${announcement.id}`}>
+                    <Link key={announcement.id} href={getLinkUrl(announcement.id)}>
                       <Card className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                         <CardContent className="p-6">
                           <div className="flex flex-col lg:flex-row lg:items-start gap-6">

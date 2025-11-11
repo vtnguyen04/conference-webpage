@@ -1,8 +1,12 @@
-import 'dotenv/config'; // Load environment variables from .env
+import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { startReminderService } from "./reminderService";
+import { startConfirmationReminderService } from "./confirmationReminderService";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 const app = express();
 
@@ -50,11 +54,6 @@ app.use((req, res, next) => {
   next();
 });
 
-import { startReminderService } from "./reminderService";
-import { startConfirmationReminderService } from "./confirmationReminderService";
-import { db } from "./db";
-import { sql } from "drizzle-orm";
-
 (async () => {
   try {
     db.run(sql`SELECT 1`);
@@ -66,68 +65,30 @@ import { sql } from "drizzle-orm";
 
   const server = await registerRoutes(app);
 
-    startReminderService();
+  startReminderService();
+  startConfirmationReminderService();
 
-    startConfirmationReminderService();
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
 
-  
+  // Set up Vite in development after other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
 
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-
-      const status = err.status || err.statusCode || 500;
-
-      const message = err.message || "Internal Server Error";
-
-  
-
-      res.status(status).json({ message });
-
-      throw err;
-
-    });
-
-  
-
-    // importantly only setup vite in development and after
-
-    // setting up all the other routes so the catch-all route
-
-    // doesn't interfere with the other routes
-
-    if (app.get("env") === "development") {
-
-      await setupVite(app, server);
-
-    } else {
-
-      serveStatic(app);
-
-    }
-
-  
-
-    // ALWAYS serve the app on the port specified in the environment variable PORT
-
-    // Other ports are firewalled. Default to 5000 if not specified.
-
-    // this serves both the API and the client.
-
-    // It is the only port that is not firewalled.
-
-    const port = parseInt(process.env.PORT || '5000', 10);
-
-    server.listen({
-
-      port,
-
-      host: "0.0.0.0",
-
-      reusePort: true,
-
-    }, () => {
-
-      log(`serving on port ${port}`);
-
-    });
-
-  })();
+  // Serve on the specified port or 5000
+  const port = parseInt(process.env.PORT || '5000', 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();

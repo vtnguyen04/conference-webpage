@@ -3,9 +3,6 @@ import { contactMessages } from "@shared/schema";
 import type { ContactMessage, InsertContactMessage } from "@shared/schema";
 import { eq, sql, or, like, ilike } from "drizzle-orm";
 
-/**
- * Create a new contact message
- */
 import { randomUUID } from "crypto";
 
 export async function createContactMessage(
@@ -25,9 +22,6 @@ export async function createContactMessage(
   return newMessage as ContactMessage;
 }
 
-/**
- * Get all contact messages with pagination
- */
 export async function getContactMessages(page: number = 1, limit: number = 10): Promise<{ messages: ContactMessage[], total: number }> {
   const offset = (page - 1) * limit;
 
@@ -47,9 +41,6 @@ export async function getContactMessages(page: number = 1, limit: number = 10): 
   return { messages, total };
 }
 
-/**
- * Get the total count of contact messages
- */
 export async function getContactMessagesCount(): Promise<number> {
   const result = await db
     .select({ count: sql`count(*)` })
@@ -58,9 +49,6 @@ export async function getContactMessagesCount(): Promise<number> {
   return Number(result[0]?.count || 0);
 }
 
-/**
- * Delete a single contact message by ID
- */
 export async function deleteContactMessage(id: string): Promise<boolean> {
   const result = await db
     .delete(contactMessages)
@@ -69,16 +57,10 @@ export async function deleteContactMessage(id: string): Promise<boolean> {
   return result.changes > 0;
 }
 
-/**
- * Delete all contact messages
- */
 export async function deleteAllContactMessages(): Promise<void> {
   await db.delete(contactMessages);
 }
 
-/**
- * Search contact messages by name, email, or subject with pagination
- */
 export async function searchContactMessages(query: string, page: number = 1, limit: number = 10): Promise<{ messages: ContactMessage[], total: number }> {
   const lowerCaseQuery = query.toLowerCase();
   const offset = (page - 1) * limit;

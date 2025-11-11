@@ -9,6 +9,7 @@ interface ImageUploaderProps {
   preview?: string;
   isUploading: boolean;
   isDeleting: boolean;
+  disabled?: boolean;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({

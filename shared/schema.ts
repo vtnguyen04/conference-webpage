@@ -46,7 +46,7 @@ export type InsertUser = typeof users.$inferInsert;
 // Each session registration has its own QR code and confirmation email
 export const registrations = sqliteTable("registrations", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  conferenceYear: integer("conference_year").notNull(), // 2025, 2026, etc.
+  conferenceSlug: text("conference_slug").notNull(), // e.g., "hoi-nghi-y-hoc-lan-4-2025"
   sessionId: text("session_id").notNull(), // Session ID from JSON (e.g., "sess-001")
   
   // Attendee information
@@ -72,7 +72,7 @@ export const registrations = sqliteTable("registrations", {
   registeredAt: integer("registered_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
 }, (table) => ({
-  yearIdx: index("idx_registrations_year").on(table.conferenceYear),
+  slugIdx: index("idx_registrations_slug").on(table.conferenceSlug),
   sessionIdx: index("idx_registrations_session").on(table.sessionId),
   emailIdx: index("idx_registrations_email").on(table.email),
   emailSessionIdx: index("idx_registrations_email_session").on(table.email, table.sessionId),
@@ -170,29 +170,8 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 
 // ============================================================================
 // JSON-ONLY TYPES (Conference content - NOT stored in database)
-// These are stored in JSON files (e.g., server/data/2025.json)
+// These are stored in JSON files (e.g., server/data/hoi-nghi-y-hoc-lan-4-2025.json)
 // ============================================================================
-
-// Conference info (stored in JSON, not DB)
-export interface Conference {
-  id: string;
-  year: number;
-  name: string;
-  theme: string;
-  logoUrl: string;
-  bannerUrls: string[];
-  introContent: string; // HTML/Markdown
-  registrationNote1: string;
-  registrationNote2: string;
-  startDate: Date;
-  endDate: Date;
-  location: string;
-  contactEmail: string;
-  contactPhone: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 // Agenda item for a session - Complete structure matching conference program display
 export interface AgendaItem {
@@ -314,7 +293,7 @@ export interface DashboardStats {
 
 // Conference validation schema
 export const insertConferenceSchema = z.object({
-  year: z.number().int().min(2000).max(2100),
+  slug: z.string().min(1),
   name: z.string().min(1),
   theme: z.string().optional().or(z.literal("")),
   logoUrl: z.string().optional().or(z.literal("")),
@@ -322,6 +301,8 @@ export const insertConferenceSchema = z.object({
   introContent: z.string().optional().or(z.literal("")),
   registrationNote1: z.string().optional().or(z.literal("")),
   registrationNote2: z.string().optional().or(z.literal("")),
+  registrationBenefits: z.string().optional().or(z.literal("")),
+  registrationRules: z.string().optional().or(z.literal("")),
   startDate: z.date(),
   endDate: z.date(),
   location: z.string().optional().or(z.literal("")),
@@ -331,6 +312,14 @@ export const insertConferenceSchema = z.object({
 });
 
 export type InsertConference = z.infer<typeof insertConferenceSchema>;
+
+export const conferenceSchema = insertConferenceSchema.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type Conference = z.infer<typeof conferenceSchema>;
 
 // Agenda Item schema - Complete structure for conference program
 export const agendaItemSchema = z.object({
@@ -432,7 +421,7 @@ export const contactFormSchema = z.object({
 // ============================================================================
 
 export const batchRegistrationRequestSchema = z.object({
-  conferenceYear: z.number().int(),
+  conferenceSlug: z.string().min(1),
   sessionIds: z.array(z.string()).min(1), // At least one session
   
   // Attendee info

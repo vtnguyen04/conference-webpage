@@ -3,9 +3,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import fontkit from '@pdf-lib/fontkit';
 
-/**
- * Sinh certificate với tọa độ được tính toán dựa trên template thực tế
- */
 export async function generateCmeCertificate(
   userName: string, 
 ): Promise<Buffer> {
@@ -38,14 +35,8 @@ export async function generateCmeCertificate(
     embeddedRegularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   }
   
-  // ============================================
-  // TỌA ĐỘ CHÍNH XÁC DựA trên template của bạn
-  // ============================================
-  
-  // 1. VỊ TRÍ TÊN NGƯỜI DÙNG
-  const placeholderCenterY = height * 0.52; // Khoảng 52% từ dưới lên
-  
-  // 2. VẼ TÊN NGƯỜI DÙNG (Màu đỏ sáng, uppercase, không đổ bóng)
+  const placeholderCenterY = height * 0.52; 
+
   const displayUserName = userName.toUpperCase();
   const userNameFontSize = 32; // Set size to 32
   const userNameTextWidth = embeddedFont.widthOfTextAtSize(displayUserName, userNameFontSize);

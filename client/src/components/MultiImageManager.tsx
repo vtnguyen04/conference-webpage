@@ -9,6 +9,7 @@ interface MultiImageManagerProps {
   value: string[];
   onChange: (value: string[]) => void;
   onDelete: (path: string) => void;
+  disabled?: boolean;
 }
 
 export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = [], onChange, onDelete }) => {

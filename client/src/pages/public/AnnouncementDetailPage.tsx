@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
-import type { Announcement } from "@shared/schema";
+import { useRoute, Link } from "wouter";
+import type { Announcement, Conference } from "@shared/schema";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -16,23 +16,32 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function AnnouncementDetailPage() {
-  const params = useParams();
-  const announcementId = params.id;
+  const [, params] = useRoute("/conference/:slug/announcements/:id");
+  const slug = params?.slug;
+  const announcementId = params?.id;
   const queryClient = useQueryClient();
   const mainContentRef = useRef<HTMLDivElement>(null);
 
+  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
+  const { data: conference } = useQuery<Conference>({
+    queryKey: [conferenceQueryKey],
+    queryFn: () => apiRequest("GET", conferenceQueryKey),
+  });
+
+  const announcementApiUrl = slug ? `/api/announcements/${slug}/${announcementId}` : `/api/announcements/${announcementId}`;
   const { data: announcement, isLoading, error } = useQuery<Announcement>({
-    queryKey: ["/api/announcements", announcementId],
-    queryFn: () => fetch(`/api/announcements/${announcementId}`).then((res) => res.json()),
-    enabled: !!announcementId, // Only run query if announcementId is available
+    queryKey: ["announcements", slug || "active", announcementId], // Unique key for React Query
+    queryFn: () => apiRequest("GET", announcementApiUrl),
+    enabled: !!announcementId,
   });
 
   const incrementViewMutation = useMutation({
-    mutationFn: () => fetch(`/api/announcements/${announcementId}/view`, { method: "POST" }),
+    mutationFn: () => apiRequest("POST", slug ? `/api/announcements/${slug}/${announcementId}/view` : `/api/announcements/${announcementId}/view`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/announcements", announcementId] });
+      queryClient.invalidateQueries({ queryKey: ["announcements", slug || "active", announcementId] });
     },
   });
 
@@ -70,7 +79,7 @@ export default function AnnouncementDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-destructive mb-4">Lỗi tải thông báo</h1>
-          <p className="text-sm text-muted-foreground">{error.message || "Không thể tải thông báo chi tiết."}</p>
+          <p className="text-sm text-muted-foreground">{(error as Error).message || "Không thể tải thông báo chi tiết."}</p>
         </div>
       </div>
     );
@@ -87,12 +96,14 @@ export default function AnnouncementDetailPage() {
     );
   }
 
+    const announcementsLink = slug ? `/conference/${slug}/announcements` : '/announcements';
+
     return (
       <>
         <PageHeader
           title="Thông báo"
           subtitle=""
-          bannerImageUrl={announcement.featuredImageUrl}
+          bannerImageUrl={conference?.bannerUrls?.[0]}
         >
           <Breadcrumb className="mb-4 mx-auto">
             <BreadcrumbList className="text-white justify-center">
@@ -104,7 +115,7 @@ export default function AnnouncementDetailPage() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild className="text-white">
-                  <Link href="/announcements">Thông báo</Link>
+                  <Link href={announcementsLink}>Thông báo</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />

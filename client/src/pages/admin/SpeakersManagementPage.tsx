@@ -37,6 +37,7 @@ import type { Speaker, InsertSpeaker, Conference } from "@shared/schema";
 import { insertSpeakerSchema } from "@shared/schema";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
+import { useAdminView } from "@/hooks/useAdminView";
 
 export default function SpeakersManagementPage() {
   const { toast } = useToast();
@@ -44,13 +45,15 @@ export default function SpeakersManagementPage() {
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { data: speakers = [] } = useQuery<Speaker[]> ({
-    queryKey: ["/api/speakers"],
-  });
-
-  const { data: activeConference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+  const { data: speakers = [] } = useQuery<Speaker[]>({
+    queryKey: ["/api/speakers", viewingSlug],
+    queryFn: async () => {
+      if (!viewingSlug) return [];
+      return await apiRequest("GET", `/api/speakers/${viewingSlug}`);
+    },
+    enabled: !!viewingSlug,
   });
 
   const form = useForm<InsertSpeaker>({
@@ -72,7 +75,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -87,7 +90,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSpeaker(null);
       form.reset();
@@ -103,7 +106,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -116,7 +119,7 @@ export default function SpeakersManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả diễn giả thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -124,6 +127,7 @@ export default function SpeakersManagementPage() {
   });
 
   const handleAdd = () => {
+    if (isReadOnly) return;
     setEditingSpeaker(null);
     form.reset({
       name: "",
@@ -138,6 +142,7 @@ export default function SpeakersManagementPage() {
   };
 
   const handleEdit = (speaker: Speaker) => {
+    if (isReadOnly) return;
     setEditingSpeaker(speaker);
     form.reset({
       name: speaker.name,
@@ -152,18 +157,21 @@ export default function SpeakersManagementPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
+    if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa diễn giả "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleDeleteAll = async () => {
+    if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ diễn giả? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
 
   const onSubmit = (data: InsertSpeaker) => {
+    if (isReadOnly) return;
     if (editingSpeaker) {
       updateMutation.mutate({ id: editingSpeaker.id, data });
     } else {
@@ -172,7 +180,7 @@ export default function SpeakersManagementPage() {
   };
 
   const handleImageUpload = async (files: File[]) => {
-    if (files.length === 0) return;
+    if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
@@ -195,6 +203,7 @@ export default function SpeakersManagementPage() {
   };
 
   const handleImageDelete = async () => {
+    if (isReadOnly) return;
     const currentPhotoUrl = form.getValues("photoUrl");
     if (!currentPhotoUrl) return;
     if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
@@ -224,12 +233,12 @@ export default function SpeakersManagementPage() {
             onClick={handleDeleteAll}
             variant="destructive"
             data-testid="button-delete-all-speakers"
-            disabled={deleteAllMutation.isPending}
+            disabled={deleteAllMutation.isPending || isReadOnly}
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Xóa tất cả
           </Button>
-          <Button onClick={handleAdd} data-testid="button-add-speaker">
+          <Button onClick={handleAdd} data-testid="button-add-speaker" disabled={isReadOnly}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm diễn giả
           </Button>
@@ -269,6 +278,7 @@ export default function SpeakersManagementPage() {
                       onClick={() => handleEdit(speaker)}
                       data-testid={`button-edit-speaker-${speaker.id}`}
                       className="flex-1"
+                      disabled={isReadOnly}
                     >
                       <Pencil className="h-3 w-3" />
                     </Button>
@@ -278,6 +288,7 @@ export default function SpeakersManagementPage() {
                       onClick={() => handleDelete(speaker.id, speaker.name)}
                       data-testid={`button-delete-speaker-${speaker.id}`}
                       className="flex-1"
+                      disabled={isReadOnly}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -322,6 +333,7 @@ export default function SpeakersManagementPage() {
                       onClick={() => handleEdit(speaker)}
                       data-testid={`button-edit-speaker-${speaker.id}`}
                       className="flex-1"
+                      disabled={isReadOnly}
                     >
                       <Pencil className="h-3 w-3" />
                     </Button>
@@ -331,6 +343,7 @@ export default function SpeakersManagementPage() {
                       onClick={() => handleDelete(speaker.id, speaker.name)}
                       data-testid={`button-delete-speaker-${speaker.id}`}
                       className="flex-1"
+                      disabled={isReadOnly}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -378,6 +391,7 @@ export default function SpeakersManagementPage() {
                         onDelete={handleImageDelete}
                         isUploading={isUploading}
                         isDeleting={isDeleting}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormDescription>
@@ -466,7 +480,7 @@ export default function SpeakersManagementPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Vai trò</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
                       <FormControl>
                         <SelectTrigger data-testid="select-speaker-role">
                           <SelectValue placeholder="Chọn vai trò" />
@@ -489,7 +503,7 @@ export default function SpeakersManagementPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
                   data-testid="button-submit-speaker"
                 >
                   {createMutation.isPending || updateMutation.isPending

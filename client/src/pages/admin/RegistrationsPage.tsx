@@ -141,7 +141,7 @@ export default function RegistrationsPage() {
   }
 
   const { data: sessions = [], isLoading: isSessionsLoading, isError: isSessionsError, error: sessionsError } = useQuery<Session[]>({
-    queryKey: ["/api/sessions", conference?.year],
+    queryKey: ["/api/sessions", conference?.slug],
     enabled: !!conference, // This is important!
   });
 

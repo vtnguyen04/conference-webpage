@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useEffect, useRef } from "react";
+import { useRoute, Link } from "wouter";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -16,21 +17,31 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function ProgramPage() {
+  const [, params] = useRoute("/conference/:slug/program");
+  const slug = params?.slug;
+
+  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
   const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+    queryKey: [conferenceQueryKey],
+    queryFn: () => apiRequest("GET", conferenceQueryKey),
   });
 
+  const conferenceId = conference?.id;
+  const sessionsApiUrl = slug ? `/api/sessions/${slug}` : "/api/sessions";
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery<Session[]>({
-    queryKey: ["/api/sessions"],
-    enabled: !!conference,
+    queryKey: ["sessions", slug || "active"], // Unique key for React Query
+    queryFn: () => apiRequest("GET", sessionsApiUrl),
+    enabled: !!conferenceId,
   });
 
+  const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
   const { data: speakers = [], isLoading: speakersLoading } = useQuery<Speaker[]>({
-    queryKey: ["/api/speakers"],
-    enabled: !!conference,
+    queryKey: ["speakers", slug || "active"], // Unique key for React Query
+    queryFn: () => apiRequest("GET", speakersApiUrl),
+    enabled: !!conferenceId,
   });
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -55,8 +66,8 @@ export default function ProgramPage() {
     for (const session of sortedSessions) {
       const date = new Date(session.startTime);
       const dateKey = format(date, "yyyy-MM-dd");
-      const timeSlotKey = date.getHours() < 12 ? "Sáng" : "Chiều";
-      const combinedKey = `${dateKey}_${timeSlotKey}`;
+      const timeOfDay = date.getHours() < 12 ? "Sáng" : "Chiều";
+      const combinedKey = `${dateKey}_${timeOfDay}`;
 
       if (!grouped[combinedKey]) {
         grouped[combinedKey] = [];

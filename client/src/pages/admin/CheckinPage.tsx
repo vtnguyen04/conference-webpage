@@ -32,8 +32,8 @@ export default function CheckinPage() {
   }, [conference]);
 
   const { data: sessions = [] } = useQuery<Session[]>({
-    queryKey: ["/api/sessions", conference?.year],
-    enabled: !!conference?.year,
+    queryKey: ["/api/sessions", conference?.slug],
+    enabled: !!conference?.slug,
     select: (data) => {
       const now = new Date();
       const filteredSessions = data.filter(session => {

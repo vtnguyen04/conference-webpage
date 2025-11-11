@@ -75,7 +75,7 @@ export default function DashboardPage() {
         </h1>
         {conference && (
           <p className="text-muted-foreground" data-testid="text-current-conference">
-            Hội nghị hiện tại: {conference.name} ({conference.year})
+            Hội nghị hiện tại: {conference.name}
           </p>
         )}
       </div>

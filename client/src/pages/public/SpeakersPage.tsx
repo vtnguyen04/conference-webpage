@@ -12,17 +12,27 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from "wouter";
+import { Link, useRoute } from "wouter";
 import type { Conference } from "@shared/schema";
 import { useEffect, useRef } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function SpeakersPage() {
-  const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
-    queryKey: ["/api/speakers"],
+  const [, params] = useRoute("/conference/:slug/speakers");
+  const slug = params?.slug;
+
+  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
+  const { data: conference } = useQuery<Conference>({
+    queryKey: [conferenceQueryKey],
+    queryFn: () => apiRequest("GET", conferenceQueryKey),
   });
 
-  const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+  const conferenceId = conference?.id;
+  const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
+  const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
+    queryKey: ["speakers", slug || "active"], // Unique key for React Query
+    queryFn: () => apiRequest("GET", speakersApiUrl),
+    enabled: !!conferenceId,
   });
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -155,7 +165,7 @@ export default function SpeakersPage() {
                 <p className="text-muted-foreground" data-testid="text-no-speakers">
                   Danh sách chủ tọa và diễn giả đang được cập nhật.
                 </p>
-              </CardContent>.
+              </CardContent>
             </Card>
           )}
         </div>

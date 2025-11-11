@@ -1,10 +1,20 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from "@/components/ui/dropdown-menu";
 import { Menu, X, Mail, Phone, MapPin, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Conference } from "@shared/schema";
-import { cn } from "@/lib/utils"; 
+import { cn } from "@/lib/utils";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -12,21 +22,22 @@ interface PublicLayoutProps {
 }
 
 export function PublicLayout({ children, className }: PublicLayoutProps) {
-  console.log("PublicLayout rendered");
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+  const { data: allConferences = [] } = useQuery<Conference[]>({
+    queryKey: ["/api/conferences"],
   });
 
+  const activeConference = allConferences.find(c => c.isActive);
+  const pastConferences = allConferences.filter(c => !c.isActive).sort((a, b) => (b.startDate ? new Date(b.startDate).getTime() : 0) - (a.startDate ? new Date(a.startDate).getTime() : 0));
+
   useEffect(() => {
-    if (conference?.name) {
-      document.title = conference.name;
+    if (activeConference?.name) {
+      document.title = activeConference.name;
     }
-  }, [conference]);
+  }, [activeConference]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,45 +47,66 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const getConferenceMenuItems = (conference: Conference, isCurrentActive: boolean) => {
+    const allItems = [
+      { href: isCurrentActive ? "/program" : `/conference/${conference.slug}/program`, label: "Chương trình hội nghị" },
+      { href: isCurrentActive ? "/speakers" : `/conference/${conference.slug}/speakers`, label: "Chủ tọa & Diễn giả" },
+      { href: isCurrentActive ? "/sponsors" : `/conference/${conference.slug}/sponsors`, label: "Đơn vị tài trợ" },
+      { href: isCurrentActive ? "/announcements" : `/conference/${conference.slug}/announcements`, label: "Thông báo" },
+      { href: isCurrentActive ? "/documents" : `/conference/${conference.slug}/documents`, label: "Tài liệu báo cáo" },
+    ];
+    if (conference.isActive) {
+      allItems.push(
+        { href: "/register", label: "Đăng ký tham dự" },
+        { href: "/khao-sat", label: "Khảo sát" }
+      );
+    }
+    return allItems;
+  };
+
   const navItems = [
     { href: "/", label: "TRANG CHỦ" },
     { href: "/about", label: "GIỚI THIỆU" },
   ];
 
-  const conferenceMenuItems = [
-    { href: "/announcements", label: "Thông báo" },
-    { href: "/program", label: "Chương trình hội nghị" },
-    { href: "/register", label: "Đăng ký tham dự" },
-    { href: "/sponsors", label: "Đơn vị tài trợ" },
-    { href: "/speakers", label: "Chủ tọa" },
-    { href: "/post-test", label: "Làm bài Post-test" },
-    { href: "/documents", label: "Tài liệu báo cáo" },
-  ];
+  const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
+    <Link
+      href={href}
+      className={cn(
+        "relative px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
+        location === href
+          ? "text-blue-600 font-semibold"
+          : "text-slate-700 hover:text-blue-600"
+      )}
+    >
+      {children}
+    </Link>
+  );
 
-  const otherNavItems = [
-    { href: "/registration-venues", label: "CÁC KỲ HỘI NGHỊ" },
-    { href: "/sightseeing", label: "ĐỊA ĐIỂM THAM QUAN" },
-    { href: "/contact", label: "LIÊN HỆ" },
-  ];
+  const DropdownMenuNavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
+    <Link href={href}>
+      <DropdownMenuItem className="cursor-pointer">
+        {children}
+      </DropdownMenuItem>
+    </Link>
+  );
 
   return (
     <div className={cn("min-h-screen bg-white dark:bg-slate-950", className)}>
-      {/* Header - Thiết kế trang trọng, đơn giản */}
       <header className={cn(
         "sticky top-0 z-50 w-full transition-all duration-200",
-        scrolled 
-          ? "bg-white/95 dark:bg-slate-900/95 shadow-sm backdrop-blur-sm" 
+        scrolled
+          ? "bg-white/95 dark:bg-slate-900/95 shadow-sm backdrop-blur-sm"
           : "bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800"
       )}>
         <div className="container mx-auto px-4">
           <div className="flex h-20 items-center justify-between">
-            {/* Logo */}
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity flex-shrink-0">
-              {conference?.logoUrl ? (
-                <img 
-                  src={conference.logoUrl} 
-                  alt={conference.name || 'Logo'} 
-                  className="h-16 w-auto object-contain" 
+              {activeConference?.logoUrl ? (
+                <img
+                  src={activeConference.logoUrl}
+                  alt={activeConference.name || 'Logo'}
+                  className="h-16 w-auto object-contain"
                 />
               ) : (
                 <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
@@ -83,120 +115,101 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
               )}
             </Link>
 
-            {/* Desktop Navigation - Gần nhau và chuyên nghiệp */}
             <nav className="hidden lg:flex items-center space-x-0 mx-auto">
               {navItems.map((item) => (
-                <Link 
-                  key={item.href} 
-                  href={item.href}
-                  className={cn(
-                    "relative px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
-                    location === item.href
-                      ? "text-blue-600 font-semibold"
-                      : "text-slate-700 hover:text-blue-600"
-                  )}
-                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                >
-                  {item.label}
-                  {/* Active indicator */}
-                  {location === item.href && (
-                    <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" />
-                  )}
-                </Link>
+                <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
               ))}
-              
-              {/* Dropdown Menu - Fixed hover gap */}
-              <div 
-                className="relative mx-1"
-                onMouseEnter={() => setDropdownOpen(true)}
-                onMouseLeave={() => setDropdownOpen(false)}
-              >
-                <button
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-200",
-                    "text-slate-700 hover:text-blue-600",
-                    dropdownOpen && "text-blue-600"
-                  )}
-                  data-testid="nav-conference-dropdown"
-                >
-                  {conference?.name.toUpperCase() || 'HỘI NGHỊ'}
-                  <ChevronDown className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-200", 
-                    dropdownOpen && "rotate-180"
-                  )} />
-                </button>
-                
-                {/* Invisible bridge to prevent hover gap */}
-                {dropdownOpen && <div className="absolute top-full left-0 right-0 h-2" />}
-                
-                {dropdownOpen && (
-                  <div className="absolute left-0 top-full mt-2 w-56 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden z-50">
-                    {conferenceMenuItems.map((item) => (
-                      <Link 
-                        key={item.href}
-                        href={item.href}
-                        className="block px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-slate-100 last:border-b-0"
-                        data-testid={`dropdown-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              {otherNavItems.map((item) => (
-                <Link 
-                  key={item.href} 
-                  href={item.href}
-                  className={cn(
-                    "relative px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
-                    location === item.href
-                      ? "text-blue-600 font-semibold"
-                      : "text-slate-700 hover:text-blue-600"
+              {activeConference && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-200 mx-1 uppercase",
+                        "text-slate-700 hover:text-blue-600",
+                        location.startsWith(`/conference/${activeConference.slug}`) && "text-blue-600 font-semibold"
+                      )}
+                    >
+                      {activeConference.name}
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {getConferenceMenuItems(activeConference, true).map(item => (
+                      <DropdownMenuNavLink key={item.href} href={item.href}>
+                        {item.label}
+                      </DropdownMenuNavLink>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
+                      "text-slate-700 hover:text-blue-600"
+                    )}
+                  >
+                    CÁC KỲ HỘI NGHỊ
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {pastConferences.length > 0 ? (
+                    pastConferences.map((conf) => (
+                      <DropdownMenuSub key={conf.slug}>
+                        <DropdownMenuSubTrigger>
+                          <span>{conf.name}</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            {getConferenceMenuItems(conf, false).map(item => (
+                              <DropdownMenuNavLink key={item.href} href={item.href}>
+                                {item.label}
+                              </DropdownMenuNavLink>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                    ))
+                  ) : (
+                    <DropdownMenuItem disabled>Không có hội nghị cũ</DropdownMenuItem>
                   )}
-                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                >
-                  {item.label}
-                  {/* Active indicator */}
-                  {location === item.href && (
-                    <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" />
-                  )}
-                </Link>
-              ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <NavLink href="/sightseeing">ĐỊA ĐIỂM THAM QUAN</NavLink>
+              <NavLink href="/contact">LIÊN HỆ</NavLink>
+
             </nav>
 
-            {/* Register Button */}
             <div className="hidden lg:block flex-shrink-0">
               <Link href="/register">
-                <Button 
+                <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 text-sm"
-                  data-testid="button-register-header"
                 >
                   Đăng ký tham dự
                 </Button>
               </Link>
             </div>
 
-            {/* Mobile menu button */}
             <button
               className="lg:hidden p-2 hover:bg-slate-100 rounded transition-colors flex-shrink-0"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              data-testid="button-mobile-menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 bg-white">
             <nav className="container mx-auto p-4 space-y-1 max-h-[80vh] overflow-y-auto">
               {navItems.map((item) => (
-                <Link 
-                  key={item.href} 
+                <Link
+                  key={item.href}
                   href={item.href}
                   className={cn(
                     "block px-4 py-3 text-sm font-medium transition-colors rounded-lg",
@@ -205,51 +218,70 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                       : "text-slate-700 hover:bg-slate-50"
                   )}
                   onClick={() => setMobileMenuOpen(false)}
-                  data-testid={`nav-mobile-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                 >
                   {item.label}
                 </Link>
               ))}
-              
-              <div className="border-t border-slate-200 pt-3 mt-3">
-                <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase">
-                  {conference?.name || 'Hội nghị'}
-                </p>
-                {conferenceMenuItems.map((item) => (
-                  <Link 
-                    key={item.href} 
-                    href={item.href}
-                    className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors rounded-lg"
-                    onClick={() => setMobileMenuOpen(false)}
-                    data-testid={`nav-mobile-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+
+              {activeConference && (
+                <div className="border-t border-slate-200 pt-3 mt-3">
+                   <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase">
+                     Hội nghị
+                   </p>
+                   <div className="pl-4">
+                      {getConferenceMenuItems(activeConference, true).map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors rounded-lg"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                </div>
+              )}
 
               <div className="border-t border-slate-200 pt-3 mt-3">
-                {otherNavItems.map((item) => (
-                  <Link 
-                    key={item.href} 
-                    href={item.href}
-                    className={cn(
-                      "block px-4 py-3 text-sm font-medium transition-colors rounded-lg",
-                      location === item.href
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-700 hover:bg-slate-50"
-                    )}
-                    onClick={() => setMobileMenuOpen(false)}
-                    data-testid={`nav-mobile-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                 <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase">
+                   Các kỳ hội nghị cũ
+                 </p>
+                 {pastConferences.length > 0 ? (
+                   pastConferences.map(conf => (
+                     <div key={`mobile-${conf.slug}`}>
+                        <p className="px-4 py-2 mt-2 font-medium text-slate-800">
+                          {conf.name}
+                        </p>
+                        <div className="pl-4">
+                          {getConferenceMenuItems(conf, false).map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors rounded-lg"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                     </div>
+                   ))
+                 ) : (
+                  <p className="px-4 text-sm text-slate-500">Không có hội nghị cũ</p>
+                 )}
               </div>
+              
+              <Link href="/sightseeing" className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                ĐỊA ĐIỂM THAM QUAN
+              </Link>
+              <Link href="/contact" className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                LIÊN HỆ
+              </Link>
 
               <div className="pt-4 border-t border-slate-200">
                 <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
-                  <Button 
+                  <Button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
                   >
                     Đăng ký tham dự
@@ -261,31 +293,28 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
         )}
       </header>
 
-      {/* Main Content */}
       <main className="relative">
         {children}
       </main>
 
-      {/* Footer - Đơn giản, trang trọng */}
       <footer className="bg-slate-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Contact Info */}
             <div>
               <div className="flex items-start gap-4 mb-6">
-                {conference?.logoUrl && (
+                {activeConference?.logoUrl && (
                   <img
-                    src={conference.logoUrl}
+                    src={activeConference.logoUrl}
                     alt="Logo"
                     className="h-14 w-14 object-contain bg-white rounded p-1"
                   />
                 )}
                 <div>
                   <h3 className="font-bold text-lg mb-1 text-white">
-                    {conference?.name || "Hội Nghị Y Học"}
+                    {activeConference?.name || "Hội Nghị Y Học"}
                   </h3>
                   <p className="text-sm text-slate-300">
-                    {conference?.theme || ""}
+                    {activeConference?.theme || ""}
                   </p>
                 </div>
               </div>
@@ -295,37 +324,36 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   Thông tin liên hệ
                 </h4>
                 
-                {conference?.location && (
+                {activeConference?.location && (
                   <div className="flex items-start gap-3 text-sm">
                     <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-400" />
                     <span className="text-slate-300">
-                      {conference.location}
+                      {activeConference.location}
                     </span>
                   </div>
                 )}
 
-                {conference?.contactPhone && (
+                {activeConference?.contactPhone && (
                   <div className="flex items-center gap-3 text-sm">
                     <Phone className="h-4 w-4 flex-shrink-0 text-blue-400" />
                     <span className="text-slate-300">
-                      <span className="font-medium">Điện thoại:</span> {conference.contactPhone}
+                      <span className="font-medium">Điện thoại:</span> {activeConference.contactPhone}
                     </span>
                   </div>
                 )}
 
-                {conference?.contactEmail && (
+                {activeConference?.contactEmail && (
                   <div className="flex items-center gap-3 text-sm">
                     <Mail className="h-4 w-4 flex-shrink-0 text-blue-400" />
                     <span className="text-slate-300">
-                      <span className="font-medium">Email:</span> {conference.contactEmail}
+                      <span className="font-medium">Email:</span> {activeConference.contactEmail}
                     </span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Map */}
-            {conference?.location && (
+            {activeConference?.location && (
               <div>
                 <h4 className="font-semibold text-sm mb-3 text-slate-200 uppercase tracking-wide">
                   Bản đồ
@@ -345,11 +373,10 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
             )}
           </div>
 
-          {/* Copyright */}
           <div className="mt-8 pt-6 border-t border-slate-800">
             <div className="text-center">
               <p className="text-sm text-slate-300">
-                © {new Date().getFullYear()} <span className="font-semibold text-white">{conference?.name || "Hội Nghị Y Học"}</span>
+                © {new Date().getFullYear()} <span className="font-semibold text-white">{activeConference?.name || "Hội Nghị Y Học"}</span>
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 Bản quyền thuộc về Ban Tổ chức Hội nghị

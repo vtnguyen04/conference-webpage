@@ -31,6 +31,7 @@ import type { Sightseeing, InsertSightseeing } from "@shared/schema";
 import { insertSightseeingSchema } from "@shared/schema";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
+import { useAdminView } from "@/hooks/useAdminView";
 
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
@@ -39,10 +40,15 @@ export default function SightseeingManagementPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const quillRef = useRef<ReactQuill>(null);
+  const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
-    queryKey: ["/api/sightseeing"],
-    staleTime: 0,
+    queryKey: ["/api/sightseeing", viewingSlug],
+    queryFn: async () => {
+      if (!viewingSlug) return [];
+      return await apiRequest("GET", `/api/sightseeing/slug/${viewingSlug}`);
+    },
+    enabled: !!viewingSlug,
   });
 
   const form = useForm<InsertSightseeing>({
@@ -61,7 +67,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo địa điểm thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -76,7 +82,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật địa điểm thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSightseeing(null);
       form.reset();
@@ -92,7 +98,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa địa điểm thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -105,7 +111,7 @@ export default function SightseeingManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả địa điểm tham quan thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -113,6 +119,7 @@ export default function SightseeingManagementPage() {
   });
 
   const handleAdd = () => {
+    if (isReadOnly) return;
     setEditingSightseeing(null);
     form.reset({
       title: "",
@@ -124,6 +131,7 @@ export default function SightseeingManagementPage() {
   };
 
   const handleEdit = (sightseeing: Sightseeing) => {
+    if (isReadOnly) return;
     setEditingSightseeing(sightseeing);
     form.reset({
       title: sightseeing.title,
@@ -135,18 +143,21 @@ export default function SightseeingManagementPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
+    if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa địa điểm "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleDeleteAll = async () => {
+    if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
 
   const onSubmit = (data: InsertSightseeing) => {
+    if (isReadOnly) return;
     if (editingSightseeing) {
       updateMutation.mutate({ id: editingSightseeing.id, data });
     } else {
@@ -155,7 +166,7 @@ export default function SightseeingManagementPage() {
   };
 
   const handleImageDrop = async (files: File[]) => {
-    if (files.length === 0) return;
+    if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
@@ -178,6 +189,7 @@ export default function SightseeingManagementPage() {
   };
 
   const handleImageDelete = async () => {
+    if (isReadOnly) return;
     const currentImageUrl = form.getValues("featuredImageUrl");
     if (!currentImageUrl) return;
     if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
@@ -194,6 +206,7 @@ export default function SightseeingManagementPage() {
   };
 
   const imageHandler = () => {
+    if (isReadOnly) return;
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
@@ -240,7 +253,7 @@ export default function SightseeingManagementPage() {
         image: imageHandler,
       },
     },
-  }), []);
+  }), [isReadOnly]);
 
   const sortedSightseeing = [...sightseeing].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -257,12 +270,12 @@ export default function SightseeingManagementPage() {
             onClick={handleDeleteAll}
             variant="destructive"
             data-testid="button-delete-all-sightseeing"
-            disabled={deleteAllMutation.isPending}
+            disabled={deleteAllMutation.isPending || isReadOnly}
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Xóa tất cả
           </Button>
-          <Button onClick={handleAdd}>
+          <Button onClick={handleAdd} disabled={isReadOnly}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm địa điểm
           </Button>
@@ -298,6 +311,7 @@ export default function SightseeingManagementPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(item)}
+                        disabled={isReadOnly}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -305,6 +319,7 @@ export default function SightseeingManagementPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(item.id, item.title)}
+                        disabled={isReadOnly}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -347,6 +362,7 @@ export default function SightseeingManagementPage() {
                         onDelete={handleImageDelete}
                         isUploading={isUploading}
                         isDeleting={isDeleting}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormDescription>
@@ -364,7 +380,7 @@ export default function SightseeingManagementPage() {
                   <FormItem>
                     <FormLabel>Tiêu đề</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} readOnly={isReadOnly} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -378,7 +394,7 @@ export default function SightseeingManagementPage() {
                   <FormItem>
                     <FormLabel>Tóm tắt</FormLabel>
                     <FormControl>
-                      <Textarea {...field} rows={2} />
+                      <Textarea {...field} rows={2} readOnly={isReadOnly} />
                     </FormControl>
                     <FormDescription>
                       Mô tả ngắn gọn (hiển thị trong danh sách)
@@ -400,6 +416,7 @@ export default function SightseeingManagementPage() {
                         theme="snow"
                         value={field.value}
                         onChange={field.onChange}
+                        readOnly={isReadOnly}
                         className="min-h-[200px]"
                         modules={modules}
                       />
@@ -418,7 +435,7 @@ export default function SightseeingManagementPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
                 >
                   {createMutation.isPending || updateMutation.isPending
                     ? "Đang lưu..."

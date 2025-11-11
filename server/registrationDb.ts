@@ -1,28 +1,33 @@
+import {
+  eq,
+  and,
+  or,
+  like,
+  isNull,
+  gt,
+  lt,
+  sql,
+  inArray,
+} from "drizzle-orm";
 import { db } from "./db";
-import { registrations, checkIns } from "@shared/schema";
-import type {
+import {
+  registrations,
+  checkIns,
   Registration,
   InsertRegistration,
   CheckIn,
   InsertCheckIn,
-  BatchRegistrationRequest,
   Session,
-} from "@shared/schema";
-import { eq, and, sql, inArray, or, like, isNull, gt, lt } from "drizzle-orm";
+  BatchRegistrationRequest,
+} from "../shared/schema";
+import { randomUUID } from "node:crypto";
+import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { sendRegistrationVerificationEmail } from "./emailService";
-import crypto from "crypto";
-import { randomUUID } from "crypto";
 
-// ============================================================================
-// SESSION-BASED REGISTRATION OPERATIONS (SQLite)
-// ============================================================================
 
-/**
- * Get all registrations for a conference year with pagination
- */
-export async function getRegistrationsByYear(
-  year: number,
+export async function getRegistrationsByConferenceSlug(
+  slug: string,
   page: number,
   limit: number
 ): Promise<{ registrations: Registration[]; total: number }> {
@@ -30,7 +35,7 @@ export async function getRegistrationsByYear(
   const data = await db
     .select()
     .from(registrations)
-    .where(eq(registrations.conferenceYear, year))
+    .where(eq(registrations.conferenceSlug, slug))
     .limit(limit)
     .offset(offset)
     .all();
@@ -38,7 +43,7 @@ export async function getRegistrationsByYear(
   const totalResult = await db
     .select({ count: sql<number>`count(*)` })
     .from(registrations)
-    .where(eq(registrations.conferenceYear, year))
+    .where(eq(registrations.conferenceSlug, slug))
     .get();
   
   const total = Number(totalResult?.count || 0);
@@ -46,9 +51,6 @@ export async function getRegistrationsByYear(
   return { registrations: data, total };
 }
 
-/**
- * Get all registrations for a specific session
- */
 export async function getRegistrationsBySession(
   sessionId: string
 ): Promise<Registration[]> {
@@ -59,12 +61,11 @@ export async function getRegistrationsBySession(
     .all();
 }
 
-/**
- * Get registrations by attendee email
- */
+
+// Get registrations by email
 export async function getRegistrationsByEmail(
   email: string,
-  year: number
+  slug: string
 ): Promise<Registration[]> {
   return await db
     .select()
@@ -72,15 +73,13 @@ export async function getRegistrationsByEmail(
     .where(
       and(
         eq(registrations.email, email),
-        eq(registrations.conferenceYear, year)
+        eq(registrations.conferenceSlug, slug)
       )
     )
     .all();
 }
 
-/**
- * Check if attendee is already registered for a session
- */
+// Check if registered for a session
 export async function isRegisteredForSession(
   email: string,
   sessionId: string
@@ -101,7 +100,7 @@ export async function isRegisteredForSession(
 }
 
 /**
- * Get count of registrations for a session (for capacity check)
+ * Get session registration count
  */
 export async function getSessionRegistrationCount(
   sessionId: string
@@ -121,14 +120,13 @@ export async function getSessionRegistrationCount(
 }
 
 /**
- * Create a single session registration with QR code
+ * Create a registration
  */
 export async function createRegistration(
   data: InsertRegistration
 ): Promise<Registration> {
   const id = randomUUID();
-  // Generate unique QR code data
-  const qrData = `CONF|${data.conferenceYear}|${data.sessionId}|${data.email}|${Date.now()}`; // Changed delimiter to '|'
+  const qrData = `CONF|${data.conferenceSlug}|${data.sessionId}|${data.email}|${Date.now()}`;
   const qrCodeImage = await QRCode.toDataURL(qrData);
 
   const newRegistration = {
@@ -139,7 +137,7 @@ export async function createRegistration(
     createdAt: new Date(),
     registeredAt: new Date(),
     cmeCertificateRequested: data.cmeCertificateRequested || false,
-    conferenceCertificateSent: false, // NEW FIELD
+    conferenceCertificateSent: false,
     emailSent: false,
     reminderCount: 0,
   };
@@ -149,8 +147,7 @@ export async function createRegistration(
     .values(newRegistration)
     .run();
 
-  // Send confirmation email for single registration
-  const conferenceName = `Conference ${data.conferenceYear}`; // Placeholder
+  const conferenceName = `Conference ${data.conferenceSlug}`;
   await sendRegistrationVerificationEmail(
     newRegistration.email,
     newRegistration.fullName,
@@ -162,8 +159,7 @@ export async function createRegistration(
 }
 
 /**
- * Batch registration for multiple sessions with transaction support
- * Validates capacity, overlap, whitelist, and creates multiple registration records atomically
+ * Batch register for multiple sessions
  */
 export async function batchRegisterSessions(
   request: BatchRegistrationRequest,
@@ -175,9 +171,8 @@ export async function batchRegisterSessions(
   error?: string;
   failedSessions?: string[];
 }> {
-  const { conferenceYear, sessionIds, email, fullName, phone, organization, position, cmeCertificateRequested } = request;
+  const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, cmeCertificateRequested } = request;
 
-  // Step 1: Get session details for the requested sessions
   const requestedSessions = sessions.filter(s => sessionIds.includes(s.id));
 
   if (requestedSessions.length !== sessionIds.length) {
@@ -187,7 +182,6 @@ export async function batchRegisterSessions(
     };
   }
 
-  // Step 2: Check time overlap
   const hasOverlap = checkSessionTimeOverlap(requestedSessions);
   if (hasOverlap) {
     return {
@@ -196,19 +190,16 @@ export async function batchRegisterSessions(
     };
   }
 
-  // Step 3: Perform all database operations in a transaction
   try {
-    // Pre-generate QR codes outside the transaction
     const qrCodeDetails: { sessionId: string; qrCodeDataURL: string }[] = [];
     for (const sessionId of sessionIds) {
       console.log(`DEBUG: Generating QR for sessionId: ${sessionId}`);
-      const qrData = `CONF|${conferenceYear}|${sessionId}|${email}|${Date.now()}`;
-      const qrCodeDataURL = await QRCode.toDataURL(qrData); // Generate data URL
+      const qrData = `CONF|${conferenceSlug}|${sessionId}|${email}|${Date.now()}`;
+      const qrCodeDataURL = await QRCode.toDataURL(qrData);
       qrCodeDetails.push({ sessionId, qrCodeDataURL });
     }
 
     const createdRegistrations = db.transaction((tx) => {
-      // Check if already registered for any of these sessions
       for (const sessionId of sessionIds) {
         const existingRegistration = tx
           .select()
@@ -216,7 +207,7 @@ export async function batchRegisterSessions(
           .where(
             and(
               eq(registrations.email, email),
-              eq(registrations.conferenceYear, conferenceYear),
+              eq(registrations.conferenceSlug, conferenceSlug),
               eq(registrations.sessionId, sessionId)
             )
           )
@@ -228,20 +219,18 @@ export async function batchRegisterSessions(
         }
       }
 
-      // Create all registrations atomically
       const allRegistrations: Registration[] = [];
       
       for (const sessionId of sessionIds) {
         const id = randomUUID();
-        // Retrieve pre-generated QR code data URL
         const { qrCodeDataURL } = qrCodeDetails.find(d => d.sessionId === sessionId)!;
 
         const confirmationToken = crypto.randomBytes(32).toString("hex");
-        const confirmationTokenExpires = new Date(Date.now() + 3600000).toISOString(); // 1 hour
+        const confirmationTokenExpires = new Date(Date.now() + 3600000).toISOString();
 
         const newRegistration = {
           id,
-          conferenceYear,
+          conferenceSlug,
           sessionId,
           fullName,
           email,
@@ -249,11 +238,11 @@ export async function batchRegisterSessions(
           organization: organization || null,
           position: position || null,
           cmeCertificateRequested,
-          conferenceCertificateSent: false, // NEW FIELD
+          conferenceCertificateSent: false,
           status: "pending",
-          qrCode: qrCodeDataURL, // Store data URL
+          qrCode: qrCodeDataURL,
           confirmationToken,
-          confirmationTokenExpires: new Date(Date.now() + 3600000), // 1 hour
+          confirmationTokenExpires: new Date(Date.now() + 3600000),
           createdAt: new Date(),
           registeredAt: new Date(),
           emailSent: false,
@@ -265,7 +254,6 @@ export async function batchRegisterSessions(
           .values(newRegistration)
           .run();
 
-        // Convert date strings back to Date objects for response
         allRegistrations.push({
           ...newRegistration,
           createdAt: new Date(newRegistration.createdAt),
@@ -285,7 +273,6 @@ export async function batchRegisterSessions(
   } catch (error: any) {
     console.error("Batch registration transaction error:", error);
     
-    // Check if error is about already registered or capacity
     if (error.message.includes("Already registered")) {
       const sessionIds = error.message.match(/sessions: (.+)$/)?.[1]?.split(", ") || [];
       return {
@@ -310,17 +297,15 @@ export async function batchRegisterSessions(
 }
 
 /**
- * Check if sessions have overlapping time slots
+ * Check for session time overlap
  */
 function checkSessionTimeOverlap(sessions: Session[]): boolean {
   if (sessions.length <= 1) return false;
 
-  // Sort sessions by start time
   const sorted = [...sessions].sort(
     (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
   );
 
-  // Check each pair of consecutive sessions
   for (let i = 0; i < sorted.length - 1; i++) {
     const current = sorted[i];
     const next = sorted[i + 1];
@@ -328,7 +313,6 @@ function checkSessionTimeOverlap(sessions: Session[]): boolean {
     const currentEnd = new Date(current.endTime).getTime();
     const nextStart = new Date(next.startTime).getTime();
 
-    // If current session ends after next session starts, there's overlap
     if (currentEnd > nextStart) {
       return true;
     }
@@ -353,14 +337,14 @@ export async function cancelRegistration(
 }
 
 /**
- * Delete all registrations for a conference year
+ * Delete registrations by year
  */
-export async function deleteRegistrationsByYear(year: number): Promise<void> {
-  await db.delete(registrations).where(eq(registrations.conferenceYear, year)).run();
+export async function deleteRegistrationsByConferenceSlug(slug: string): Promise<void> {
+  await db.delete(registrations).where(eq(registrations.conferenceSlug, slug)).run();
 }
 
 /**
- * Delete a single registration by ID
+ * Delete a registration
  */
 export async function deleteRegistration(id: string): Promise<boolean> {
   const result = await db
@@ -372,10 +356,10 @@ export async function deleteRegistration(id: string): Promise<boolean> {
 }
 
 /**
- * Search registrations by full name or email with pagination
+ * Search registrations
  */
 export async function searchRegistrations(
-  year: number,
+  slug: string,
   query: string,
   page: number,
   limit: number
@@ -384,7 +368,7 @@ export async function searchRegistrations(
   const offset = (page - 1) * limit;
 
   const where = and(
-    eq(registrations.conferenceYear, year),
+    eq(registrations.conferenceSlug, slug),
     or(
       like(registrations.fullName, `%${lowerCaseQuery}%`),
       like(registrations.email, `%${lowerCaseQuery}%`)
@@ -411,10 +395,10 @@ export async function searchRegistrations(
 }
 
 /**
- * Get pending registrations that are due for a reminder
+ * Get pending registrations due for reminder
  */
 export async function getPendingRegistrationsDueForReminder(
-  conferenceYear: number,
+  conferenceSlug: string,
   reminderIntervalHours: number,
   maxReminders: number
 ): Promise<Registration[]> {
@@ -426,7 +410,7 @@ export async function getPendingRegistrationsDueForReminder(
     .from(registrations)
     .where(
       and(
-        eq(registrations.conferenceYear, conferenceYear),
+        eq(registrations.conferenceSlug, conferenceSlug),
         eq(registrations.status, "pending"),
         gt(registrations.confirmationTokenExpires, now),
         lt(registrations.reminderCount, maxReminders),
@@ -441,7 +425,7 @@ export async function getPendingRegistrationsDueForReminder(
 
 
 /**
- * Update a registration's reminder status (increment count, set last sent time)
+ * Update registration reminder status
  */
 export async function updateRegistrationReminderStatus(registrationId: string): Promise<void> {
   const registration = await db
@@ -463,18 +447,18 @@ export async function updateRegistrationReminderStatus(registrationId: string): 
 }
 
 /**
- * Cancel and delete an unconfirmed registration
+ * Cancel and delete unconfirmed registration
  */
 export async function cancelAndDeleteUnconfirmedRegistration(registrationId: string): Promise<void> {
   await db.delete(registrations).where(eq(registrations.id, registrationId)).run();
 }
 
 // ============================================================================
-// CHECK-IN OPERATIONS (SQLite)
+// CHECK-IN OPERATIONS
 // ============================================================================
 
 /**
- * Create a check-in record for a registration
+ * Create a check-in
  */
 export async function createCheckIn(
   data: InsertCheckIn
@@ -504,7 +488,7 @@ export async function createCheckIn(
 }
 
 /**
- * Get check-ins for a registration
+ * Get check-ins by registration
  */
 export async function getCheckInsByRegistration(
   registrationId: string
@@ -517,7 +501,7 @@ export async function getCheckInsByRegistration(
 }
 
 /**
- * Get check-ins for a session with pagination
+ * Get check-ins by session
  */
 export async function getCheckInsBySession(
   sessionId: string,
@@ -546,7 +530,7 @@ export async function getCheckInsBySession(
 }
 
 /**
- * Check if already checked in for a session
+ * Check if already checked in
  */
 export async function isCheckedIn(
   registrationId: string,
@@ -572,15 +556,14 @@ export async function isCheckedIn(
 // ============================================================================
 
 /**
- * Get registration and check-in statistics for a conference year
+ * Get registration stats
  */
-export async function getRegistrationStats(year: number) {
-  const { registrations: allRegistrations } = await getRegistrationsByYear(year, 1, Number.MAX_SAFE_INTEGER);
+export async function getRegistrationStats(slug: string) {
+  const { registrations: allRegistrations } = await getRegistrationsByConferenceSlug(slug, 1, Number.MAX_SAFE_INTEGER);
   
   const totalRegistrations = allRegistrations.length;
   const uniqueAttendees = new Set(allRegistrations.map(r => r.email)).size;
   
-  // Get all check-ins for this year's registrations
   const registrationIds = allRegistrations.map(r => r.id);
   let allCheckIns: CheckIn[] = [];
   if (registrationIds.length > 0) {
@@ -607,7 +590,7 @@ export async function getRegistrationStats(year: number) {
 }
 
 /**
- * Get capacity status for all sessions
+ * Get session capacity status
  */
 export async function getSessionCapacityStatus(
   sessions: Session[]

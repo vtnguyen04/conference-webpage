@@ -1,19 +1,23 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, copyFileSync } from "fs";
 import { join, extname } from "path";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  unlinkSync,
+  copyFileSync,
+  readdirSync,
+} from "fs";
 import type {
   Conference,
   Session,
   Speaker,
   Sponsor,
   Announcement,
-  Whitelist,
   Sightseeing,
+  Whitelist,
 } from "@shared/schema";
 
-const DATA_DIR = join(process.cwd(), "server", "data");
-
-// Conference content data stored in JSON files
-// Registrations and check-ins are stored in PostgreSQL database
 interface ConferenceData {
   conference: Conference;
   sessions: Session[];
@@ -24,24 +28,62 @@ interface ConferenceData {
   whitelists: Whitelist[];
 }
 
-// Ensure data directory exists
+const DATA_DIR = join(process.cwd(), "server", "data");
+const CONFIG_FILE_PATH = join(DATA_DIR, "config.json");
+
+interface Config {
+  activeConferenceSlug: string | null;
+}
+
 if (!existsSync(DATA_DIR)) {
   mkdirSync(DATA_DIR, { recursive: true });
 }
 
-function getFilePath(year: number): string {
-  return join(DATA_DIR, `${year}.json`);
+function readConfig(): Config {
+  if (!existsSync(CONFIG_FILE_PATH)) {
+    return { activeConferenceSlug: null };
+  }
+  try {
+    const content = readFileSync(CONFIG_FILE_PATH, "utf-8");
+    return JSON.parse(content);
+  } catch (error) {
+    console.error(`Error reading ${CONFIG_FILE_PATH}:`, error);
+    return { activeConferenceSlug: null };
+  }
 }
 
-function readData(year: number): ConferenceData | null {
-  const filePath = getFilePath(year);
+function writeConfig(config: Config): void {
+  try {
+    writeFileSync(CONFIG_FILE_PATH, JSON.stringify(config, null, 2), "utf-8");
+  } catch (error) {
+    console.error(`Error writing ${CONFIG_FILE_PATH}:`, error);
+  }
+}
+
+function slugify(text: string): string {
+  return text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-');
+}
+
+function getConferenceFilePath(slug: string): string {
+  return join(DATA_DIR, `${slug}.json`);
+}
+
+function readConferenceData(slug: string): ConferenceData | null {
+  const filePath = getConferenceFilePath(slug);
   if (!existsSync(filePath)) {
     return null;
   }
   try {
     const content = readFileSync(filePath, "utf-8");
     const data = JSON.parse(content);
-    // Convert date strings back to Date objects for consistency with the interface
     if (data?.conference?.startDate) {
       data.conference.startDate = new Date(data.conference.startDate);
     }
@@ -55,8 +97,8 @@ function readData(year: number): ConferenceData | null {
   }
 }
 
-function writeData(year: number, data: ConferenceData): void {
-  const filePath = getFilePath(year);
+function writeConferenceData(slug: string, data: ConferenceData): void {
+  const filePath = getConferenceFilePath(slug);
   try {
     writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
   }
@@ -66,7 +108,6 @@ function writeData(year: number, data: ConferenceData): void {
   }
 }
 
-// Helper function to delete files
 function deleteFile(filePathRelative: string) {
   if (filePathRelative && filePathRelative.startsWith('/uploads/')) {
     const absolutePath = join(process.cwd(), "public", filePathRelative);
@@ -99,97 +140,88 @@ function cloneFile(filePathRelative: string | null | undefined): string | undefi
     return newRelativePath;
   } catch (error) {
     console.error(`Failed to clone file ${filePathRelative}:`, error);
-    // Return original path as a fallback to avoid breaking the cloning process
     return filePathRelative;
   }
 }
 
-function getActiveYear(): number | null {
-  try {
-    if (!existsSync(DATA_DIR)) return null;
-    const files = readdirSync(DATA_DIR);
-    for (const file of files) {
-      if (file.endsWith(".json")) {
-        const year = parseInt(file.replace(".json", ""));
-        const data = readData(year);
-        if (data?.conference.isActive) {
-          return year;
-        }
-      }
-    }
-    return null;
-  } catch (error) {
-    console.error("Error getting active year:", error);
-    return null;
-  }
+function getActiveConferenceSlug(): string | null {
+  const config = readConfig();
+  return config.activeConferenceSlug;
 }
 
 export class JSONStorage {
-  // Conference operations
   async getActiveConference(): Promise<Conference | undefined> {
-    const year = getActiveYear();
-    if (!year) return undefined;
-    const data = readData(year);
+    const slug = getActiveConferenceSlug();
+    if (!slug) return undefined;
+    const data = readConferenceData(slug);
     return data?.conference;
   }
 
-  async getConferenceByYear(year: number): Promise<Conference | undefined> {
-    const data = readData(year);
+  // Get conference by slug
+  async getConferenceBySlug(slug: string): Promise<Conference | undefined> {
+    const data = readConferenceData(slug);
     return data?.conference;
   }
 
+  // Get all conferences
   async getAllConferences(): Promise<Conference[]> {
     try {
       if (!existsSync(DATA_DIR)) return [];
       const files = readdirSync(DATA_DIR);
       const conferences: Conference[] = [];
       for (const file of files) {
-        if (file.endsWith(".json")) {
-          const year = parseInt(file.replace(".json", ""));
-          const data = readData(year);
+        if (file.endsWith(".json") && file !== "config.json") {
+          const slug = file.replace(".json", "");
+          const data = readConferenceData(slug);
           if (data?.conference) {
             conferences.push(data.conference);
           }
         }
       }
-      return conferences.sort((a, b) => b.year - a.year);
+      // Sort by year (if available) or creation date, newest first
+      return conferences.sort((a, b) => {
+        const yearA = (a as any).year || new Date(a.createdAt).getFullYear();
+        const yearB = (b as any).year || new Date(b.createdAt).getFullYear();
+        return yearB - yearA;
+      });
     } catch (error) {
       console.error("Error getting all conferences:", error);
       return [];
     }
   }
 
+  // Create a new conference
   async createConference(conf: Partial<Conference>): Promise<Conference> {
-    const year = conf.year || new Date().getFullYear();
-    
-    // Set all others to inactive
-    const allConfs = await this.getAllConferences();
-    for (const c of allConfs) {
-      if (c.isActive) {
-        const data = readData(c.year);
-        if (data) {
-          data.conference.isActive = false;
-          writeData(c.year, data);
-        }
-      }
+    if (!conf.name) {
+      throw new Error("Conference name is required to create a slug.");
+    }
+
+    let baseSlug = slugify(conf.name);
+    let slug = baseSlug;
+    let counter = 1;
+    while (existsSync(getConferenceFilePath(slug))) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
     }
 
     const conference: Conference = {
-      id: `conf-${year}`,
-      year,
-      name: conf.name || `Hội nghị ${year}`,
+      id: slug, // Use slug as ID
+      slug: slug,
+      name: conf.name,
       theme: conf.theme || "",
       logoUrl: conf.logoUrl || "",
-      bannerUrls: conf.bannerUrls || [], // Handle new field
+      bannerUrls: conf.bannerUrls || [],
       introContent: conf.introContent || "",
-      registrationNote1: conf.registrationNote1 || "", // New field
-      registrationNote2: conf.registrationNote2 || "", // New field
-      startDate: conf.startDate || new Date(), // Handle Date object
-      endDate: conf.endDate || new Date(),     // Handle Date object
+      registrationNote1: conf.registrationNote1 || "",
+      registrationNote2: conf.registrationNote2 || "",
+      registrationBenefits: conf.registrationBenefits || "",
+      registrationRules: conf.registrationRules || "",
+      startDate: conf.startDate || new Date(),
+      endDate: conf.endDate || new Date(),
       location: conf.location || "",
       contactEmail: conf.contactEmail || "",
       contactPhone: conf.contactPhone || "",
-      isActive: true,
+      isActive: false, // New conferences are created as inactive
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -204,28 +236,27 @@ export class JSONStorage {
       whitelists: [],
     };
 
-    writeData(year, newData);
+    writeConferenceData(slug, newData);
     return conference;
   }
 
-  async updateConference(year: number, updates: Partial<Conference>): Promise<Conference | undefined> {
-    const data = readData(year);
+  // Update a conference
+  async updateConference(slug: string, updates: Partial<Conference>): Promise<Conference | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
     const oldConference = data.conference;
 
-    // Delete old logo if updated
-    if (updates.logoUrl && updates.logoUrl !== oldConference.logoUrl) {
+    if (updates.logoUrl && updates.logoUrl !== oldConference.logoUrl && oldConference.logoUrl) {
       deleteFile(oldConference.logoUrl);
     }
 
-    // Delete old banners if updated
     if (updates.bannerUrls) {
       const oldBannerUrls = new Set(oldConference.bannerUrls);
       const newBannerUrls = new Set(updates.bannerUrls);
       oldBannerUrls.forEach(url => {
         if (!newBannerUrls.has(url)) {
-          deleteFile(url);
+          deleteFile(url as string);
         }
       });
     }
@@ -236,87 +267,100 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.conference;
   }
 
-  async deleteConference(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete a conference
+  async deleteConference(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) {
-      // If data doesn't exist, there's nothing to delete.
       return;
     }
 
-    // Delete all associated files
     if (data.conference.logoUrl) {
       deleteFile(data.conference.logoUrl);
     }
     data.conference.bannerUrls?.forEach(deleteFile);
-    data.speakers?.forEach(speaker => deleteFile(speaker.photoUrl));
-    data.sponsors?.forEach(sponsor => deleteFile(sponsor.logoUrl));
-    data.announcements?.forEach(announcement => {
+    data.speakers?.forEach((speaker: Speaker) => deleteFile(speaker.photoUrl));
+    data.sponsors?.forEach((sponsor: Sponsor) => deleteFile(sponsor.logoUrl));
+    data.announcements?.forEach((announcement: Announcement) => {
       deleteFile(announcement.featuredImageUrl);
       if (announcement.pdfUrl) {
         deleteFile(announcement.pdfUrl);
       }
     });
-    data.sightseeing?.forEach(sightseeing => deleteFile(sightseeing.featuredImageUrl));
+    data.sightseeing?.forEach((sightseeing: Sightseeing) => deleteFile(sightseeing.featuredImageUrl));
 
-    // Delete the JSON file itself
-    const filePath = getFilePath(year);
+    const filePath = getConferenceFilePath(slug);
     if (existsSync(filePath)) {
       unlinkSync(filePath);
       console.log(`Deleted data file: ${filePath}`);
     }
+
+    // If the deleted conference was active, clear the active slug
+    const config = readConfig();
+    if (config.activeConferenceSlug === slug) {
+      config.activeConferenceSlug = null;
+      writeConfig(config);
+    }
   }
 
-  async setActiveConference(yearToActivate: number): Promise<void> {
-    const allConfs = await this.getAllConferences();
-    for (const c of allConfs) {
-      const data = readData(c.year);
+  // Set active conference
+  async setActiveConference(slugToActivate: string): Promise<void> {
+    const config = readConfig();
+    config.activeConferenceSlug = slugToActivate;
+    writeConfig(config);
+
+    const allConferences = await this.getAllConferences();
+    for (const conf of allConferences) {
+      const data = readConferenceData(conf.slug);
       if (data) {
-        const shouldBeActive = data.conference.year === yearToActivate;
+        const shouldBeActive = data.conference.slug === slugToActivate;
         if (data.conference.isActive !== shouldBeActive) {
           data.conference.isActive = shouldBeActive;
-          writeData(c.year, data);
+          writeConferenceData(data.conference.slug, data);
         }
       }
     }
   }
 
-  // Sessions operations
-  async getSessions(year: number): Promise<Session[]> {
-    const data = readData(year);
+  // Get all sessions for a conference
+  async getSessions(slug: string): Promise<Session[]> {
+    const data = readConferenceData(slug);
     return data?.sessions || [];
   }
 
-  async getSession(year: number, id: string): Promise<Session | undefined> {
-    const data = readData(year);
-    return data?.sessions.find(session => session.id === id);
+  // Get a session by ID
+  async getSession(slug: string, id: string): Promise<Session | undefined> {
+    const data = readConferenceData(slug);
+    return data?.sessions.find((session: Session) => session.id === id);
   }
 
-  async createSession(year: number, session: Omit<Session, "id" | "createdAt" | "updatedAt">): Promise<Session> {
-    const data = readData(year);
+  // Create a new session
+  async createSession(slug: string, session: Omit<Session, "id" | "createdAt" | "updatedAt">): Promise<Session> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     const newSession: Session = {
       ...session,
       id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     data.sessions.push(newSession);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newSession;
   }
 
-  async updateSession(year: number, id: string, updates: Partial<Session>): Promise<Session | undefined> {
-    const data = readData(year);
+  // Update a session
+  async updateSession(slug: string, id: string, updates: Partial<Session>): Promise<Session | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.sessions.findIndex(s => s.id === id);
+    const index = data.sessions.findIndex((s: Session) => s.id === id);
     if (index === -1) return undefined;
 
     data.sessions[index] = {
@@ -325,64 +369,68 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.sessions[index];
   }
 
-  async deleteSession(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Delete a session
+  async deleteSession(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.sessions = data.sessions.filter(s => s.id !== id);
-    writeData(year, data);
+    data.sessions = data.sessions.filter((s: Session) => s.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async deleteAllSessions(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete all sessions
+  async deleteAllSessions(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
     data.sessions = [];
-    writeData(year, data);
+    writeConferenceData(slug, data);
   }
 
-  // Similar methods for speakers, sponsors, announcements, registrations, whitelists, checkIns
-  async getSpeakers(year: number): Promise<Speaker[]> {
-    const data = readData(year);
+  // Get all speakers for a conference
+  async getSpeakers(slug: string): Promise<Speaker[]> {
+    const data = readConferenceData(slug);
     return data?.speakers || [];
   }
 
-  async getSpeakerById(year: number, id: string): Promise<Speaker | undefined> {
-    const data = readData(year);
-    return data?.speakers.find(speaker => speaker.id === id);
+  // Get a speaker by ID
+  async getSpeakerById(slug: string, id: string): Promise<Speaker | undefined> {
+    const data = readConferenceData(slug);
+    return data?.speakers.find((speaker: Speaker) => speaker.id === id);
   }
 
-  async createSpeaker(year: number, speaker: Omit<Speaker, "id" | "createdAt" | "updatedAt">): Promise<Speaker> {
-    const data = readData(year);
+  // Create a new speaker
+  async createSpeaker(slug: string, speaker: Omit<Speaker, "id" | "createdAt" | "updatedAt">): Promise<Speaker> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     const newSpeaker: Speaker = {
       ...speaker,
       id: `speaker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     data.speakers.push(newSpeaker);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newSpeaker;
   }
 
-  async updateSpeaker(year: number, id: string, updates: Partial<Speaker>): Promise<Speaker | undefined> {
-    const data = readData(year);
+  // Update a speaker
+  async updateSpeaker(slug: string, id: string, updates: Partial<Speaker>): Promise<Speaker | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.speakers.findIndex(s => s.id === id);
+    const index = data.speakers.findIndex((s: Speaker) => s.id === id);
     if (index === -1) return undefined;
 
     const oldSpeaker = data.speakers[index];
 
-    // If a new photoUrl is provided and it's different from the old one, delete the old photo
     if (updates.photoUrl && updates.photoUrl !== oldSpeaker.photoUrl) {
       deleteFile(oldSpeaker.photoUrl);
     }
@@ -393,69 +441,74 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.speakers[index];
   }
 
-  async deleteSpeaker(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Delete a speaker
+  async deleteSpeaker(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    const speakerToDelete = data.speakers.find(s => s.id === id);
+    const speakerToDelete = data.speakers.find((s: Speaker) => s.id === id);
     if (speakerToDelete) {
       deleteFile(speakerToDelete.photoUrl);
     }
 
-    data.speakers = data.speakers.filter(s => s.id !== id);
-    writeData(year, data);
+    data.speakers = data.speakers.filter((s: Speaker) => s.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async deleteAllSpeakers(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete all speakers
+  async deleteAllSpeakers(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.speakers.forEach(speaker => deleteFile(speaker.photoUrl));
+    data.speakers.forEach((speaker: Speaker) => deleteFile(speaker.photoUrl));
     data.speakers = [];
-    writeData(year, data);
+    writeConferenceData(slug, data);
   }
 
-  async getSponsors(year: number): Promise<Sponsor[]> {
-    const data = readData(year);
+  // Get all sponsors for a conference
+  async getSponsors(slug: string): Promise<Sponsor[]> {
+    const data = readConferenceData(slug);
     return data?.sponsors || [];
   }
 
-  async getSponsorById(year: number, id: string): Promise<Sponsor | undefined> {
-    const data = readData(year);
-    return data?.sponsors.find(sponsor => sponsor.id === id);
+  // Get a sponsor by ID
+  async getSponsorById(slug: string, id: string): Promise<Sponsor | undefined> {
+    const data = readConferenceData(slug);
+    return data?.sponsors.find((sponsor: Sponsor) => sponsor.id === id);
   }
 
-  async createSponsor(year: number, sponsor: Omit<Sponsor, "id" | "createdAt" | "updatedAt">): Promise<Sponsor> {
-    const data = readData(year);
+  // Create a new sponsor
+  async createSponsor(slug: string, sponsor: Omit<Sponsor, "id" | "createdAt" | "updatedAt">): Promise<Sponsor> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     const newSponsor: Sponsor = {
       ...sponsor,
       id: `sponsor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     data.sponsors.push(newSponsor);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newSponsor;
   }
 
-  async updateSponsor(year: number, id: string, updates: Partial<Sponsor>): Promise<Sponsor | undefined> {
-    const data = readData(year);
+  // Update a sponsor
+  async updateSponsor(slug: string, id: string, updates: Partial<Sponsor>): Promise<Sponsor | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.sponsors.findIndex(s => s.id === id);
+    const index = data.sponsors.findIndex((s: Sponsor) => s.id === id);
     if (index === -1) return undefined;
 
     const oldSponsor = data.sponsors[index];
 
-    // If a new logoUrl is provided and it's different from the old one, delete the old logo
     if (updates.logoUrl && updates.logoUrl !== oldSponsor.logoUrl) {
       deleteFile(oldSponsor.logoUrl);
     }
@@ -466,74 +519,78 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.sponsors[index];
   }
 
-  async deleteSponsor(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Delete a sponsor
+  async deleteSponsor(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    const sponsorToDelete = data.sponsors.find(s => s.id === id);
+    const sponsorToDelete = data.sponsors.find((s: Sponsor) => s.id === id);
     if (sponsorToDelete) {
       deleteFile(sponsorToDelete.logoUrl);
     }
 
-    data.sponsors = data.sponsors.filter(s => s.id !== id);
-    writeData(year, data);
+    data.sponsors = data.sponsors.filter((s: Sponsor) => s.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async deleteAllSponsors(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete all sponsors
+  async deleteAllSponsors(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.sponsors.forEach(sponsor => deleteFile(sponsor.logoUrl));
+    data.sponsors.forEach((sponsor: Sponsor) => deleteFile(sponsor.logoUrl));
     data.sponsors = [];
-    writeData(year, data);
+    writeConferenceData(slug, data);
   }
 
-  async getAnnouncements(year: number): Promise<Announcement[]> {
-    const data = readData(year);
+  // Get all announcements for a conference
+  async getAnnouncements(slug: string): Promise<Announcement[]> {
+    const data = readConferenceData(slug);
     return data?.announcements || [];
   }
 
-  async getAnnouncement(year: number, id: string): Promise<Announcement | undefined> {
-    const data = readData(year);
-    return data?.announcements.find(announcement => announcement.id === id);
+  // Get an announcement by ID
+  async getAnnouncement(slug: string, id: string): Promise<Announcement | undefined> {
+    const data = readConferenceData(slug);
+    return data?.announcements.find((announcement: Announcement) => announcement.id === id);
   }
 
-  async createAnnouncement(year: number, announcement: Omit<Announcement, "id" | "createdAt" | "updatedAt">): Promise<Announcement> {
-    const data = readData(year);
+  // Create a new announcement
+  async createAnnouncement(slug: string, announcement: Omit<Announcement, "id" | "createdAt" | "updatedAt">): Promise<Announcement> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     const newAnnouncement: Announcement = {
       ...announcement,
       id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       views: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     data.announcements.push(newAnnouncement);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newAnnouncement;
   }
 
-  async updateAnnouncement(year: number, id: string, updates: Partial<Announcement>): Promise<Announcement | undefined> {
-    const data = readData(year);
+  // Update an announcement
+  async updateAnnouncement(slug: string, id: string, updates: Partial<Announcement>): Promise<Announcement | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.announcements.findIndex(a => a.id === id);
+    const index = data.announcements.findIndex((a: Announcement) => a.id === id);
     if (index === -1) return undefined;
 
     const oldAnnouncement = data.announcements[index];
 
-    // If a new featuredImageUrl is provided and it's different from the old one, delete the old image
     if (updates.featuredImageUrl && updates.featuredImageUrl !== oldAnnouncement.featuredImageUrl) {
       deleteFile(oldAnnouncement.featuredImageUrl);
     }
-    // If a new pdfUrl is provided and it's different from the old one, delete the old PDF
     if (updates.pdfUrl && updates.pdfUrl !== oldAnnouncement.pdfUrl && oldAnnouncement.pdfUrl) {
       deleteFile(oldAnnouncement.pdfUrl);
     }
@@ -544,65 +601,71 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.announcements[index];
   }
 
-  async deleteAnnouncement(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Delete an announcement
+  async deleteAnnouncement(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    const announcementToDelete = data.announcements.find(a => a.id === id);
+    const announcementToDelete = data.announcements.find((a: Announcement) => a.id === id);
     if (announcementToDelete) {
       deleteFile(announcementToDelete.featuredImageUrl);
       if (announcementToDelete.pdfUrl) {
-        deleteFile(announcementToDelete.pdfUrl); // Delete associated PDF file
+        deleteFile(announcementToDelete.pdfUrl);
       }
     }
 
-    data.announcements = data.announcements.filter(a => a.id !== id);
-    writeData(year, data);
+    data.announcements = data.announcements.filter((a: Announcement) => a.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async deleteAllAnnouncements(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete all announcements
+  async deleteAllAnnouncements(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.announcements.forEach(announcement => {
+    data.announcements.forEach((announcement: Announcement) => {
       deleteFile(announcement.featuredImageUrl);
       if (announcement.pdfUrl) {
         deleteFile(announcement.pdfUrl);
       }
     });
     data.announcements = [];
-    writeData(year, data);
+    writeConferenceData(slug, data);
   }
 
-  async incrementAnnouncementViews(year: number, id: string): Promise<Announcement | undefined> {
-    const data = readData(year);
+  // Increment announcement views
+  async incrementAnnouncementViews(slug: string, id: string): Promise<Announcement | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.announcements.findIndex(a => a.id === id);
+    const index = data.announcements.findIndex((a: Announcement) => a.id === id);
     if (index === -1) return undefined;
 
     data.announcements[index].views = (data.announcements[index].views || 0) + 1;
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.announcements[index];
   }
 
-  async getSightseeing(year: number): Promise<Sightseeing[]> {
-    const data = readData(year);
+  // Get all sightseeing for a conference
+  async getSightseeing(slug: string): Promise<Sightseeing[]> {
+    const data = readConferenceData(slug);
     return data?.sightseeing || [];
   }
 
-  async getSightseeingById(year: number, id: string): Promise<Sightseeing | undefined> {
-    const data = readData(year);
-    return data?.sightseeing.find(s => s.id === id);
+  // Get a sightseeing by ID
+  async getSightseeingById(slug: string, id: string): Promise<Sightseeing | undefined> {
+    const data = readConferenceData(slug);
+    return data?.sightseeing.find((s: Sightseeing) => s.id === id);
   }
 
-  async createSightseeing(year: number, sightseeing: Omit<Sightseeing, "id" | "createdAt" | "updatedAt">): Promise<Sightseeing> {
-    const data = readData(year);
+  // Create a new sightseeing
+  async createSightseeing(slug: string, sightseeing: Omit<Sightseeing, "id" | "createdAt" | "updatedAt">): Promise<Sightseeing> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     if (!data.sightseeing) {
@@ -612,21 +675,22 @@ export class JSONStorage {
     const newSightseeing: Sightseeing = {
       ...sightseeing,
       id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     data.sightseeing.push(newSightseeing);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newSightseeing;
   }
 
-  async updateSightseeing(year: number, id: string, updates: Partial<Sightseeing>): Promise<Sightseeing | undefined> {
-    const data = readData(year);
+  // Update a sightseeing
+  async updateSightseeing(slug: string, id: string, updates: Partial<Sightseeing>): Promise<Sightseeing | undefined> {
+    const data = readConferenceData(slug);
     if (!data) return undefined;
 
-    const index = data.sightseeing.findIndex(s => s.id === id);
+    const index = data.sightseeing.findIndex((s: Sightseeing) => s.id === id);
     if (index === -1) return undefined;
 
     const oldSightseeing = data.sightseeing[index];
@@ -641,75 +705,76 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     };
 
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return data.sightseeing[index];
   }
 
-  async deleteSightseeing(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Delete a sightseeing
+  async deleteSightseeing(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    const sightseeingToDelete = data.sightseeing.find(s => s.id === id);
+    const sightseeingToDelete = data.sightseeing.find((s: Sightseeing) => s.id === id);
     if (sightseeingToDelete) {
       deleteFile(sightseeingToDelete.featuredImageUrl);
     }
 
-    data.sightseeing = data.sightseeing.filter(s => s.id !== id);
-    writeData(year, data);
+    data.sightseeing = data.sightseeing.filter((s: Sightseeing) => s.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async deleteAllSightseeing(year: number): Promise<void> {
-    const data = readData(year);
+  // Delete all sightseeing
+  async deleteAllSightseeing(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.sightseeing.forEach(sightseeing => deleteFile(sightseeing.featuredImageUrl));
+    data.sightseeing.forEach((sightseeing: Sightseeing) => deleteFile(sightseeing.featuredImageUrl));
     data.sightseeing = [];
-    writeData(year, data);
+    writeConferenceData(slug, data);
   }
 
-  // REGISTRATIONS AND CHECK-INS are now stored in PostgreSQL database
-  // See registrationDb.ts for database-based registration operations
-
-  // Whitelist operations (can stay in JSON as they're pre-conference content)
-  async getWhitelists(year: number): Promise<Whitelist[]> {
-    const data = readData(year);
+  // Get all whitelists for a conference
+  async getWhitelists(slug: string): Promise<Whitelist[]> {
+    const data = readConferenceData(slug);
     return data?.whitelists || [];
   }
 
-  async addToWhitelist(year: number, email: string): Promise<Whitelist> {
-    const data = readData(year);
+  // Add an email to the whitelist
+  async addToWhitelist(slug: string, email: string): Promise<Whitelist> {
+    const data = readConferenceData(slug);
     if (!data) throw new Error("Conference not found");
 
     const newWhitelist: Whitelist = {
       id: `wl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: data.conference.id,
+      conferenceId: data.conference.slug,
       email,
       name: "",
       createdAt: new Date().toISOString(),
     };
 
     data.whitelists.push(newWhitelist);
-    writeData(year, data);
+    writeConferenceData(slug, data);
     return newWhitelist;
   }
 
-  async removeFromWhitelist(year: number, id: string): Promise<void> {
-    const data = readData(year);
+  // Remove an email from the whitelist
+  async removeFromWhitelist(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
     if (!data) return;
 
-    data.whitelists = data.whitelists.filter(w => w.id !== id);
-    writeData(year, data);
+    data.whitelists = data.whitelists.filter((w: Whitelist) => w.id !== id);
+    writeConferenceData(slug, data);
   }
 
-  async checkWhitelist(year: number, email: string): Promise<boolean> {
-    const data = readData(year);
-    return data?.whitelists.some(w => w.email === email) || false;
+  // Check if an email is in the whitelist
+  async checkWhitelist(slug: string, email: string): Promise<boolean> {
+    const data = readConferenceData(slug);
+    return data?.whitelists.some((w: Whitelist) => w.email === email) || false;
   }
 
-  // Stats for JSON content only (sessions, sponsors)
-  // For registration and check-in stats, query PostgreSQL database
-  async getContentStats(year: number): Promise<{ totalSessions: number; totalSponsors: number }> {
-    const data = readData(year);
+  // Get content stats
+  async getContentStats(slug: string): Promise<{ totalSessions: number; totalSponsors: number }> {
+    const data = readConferenceData(slug);
     if (!data) return { totalSessions: 0, totalSponsors: 0 };
 
     return {
@@ -718,85 +783,78 @@ export class JSONStorage {
     };
   }
 
-  async cloneConference(fromYear: number, toYear: number): Promise<Conference> {
-    const sourceData = readData(fromYear);
+  // Clone a conference
+  async cloneConference(fromSlug: string, newConferenceName: string): Promise<Conference> {
+    const sourceData = readConferenceData(fromSlug);
     if (!sourceData) throw new Error("Source conference not found");
 
-    // Create new conference with cloned structure but empty data
-    const newConference = await this.createConference({
-      year: toYear,
-      name: sourceData.conference.name.replace(fromYear.toString(), toYear.toString()),
-      theme: sourceData.conference.theme,
-      logoUrl: cloneFile(sourceData.conference.logoUrl),
-      bannerUrls: sourceData.conference.bannerUrls?.map(cloneFile) as string[],
-      introContent: sourceData.conference.introContent,
-      registrationNote1: sourceData.conference.registrationNote1,
-      registrationNote2: sourceData.conference.registrationNote2,
-      startDate: sourceData.conference.startDate,
-      endDate: sourceData.conference.endDate,
-      location: sourceData.conference.location,
-      contactEmail: sourceData.conference.contactEmail,
-      contactPhone: sourceData.conference.contactPhone,
-      isActive: false, // New cloned conference is not active by default
-    });
+    const newConferenceSlug = slugify(newConferenceName);
+    if (existsSync(getConferenceFilePath(newConferenceSlug))) {
+      throw new Error(`Conference with slug '${newConferenceSlug}' already exists.`);
+    }
 
-    // Clone sessions, speakers, sponsors, etc., with deep copy for files
-    const newData = readData(toYear);
-    if (newData) {
-      newData.sessions = sourceData.sessions.map(s => ({
+    const newConference: Conference = {
+      ...sourceData.conference,
+      id: newConferenceSlug,
+      slug: newConferenceSlug,
+      name: newConferenceName,
+      isActive: true, // New cloned conference becomes active
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const newData: ConferenceData = {
+      conference: newConference,
+      sessions: sourceData.sessions.map((s: Session) => ({
         ...s,
         id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }));
-
-      newData.speakers = sourceData.speakers.map(s => ({
+      })),
+      speakers: sourceData.speakers.map((s: Speaker) => ({
         ...s,
         id: `speaker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         photoUrl: cloneFile(s.photoUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }));
-
-      newData.sponsors = sourceData.sponsors.map(s => ({
+      })),
+      sponsors: sourceData.sponsors.map((s: Sponsor) => ({
         ...s,
         id: `sponsor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         logoUrl: cloneFile(s.logoUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }));
-
-      newData.announcements = sourceData.announcements.map(a => ({
+      })),
+      announcements: sourceData.announcements.map((a: Announcement) => ({
         ...a,
         id: `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         featuredImageUrl: cloneFile(a.featuredImageUrl) || '',
         pdfUrl: cloneFile(a.pdfUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }));
-
-      newData.sightseeing = sourceData.sightseeing.map(s => ({
+      })),
+      sightseeing: sourceData.sightseeing.map((s: Sightseeing) => ({
         ...s,
         id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         featuredImageUrl: cloneFile(s.featuredImageUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }));
-
-      newData.whitelists = sourceData.whitelists.map(w => ({
+      })),
+      whitelists: sourceData.whitelists.map((w: Whitelist) => ({
         ...w,
         id: `wl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        conferenceId: newConference.id,
+        conferenceId: newConferenceSlug,
         createdAt: new Date().toISOString(),
-      }));
+      })),
+    };
 
-      writeData(toYear, newData);
-    }
+    writeConferenceData(newConferenceSlug, newData);
+    await this.setActiveConference(newConferenceSlug); // Set the new conference as active
 
     return newConference;
   }

@@ -20,7 +20,7 @@ export function startReminderService() {
     }
 
     // Get all sessions for the active conference
-    const allSessions: Session[] = await jsonStorage.getSessions(activeConference.year);
+    const allSessions: Session[] = await jsonStorage.getSessions(activeConference.slug);
 
     for (const session of allSessions) {
       const sessionStartTime = new Date(session.startTime);

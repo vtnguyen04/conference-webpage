@@ -12,6 +12,7 @@ interface ObjectUploaderProps {
   isDeleting: boolean;
   acceptedFileTypes?: string;
   buttonClassName?: string;
+  disabled?: boolean;
 }
 
 export function ObjectUploader({

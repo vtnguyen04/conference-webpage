@@ -37,18 +37,30 @@ import { vi } from "date-fns/locale";
 import type { Session, InsertSession, Speaker } from "@shared/schema";
 import { insertSessionSchema } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAdminView } from "@/hooks/useAdminView";
 
 export default function SessionsPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
+  const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: sessions = [] } = useQuery<Session[]>({
-    queryKey: ["/api/sessions"],
+    queryKey: ["/api/sessions", viewingSlug],
+    queryFn: async () => {
+      if (!viewingSlug) return [];
+      return await apiRequest("GET", `/api/sessions/${viewingSlug}`);
+    },
+    enabled: !!viewingSlug,
   });
 
   const { data: speakers = [] } = useQuery<Speaker[]>({
-    queryKey: ["/api/speakers"],
+    queryKey: ["/api/speakers", viewingSlug],
+    queryFn: async () => {
+      if (!viewingSlug) return [];
+      return await apiRequest("GET", `/api/speakers/${viewingSlug}`);
+    },
+    enabled: !!viewingSlug,
   });
 
   const form = useForm<InsertSession>({
@@ -81,7 +93,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo phiên họp thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -96,7 +108,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật phiên họp thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSession(null);
       form.reset();
@@ -112,7 +124,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa phiên họp thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -125,7 +137,7 @@ export default function SessionsPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả phiên họp thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions"] });
+      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -133,6 +145,7 @@ export default function SessionsPage() {
   });
 
   const handleAdd = () => {
+    if (isReadOnly) return;
     setEditingSession(null);
     form.reset({
       day: 1,
@@ -153,6 +166,7 @@ export default function SessionsPage() {
   };
 
   const handleEdit = (session: Session) => {
+    if (isReadOnly) return;
     setEditingSession(session);
     form.reset({
       day: session.day,
@@ -173,18 +187,21 @@ export default function SessionsPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
+    if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa phiên họp "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleDeleteAll = async () => {
+    if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ phiên họp? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
 
   const onSubmit = (data: InsertSession) => {
+    if (isReadOnly) return;
     if (editingSession) {
       updateMutation.mutate({ id: editingSession.id, data });
     } else {
@@ -211,12 +228,12 @@ export default function SessionsPage() {
             onClick={handleDeleteAll}
             variant="destructive"
             data-testid="button-delete-all-sessions"
-            disabled={deleteAllMutation.isPending}
+            disabled={deleteAllMutation.isPending || isReadOnly}
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Xóa tất cả
           </Button>
-          <Button onClick={handleAdd} data-testid="button-add-session">
+          <Button onClick={handleAdd} data-testid="button-add-session" disabled={isReadOnly}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm phiên họp
           </Button>
@@ -268,6 +285,7 @@ export default function SessionsPage() {
                         size="sm"
                         onClick={() => handleEdit(session)}
                         data-testid={`button-edit-session-${session.id}`}
+                        disabled={isReadOnly}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -276,6 +294,7 @@ export default function SessionsPage() {
                         size="sm"
                         onClick={() => handleDelete(session.id, session.title)}
                         data-testid={`button-delete-session-${session.id}`}
+                        disabled={isReadOnly}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -463,6 +482,7 @@ export default function SessionsPage() {
                     size="sm"
                     onClick={() => appendAgenda({ timeSlot: "", title: "", speakerId: null })}
                     data-testid="button-add-agenda-item"
+                    disabled={isReadOnly}
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Thêm mục
@@ -481,6 +501,7 @@ export default function SessionsPage() {
                         size="sm"
                         onClick={() => removeAgenda(index)}
                         data-testid={`button-remove-agenda-${index}`}
+                        disabled={isReadOnly}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -571,7 +592,7 @@ export default function SessionsPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
                   data-testid="button-submit-session"
                 >
                   {createMutation.isPending || updateMutation.isPending

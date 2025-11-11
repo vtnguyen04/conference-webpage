@@ -19,7 +19,7 @@ export function startConfirmationReminderService() {
       }
 
       const pendingRegistrations = await getPendingRegistrationsDueForReminder(
-        activeConference.year,
+        activeConference.slug,
         REMINDER_INTERVAL_HOURS,
         MAX_REMINDERS
       );

@@ -50,7 +50,7 @@ export interface IStorage {
   getConferenceById(id: string): Promise<Conference | undefined>;
   createConference(conference: InsertConference): Promise<Conference>;
   updateConference(id: string, conference: Partial<InsertConference>): Promise<Conference | undefined>;
-  cloneConference(conferenceId: string, newYear: number): Promise<Conference>;
+  cloneConference(conferenceId: string, newConferenceName: string): Promise<Conference>;
   
   // Session operations (delegated to jsonStorage)
   getSessions(conferenceId: string): Promise<Session[]>;
@@ -155,7 +155,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConferenceById(id: string): Promise<Conference | undefined> {
-    return jsonStorage.getConferenceByYear(parseInt(id));
+    return jsonStorage.getConferenceBySlug(id);
   }
 
   async createConference(conferenceData: InsertConference): Promise<Conference> {
@@ -163,101 +163,101 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateConference(id: string, conferenceData: Partial<InsertConference>): Promise<Conference | undefined> {
-    return jsonStorage.updateConference(parseInt(id), conferenceData);
+    return jsonStorage.updateConference(id, conferenceData);
   }
 
-  async cloneConference(conferenceId: string, newYear: number): Promise<Conference> {
-    return jsonStorage.cloneConference(parseInt(conferenceId), newYear);
+  async cloneConference(conferenceId: string, newConferenceName: string): Promise<Conference> {
+    return jsonStorage.cloneConference(conferenceId, newConferenceName);
   }
   
   // Session operations (delegated to jsonStorage)
   async getSessions(conferenceId: string): Promise<Session[]> {
-    return jsonStorage.getSessions(parseInt(conferenceId));
+    return jsonStorage.getSessions(conferenceId);
   }
 
   async getSessionById(conferenceId: string, id: string): Promise<Session | undefined> {
-    return jsonStorage.getSession(parseInt(conferenceId), id);
+    return jsonStorage.getSession(conferenceId, id);
   }
 
   async createSession(conferenceId: string, sessionData: InsertSession): Promise<Session> {
-    return jsonStorage.createSession(parseInt(conferenceId), { ...sessionData, conferenceId });
+    return jsonStorage.createSession(conferenceId, { ...sessionData, conferenceId });
   }
 
   async updateSession(conferenceId: string, id: string, sessionData: Partial<InsertSession>): Promise<Session | undefined> {
-    return jsonStorage.updateSession(parseInt(conferenceId), id, sessionData);
+    return jsonStorage.updateSession(conferenceId, id, sessionData);
   }
 
   async deleteSession(conferenceId: string, id: string): Promise<void> {
-    return jsonStorage.deleteSession(parseInt(conferenceId), id);
+    return jsonStorage.deleteSession(conferenceId, id);
   }
   
   // Speaker operations (delegated to jsonStorage)
   async getSpeakers(conferenceId: string): Promise<Speaker[]> {
-    return jsonStorage.getSpeakers(parseInt(conferenceId));
+    return jsonStorage.getSpeakers(conferenceId);
   }
 
   async getSpeakerById(conferenceId: string, id: string): Promise<Speaker | undefined> {
-    return jsonStorage.getSpeakerById(parseInt(conferenceId), id);
+    return jsonStorage.getSpeakerById(conferenceId, id);
   }
 
   async createSpeaker(conferenceId: string, speakerData: InsertSpeaker): Promise<Speaker> {
-    return jsonStorage.createSpeaker(parseInt(conferenceId), { ...speakerData, conferenceId, photoUrl: speakerData.photoUrl || '' });
+    return jsonStorage.createSpeaker(conferenceId, { ...speakerData, conferenceId, photoUrl: speakerData.photoUrl || '' });
   }
 
   async updateSpeaker(conferenceId: string, id: string, speakerData: Partial<InsertSpeaker>): Promise<Speaker | undefined> {
-    return jsonStorage.updateSpeaker(parseInt(conferenceId), id, speakerData);
+    return jsonStorage.updateSpeaker(conferenceId, id, speakerData);
   }
 
   async deleteSpeaker(conferenceId: string, id: string): Promise<void> {
-    return jsonStorage.deleteSpeaker(parseInt(conferenceId), id);
+    return jsonStorage.deleteSpeaker(conferenceId, id);
   }
   
   // Sponsor operations (delegated to jsonStorage)
   async getSponsors(conferenceId: string): Promise<Sponsor[]> {
-    return jsonStorage.getSponsors(parseInt(conferenceId));
+    return jsonStorage.getSponsors(conferenceId);
   }
 
   async getSponsorById(conferenceId: string, id: string): Promise<Sponsor | undefined> {
-    return jsonStorage.getSponsorById(parseInt(conferenceId), id);
+    return jsonStorage.getSponsorById(conferenceId, id);
   }
 
   async createSponsor(conferenceId: string, sponsorData: InsertSponsor): Promise<Sponsor> {
-    return jsonStorage.createSponsor(parseInt(conferenceId), { ...sponsorData, conferenceId, logoUrl: sponsorData.logoUrl || '', websiteUrl: sponsorData.websiteUrl || '' });
+    return jsonStorage.createSponsor(conferenceId, { ...sponsorData, conferenceId, logoUrl: sponsorData.logoUrl || '', websiteUrl: sponsorData.websiteUrl || '' });
   }
 
   async updateSponsor(conferenceId: string, id: string, sponsorData: Partial<InsertSponsor>): Promise<Sponsor | undefined> {
-    return jsonStorage.updateSponsor(parseInt(conferenceId), id, sponsorData);
+    return jsonStorage.updateSponsor(conferenceId, id, sponsorData);
   }
 
   async deleteSponsor(conferenceId: string, id: string): Promise<void> {
-    return jsonStorage.deleteSponsor(parseInt(conferenceId), id);
+    return jsonStorage.deleteSponsor(conferenceId, id);
   }
   
   // Announcement operations (delegated to jsonStorage)
   async getAnnouncements(conferenceId: string): Promise<Announcement[]> {
-    return jsonStorage.getAnnouncements(parseInt(conferenceId));
+    return jsonStorage.getAnnouncements(conferenceId);
   }
 
   async getAnnouncementById(conferenceId: string, id: string): Promise<Announcement | undefined> {
-    return jsonStorage.getAnnouncement(parseInt(conferenceId), id);
+    return jsonStorage.getAnnouncement(conferenceId, id);
   }
 
   async createAnnouncement(conferenceId: string, announcementData: InsertAnnouncement): Promise<Announcement> {
-    return jsonStorage.createAnnouncement(parseInt(conferenceId), { ...announcementData, conferenceId, views: 0, featuredImageUrl: announcementData.featuredImageUrl || '', pdfUrl: announcementData.pdfUrl || '', publishedAt: announcementData.publishedAt || '' });
+    return jsonStorage.createAnnouncement(conferenceId, { ...announcementData, conferenceId, views: 0, featuredImageUrl: announcementData.featuredImageUrl || '', pdfUrl: announcementData.pdfUrl || '', publishedAt: announcementData.publishedAt || '' });
   }
 
   async updateAnnouncement(conferenceId: string, id: string, announcementData: Partial<InsertAnnouncement>): Promise<Announcement | undefined> {
-    return jsonStorage.updateAnnouncement(parseInt(conferenceId), id, announcementData);
+    return jsonStorage.updateAnnouncement(conferenceId, id, announcementData);
   }
 
   async deleteAnnouncement(conferenceId: string, id: string): Promise<void> {
-    return jsonStorage.deleteAnnouncement(parseInt(conferenceId), id);
+    return jsonStorage.deleteAnnouncement(conferenceId, id);
   }
   
   // Registration operations
   async getRegistrations(conferenceId: string): Promise<Registration[]> {
     return await db.select().from(registrations)
-      .where(eq(registrations.conferenceYear, parseInt(conferenceId)))
+      .where(eq(registrations.conferenceSlug, conferenceId))
       .orderBy(desc(registrations.registeredAt));
   }
 
@@ -269,7 +269,7 @@ export class DatabaseStorage implements IStorage {
   async getRegistrationByEmail(conferenceId: string, email: string): Promise<Registration | undefined> {
     const [registration] = await db.select().from(registrations)
       .where(and(
-        eq(registrations.conferenceYear, parseInt(conferenceId)),
+        eq(registrations.conferenceSlug, conferenceId),
         eq(registrations.email, email)
       ));
     return registration;
@@ -291,26 +291,26 @@ export class DatabaseStorage implements IStorage {
   
   // Whitelist operations (delegated to jsonStorage)
   async getWhitelists(conferenceId: string): Promise<Whitelist[]> {
-    return jsonStorage.getWhitelists(parseInt(conferenceId));
+    return jsonStorage.getWhitelists(conferenceId);
   }
 
   async checkWhitelist(conferenceId: string, email: string): Promise<boolean> {
-    return jsonStorage.checkWhitelist(parseInt(conferenceId), email);
+    return jsonStorage.checkWhitelist(conferenceId, email);
   }
 
   async addToWhitelist(conferenceId: string, email: string): Promise<Whitelist> {
-    return jsonStorage.addToWhitelist(parseInt(conferenceId), email);
+    return jsonStorage.addToWhitelist(conferenceId, email);
   }
 
   async removeFromWhitelist(conferenceId: string, id: string): Promise<void> {
-    return jsonStorage.removeFromWhitelist(parseInt(conferenceId), id);
+    return jsonStorage.removeFromWhitelist(conferenceId, id);
   }
   
   // Check-in operations
   async getCheckIns(conferenceId: string): Promise<any[]> {
     return await db.select().from(checkIns)
       .innerJoin(registrations, eq(checkIns.registrationId, registrations.id))
-      .where(eq(registrations.conferenceYear, parseInt(conferenceId)))
+      .where(eq(registrations.conferenceSlug, conferenceId))
       .orderBy(desc(checkIns.checkedInAt));
   }
 
@@ -334,14 +334,14 @@ export class DatabaseStorage implements IStorage {
   async getStats(conferenceId: string): Promise<DashboardStats> {
     const [regCount] = await db.select({ count: sql<number>`count(*)` })
       .from(registrations)
-      .where(eq(registrations.conferenceYear, parseInt(conferenceId)));
+      .where(eq(registrations.conferenceSlug, conferenceId));
     
     const [checkInCount] = await db.select({ count: sql<number>`count(*)` })
       .from(checkIns)
       .innerJoin(registrations, eq(checkIns.registrationId, registrations.id))
-      .where(eq(registrations.conferenceYear, parseInt(conferenceId)));
+      .where(eq(registrations.conferenceSlug, conferenceId));
 
-    const contentStats = await jsonStorage.getContentStats(parseInt(conferenceId));
+    const contentStats = await jsonStorage.getContentStats(conferenceId);
 
     return {
       totalRegistrations: Number(regCount.count) || 0,

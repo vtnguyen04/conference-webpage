@@ -19,27 +19,27 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { Copy } from "lucide-react";
-import type { Conference, InsertConference } from "@shared/schema";
-import { insertConferenceSchema } from "@shared/schema";
+import type { Conference } from "@shared/schema";
+import { conferenceSchema } from "@shared/schema";
+import { useAdminView } from "@/hooks/useAdminView";
 
 export default function ConferencePage() {
   const { toast } = useToast();
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isLogoDeleting, setIsLogoDeleting] = useState(false);
+  const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: conferences = [] } = useQuery<Conference[]>({
     queryKey: ["/api/conferences"],
   });
 
-  const { data: activeConference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
-  });
+  const selectedConference = conferences.find(c => c.slug === viewingSlug);
 
-  const form = useForm<InsertConference>({
-    resolver: zodResolver(insertConferenceSchema),
+  const form = useForm<Conference>({
+    resolver: zodResolver(conferenceSchema),
     defaultValues: {
-      year: new Date().getFullYear(),
+      slug: "",
       name: "",
       theme: "",
       location: "",
@@ -48,6 +48,8 @@ export default function ConferencePage() {
       introContent: "",
       registrationNote1: "",
       registrationNote2: "",
+      registrationBenefits: "",
+      registrationRules: "",
       logoUrl: "",
       bannerUrls: [],
       startDate: new Date(),
@@ -56,20 +58,21 @@ export default function ConferencePage() {
     },
   });
 
-  // Reset form when activeConference data loads
+  // Reset form when the selected conference changes
   useEffect(() => {
-    if (activeConference) {
+    if (selectedConference) {
       form.reset({
-        ...activeConference,
-        startDate: new Date(activeConference.startDate),
-        endDate: new Date(activeConference.endDate),
+        ...selectedConference,
+        startDate: new Date(selectedConference.startDate),
+        endDate: new Date(selectedConference.endDate),
       });
     }
-  }, [activeConference, form]);
+  }, [selectedConference, form]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: InsertConference) => {
-      return await apiRequest("PUT", "/api/conferences/active", data);
+    mutationFn: async (data: Conference) => {
+      if (!selectedConference) throw new Error("No conference selected");
+      return await apiRequest("PUT", `/api/conferences/${selectedConference.slug}`, data);
     },
     onSuccess: () => {
       toast({ title: "Cập nhật thành công" });
@@ -83,8 +86,9 @@ export default function ConferencePage() {
   });
 
   const cloneMutation = useMutation({
-    mutationFn: async (newYear: number) => {
-      return await apiRequest("POST", "/api/conferences/clone", { toYear: newYear });
+    mutationFn: async (newConferenceName: string) => {
+      if (!selectedConference) throw new Error("No conference selected");
+      return await apiRequest("POST", "/api/conferences/clone", { newConferenceName });
     },
     onSuccess: () => {
       toast({ title: "Sao chép hội nghị thành công" });
@@ -93,12 +97,14 @@ export default function ConferencePage() {
   });
 
   const handleStageBannerForDeletion = (path: string) => {
+    if (isReadOnly) return;
     setFilesToDelete(prev => [...prev, path]);
     const currentBanners = form.getValues("bannerUrls") || [];
     form.setValue("bannerUrls", currentBanners.filter(p => p !== path));
   };
 
-  const onSubmit = (data: InsertConference) => {
+  const onSubmit = (data: Conference) => {
+    if (isReadOnly) return;
     const payload = {
       ...data,
       filesToDelete,
@@ -107,13 +113,15 @@ export default function ConferencePage() {
   };
 
   const handleClone = () => {
-    const newYear = activeConference ? activeConference.year + 1 : new Date().getFullYear() + 1;
-    if (confirm(`Sao chép hội nghị sang năm ${newYear}?`)) {
-      cloneMutation.mutate(newYear);
+    if (!selectedConference) return;
+    const newConferenceName = prompt(`Nhập tên cho hội nghị mới (sao chép từ "${selectedConference.name}"):`);
+    if (newConferenceName) {
+      cloneMutation.mutate(newConferenceName);
     }
   };
 
   const handleLogoDrop = async (acceptedFiles: File[]) => {
+    if (isReadOnly) return;
     const file = acceptedFiles[0];
     if (!file) return;
 
@@ -140,6 +148,7 @@ export default function ConferencePage() {
   };
 
   const handleLogoDelete = async () => {
+    if (isReadOnly) return;
     const currentLogoUrl = form.getValues("logoUrl");
     if (!currentLogoUrl || !confirm("Bạn có chắc muốn xóa logo này?")) {
       return;
@@ -168,7 +177,7 @@ export default function ConferencePage() {
         <Button
           variant="outline"
           onClick={handleClone}
-          disabled={!activeConference || cloneMutation.isPending}
+          disabled={!selectedConference || cloneMutation.isPending}
           data-testid="button-clone-conference"
           className="whitespace-nowrap"
         >
@@ -186,18 +195,17 @@ export default function ConferencePage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
-                  name="year"
+                  control={form.control as any}
+                  name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Năm *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Slug</FormLabel>
                       <FormControl>
                         <Input
-                          type="number"
                           {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          data-testid="input-year"
-                          className="h-9"
+                          data-testid="input-slug"
+                          className="h-9 bg-gray-100"
+                          readOnly
                         />
                       </FormControl>
                       <FormMessage />
@@ -206,13 +214,13 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Tên hội nghị *</FormLabel>
                       <FormControl>
-                        <Input {...field} data-testid="input-name" className="h-9" />
+                        <Input {...field} data-testid="input-name" className="h-9" readOnly={isReadOnly} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,13 +228,13 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="theme"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Chủ đề</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-theme" className="h-9" />
+                        <Input {...field} value={field.value || ""} data-testid="input-theme" className="h-9" readOnly={isReadOnly} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -234,13 +242,13 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="location"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Địa điểm</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-location" className="h-9" />
+                        <Input {...field} value={field.value || ""} data-testid="input-location" className="h-9" readOnly={isReadOnly} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -248,13 +256,13 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="contactEmail"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Email liên hệ</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" className="h-9" />
+                        <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" className="h-9" readOnly={isReadOnly} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -262,13 +270,13 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="contactPhone"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Số điện thoại</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-contact-phone" className="h-9" />
+                        <Input {...field} value={field.value || ""} data-testid="input-contact-phone" className="h-9" readOnly={isReadOnly} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -276,7 +284,7 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
@@ -289,6 +297,7 @@ export default function ConferencePage() {
                           onChange={(e) => field.onChange(new Date(e.target.value))}
                           data-testid="input-start-date"
                           className="h-9"
+                          readOnly={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -297,7 +306,7 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
@@ -310,6 +319,7 @@ export default function ConferencePage() {
                           onChange={(e) => field.onChange(new Date(e.target.value))}
                           data-testid="input-end-date"
                           className="h-9"
+                          readOnly={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -319,7 +329,7 @@ export default function ConferencePage() {
               </div>
 
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="introContent"
                 render={({ field }) => (
                   <FormItem>
@@ -331,6 +341,7 @@ export default function ConferencePage() {
                         rows={4}
                         data-testid="textarea-intro-content"
                         className="resize-none"
+                        readOnly={isReadOnly}
                       />
                     </FormControl>
                     <FormMessage />
@@ -340,7 +351,7 @@ export default function ConferencePage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="registrationNote1"
                   render={({ field }) => (
                     <FormItem>
@@ -352,6 +363,7 @@ export default function ConferencePage() {
                           rows={3}
                           data-testid="textarea-reg-note-1"
                           className="resize-none"
+                          readOnly={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -360,7 +372,7 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="registrationNote2"
                   render={({ field }) => (
                     <FormItem>
@@ -372,6 +384,7 @@ export default function ConferencePage() {
                           rows={3}
                           data-testid="textarea-reg-note-2"
                           className="resize-none"
+                          readOnly={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -382,7 +395,51 @@ export default function ConferencePage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
+                  name="registrationBenefits"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Lợi ích tham dự</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          rows={5}
+                          data-testid="textarea-reg-benefits"
+                          className="resize-none"
+                          readOnly={isReadOnly}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name="registrationRules"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Lưu ý</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          rows={5}
+                          data-testid="textarea-reg-rules"
+                          className="resize-none"
+                          readOnly={isReadOnly}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control as any}
                   name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
@@ -394,6 +451,7 @@ export default function ConferencePage() {
                           preview={field.value}
                           isUploading={isLogoUploading}
                           isDeleting={isLogoDeleting}
+                          disabled={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -402,7 +460,7 @@ export default function ConferencePage() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="bannerUrls"
                   render={({ field }) => (
                     <FormItem>
@@ -412,6 +470,7 @@ export default function ConferencePage() {
                           value={field.value || []}
                           onChange={field.onChange}
                           onDelete={handleStageBannerForDeletion}
+                          disabled={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -423,7 +482,7 @@ export default function ConferencePage() {
               <div className="flex justify-end pt-4 border-t border-gray-200">
                 <Button 
                   type="submit" 
-                  disabled={updateMutation.isPending} 
+                  disabled={updateMutation.isPending || isReadOnly} 
                   data-testid="button-save-conference"
                   className="min-w-24"
                 >

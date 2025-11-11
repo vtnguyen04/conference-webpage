@@ -51,8 +51,8 @@ const fetchConferences = async (): Promise<Conference[]> => {
   return response.json();
 };
 
-const activateConference = async (year: number) => {
-  const response = await fetch(`/api/conferences/${year}/activate`, {
+const activateConference = async (slug: string) => {
+  const response = await fetch(`/api/conferences/${slug}/activate`, {
     method: 'POST',
   });
   if (!response.ok) {
@@ -61,8 +61,8 @@ const activateConference = async (year: number) => {
   return response.json();
 };
 
-const deleteConference = async (year: number) => {
-  const response = await fetch(`/api/conferences/${year}`, {
+const deleteConference = async (slug: string) => {
+  const response = await fetch(`/api/conferences/${slug}`, {
     method: 'DELETE',
   });
   if (!response.ok) {
@@ -72,11 +72,11 @@ const deleteConference = async (year: number) => {
   return response.json();
 };
 
-const cloneConference = async ({ fromYear, toYear }: { fromYear: number, toYear: number }) => {
-  const response = await fetch(`/api/conferences/clone`, {
+const cloneConference = async ({ fromSlug, newConferenceName }: { fromSlug: string, newConferenceName: string }) => {
+  const response = await fetch(`/api/conferences/${fromSlug}/clone`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fromYear, toYear }),
+    body: JSON.stringify({ newConferenceName }),
   });
   if (!response.ok) {
     const errorData = await response.json();
@@ -90,8 +90,8 @@ const ConferencesManagementPage: React.FC = () => {
   const { toast } = useToast();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [cloneToYear, setCloneToYear] = useState<number>(new Date().getFullYear() + 1);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [newConferenceName, setNewConferenceName] = useState<string>('');
 
   const { data: conferences, isLoading, isError, error } = useQuery<Conference[]>({
     queryKey: ['conferences'],
@@ -100,18 +100,18 @@ const ConferencesManagementPage: React.FC = () => {
 
   const activationMutation = useMutation({
     mutationFn: activateConference,
-    onSuccess: (_, year) => {
+    onSuccess: (_, slug) => {
       toast({
-        title: 'Success',
-        description: `Conference ${year} has been activated.`,
+        title: 'Thành công',
+        description: `Hội nghị ${slug} đã được kích hoạt.`,
       });
       queryClient.invalidateQueries({ queryKey: ['conferences'] });
       queryClient.invalidateQueries({ queryKey: ['/api/conferences/active'] });
     },
     onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to activate conference.',
+        title: 'Lỗi',
+        description: error.message || 'Không thể kích hoạt hội nghị.',
         variant: 'destructive',
       });
     },
@@ -119,10 +119,10 @@ const ConferencesManagementPage: React.FC = () => {
 
   const deletionMutation = useMutation({
     mutationFn: deleteConference,
-    onSuccess: (_, year) => {
+    onSuccess: (_, slug) => {
       toast({
-        title: 'Success',
-        description: `Conference ${year} and all its data have been deleted.`,
+        title: 'Thành công',
+        description: `Hội nghị ${slug} và tất cả dữ liệu liên quan đã bị xóa.`,
       });
       queryClient.invalidateQueries({ queryKey: ['conferences'] });
     },
@@ -135,51 +135,53 @@ const ConferencesManagementPage: React.FC = () => {
     },
     onSettled: () => {
       setIsAlertOpen(false);
-      setSelectedYear(null);
+      setSelectedSlug(null);
     }
   });
 
   const cloneMutation = useMutation({
     mutationFn: cloneConference,
-    onSuccess: (_, { toYear }) => {
+    onSuccess: (_, { newConferenceName }) => {
       toast({
-        title: 'Success',
-        description: `Conference cloned to year ${toYear}.`,
+        title: 'Thành công',
+        description: `Hội nghị đã được sao chép với tên ${newConferenceName}.`,
       });
       queryClient.invalidateQueries({ queryKey: ['conferences'] });
     },
     onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to clone conference.',
+        title: 'Lỗi',
+        description: error.message || 'Không thể sao chép hội nghị.',
         variant: 'destructive',
       });
     },
     onSettled: () => {
       setIsCloneDialogOpen(false);
-      setSelectedYear(null);
+      setSelectedSlug(null);
     }
   });
 
-  const handleDeleteClick = (year: number) => {
-    setSelectedYear(year);
+  const handleDeleteClick = (slug: string) => {
+    setSelectedSlug(slug);
     setIsAlertOpen(true);
   };
 
-  const handleCloneClick = (year: number) => {
-    setSelectedYear(year);
+  const handleCloneClick = (slug: string) => {
+    setSelectedSlug(slug);
+    const currentYear = new Date().getFullYear();
+    setNewConferenceName(`Copy of ${conferences?.find(c => c.slug === slug)?.name} ${currentYear}`);
     setIsCloneDialogOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    if (selectedYear) {
-      deletionMutation.mutate(selectedYear);
+    if (selectedSlug) {
+      deletionMutation.mutate(selectedSlug);
     }
   };
 
   const handleConfirmClone = () => {
-    if (selectedYear && cloneToYear) {
-      cloneMutation.mutate({ fromYear: selectedYear, toYear: cloneToYear });
+    if (selectedSlug && newConferenceName) {
+      cloneMutation.mutate({ fromSlug: selectedSlug, newConferenceName });
     }
   };
 
@@ -194,7 +196,7 @@ const ConferencesManagementPage: React.FC = () => {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Lỗi</AlertTitle>
         <AlertDescription>{error.message}</AlertDescription>
       </Alert>
     );
@@ -214,7 +216,6 @@ const ConferencesManagementPage: React.FC = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Tên hội nghị</TableHead>
-                <TableHead>Năm</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className="text-right">Hành động</TableHead>
               </TableRow>
@@ -224,7 +225,6 @@ const ConferencesManagementPage: React.FC = () => {
                 conferences.map((conference) => (
                   <TableRow key={conference.id}>
                     <TableCell className="font-medium">{conference.name}</TableCell>
-                    <TableCell>{conference.year}</TableCell>
                     <TableCell>
                       {conference.isActive ? (
                         <Badge variant="default" className="bg-green-500">
@@ -234,7 +234,7 @@ const ConferencesManagementPage: React.FC = () => {
                       ) : (
                         <Badge variant="secondary">
                           <XCircle className="h-4 w-4 mr-1" />
-                          Inactive
+                          Không hoạt động
                         </Badge>
                       )}
                     </TableCell>
@@ -242,28 +242,28 @@ const ConferencesManagementPage: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleCloneClick(conference.year)}
+                        onClick={() => handleCloneClick(conference.slug)}
                       >
                         <Copy className="h-4 w-4 mr-1" />
-                        Clone
+                        Sao chép
                       </Button>
                       {!conference.isActive && (
                         <>
                           <Button
                             size="sm"
-                            onClick={() => activationMutation.mutate(conference.year)}
+                            onClick={() => activationMutation.mutate(conference.slug)}
                             disabled={activationMutation.isPending}
                           >
-                            {activationMutation.isPending ? 'Activating...' : 'Set as Active'}
+                            {activationMutation.isPending ? 'Đang kích hoạt...' : 'Đặt làm hoạt động'}
                           </Button>
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDeleteClick(conference.year)}
+                            onClick={() => handleDeleteClick(conference.slug)}
                             disabled={deletionMutation.isPending}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
+                            Xóa
                           </Button>
                         </>
                       )}
@@ -272,7 +272,7 @@ const ConferencesManagementPage: React.FC = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={3} className="h-24 text-center">
                     Không tìm thấy hội nghị nào.
                   </TableCell>
                 </TableRow>
@@ -285,18 +285,18 @@ const ConferencesManagementPage: React.FC = () => {
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Bạn có thực sự chắc chắn?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the conference for the year {selectedYear} and all of its associated data, including sessions, speakers, sponsors, announcements, registrations, and uploaded files.
+              Hành động này không thể hoàn tác. Thao tác này sẽ xóa vĩnh viễn hội nghị "{selectedSlug}" và tất cả dữ liệu liên quan, bao gồm các phiên, diễn giả, nhà tài trợ, thông báo, đăng ký và các tệp đã tải lên.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deletionMutation.isPending ? 'Deleting...' : 'Yes, delete it'}
+              {deletionMutation.isPending ? 'Đang xóa...' : 'Vâng, xóa nó'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -305,29 +305,29 @@ const ConferencesManagementPage: React.FC = () => {
       <Dialog open={isCloneDialogOpen} onOpenChange={setIsCloneDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Clone Conference</DialogTitle>
+            <DialogTitle>Sao chép hội nghị</DialogTitle>
             <DialogDescription>
-              Clone the conference from {selectedYear} to a new year.
+              Sao chép hội nghị từ "{selectedSlug}".
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="toYear" className="text-right">
-                To Year
+              <Label htmlFor="newConferenceName" className="text-right">
+                Tên mới
               </Label>
               <Input
-                id="toYear"
-                type="number"
-                value={cloneToYear}
-                onChange={(e) => setCloneToYear(parseInt(e.target.value))}
+                id="newConferenceName"
+                type="text"
+                value={newConferenceName}
+                onChange={(e) => setNewConferenceName(e.target.value)}
                 className="col-span-3"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCloneDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsCloneDialogOpen(false)}>Hủy</Button>
             <Button onClick={handleConfirmClone} disabled={cloneMutation.isPending}>
-              {cloneMutation.isPending ? 'Cloning...' : 'Clone Conference'}
+              {cloneMutation.isPending ? 'Đang sao chép...' : 'Sao chép hội nghị'}
             </Button>
           </DialogFooter>
         </DialogContent>

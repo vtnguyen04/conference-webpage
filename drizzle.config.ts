@@ -6,6 +6,6 @@ export default defineConfig({
   schema: path.join(__dirname, 'shared', 'schema.ts'),
   dialect: "sqlite",
   dbCredentials: {
-    url: 'server/data/sqlite.db',
+    url: 'server/data/main.db',
   },
 });

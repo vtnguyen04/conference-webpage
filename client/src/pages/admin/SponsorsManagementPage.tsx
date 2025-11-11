@@ -35,6 +35,7 @@ import type { Sponsor, InsertSponsor, Conference } from "@shared/schema";
 import { insertSponsorSchema } from "@shared/schema";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
+import { useAdminView } from "@/hooks/useAdminView";
 
 const tierLabels: Record<string, string> = {
   diamond: "Kim cương",
@@ -60,13 +61,15 @@ export default function SponsorsManagementPage() {
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: sponsors = [] } = useQuery<Sponsor[]>({
-    queryKey: ["/api/sponsors"],
-  });
-
-  const { data: activeConference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+    queryKey: ["/api/sponsors", viewingSlug],
+    queryFn: async () => {
+      if (!viewingSlug) return [];
+      return await apiRequest("GET", `/api/sponsors/${viewingSlug}`);
+    },
+    enabled: !!viewingSlug,
   });
 
   const form = useForm<InsertSponsor>({
@@ -86,7 +89,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Tạo nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -101,7 +104,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Cập nhật nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSponsor(null);
       form.reset();
@@ -117,7 +120,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -130,7 +133,7 @@ export default function SponsorsManagementPage() {
     },
     onSuccess: () => {
       toast({ title: "Xóa tất cả nhà tài trợ thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
@@ -138,6 +141,7 @@ export default function SponsorsManagementPage() {
   });
 
   const handleAdd = () => {
+    if (isReadOnly) return;
     setEditingSponsor(null);
     form.reset({
       name: "",
@@ -150,6 +154,7 @@ export default function SponsorsManagementPage() {
   };
 
   const handleEdit = (sponsor: Sponsor) => {
+    if (isReadOnly) return;
     setEditingSponsor(sponsor);
     form.reset({
       name: sponsor.name,
@@ -162,18 +167,21 @@ export default function SponsorsManagementPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
+    if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa nhà tài trợ "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleDeleteAll = async () => {
+    if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ nhà tài trợ? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
 
   const onSubmit = (data: InsertSponsor) => {
+    if (isReadOnly) return;
     if (editingSponsor) {
       updateMutation.mutate({ id: editingSponsor.id, data });
     } else {
@@ -182,7 +190,7 @@ export default function SponsorsManagementPage() {
   };
 
   const handleImageUpload = async (files: File[]) => {
-    if (files.length === 0) return;
+    if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
@@ -205,6 +213,7 @@ export default function SponsorsManagementPage() {
   };
 
   const handleImageDelete = async () => {
+    if (isReadOnly) return;
     const currentLogoUrl = form.getValues("logoUrl");
     if (!currentLogoUrl) return;
     if (!confirm("Bạn có chắc muốn xóa logo này?")) return;
@@ -219,6 +228,7 @@ export default function SponsorsManagementPage() {
       setIsDeleting(false);
     }
   };
+
 
   const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
     if (!acc[sponsor.tier]) {
@@ -243,12 +253,12 @@ export default function SponsorsManagementPage() {
             onClick={handleDeleteAll}
             variant="destructive"
             data-testid="button-delete-all-sponsors"
-            disabled={deleteAllMutation.isPending}
+            disabled={deleteAllMutation.isPending || isReadOnly}
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Xóa tất cả
           </Button>
-          <Button onClick={handleAdd} data-testid="button-add-sponsor">
+          <Button onClick={handleAdd} data-testid="button-add-sponsor" disabled={isReadOnly}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm nhà tài trợ
           </Button>
@@ -302,6 +312,7 @@ export default function SponsorsManagementPage() {
                           onClick={() => handleEdit(sponsor)}
                           data-testid={`button-edit-sponsor-${sponsor.id}`}
                           className="flex-1"
+                          disabled={isReadOnly}
                         >
                           <Pencil className="h-3 w-3" />
                         </Button>
@@ -311,6 +322,7 @@ export default function SponsorsManagementPage() {
                           onClick={() => handleDelete(sponsor.id, sponsor.name)}
                           data-testid={`button-delete-sponsor-${sponsor.id}`}
                           className="flex-1"
+                          disabled={isReadOnly}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -359,6 +371,7 @@ export default function SponsorsManagementPage() {
                         onDelete={handleImageDelete}
                         isUploading={isUploading}
                         isDeleting={isDeleting}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormDescription>
@@ -389,7 +402,7 @@ export default function SponsorsManagementPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hạng tài trợ</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
                       <FormControl>
                         <SelectTrigger data-testid="select-sponsor-tier">
                           <SelectValue placeholder="Chọn hạng" />
@@ -451,7 +464,7 @@ export default function SponsorsManagementPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
                   data-testid="button-submit-sponsor"
                 >
                   {createMutation.isPending || updateMutation.isPending

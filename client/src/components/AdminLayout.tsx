@@ -14,13 +14,13 @@ import {
   UserCheck,
   BarChart3,
   LogOut,
-  Settings,
   ChevronDown,
   Bell,
   Search,
   Menu,
   Building,
   Mail,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +39,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useEffect } from "react";
+import { useAdminView } from "@/hooks/useAdminView";
+import type { Conference } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const menuItems = [
   {
@@ -103,6 +113,41 @@ const menuItems = [
   }
 ];
 
+const ConferenceSelector = () => {
+  const { data: conferences = [] } = useQuery<Conference[]>({
+    queryKey: ['/api/conferences'],
+  });
+  const { viewingSlug, setViewingSlug, isReadOnly } = useAdminView();
+
+  if (!viewingSlug) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Select
+        value={viewingSlug}
+        onValueChange={(value) => setViewingSlug(value)}
+      >
+        <SelectTrigger className="w-48">
+          <SelectValue placeholder="Chọn hội nghị..." />
+        </SelectTrigger>
+        <SelectContent>
+          {conferences.map((conf) => (
+            <SelectItem key={conf.slug} value={conf.slug}>
+              {conf.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {isReadOnly && (
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Eye className="h-3 w-3" />
+          Chế độ chỉ xem
+        </Badge>
+      )}
+    </div>
+  );
+};
+
 interface AdminLayoutProps {
   children: React.ReactNode;
   className?: string;
@@ -113,6 +158,17 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   const { toast } = useToast();
   const { open: sidebarOpen, toggleSidebar } = useSidebar();
   const { refetch: refetchAuth } = useAuth();
+  const setSlugs = useAdminView(state => state.setSlugs);
+
+  const { data: activeConference } = useQuery<Conference>({
+    queryKey: ['/api/conferences/active'],
+  });
+
+  useEffect(() => {
+    if (activeConference) {
+      setSlugs(activeConference.slug, activeConference.slug);
+    }
+  }, [activeConference, setSlugs]);
 
   // Fetch contact message count
   const { data: contactMessageCount = { count: 0 } } = useQuery<{ count: number }>({
@@ -238,13 +294,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
               <Menu className="h-4 w-4" />
             </Button>
             
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Tìm kiếm..."
-                className="pl-10 pr-4 py-2 rounded-md border-gray-300"
-              />
-            </div>
+            <ConferenceSelector />
           </div>
 
           <div className="flex items-center gap-3">
