@@ -99,9 +99,6 @@ export async function isRegisteredForSession(
   return existing.length > 0;
 }
 
-/**
- * Get session registration count
- */
 export async function getSessionRegistrationCount(
   sessionId: string
 ): Promise<number> {
@@ -119,9 +116,6 @@ export async function getSessionRegistrationCount(
   return Number(result?.count || 0);
 }
 
-/**
- * Create a registration
- */
 export async function createRegistration(
   data: InsertRegistration
 ): Promise<Registration> {
@@ -158,9 +152,6 @@ export async function createRegistration(
   return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;
 }
 
-/**
- * Batch register for multiple sessions
- */
 export async function batchRegisterSessions(
   request: BatchRegistrationRequest,
   sessions: Session[],
@@ -296,9 +287,6 @@ export async function batchRegisterSessions(
   }
 }
 
-/**
- * Check for session time overlap
- */
 function checkSessionTimeOverlap(sessions: Session[]): boolean {
   if (sessions.length <= 1) return false;
 
@@ -321,9 +309,6 @@ function checkSessionTimeOverlap(sessions: Session[]): boolean {
   return false;
 }
 
-/**
- * Cancel a registration
- */
 export async function cancelRegistration(
   registrationId: string
 ): Promise<boolean> {
@@ -336,16 +321,10 @@ export async function cancelRegistration(
   return result.changes > 0;
 }
 
-/**
- * Delete registrations by year
- */
 export async function deleteRegistrationsByConferenceSlug(slug: string): Promise<void> {
   await db.delete(registrations).where(eq(registrations.conferenceSlug, slug)).run();
 }
 
-/**
- * Delete a registration
- */
 export async function deleteRegistration(id: string): Promise<boolean> {
   const result = await db
     .delete(registrations)
@@ -355,9 +334,6 @@ export async function deleteRegistration(id: string): Promise<boolean> {
   return result.changes > 0;
 }
 
-/**
- * Search registrations
- */
 export async function searchRegistrations(
   slug: string,
   query: string,
@@ -394,9 +370,6 @@ export async function searchRegistrations(
   return { registrations: data, total };
 }
 
-/**
- * Get pending registrations due for reminder
- */
 export async function getPendingRegistrationsDueForReminder(
   conferenceSlug: string,
   reminderIntervalHours: number,
@@ -424,9 +397,6 @@ export async function getPendingRegistrationsDueForReminder(
 }
 
 
-/**
- * Update registration reminder status
- */
 export async function updateRegistrationReminderStatus(registrationId: string): Promise<void> {
   const registration = await db
     .select()
@@ -446,20 +416,12 @@ export async function updateRegistrationReminderStatus(registrationId: string): 
   }
 }
 
-/**
- * Cancel and delete unconfirmed registration
- */
 export async function cancelAndDeleteUnconfirmedRegistration(registrationId: string): Promise<void> {
   await db.delete(registrations).where(eq(registrations.id, registrationId)).run();
 }
 
-// ============================================================================
 // CHECK-IN OPERATIONS
-// ============================================================================
 
-/**
- * Create a check-in
- */
 export async function createCheckIn(
   data: InsertCheckIn
 ): Promise<CheckIn> {
@@ -487,9 +449,6 @@ export async function createCheckIn(
   } as CheckIn;
 }
 
-/**
- * Get check-ins by registration
- */
 export async function getCheckInsByRegistration(
   registrationId: string
 ): Promise<CheckIn[]> {
@@ -500,9 +459,6 @@ export async function getCheckInsByRegistration(
     .all();
 }
 
-/**
- * Get check-ins by session
- */
 export async function getCheckInsBySession(
   sessionId: string,
   page: number = 1,
@@ -529,9 +485,6 @@ export async function getCheckInsBySession(
   return { checkIns: checkInsData, total };
 }
 
-/**
- * Check if already checked in
- */
 export async function isCheckedIn(
   registrationId: string,
   sessionId: string
@@ -551,13 +504,8 @@ export async function isCheckedIn(
   return existing.length > 0;
 }
 
-// ============================================================================
 // STATISTICS
-// ============================================================================
 
-/**
- * Get registration stats
- */
 export async function getRegistrationStats(slug: string) {
   const { registrations: allRegistrations } = await getRegistrationsByConferenceSlug(slug, 1, Number.MAX_SAFE_INTEGER);
   
@@ -589,9 +537,6 @@ export async function getRegistrationStats(slug: string) {
   };
 }
 
-/**
- * Get session capacity status
- */
 export async function getSessionCapacityStatus(
   sessions: Session[]
 ): Promise<Array<{
