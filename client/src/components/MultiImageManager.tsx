@@ -12,12 +12,12 @@ interface MultiImageManagerProps {
   disabled?: boolean;
 }
 
-export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = [], onChange, onDelete }) => {
+export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = [], onChange, onDelete, disabled }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
+    if (disabled || acceptedFiles.length === 0) return;
 
     const formData = new FormData();
     acceptedFiles.forEach(file => {
@@ -35,16 +35,17 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
     } finally {
       setIsUploading(false);
     }
-  }, [value, onChange, toast]);
+  }, [value, onChange, toast, disabled]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] },
     multiple: true,
-    disabled: isUploading,
+    disabled: disabled || isUploading,
   });
 
   const handleDelete = (imagePathToDelete: string) => {
+    if (disabled) return;
     if (!confirm('Are you sure you want to delete this banner?')) {
       return;
     }
@@ -60,7 +61,7 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
           <div key={index} className="relative group aspect-video">
             <img src={url} alt={`Banner ${index + 1}`} className="w-full h-full object-cover rounded-md" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Button variant="destructive" size="icon" onClick={() => handleDelete(url)}>
+              <Button variant="destructive" size="icon" onClick={() => handleDelete(url)} disabled={disabled}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -72,7 +73,7 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
         {...getRootProps()}
         className={`p-6 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-colors
         ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 dark:border-gray-600'}
-        ${isUploading && 'cursor-not-allowed opacity-50'}`}
+        ${(disabled || isUploading) && 'cursor-not-allowed opacity-50'}`}
       >
         <input {...getInputProps()} />
         {isUploading ? (

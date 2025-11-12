@@ -52,7 +52,7 @@ export const registrations = sqliteTable("registrations", {
   // Attendee information
   fullName: text("full_name").notNull(),
   email: text("email").notNull(),
-  phone: text("phone").notNull(),
+  phone: text("phone"),
   organization: text("organization"),
   position: text("position"),
   
@@ -223,6 +223,7 @@ export interface Speaker {
   specialty: string; // Area of expertise
   photoUrl: string;
   bio: string;
+  email?: string;
   role: "speaker" | "moderator" | "both";
   createdAt: string;
   updatedAt: string;
@@ -366,6 +367,7 @@ export const insertSpeakerSchema = z.object({
   specialty: z.string(),
   photoUrl: z.string().optional().or(z.literal("")),
   bio: z.string(),
+  email: z.string().email().optional().or(z.literal("")),
   role: z.enum(["speaker", "moderator", "both"]).default("speaker"),
 });
 

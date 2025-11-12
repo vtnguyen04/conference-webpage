@@ -18,13 +18,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   preview,
   isUploading,
   isDeleting,
+  disabled,
 }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] },
     multiple: false,
-    disabled: isUploading || isDeleting,
+    disabled: disabled || isUploading || isDeleting,
   });
+
+  const handleDeleteClick = () => {
+    if (disabled) return;
+    onDelete();
+  }
 
   return (
     <div className="flex items-center space-x-4">
@@ -32,7 +38,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         {...getRootProps()}
         className={`w-40 h-40 border-2 border-dashed rounded-lg flex items-center justify-center text-center p-2 cursor-pointer transition-colors relative group
         ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 dark:border-gray-600'}
-        ${(isUploading || isDeleting) && 'cursor-not-allowed opacity-50'}`}
+        ${(disabled || isUploading || isDeleting) && 'cursor-not-allowed opacity-50'}`}
       >
         <input {...getInputProps()} />
         {isUploading ? (
@@ -55,7 +61,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         )}
       </div>
       {preview && !isUploading && (
-        <Button variant="ghost" size="icon" onClick={onDelete} disabled={isDeleting} className="text-destructive self-start">
+        <Button variant="ghost" size="icon" onClick={handleDeleteClick} disabled={isDeleting || disabled} className="text-destructive self-start">
           <Trash2 className="h-5 w-5" />
         </Button>
       )}

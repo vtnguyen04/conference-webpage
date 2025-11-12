@@ -174,16 +174,7 @@ export default function ConferencePage() {
         <h1 className="text-2xl font-semibold text-gray-900" data-testid="text-conference-title">
           Quản lý hội nghị
         </h1>
-        <Button
-          variant="outline"
-          onClick={handleClone}
-          disabled={!selectedConference || cloneMutation.isPending}
-          data-testid="button-clone-conference"
-          className="whitespace-nowrap"
-        >
-          <Copy className="mr-2 h-4 w-4" />
-          Sao chép sang năm mới
-        </Button>
+
       </div>
 
       <Card className="border border-gray-200">
@@ -193,177 +184,153 @@ export default function ConferencePage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control as any}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          data-testid="input-slug"
-                          className="h-9 bg-gray-100"
-                          readOnly
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <fieldset disabled={isReadOnly} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Slug</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            data-testid="input-slug"
+                            className="h-9 bg-gray-100"
+                            readOnly
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Tên hội nghị *</FormLabel>
+                        <FormControl>
+                          <Input {...field} data-testid="input-name" className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="theme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Chủ đề</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} data-testid="input-theme" className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Địa điểm</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} data-testid="input-location" className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="contactEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Email liên hệ</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="contactPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Số điện thoại</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} data-testid="input-contact-phone" className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Ngày bắt đầu *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
+                            onChange={(e) => field.onChange(new Date(e.target.value))}
+                            data-testid="input-start-date"
+                            className="h-9"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control as any}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Ngày kết thúc *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
+                            onChange={(e) => field.onChange(new Date(e.target.value))}
+                            data-testid="input-end-date"
+                            className="h-9"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control as any}
-                  name="name"
+                  name="introContent"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Tên hội nghị *</FormLabel>
-                      <FormControl>
-                        <Input {...field} data-testid="input-name" className="h-9" readOnly={isReadOnly} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="theme"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Chủ đề</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-theme" className="h-9" readOnly={isReadOnly} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Địa điểm</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-location" className="h-9" readOnly={isReadOnly} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="contactEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Email liên hệ</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} value={field.value || ""} data-testid="input-contact-email" className="h-9" readOnly={isReadOnly} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="contactPhone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Số điện thoại</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-contact-phone" className="h-9" readOnly={isReadOnly} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Ngày bắt đầu *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
-                          onChange={(e) => field.onChange(new Date(e.target.value))}
-                          data-testid="input-start-date"
-                          className="h-9"
-                          readOnly={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control as any}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Ngày kết thúc *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
-                          onChange={(e) => field.onChange(new Date(e.target.value))}
-                          data-testid="input-end-date"
-                          className="h-9"
-                          readOnly={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control as any}
-                name="introContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Nội dung giới thiệu</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        rows={4}
-                        data-testid="textarea-intro-content"
-                        className="resize-none"
-                        readOnly={isReadOnly}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control as any}
-                  name="registrationNote1"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Ghi chú đăng ký 1</FormLabel>
+                      <FormLabel className="text-sm font-medium">Nội dung giới thiệu</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           value={field.value || ""}
-                          rows={3}
-                          data-testid="textarea-reg-note-1"
+                          rows={4}
+                          data-testid="textarea-intro-content"
                           className="resize-none"
-                          readOnly={isReadOnly}
                         />
                       </FormControl>
                       <FormMessage />
@@ -371,124 +338,143 @@ export default function ConferencePage() {
                   )}
                 />
 
-                <FormField
-                  control={form.control as any}
-                  name="registrationNote2"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Ghi chú đăng ký 2</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value || ""}
-                          rows={3}
-                          data-testid="textarea-reg-note-2"
-                          className="resize-none"
-                          readOnly={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="registrationNote1"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Ghi chú đăng ký 1</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            rows={3}
+                            data-testid="textarea-reg-note-1"
+                            className="resize-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control as any}
-                  name="registrationBenefits"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Lợi ích tham dự</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value || ""}
-                          rows={5}
-                          data-testid="textarea-reg-benefits"
-                          className="resize-none"
-                          readOnly={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control as any}
+                    name="registrationNote2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Ghi chú đăng ký 2</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            rows={3}
+                            data-testid="textarea-reg-note-2"
+                            className="resize-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control as any}
-                  name="registrationRules"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Lưu ý</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value || ""}
-                          rows={5}
-                          data-testid="textarea-reg-rules"
-                          className="resize-none"
-                          readOnly={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="registrationBenefits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Lợi ích tham dự</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            rows={5}
+                            data-testid="textarea-reg-benefits"
+                            className="resize-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control as any}
-                  name="logoUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Logo hội nghị</FormLabel>
-                      <FormControl>
-                        <ImageUploader
-                          onDrop={handleLogoDrop}
-                          onDelete={handleLogoDelete}
-                          preview={field.value}
-                          isUploading={isLogoUploading}
-                          isDeleting={isLogoDeleting}
-                          disabled={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control as any}
+                    name="registrationRules"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Lưu ý</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            rows={5}
+                            data-testid="textarea-reg-rules"
+                            className="resize-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control as any}
-                  name="bannerUrls"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Banners Hội nghị</FormLabel>
-                      <FormControl>
-                        <MultiImageManager
-                          value={field.value || []}
-                          onChange={field.onChange}
-                          onDelete={handleStageBannerForDeletion}
-                          disabled={isReadOnly}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Logo hội nghị</FormLabel>
+                        <FormControl>
+                          <ImageUploader
+                            onDrop={handleLogoDrop}
+                            onDelete={handleLogoDelete}
+                            preview={field.value}
+                            isUploading={isLogoUploading}
+                            isDeleting={isLogoDeleting}
+                            disabled={isReadOnly}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="flex justify-end pt-4 border-t border-gray-200">
-                <Button 
-                  type="submit" 
-                  disabled={updateMutation.isPending || isReadOnly} 
-                  data-testid="button-save-conference"
-                  className="min-w-24"
-                >
-                  {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-                </Button>
-              </div>
+                  <FormField
+                    control={form.control as any}
+                    name="bannerUrls"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Banners Hội nghị</FormLabel>
+                        <FormControl>
+                          <MultiImageManager
+                            value={field.value || []}
+                            onChange={field.onChange}
+                            onDelete={handleStageBannerForDeletion}
+                            disabled={isReadOnly}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-gray-200">
+                  <Button 
+                    type="submit" 
+                    disabled={updateMutation.isPending || isReadOnly} 
+                    data-testid="button-save-conference"
+                    className="min-w-24"
+                  >
+                    {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                  </Button>
+                </div>
+              </fieldset>
             </form>
           </Form>
         </CardContent>

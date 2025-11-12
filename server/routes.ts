@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage as dbStorage } from "./storage";
 import { jsonStorage } from "./jsonStorage";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { registrations as registrationsTable } from "@shared/schema";
 import {
   getRegistrationsByConferenceSlug,
@@ -89,6 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/user', async (req: any, res) => {
     try {
+      console.log('Headers for /api/auth/user:', req.headers);
+      console.log('Session for /api/auth/user:', req.session);
       const userId = req.session.userId;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -134,6 +136,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/login', async (req: any, res) => {
     try {
       const { email, password } = req.body;
+      console.log('Login attempt with email:', email);
+      console.log('Password received:', password);
+      console.log('ADMIN_PASSWORD from env:', process.env.ADMIN_PASSWORD);
 
       if (email === "admin@example.com" && password === process.env.ADMIN_PASSWORD) {
         req.session.userId = "admin";
@@ -142,9 +147,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error("Error saving session after login:", err);
             return res.status(500).json({ message: "Failed to save session" });
           }
+          console.log('Login successful for admin');
+          console.log('Session after login:', req.session);
           return res.json({ message: "Login successful" });
         });
       } else {
+        console.log('Invalid credentials');
         return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
@@ -424,6 +432,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const data = insertSpeakerSchema.parse(req.body);
       const speaker = await jsonStorage.createSpeaker(conference.slug, { ...data, conferenceId: conference.slug, photoUrl: data.photoUrl || '' });
+
+      // Auto-register moderators/chairs
+      if ((speaker.role === 'moderator' || speaker.role === 'both') && speaker.email) {
+        try {
+          console.log(`Auto-registering moderator: ${speaker.name} (${speaker.email})`);
+          const allSessions = await jsonStorage.getSessions(conference.slug);
+          const sessionIds = allSessions.map(s => s.id);
+
+          if (sessionIds.length > 0) {
+            const result = await batchRegisterSessions({
+              conferenceSlug: conference.slug,
+              sessionIds,
+              fullName: speaker.name,
+              email: speaker.email,
+              phone: '', // Optional now
+              cmeCertificateRequested: false,
+            }, allSessions);
+
+            // Auto-confirm these registrations
+            if (result.success && result.registrations) {
+              for (const reg of result.registrations) {
+                await db.update(registrationsTable)
+                  .set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null })
+                  .where(eq(registrationsTable.id, reg.id));
+              }
+              console.log(`Auto-confirmed ${result.registrations.length} registrations for moderator ${speaker.name}.`);
+            }
+          }
+        } catch (regError) {
+          console.error(`Failed to auto-register moderator ${speaker.name}:`, regError);
+          // We don't re-throw or return an error to the client, 
+          // as the speaker creation itself was successful.
+          // This is a background task.
+        }
+      }
+
       res.json(speaker);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -436,7 +480,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conference) {
         return res.status(404).json({ message: "No active conference" });
       }
-      const updated = await jsonStorage.updateSpeaker(conference.slug, req.params.id, req.body);
+      
+      const speakerId = req.params.id;
+      const oldSpeaker = await jsonStorage.getSpeakerById(conference.slug, speakerId);
+
+      const updated = await jsonStorage.updateSpeaker(conference.slug, speakerId, req.body);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Speaker not found after update." });
+      }
+      
+      const isNowModeratorWithEmail = (updated.role === 'moderator' || updated.role === 'both') && updated.email;
+      const wasModeratorWithSameEmail = oldSpeaker && (oldSpeaker.role === 'moderator' || oldSpeaker.role === 'both') && oldSpeaker.email === updated.email;
+
+      if (isNowModeratorWithEmail && !wasModeratorWithSameEmail) {
+         try {
+          console.log(`Auto-registering updated moderator: ${updated.name} (${updated.email})`);
+          const allSessions = await jsonStorage.getSessions(conference.slug);
+          const sessionIds = allSessions.map(s => s.id);
+
+          if (sessionIds.length > 0) {
+            const result = await batchRegisterSessions({
+              conferenceSlug: conference.slug,
+              sessionIds,
+              fullName: updated.name,
+              email: updated.email!,
+              phone: '',
+              cmeCertificateRequested: false,
+            }, allSessions);
+            
+            if (result.success && result.registrations) {
+              for (const reg of result.registrations) {
+                await db.update(registrationsTable)
+                  .set({ status: 'confirmed', confirmationToken: null, confirmationTokenExpires: null })
+                  .where(eq(registrationsTable.id, reg.id));
+              }
+              console.log(`Auto-confirmed ${result.registrations.length} registrations for updated moderator ${updated.name}.`);
+            }
+          }
+        } catch (regError) {
+          console.error(`Failed to auto-register updated moderator ${updated.name}:`, regError);
+        }
+      }
+
       res.json(updated);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1367,6 +1453,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = parseInt(req.query.limit as string) || 10;
       const { registrations, total } = await searchRegistrations(conference.slug, query, page, limit);
       res.json({ data: registrations, total });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/admin/bulk-checkin-registrations', checkActiveConference, async (req: any, res) => {
+    try {
+      const { registrationIds, sessionId } = req.body;
+      if (!Array.isArray(registrationIds) || !sessionId) {
+        return res.status(400).json({ message: "registrationIds array and sessionId are required." });
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const regId of registrationIds) {
+        try {
+          const registration = await db.query.registrations.findFirst({
+            where: eq(registrationsTable.id, regId),
+          });
+
+          // Validation checks
+          if (!registration || registration.sessionId !== sessionId || registration.status !== 'confirmed') {
+            failCount++;
+            continue;
+          }
+
+          const alreadyCheckedIn = await isCheckedIn(registration.id, sessionId);
+          if (alreadyCheckedIn) {
+            successCount++; // Already checked in, count as success
+            continue;
+          }
+
+          await createCheckIn({
+            registrationId: registration.id,
+            sessionId: sessionId,
+            method: 'manual',
+          });
+          successCount++;
+        } catch (e) {
+          console.error(`Failed to check in registration ${regId}:`, e);
+          failCount++;
+        }
+      }
+      res.json({ successCount, failCount });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

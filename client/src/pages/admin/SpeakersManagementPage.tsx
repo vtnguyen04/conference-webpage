@@ -33,7 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import type { Speaker, InsertSpeaker, Conference } from "@shared/schema";
+import type { Speaker, InsertSpeaker } from "@shared/schema";
 import { insertSpeakerSchema } from "@shared/schema";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
@@ -65,6 +65,7 @@ export default function SpeakersManagementPage() {
       specialty: "",
       photoUrl: "",
       bio: "",
+      email: "",
       role: "speaker",
     },
   });
@@ -136,6 +137,7 @@ export default function SpeakersManagementPage() {
       specialty: "",
       photoUrl: "",
       bio: "",
+      email: "",
       role: "speaker",
     });
     setIsDialogOpen(true);
@@ -151,6 +153,7 @@ export default function SpeakersManagementPage() {
       specialty: speaker.specialty,
       photoUrl: speaker.photoUrl,
       bio: speaker.bio,
+      email: speaker.email || "",
       role: speaker.role,
     });
     setIsDialogOpen(true);
@@ -269,6 +272,7 @@ export default function SpeakersManagementPage() {
                       <h3 className="font-semibold truncate">{speaker.credentials} {speaker.name}</h3>
                       <p className="text-sm text-muted-foreground truncate">{speaker.title}</p>
                       <p className="text-xs text-muted-foreground truncate">{speaker.specialty}</p>
+                      {speaker.email && <p className="text-xs text-muted-foreground truncate">{speaker.email}</p>}
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
@@ -324,6 +328,7 @@ export default function SpeakersManagementPage() {
                       <h3 className="font-semibold truncate">{speaker.credentials} {speaker.name}</h3>
                       <p className="text-sm text-muted-foreground truncate">{speaker.title}</p>
                       <p className="text-xs text-muted-foreground truncate">{speaker.specialty}</p>
+                      {speaker.email && <p className="text-xs text-muted-foreground truncate">{speaker.email}</p>}
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
@@ -455,6 +460,23 @@ export default function SpeakersManagementPage() {
                     <FormControl>
                       <Input {...field} placeholder="Tim mạch, Tiêu hóa..." data-testid="input-speaker-specialty" />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email (Tùy chọn)</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="nguyenvana@email.com" data-testid="input-speaker-email" />
+                    </FormControl>
+                     <FormDescription>
+                      Nếu là chủ tọa, email này sẽ được dùng để tự động tạo tài khoản và gửi thông tin.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
