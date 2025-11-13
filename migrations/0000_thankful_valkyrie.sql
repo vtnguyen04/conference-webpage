@@ -40,7 +40,7 @@ CREATE TABLE `registrations` (
 	`session_id` text NOT NULL,
 	`full_name` text NOT NULL,
 	`email` text NOT NULL,
-	`phone` text NOT NULL,
+	`phone` text,
 	`organization` text,
 	`position` text,
 	`cme_certificate_requested` integer DEFAULT false NOT NULL,

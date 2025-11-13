@@ -1,4 +1,11 @@
 
+import dotenv from 'dotenv';
+
+import { initializeEmailTransporter } from "./emailService";
+
+dotenv.config();
+initializeEmailTransporter(); // Initialize transporter after dotenv.config()
+
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
 import { registerRoutes } from "./routes";

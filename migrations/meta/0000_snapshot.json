@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ee338d98-45ca-47a0-ba63-dc1dbb9c89fc",
+  "id": "8839ea62-aa79-4168-acce-b15aad7eb0ec",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "audit_logs": {
@@ -282,7 +282,7 @@
           "name": "phone",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "organization": {
