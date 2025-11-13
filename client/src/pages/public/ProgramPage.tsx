@@ -146,15 +146,25 @@ export default function ProgramPage() {
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pb-4 space-y-6">
                         {session.description && <p className="text-muted-foreground">{session.description}</p>}
-                        {session.chairIds?.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold mb-3 flex items-center gap-2"><User className="h-4 w-4" />Chủ tọa</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {session.chairIds.map(id => speakerMap[id] ? <Badge key={id} variant="secondary" className="text-sm py-1 px-3">{speakerMap[id].credentials} {speakerMap[id].name}</Badge> : null)}
-                            </div>
-                          </div>
-                        )}
-                        {session.agendaItems?.length > 0 && (
+                                                  {(() => {
+                                                    const validChairs = session.chairIds?.filter(id => speakerMap[id]);
+                                                    if (validChairs && validChairs.length > 0) {
+                                                      return (
+                                                        <div>
+                                                          <h4 className="font-semibold mb-3 flex items-center gap-2"><User className="h-4 w-4" />Chủ tọa</h4>
+                                                          <div className="flex flex-wrap gap-2">
+                                                            {validChairs.map(id => speakerMap[id] ? (
+                                                              <Badge key={id} variant="outline" className="flex items-center gap-2 pl-1 pr-2 py-1 text-slate-700">
+                                                                <img src={speakerMap[id].photoUrl} alt={speakerMap[id].name} className="h-5 w-5 rounded-full object-cover" />
+                                                                <span className="font-medium">{speakerMap[id].credentials} {speakerMap[id].name}</span>
+                                                              </Badge>
+                                                            ) : null)}
+                                                          </div>
+                                                        </div>
+                                                      );
+                                                    }
+                                                    return null;
+                                                  })()}                        {session.agendaItems?.length > 0 && (
                           <div>
                             <h4 className="font-semibold mb-3 flex items-center gap-2"><Clock className="h-4 w-4" />Chương trình chi tiết</h4>
                             <div className="space-y-2">

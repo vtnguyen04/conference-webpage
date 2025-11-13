@@ -433,20 +433,25 @@ export default function HomePage() {
                         </AccordionTrigger>
                         <AccordionContent className="px-8 pb-6 space-y-6 bg-slate-50">
                           {session.description && <p className="text-slate-700 leading-relaxed border-l-4 border-amber-400 pl-4">{session.description}</p>}
-                          {session.chairIds?.length > 0 && (
-                            <div className="bg-white p-4 border-l-4 border-blue-600">
-                              <h4 className="font-bold mb-3 flex items-center gap-2 text-slate-900 uppercase tracking-wide text-sm">
-                                <User className="h-4 w-4 text-blue-600" />Chủ tọa
-                              </h4>
-                              <div className="flex flex-wrap gap-2">
-                                {session.chairIds.map(id => speakerMap[id] ? (
-                                  <Badge key={id} variant="outline" className="text-sm py-2 px-4 border-2 border-blue-200 font-semibold hover:bg-blue-50">
-                                    {speakerMap[id].credentials} {speakerMap[id].name}
-                                  </Badge>
-                                ) : null)}
-                              </div>
-                            </div>
-                          )}
+                          {(() => {
+                            const validChairs = session.chairIds?.filter(id => speakerMap[id]);
+                            if (validChairs && validChairs.length > 0) {
+                              return (
+                                <div className="mt-4 pt-4 border-t border-slate-200">
+                                  <h4 className="text-sm font-semibold text-slate-600 mb-2">Chủ tọa:</h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {validChairs.map(id => speakerMap[id] ? (
+                                      <Badge key={id} variant="outline" className="flex items-center gap-2 pl-1 pr-2 py-1 text-slate-700">
+                                        <img src={speakerMap[id].photoUrl} alt={speakerMap[id].name} className="h-5 w-5 rounded-full object-cover" />
+                                        <span className="font-medium">{speakerMap[id].credentials} {speakerMap[id].name}</span>
+                                      </Badge>
+                                    ) : null)}
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                           {session.agendaItems?.length > 0 && (
                             <div className="bg-white p-4 border-l-4 border-amber-400">
                               <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-900 uppercase tracking-wide text-sm">

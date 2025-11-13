@@ -580,9 +580,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/announcements/:conferenceSlug/:id', async (req, res) => {
     try {
-      console.log(`Fetching announcement with ID: ${req.params.id} for slug ${req.params.conferenceSlug}`);
-      const { conferenceSlug } = req.params;
-      const announcement = await jsonStorage.getAnnouncement(conferenceSlug, req.params.id);
+      let { conferenceSlug, id } = req.params;
+      console.log(`Fetching announcement with ID: ${id} for slug ${conferenceSlug}`);
+
+      if (conferenceSlug === 'active') {
+        const activeConference = await jsonStorage.getActiveConference();
+        if (!activeConference) {
+          return res.status(404).json({ message: "No active conference found." });
+        }
+        conferenceSlug = activeConference.slug;
+      }
+
+      const announcement = await jsonStorage.getAnnouncement(conferenceSlug, id);
       if (!announcement) {
         return res.status(404).json({ message: "Announcement not found" });
       }
@@ -636,22 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/announcements/:id', checkActiveConference, async (req: any, res) => {
-    try {
-      console.log(`Fetching announcement with ID: ${req.params.id}`);
-      const conference = req.activeConference;
-      if (!conference) {
-        return res.status(404).json({ message: "No active conference" });
-      }
-      const announcement = await jsonStorage.getAnnouncement(conference.slug, req.params.id);
-      if (!announcement) {
-        return res.status(404).json({ message: "Announcement not found" });
-      }
-      res.json(announcement);
-    } catch (error: any) {
-      res.status(500).json({ message: "Failed to fetch announcement" });
-    }
-  });
+
 
   app.post('/api/announcements/:id/view', checkActiveConference, async (req: any, res) => {
     try {

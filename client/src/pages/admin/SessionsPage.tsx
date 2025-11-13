@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -389,6 +391,69 @@ export default function SessionsPage() {
                     <FormControl>
                       <Textarea {...field} data-testid="input-session-description" />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="chairIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chủ tọa</FormLabel>
+                    <FormDescription>
+                      Chọn một hoặc nhiều chủ tọa cho phiên họp này.
+                    </FormDescription>
+                    <ScrollArea className="h-40 rounded-md border">
+                      <div className="p-4">
+                        {speakers
+                          .filter(
+                            (speaker) =>
+                              speaker.role === "moderator" ||
+                              speaker.role === "both"
+                          )
+                          .map((speaker) => (
+                            <FormField
+                              key={speaker.id}
+                              control={form.control}
+                              name="chairIds"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={speaker.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          speaker.id
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([
+                                                ...(field.value || []),
+                                                speaker.id,
+                                              ])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) =>
+                                                    value !== speaker.id
+                                                )
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {speaker.credentials} {speaker.name}
+                                    </FormLabel>
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          ))}
+                      </div>
+                    </ScrollArea>
                     <FormMessage />
                   </FormItem>
                 )}
