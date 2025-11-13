@@ -75,7 +75,7 @@ export default function SpeakersManagementPage() {
       return await apiRequest("POST", "/api/speakers", data);
     },
     onSuccess: () => {
-      toast({ title: "Tạo diễn giả thành công" });
+      toast({ title: "Tạo báo cáo viên thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
@@ -90,7 +90,7 @@ export default function SpeakersManagementPage() {
       return await apiRequest("PUT", `/api/speakers/${id}`, data);
     },
     onSuccess: () => {
-      toast({ title: "Cập nhật diễn giả thành công" });
+      toast({ title: "Cập nhật báo cáo viên thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSpeaker(null);
@@ -106,7 +106,7 @@ export default function SpeakersManagementPage() {
       return await apiRequest("DELETE", `/api/speakers/${id}`);
     },
     onSuccess: () => {
-      toast({ title: "Xóa diễn giả thành công" });
+      toast({ title: "Xóa báo cáo viên thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
     },
     onError: (error: any) => {
@@ -119,7 +119,7 @@ export default function SpeakersManagementPage() {
       return await apiRequest("DELETE", "/api/admin/speakers/all");
     },
     onSuccess: () => {
-      toast({ title: "Xóa tất cả diễn giả thành công" });
+      toast({ title: "Xóa tất cả báo cáo viên thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
     },
     onError: (error: any) => {
@@ -161,14 +161,14 @@ export default function SpeakersManagementPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
-    if (confirm(`Bạn có chắc muốn xóa diễn giả "${name}"?`)) {
+    if (confirm(`Bạn có chắc muốn xóa báo cáo viên "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
-    if (confirm("Bạn có chắc muốn xóa TẤT CẢ diễn giả? Hành động này không thể hoàn tác.")) {
+    if (confirm("Bạn có chắc muốn xóa TẤT CẢ báo cáo viên? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
@@ -229,7 +229,7 @@ export default function SpeakersManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold" data-testid="text-speakers-mgmt-title">
-          Quản lý diễn giả & chủ tọa
+          Quản lý báo cáo viên & chủ tọa
         </h1>
         <div className="flex gap-2">
           <Button
@@ -243,7 +243,7 @@ export default function SpeakersManagementPage() {
           </Button>
           <Button onClick={handleAdd} data-testid="button-add-speaker" disabled={isReadOnly}>
             <Plus className="mr-2 h-4 w-4" />
-            Thêm diễn giả
+            Thêm báo cáo viên
           </Button>
         </div>
       </div>
@@ -307,7 +307,7 @@ export default function SpeakersManagementPage() {
       {regularSpeakers.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Diễn giả</CardTitle>
+            <CardTitle>Báo cáo viên</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -364,7 +364,7 @@ export default function SpeakersManagementPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">
-              Chưa có diễn giả nào. Nhấn "Thêm diễn giả" để tạo mới.
+              Chưa có báo cáo viên nào. Nhấn "Thêm báo cáo viên" để tạo mới.
             </p>
           </CardContent>
         </Card>
@@ -374,10 +374,10 @@ export default function SpeakersManagementPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingSpeaker ? "Chỉnh sửa diễn giả" : "Thêm diễn giả mới"}
+              {editingSpeaker ? "Chỉnh sửa báo cáo viên" : "Thêm báo cáo viên mới"}
             </DialogTitle>
             <DialogDescription>
-              Điền thông tin chi tiết về diễn giả/chủ tọa
+              Điền thông tin chi tiết về báo cáo viên/chủ tọa
             </DialogDescription>
           </DialogHeader>
 
@@ -388,7 +388,7 @@ export default function SpeakersManagementPage() {
                 name="photoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ảnh diễn giả</FormLabel>
+                    <FormLabel>Ảnh báo cáo viên</FormLabel>
                     <FormControl>
                       <ImageUploader
                         preview={field.value}
@@ -509,7 +509,7 @@ export default function SpeakersManagementPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="speaker">Diễn giả</SelectItem>
+                        <SelectItem value="speaker">Báo cáo viên</SelectItem>
                         <SelectItem value="moderator">Chủ tọa</SelectItem>
                         <SelectItem value="both">Cả hai</SelectItem>
                       </SelectContent>

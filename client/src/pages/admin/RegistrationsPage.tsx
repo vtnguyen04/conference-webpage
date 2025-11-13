@@ -200,7 +200,7 @@ export default function RegistrationsPage() {
   const getRoleForEmail = (email: string) => {
     const role = speakerRoles.get(email);
     if (role === 'moderator') return <Badge variant="outline">Chủ tọa</Badge>;
-    if (role === 'speaker') return <Badge variant="outline">Diễn giả</Badge>;
+    if (role === 'speaker') return <Badge variant="outline">Báo cáo viên</Badge>;
     if (role === 'both') return <Badge variant="outline">Cả hai</Badge>;
     return <Badge variant="secondary">Khách</Badge>;
   };
@@ -238,7 +238,7 @@ export default function RegistrationsPage() {
                 <SelectContent>
                   <SelectItem value="all">Tất cả vai trò</SelectItem>
                   <SelectItem value="attendee">Khách</SelectItem>
-                  <SelectItem value="speaker">Diễn giả</SelectItem>
+                  <SelectItem value="speaker">Báo cáo viên</SelectItem>
                   <SelectItem value="moderator">Chủ tọa</SelectItem>
                 </SelectContent>
               </Select>

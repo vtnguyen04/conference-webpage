@@ -590,18 +590,18 @@ export default function SessionsPage() {
                         name={`agendaItems.${index}.speakerId`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Diễn giả (tùy chọn)</FormLabel>
+                            <FormLabel>Báo cáo viên (tùy chọn)</FormLabel>
                             <Select 
                               onValueChange={(value) => field.onChange(value === "_none_" ? null : value)} 
                               value={field.value || "_none_"}
                             >
                               <FormControl>
                                 <SelectTrigger data-testid={`select-agenda-speaker-${index}`}>
-                                  <SelectValue placeholder="Không có diễn giả" />
+                                  <SelectValue placeholder="Không có báo cáo viên" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="_none_">Không có diễn giả</SelectItem>
+                                <SelectItem value="_none_">Không có báo cáo viên</SelectItem>
                                 {speakers.map((speaker) => (
                                   <SelectItem key={speaker.id} value={speaker.id}>
                                     {speaker.credentials} {speaker.name}
