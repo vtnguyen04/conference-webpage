@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Trash2, Search, UserCheck, Award } from "lucide-react";
+import { Download, Trash2, Search, UserCheck, Award, PlusCircle } from "lucide-react";
 import type { Registration, Session, Conference, Speaker } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { AddRegistrationDialog } from "@/components/AddRegistrationDialog";
 
 const isSessionActive = (session?: Session): boolean => {
   if (!session) return false;
@@ -55,6 +56,7 @@ export default function RegistrationsPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [bulkCheckinSessionId, setBulkCheckinSessionId] = useState<string>("");
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -223,8 +225,17 @@ export default function RegistrationsPage() {
             <Download className="mr-2 h-4 w-4" />
             Xuất CSV
           </Button>
+          <Button onClick={() => setIsAddUserDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Thêm người dùng
+          </Button>
         </div>
       </div>
+
+      <AddRegistrationDialog
+        isOpen={isAddUserDialogOpen}
+        onClose={() => setIsAddUserDialogOpen(false)}
+      />
 
       <Card>
         <CardHeader>
