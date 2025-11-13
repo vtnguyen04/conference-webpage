@@ -10,9 +10,7 @@ import type { Conference, Announcement, Session, Speaker, Sponsor } from "@share
 import Autoplay from "embla-carousel-autoplay";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { SessionList } from "@/components/SessionList";
 
 // Section Header Component
 const SectionHeader = ({ title, subtitle, accentColor = "bg-blue-600", cta }: { title: string; subtitle: string; accentColor?: string; cta?: React.ReactNode }) => (
@@ -109,31 +107,6 @@ export default function HomePage() {
     supporting: 'ĐƠN VỊ ĐỒNG HÀNH',
     other: 'ĐƠN VỊ HỖ TRỢ',
   };
-
-  const speakerMap: Record<string, Speaker> = speakers.reduce((acc, speaker) => {
-    acc[speaker.id] = speaker;
-    return acc;
-  }, {} as Record<string, Speaker>);
-
-  const sessionsBySlot: Record<string, Session[]> = (() => {
-    const grouped: Record<string, Session[]> = {};
-    const sortedSessions = [...sessions].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
-    for (const session of sortedSessions) {
-      const date = new Date(session.startTime);
-      const dateKey = format(date, "yyyy-MM-dd");
-      const timeSlotKey = date.getHours() < 12 ? "Sáng" : "Chiều";
-      const combinedKey = `${dateKey}_${timeSlotKey}`;
-      
-      if (!grouped[combinedKey]) {
-        grouped[combinedKey] = [];
-      }
-      grouped[combinedKey].push(session);
-    }
-    return grouped;
-  })();
-
-  const sortedSlots = Object.keys(sessionsBySlot).sort();
 
   return (
     <div className="min-h-screen bg-white">
@@ -388,103 +361,9 @@ export default function HomePage() {
               accentColor="bg-amber-500"
             />
 
-            <Tabs defaultValue={sortedSlots[0]} className="w-full max-w-6xl mx-auto">
-              <TabsList className="w-full justify-start mb-8 flex-wrap h-auto gap-3 bg-white border-2 border-slate-200 p-2 shadow-sm">
-                {sortedSlots.map(slot => {
-                  const [date, timeOfDay] = slot.split('_');
-                  return (
-                    <TabsTrigger 
-                      key={slot} 
-                      value={slot} 
-                      className="flex-1 min-w-[200px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-700 data-[state=active]:text-white font-semibold uppercase tracking-wide text-sm py-3 relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">{timeOfDay} - {format(new Date(date), "dd/MM", { locale: vi })}</span>
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    </TabsTrigger>
-                  )
-                })}
-              </TabsList>
-
-              {sortedSlots.map(slot => (
-                <TabsContent key={slot} value={slot} className="mt-0">
-                  <Accordion type="single" collapsible className="space-y-4">
-                    {sessionsBySlot[slot].map(session => (
-                      <AccordionItem key={session.id} value={session.id} className="border-2 border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                        <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-blue-600 to-amber-400"></div>
-                        <AccordionTrigger className="px-8 py-6 hover:no-underline hover:bg-slate-50">
-                          <div className="flex items-start justify-between w-full pr-4 text-left">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-bold mb-3 text-slate-900">{session.title}</h3>
-                              <div className="flex flex-wrap gap-6 text-sm text-slate-600">
-                                <div className="flex items-center gap-2">
-                                  <Clock className="h-4 w-4 text-blue-600" />
-                                  <span className="font-medium">{format(new Date(session.startTime), "HH:mm")} - {format(new Date(session.endTime), "HH:mm")}</span>
-                                </div>
-                                {session.room && (
-                                  <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-amber-500" />
-                                    <span className="font-medium">{session.room}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <Badge variant="secondary" className="ml-4 shrink-0 bg-blue-600 text-white uppercase tracking-wide font-semibold border-0">{session.type}</Badge>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-8 pb-6 space-y-6 bg-slate-50">
-                          {session.description && <p className="text-slate-700 leading-relaxed border-l-4 border-amber-400 pl-4">{session.description}</p>}
-                          {(() => {
-                            const validChairs = session.chairIds?.filter(id => speakerMap[id]);
-                            if (validChairs && validChairs.length > 0) {
-                              return (
-                                <div className="mt-4 pt-4 border-t border-slate-200">
-                                  <h4 className="text-sm font-semibold text-slate-600 mb-2">Chủ tọa:</h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {validChairs.map(id => speakerMap[id] ? (
-                                      <Badge key={id} variant="outline" className="flex items-center gap-2 pl-1 pr-2 py-1 text-slate-700">
-                                        <img src={speakerMap[id].photoUrl} alt={speakerMap[id].name} className="h-5 w-5 rounded-full object-cover" />
-                                        <span className="font-medium">{speakerMap[id].credentials} {speakerMap[id].name}</span>
-                                      </Badge>
-                                    ) : null)}
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                          {session.agendaItems?.length > 0 && (
-                            <div className="bg-white p-4 border-l-4 border-amber-400">
-                              <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-900 uppercase tracking-wide text-sm">
-                                <Clock className="h-4 w-4 text-amber-500" />Chương trình chi tiết
-                              </h4>
-                              <div className="space-y-3">
-                                {session.agendaItems.map((item, index) => {
-                                  const speaker = item.speakerId ? speakerMap[item.speakerId] : null;
-                                  return (
-                                    <div key={index} className="bg-slate-50 border-l-4 border-blue-400 p-4 hover:bg-slate-100 transition-colors">
-                                      <div className="flex items-start gap-4">
-                                        <Badge variant="outline" className="mt-1 shrink-0 font-mono text-xs border-2 border-blue-600 text-blue-600 font-bold px-3 py-1">
-                                          {item.timeSlot}
-                                        </Badge>
-                                        <div className="flex-1">
-                                          <p className="font-semibold text-slate-900">{item.title}</p>
-                                          {speaker && <p className="text-sm text-blue-600 mt-2 font-medium">{speaker.credentials} {speaker.name}</p>}
-                                          {item.notes && <p className="text-xs text-slate-500 mt-2 italic">{item.notes}</p>}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </TabsContent>
-              ))}
-            </Tabs>
+            <div className="max-w-6xl mx-auto">
+              <SessionList sessions={sessions} speakers={speakers} view="homepage" />
+            </div>
 
             <div className="text-center mt-12">
               <Link href="/program">
