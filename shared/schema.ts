@@ -229,6 +229,21 @@ export interface Speaker {
   updatedAt: string;
 }
 
+// Organizer (Ban To Chuc) - stored in JSON
+export interface Organizer {
+  id: string;
+  conferenceId: string;
+  name: string;
+  title: string; // Job title
+  credentials: string; // e.g., "TS.BS", "PGS.TS"
+  photoUrl: string;
+  bio: string;
+  organizingRole: "Trưởng Ban" | "Phó trưởng Ban" | "Thành viên" | "Thành viên TK";
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Sponsor (stored in JSON)
 export interface Sponsor {
   id: string;
@@ -372,6 +387,19 @@ export const insertSpeakerSchema = z.object({
 });
 
 export type InsertSpeaker = z.infer<typeof insertSpeakerSchema>;
+
+// Organizer validation schema
+export const insertOrganizerSchema = z.object({
+  name: z.string().min(1),
+  title: z.string(),
+  credentials: z.string(),
+  photoUrl: z.string().optional().or(z.literal("")),
+  bio: z.string(),
+  organizingRole: z.enum(["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"]),
+  displayOrder: z.number().int().default(0),
+});
+
+export type InsertOrganizer = z.infer<typeof insertOrganizerSchema>;
 
 // Sponsor validation schema
 export const insertSponsorSchema = z.object({

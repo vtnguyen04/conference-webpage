@@ -31,7 +31,7 @@ import {
 } from "./contactDb";
 import { setupAuth } from "./sessionAuth";
 
-import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema } from "@shared/schema";
+import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertOrganizerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema } from "@shared/schema";
 console.log('insertSponsorSchema:', insertSponsorSchema);
 import multer from "multer";
 import path from "path";
@@ -550,6 +550,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       await jsonStorage.deleteAllSpeakers(conference.slug);
       res.json({ success: true, message: "All speakers deleted." });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/organizers', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.json([]);
+      }
+      const organizers = await jsonStorage.getOrganizers(conference.slug);
+      res.json(organizers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch organizers" });
+    }
+  });
+
+  app.get('/api/organizers/:conferenceSlug', async (req, res) => {
+    try {
+      const { conferenceSlug } = req.params;
+      const organizers = await jsonStorage.getOrganizers(conferenceSlug);
+      res.json(organizers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch organizers" });
+    }
+  });
+
+  app.post('/api/organizers', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const data = insertOrganizerSchema.parse(req.body);
+      const organizer = await jsonStorage.createOrganizer(conference.slug, { ...data, conferenceId: conference.slug, photoUrl: data.photoUrl || '' });
+      res.json(organizer);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put('/api/organizers/:id', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      const updated = await jsonStorage.updateOrganizer(conference.slug, req.params.id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/organizers/:id', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteOrganizer(conference.slug, req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete('/api/admin/organizers/all', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+      await jsonStorage.deleteAllOrganizers(conference.slug);
+      res.json({ success: true, message: "All organizers deleted." });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

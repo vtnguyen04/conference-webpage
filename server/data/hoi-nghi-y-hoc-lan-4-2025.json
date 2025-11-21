@@ -38,7 +38,7 @@
       "publishedAt": "2025-11-09T06:00",
       "createdAt": "2025-02-23T00:00:00.000Z",
       "updatedAt": "2025-11-09T11:18:30.343Z",
-      "views": 12,
+      "views": 20,
       "pdfUrl": "/uploads/pdf-1762687073707-344052222.pdf"
     },
     {
@@ -52,7 +52,7 @@
       "publishedAt": "2025-11-09T12:00",
       "createdAt": "2025-02-25T00:00:00.000Z",
       "updatedAt": "2025-11-09T11:14:52.908Z",
-      "views": 15,
+      "views": 17,
       "pdfUrl": ""
     },
     {
@@ -65,7 +65,8 @@
       "category": "important",
       "publishedAt": "2025-11-09T03:00",
       "createdAt": "2025-02-18T00:00:00.000Z",
-      "updatedAt": "2025-11-09T11:21:06.952Z"
+      "updatedAt": "2025-11-09T11:21:06.952Z",
+      "views": 6
     },
     {
       "title": "Cách thức đăng kí thông tin xuất hóa đơn - Hội nghị khoa học liên ngành lần 4",
@@ -78,7 +79,7 @@
       "conferenceId": "hoi-nghi-y-hoc-lan-4-2025",
       "createdAt": "2025-11-07T17:32:54.807Z",
       "updatedAt": "2025-11-09T11:13:37.405Z",
-      "views": 1
+      "views": 3
     }
   ],
   "sessions": [

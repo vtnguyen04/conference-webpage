@@ -5,6 +5,7 @@ import HomePage from "@/pages/public/HomePage";
 import AboutPage from "@/pages/public/AboutPage";
 import ProgramPage from "@/pages/public/ProgramPage";
 import SpeakersPage from "@/pages/public/SpeakersPage";
+import OrganizersPage from "@/pages/public/OrganizersPage";
 import SponsorsPage from "@/pages/public/SponsorsPage";
 import AnnouncementsPage from "@/pages/public/AnnouncementsPage";
 import AnnouncementDetailPage from "@/pages/public/AnnouncementDetailPage";
@@ -27,6 +28,7 @@ export function PublicApp() {
         {/* Active Conference Routes (non-year-specific) */}
         <Route path="/program" component={ProgramPage} />
         <Route path="/speakers" component={SpeakersPage} />
+        <Route path="/organizers" component={OrganizersPage} />
         <Route path="/sponsors" component={SponsorsPage} />
         <Route path="/announcements" component={AnnouncementsPage} />
         <Route path="/announcements/:id" component={AnnouncementDetailPage} />
@@ -36,6 +38,7 @@ export function PublicApp() {
         <Route path="/conference/:slug" component={ProgramPage} /> {/* Default for slug */}
         <Route path="/conference/:slug/program" component={ProgramPage} />
         <Route path="/conference/:slug/speakers" component={SpeakersPage} />
+        <Route path="/conference/:slug/organizers" component={OrganizersPage} />
         <Route path="/conference/:slug/sponsors" component={SponsorsPage} />
         <Route path="/conference/:slug/announcements" component={AnnouncementsPage} />
         <Route path="/conference/:slug/announcements/:id" component={AnnouncementDetailPage} />

@@ -2,84 +2,67 @@
   "conference": {
     "id": "hoi-nghi-khoa-hoc-lan-thu-5",
     "slug": "hoi-nghi-khoa-hoc-lan-thu-5",
-    "name": "Hội Nghị Khoa học Lần thứ 5",
-    "theme": "Phòng bệnh chủ động - Tương lai vững bền",
-    "logoUrl": "/uploads/image-1762863827295-91467279.jpg",
+    "name": "HỘI NGHỊ KHOA HỌC KỸ THUẬT DƯỢC LẦN THỨ 41",
+    "theme": "Khoa học Dược trong kỷ nguyên phát triển bền vững",
+    "logoUrl": "/uploads/image-1763022091929-154235735.gif",
     "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
-    "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị Y học 09 & Y học Liên ngành lần thứ 4 là sự kiện y khoa quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Phòng bệnh chủ động - Tương lai vững bền</strong> tập trung vào các xu hướng mới trong y học dự phòng, chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
-    "startDate": "2025-09-20T00:00:00.000Z",
-    "endDate": "2025-09-21T00:00:00.000Z",
-    "location": "Đại học Y Dược TP.HCM, 217 Hồng Bàng, Quận 5, TP.HCM",
-    "contactEmail": "conference@ump.edu.vn",
+    "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị khoa học kỹ thuật dược lần thứ 41 là sự kiện quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Khoa học Dược trong kỷ nguyên phát triển bền vững</strong> tập trung vào các xu hướng mới trong Dược học chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
+    "startDate": "2025-11-14T00:00:00.000Z",
+    "endDate": "2025-11-15T00:00:00.000Z",
+    "location": "Trường Dược, 41-43 Đinh Tiên Hoàng, P. Sài Gòn, TP Hồ Chí Minh",
+    "contactEmail": "conferencesp@uphcm.edu.vn",
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-11-11T12:25:27.745Z",
-    "updatedAt": "2025-11-11T12:36:45.978Z",
+    "updatedAt": "2025-11-16T04:55:45.909Z",
     "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
-    "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy chứng nhận đào tạo liên tục (CME), vui lòng chọn vào cột Cấp Giấy chứng nhận của một chủ đề.\nPhí cấp giấy chứng nhận đào tạo liên tục (CME) là 500.000đ",
+    "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy tham dự hội nghị, vui lòng chọn vào cột Cấp Giấy tham dự hội nghị",
     "filesToDelete": [
       "/uploads/image-1762674811408-218662510.jpg"
     ],
     "bannerUrls": [
-      "/uploads/banners-1762863914487-579881507.jpg"
+      "/uploads/banners-1763005734379-169852863.gif"
     ],
-    "registrationBenefits": "dfgdfgdfgdf",
-    "registrationRules": ""
+    "registrationBenefits": "- Nhận giấy chứng nhận tham gia hội nghị\n- Cập nhật các kiến mới trong lĩnh vực Dược",
+    "registrationRules": "Mang theo mã QR được gửi về mail để xác nhận check im"
   },
   "sessions": [
     {
       "id": "session-1762863927745-gd0dprkx6",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "day": 1,
-      "title": "PHIÊN TOÀN THỂ - Chủ đề: PHÒNG BỆNH CHỦ ĐỘNG - TƯƠNG LAI VỮNG BỀN",
+      "title": "PHIÊN TOÀN THỂ",
       "track": "Toàn thể",
-      "description": "Phiên toàn thể với các chuyên đề về phòng bệnh RSV, quản lý rối loạn lipid máu và các chiến lược phòng bệnh chủ động",
+      "description": "",
       "descriptionMd": "## Phiên toàn thể\n\nCác chủ đề chính:\n- Cập nhật phương pháp phòng bệnh RSV ở trẻ sơ sinh\n- Quản lý rối loạn lipid máu theo khuyến cáo ESC 2025\n- Chiến lược phòng bệnh chủ động trong cộng đồng",
-      "startTime": "2025-09-20T00:00:00.000Z",
-      "endTime": "2025-09-20T02:00:00.000Z",
-      "room": "Hội trường 3D",
+      "startTime": "2025-11-17T09:00",
+      "endTime": "2025-11-17T22:00",
+      "room": "Đại giảng đường",
       "type": "Toàn thể",
       "chairIds": [
         "speaker-001",
-        "speaker-002"
+        "speaker-002",
+        "speaker-1762863927745-v70vkrqpy",
+        "speaker-1762863927749-1lta284jh"
       ],
       "agendaItems": [
         {
-          "timeSlot": "07g00-07g30",
-          "title": "Updated Agenda 8qcBN7",
-          "speakerId": null
-        },
-        {
-          "timeSlot": "07g30-07g50",
-          "title": "Cập nhật giải pháp trên phụ nữ mang thai để phòng bệnh RSV trên trẻ sơ sinh",
-          "speakerId": "speaker-003"
-        },
-        {
-          "timeSlot": "07g50-08g10",
-          "title": "Vai trò của Bác sĩ điều trị da chuyên khoa trong việc nâng cao tỉ lệ tiêm ngừa cúm trên nhóm bệnh nguy cơ cao",
-          "speakerId": "speaker-004",
-          "notes": "Chia sẻ từ Bệnh viện Đại học Y dược TP.HCM"
-        },
-        {
-          "timeSlot": "08g10-08g30",
-          "title": "Làm cách nào để nâng cao hiệu quả của tiêm ngừa trong dự phòng các bệnh liên quan HPV?",
-          "speakerId": "speaker-005"
-        },
-        {
-          "timeSlot": "08g30-08g50",
-          "title": "Dự phòng sốt xuất huyết chủ động và toàn diện trong bối cảnh mới",
-          "speakerId": "speaker-006"
-        },
-        {
-          "timeSlot": "08g50-09g00",
-          "title": "Thảo luận",
-          "speakerId": null
-        },
-        {
-          "timeSlot": "34243234",
-          "title": "sdfdsf sdf sd",
+          "timeSlot": "09g00-09g30",
+          "title": "Luật sửa đổi, bổ sung một số điều của Luật Dược",
           "speakerId": null,
-          "notes": " sdf sdf sd"
+          "notes": "TS. Tạ Mạnh Hùng\nPhó Cục trưởng Cục Quản lý Dược\nBộ Y tế"
+        },
+        {
+          "timeSlot": "09g30-10g00",
+          "title": "Therapeutic drug monitoring: USA clinical pharmacists role for serious Gram-negative infections",
+          "speakerId": null,
+          "notes": "Dr. Jennifer Le\nChair Committee on International Pharmacy Education and Research – Skaggs School of Pharmacy and Pharmaceutical Sciences, University of California San Diego \nDirector, Experiential Education in Los Angeles-Orange County, USA"
+        },
+        {
+          "timeSlot": "10g00-10g30",
+          "title": "Luật Bảo hiểm y tế sửa đổi, chính sách Bảo hiểm y tế và vai trò ứng dụng của bằng chứng Đánh giá công nghệ y tế trong xây dựng danh mục Bảo hiểm y tế",
+          "speakerId": "speaker-004",
+          "notes": "Đại diện Vụ Bảo hiểm Y tế"
         }
       ],
       "materials": [
@@ -90,311 +73,640 @@
         }
       ],
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-11T12:25:27.745Z",
-      "capacity": 100
+      "updatedAt": "2025-11-17T11:58:03.726Z",
+      "capacity": 100,
+      "allowCmeCertificate": true
     },
     {
       "id": "session-1762863927745-8yd6dwjnp",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "day": 1,
-      "title": "Y HỌC GIA ĐÌNH 1 - Chủ đề: Y HỌC GIA ĐÌNH - ĐỔI MỚI QUẢN LÝ SỨC KHỎE TOÀN DIỆN",
-      "track": "Y học gia đình",
-      "description": "Phiên thảo luận về vai trò của y học gia đình trong quản lý sức khỏe toàn diện",
+      "title": "HỘI THẢO VỆ TINH",
+      "track": "HỘI THẢO VỆ TINH",
+      "description": "",
       "descriptionMd": "## Y học gia đình - Đổi mới quản lý sức khỏe\n\nCác nội dung chính:\n- Mô hình y học gia đình hiện đại\n- Chăm sóc sức khỏe ban đầu\n- Quản lý bệnh mãn tính tại cộng đồng",
-      "startTime": "2025-09-20T06:30:00.000Z",
-      "endTime": "2025-09-20T08:00:00.000Z",
-      "room": "Phòng họp B",
+      "startTime": "2025-11-14T11:00",
+      "endTime": "2025-11-14T13:00",
+      "room": "Sảnh 1 và Sảnh 2",
       "type": "Thảo luận",
       "chairIds": [
         "speaker-004"
       ],
       "agendaItems": [
         {
-          "timeSlot": "13g30-13g45",
-          "title": "Giới thiệu phiên",
+          "timeSlot": "11g00-13g00",
+          "title": "Chủ đề “Vai trò dược sĩ trong nâng cao chất lượng quản lý bệnh tăng huyết áp”",
           "speakerId": null
         },
         {
-          "timeSlot": "13g45-14g15",
-          "title": "Mô hình y học gia đình tại Việt Nam",
+          "timeSlot": "11g00-13g00",
+          "title": "Chủ đề “Kháng sinh, kháng nấm mới trong thời đại đa kháng thuốc: từ lý thuyết đến thực hành”",
           "speakerId": "speaker-003"
-        },
-        {
-          "timeSlot": "14g15-14g45",
-          "title": "Quản lý đái tháo đường type 2 tại cộng đồng",
-          "speakerId": "speaker-006"
-        },
-        {
-          "timeSlot": "14g45-15g00",
-          "title": "Thảo luận và Q&A",
-          "speakerId": null
         }
       ],
       "materials": [],
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-11T12:25:27.745Z",
-      "capacity": 50
-    },
-    {
-      "id": "session-1762863927745-e73iitc1p",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "day": 2,
-      "title": "Khai mạc - Giới thiệu đại biểu",
-      "track": "Khai mạc",
-      "description": "Lễ khai mạc hội nghị và giới thiệu các đại biểu tham dự",
-      "descriptionMd": "## Lễ khai mạc\n\nChào mừng quý vị đại biểu tham dự Hội nghị Y học 09 & Y học Liên ngành lần thứ 4",
-      "startTime": "2025-09-21T01:00:00.000Z",
-      "endTime": "2025-09-21T01:30:00.000Z",
-      "room": "Hội trường chính",
-      "type": "Khai mạc",
-      "chairIds": [],
-      "speakers": [],
-      "agendaItems": [
-        {
-          "time": "08:00",
-          "label": "Diễu hành đại biểu"
-        },
-        {
-          "time": "08:10",
-          "label": "Chào cờ và hát quốc ca"
-        },
-        {
-          "time": "08:15",
-          "label": "Phát biểu khai mạc"
-        },
-        {
-          "time": "08:25",
-          "label": "Giới thiệu đại biểu"
-        }
-      ],
-      "materials": [],
-      "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-11T12:25:27.745Z",
-      "capacity": 150
-    },
-    {
-      "id": "session-1762863927745-mlu57emgq",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "day": 2,
-      "title": "UNG THƯ HỌC - Chủ đề: XU HƯỚNG MỚI TRONG ĐIỀU TRỊ UNG THƯ",
-      "track": "Ung thư học",
-      "description": "Các tiến bộ mới nhất trong điều trị ung thư và y học chính xác",
-      "descriptionMd": "## Xu hướng mới trong điều trị ung thư\n\n- Liệu pháp miễn dịch\n- Y học chính xác\n- Điều trị đích molecular\n- Chăm sóc giảm nhẹ",
-      "startTime": "2025-09-21T02:00:00.000Z",
-      "endTime": "2025-09-21T04:30:00.000Z",
-      "room": "Hội trường chính",
-      "type": "Báo cáo chuyên đề",
-      "chairIds": [
-        "speaker-005"
-      ],
-      "speakers": [
-        {
-          "speakerId": "speaker-001",
-          "talkTitle": "Liệu pháp miễn dịch trong điều trị ung thư phổi",
-          "startTime": "2025-09-21T02:00:00.000Z",
-          "endTime": "2025-09-21T02:30:00.000Z"
-        },
-        {
-          "speakerId": "speaker-002",
-          "talkTitle": "Y học chính xác: Cá thể hóa điều trị ung thư",
-          "startTime": "2025-09-21T02:30:00.000Z",
-          "endTime": "2025-09-21T03:00:00.000Z"
-        },
-        {
-          "speakerId": "speaker-005",
-          "talkTitle": "Điều trị đích trong ung thư vú HER2 dương tính",
-          "startTime": "2025-09-21T03:00:00.000Z",
-          "endTime": "2025-09-21T03:30:00.000Z"
-        },
-        {
-          "speakerId": "speaker-006",
-          "talkTitle": "Chăm sóc giảm nhẹ và quản lý triệu chứng",
-          "startTime": "2025-09-21T03:30:00.000Z",
-          "endTime": "2025-09-21T04:00:00.000Z"
-        }
-      ],
-      "agendaItems": [
-        {
-          "time": "09:00",
-          "label": "Giới thiệu phiên"
-        },
-        {
-          "time": "09:00",
-          "label": "Báo cáo 1: Liệu pháp miễn dịch"
-        },
-        {
-          "time": "09:30",
-          "label": "Báo cáo 2: Y học chính xác"
-        },
-        {
-          "time": "10:00",
-          "label": "Báo cáo 3: Điều trị đích HER2+"
-        },
-        {
-          "time": "10:30",
-          "label": "Báo cáo 4: Chăm sóc giảm nhẹ"
-        },
-        {
-          "time": "11:00",
-          "label": "Thảo luận chung"
-        }
-      ],
-      "materials": [
-        {
-          "type": "pdf",
-          "title": "Tài liệu phiên Ung thư học",
-          "url": "/materials/session-004-cancer.pdf"
-        },
-        {
-          "type": "video",
-          "title": "Video hướng dẫn liệu pháp miễn dịch",
-          "url": "https://www.youtube.com/watch?v=example"
-        }
-      ],
-      "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-11T12:25:27.745Z",
-      "capacity": 75
+      "updatedAt": "2025-11-13T07:38:45.031Z",
+      "capacity": 50,
+      "allowCmeCertificate": true
     },
     {
       "day": 1,
-      "title": "PHIÊN TOÀN THỂ ",
-      "track": "PHIÊN TOÀN THỂ  ",
+      "title": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN 1",
+      "track": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN",
       "description": "",
       "descriptionMd": "",
-      "startTime": "2025-11-11T11:29",
-      "endTime": "2025-11-11T21:29",
-      "room": "Đại Giảng đường",
-      "type": "Toàn thể",
-      "chairIds": [],
+      "startTime": "2025-11-13T19:30",
+      "endTime": "2025-11-13T21:30",
+      "room": "Giảng đường 1",
+      "type": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN",
+      "chairIds": [
+        "speaker-1762863927749-8l16o799l",
+        "speaker-1763032434642-o1lzx3ooj"
+      ],
       "agendaItems": [
         {
-          "timeSlot": "9h00 – 9h30",
-          "title": "Luật sửa đổi, bổ sung một số điều của Luật Dược",
-          "speakerId": "speaker-002",
-          "notes": ""
+          "timeSlot": "13h30 - 13h45",
+          "title": "Những tiến bộ trong nghiên cứu thành phần hóa học của Sâm Việt Nam (Panax vietnamensis)",
+          "speakerId": null,
+          "notes": "TS. Lê Thị Hồng Vân, \nBộ môn Dược liệu - \nDược học cổ truyền"
         },
         {
-          "timeSlot": "9h30 – 10h00",
-          "title": "Therapeutic drug monitoring: USA clinical pharmacists role for serious Gram-negative infections",
-          "speakerId": "speaker-003",
-          "notes": ""
+          "timeSlot": "13h45 - 14h00",
+          "title": "Nghiên cứu tối ưu hóa quy trình chiết xuất và đánh giá tác dụng hạ đường huyết của cao chiết lá Đàn hương trắng (Santalum album L.) tại Việt Nam",
+          "speakerId": null,
+          "notes": "ThS. Phan Thị Kim Phụng"
+        },
+        {
+          "timeSlot": "14h00 - 14h15",
+          "title": "Nghiên cứu thành phần hoá học hướng tác dụng trên xanthin oxidase của cây Ngải bún (Bosenbergia pandurata Roxb. Schtr.)",
+          "speakerId": null,
+          "notes": "ThS. Nguyễn Hải Tân"
+        },
+        {
+          "timeSlot": "14h15 - 14h30",
+          "title": "Nghiên cứu thành phần hoá học hướng tác dụng trên xanthin oxidase của cây Rau khúc",
+          "speakerId": null,
+          "notes": "ThS. Cao Lý Tấn Thông"
         }
       ],
       "materials": [],
-      "capacity": 8,
+      "capacity": 100,
       "allowCmeCertificate": true,
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "id": "session-1762863927745-a64kuxd9j",
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-11T12:27:52.430Z"
+      "updatedAt": "2025-11-16T09:39:48.246Z"
+    },
+    {
+      "day": 1,
+      "title": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN 2",
+      "track": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-14T15:30",
+      "endTime": "2025-11-14T16:15",
+      "room": "Giảng đường 1",
+      "type": "PHIÊN DƯỢC LIỆU - DƯỢC CỔ TRUYỀN",
+      "chairIds": [
+        "speaker-1763032528645-y3ssqearm",
+        "speaker-1763032490057-5hw1ozy41"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "15h30 - 15h45",
+          "title": "Nghiên cứu thành phần tinh dầu của bộ phận dưới mặt đất của Sâm Việt Nam và các loài Panax phổ biến khác",
+          "speakerId": null,
+          "notes": "TS. Lê Thị Hồng Vân,\nBộ môn Dược liệu - \nDược học cổ truyền"
+        },
+        {
+          "timeSlot": "15h45 - 16h00",
+          "title": "Nghiên cứu thành phần hóa học Hồ đằng rễ mành (Cissus verticillate) theo hướng tác dụng ức chế α-glucosidase",
+          "speakerId": null,
+          "notes": "ThS. Trần Thạch Thảo"
+        },
+        {
+          "timeSlot": "16h00 - 16h15",
+          "title": "Phân tích đa dạng hình thái và di truyền của 8 loài Curcuma và Zingiber - họ Gừng Zingiberaceaae",
+          "speakerId": "speaker-1762863927749-6a6jci523",
+          "notes": "TS. Nguyễn Thị Ngọc Hương,\nBộ môn Dược liệu - \nDược học cổ truyền"
+        }
+      ],
+      "materials": [],
+      "capacity": 100,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763020160524-0qjeqvvex",
+      "createdAt": "2025-11-13T07:49:20.524Z",
+      "updatedAt": "2025-11-16T09:39:18.370Z"
+    },
+    {
+      "day": 2,
+      "title": "PHIÊN VI SINH – KÝ SINH",
+      "track": "PHIÊN VI SINH – KÝ SINH",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-15T08:00",
+      "endTime": "2025-11-15T09:05",
+      "room": "Phòng họp",
+      "type": "PHIÊN VI SINH – KÝ SINH",
+      "chairIds": [
+        "speaker-1763032769167-moysjr8kb",
+        "speaker-1763032811537-mpngy09nu"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "8h00 - 8h20",
+          "title": "Peptide-based drug development: a path forward inspired by tyrosine kinase inhibition",
+          "speakerId": null,
+          "notes": "Assoc.Prof. Kiattawee Choowongkomon, \nDepartment of Biochemistry, Faculty of Science, Kasetsart University (Thailand)"
+        },
+        {
+          "timeSlot": "8h20 - 8h35",
+          "title": "Phân tích biểu hiện hsa-miR-4783-3p trong chẩn đoán ung thư tuyến tiền liệt: tiếp cận kết hợp máy học và tin sinh học",
+          "speakerId": null,
+          "notes": "ThS. Quang Trọng Minh, \nBộ môn Vi sinh - Ký sinh"
+        },
+        {
+          "timeSlot": "8h35 - 8h50",
+          "title": "Khảo sát hiện tượng dị kháng kháng sinh của vi khuẩn Acinetobacter baumarnni phân lập từ bệnh phẩm",
+          "speakerId": null,
+          "notes": "DS. Đỗ Mai Xuân Diệu,\nBộ môn Vi sinh - Ký sinh"
+        },
+        {
+          "timeSlot": "8h50 - 9h05",
+          "title": "Khảo sát hoạt tính kháng MRSA của vi nấm nội sinh từ cây Mã đề",
+          "speakerId": null,
+          "notes": "TS. Nguyễn Vũ Giang Bắc, \nBộ môn Vi sinh - Ký sinh"
+        }
+      ],
+      "materials": [],
+      "capacity": 80,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763020773185-5p4lhyqqk",
+      "createdAt": "2025-11-13T07:59:33.185Z",
+      "updatedAt": "2025-11-13T11:21:16.535Z"
+    },
+    {
+      "day": 1,
+      "title": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ 1",
+      "track": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ 1",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-16T13:30",
+      "endTime": "2025-11-16T14:30",
+      "room": "Giảng đường 2",
+      "type": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ",
+      "chairIds": [
+        "speaker-1763286101002-z3v7sadar",
+        "speaker-1763286151706-rh94catx8"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "13h30 - 13h45",
+          "title": "Xây dựng quy trình định lượng đồng thời caffein và một số polyphenol trong vỏ quả Cà phê - Cascara (Coffea canephora) bằng HPLC-PDA",
+          "speakerId": null,
+          "notes": "TS. Nguyễn Thị Ánh Nguyệt\nBộ môn Dược liệu - \nDược học cổ truyền"
+        },
+        {
+          "timeSlot": "13h45 - 14h00",
+          "title": "Điều chế hợp chất ethyl (2s)-2-[(3s,8as)-3-methyl-1,4-dioxooctahydropyrrolo [1,2- a]pyrazin-2-yl]-4-phenylbutanoat (Tạp D của enalapril maleat theo USP 2024)",
+          "speakerId": null,
+          "notes": "DS. Nguyễn Ái Vy"
+        },
+        {
+          "timeSlot": "14h00 - 14h15",
+          "title": "Xây dựng quy trình định lượng đồng thời một số flavonoid chính trong Kinh giới (Elsholtzia ciliata (Thunb.) Hyl.)",
+          "speakerId": null,
+          "notes": "DS. Nguyễn Lê Yến Nhi"
+        },
+        {
+          "timeSlot": "14h15 - 14h30",
+          "title": "Xây dựng quy trình định lượng 5 hợp chất polyphenol chính trong rễ cây Sài hồ nam (Pluchea pteropoda Hemsl.) bằng HPLC-PDA",
+          "speakerId": null,
+          "notes": "DS. Nguyễn Tấn Phát"
+        }
+      ],
+      "materials": [],
+      "capacity": 100,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763286335334-7vfe5w0ai",
+      "createdAt": "2025-11-16T09:45:35.334Z",
+      "updatedAt": "2025-11-16T09:46:52.472Z"
+    },
+    {
+      "day": 1,
+      "title": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ 2",
+      "track": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ 2",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-16T15:30",
+      "endTime": "2025-11-16T16:45",
+      "room": "Giảng đường 2",
+      "type": "PHIÊN KIỂM NGHIỆM - HÓA DƯỢC - HÓA HỮU CƠ",
+      "chairIds": [
+        "speaker-1762863927745-v70vkrqpy"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "15h30 - 15h45",
+          "title": "Khảo sát tiềm năng của limonin trong nghiên cứu thuốc ức chế HPV hướng điều trị ung thư cổ tử cung",
+          "speakerId": null,
+          "notes": "PGS. TS. Nguyễn Thụy Việt Phương\nBộ môn Công nghệ \nthông tin Dược"
+        },
+        {
+          "timeSlot": "15h45 - 16h00",
+          "title": "Nghiên cứu tổng hợp calci carbonat cấu dạng vaterite",
+          "speakerId": null,
+          "notes": "DS. Trần Dương Gia Bảo"
+        },
+        {
+          "timeSlot": "16h00 - 16h15",
+          "title": "Phương pháp oxid hóa mới bằng quang hoạt hóa liên kết C-H benzylic tạo carbonyl bằng gốc tự do nitơ ",
+          "speakerId": null,
+          "notes": "TS. Nguyễn Quí Hiển \nBộ môn Hóa hữu cơ"
+        },
+        {
+          "timeSlot": "16h15 - 16h30",
+          "title": "Mô hình đồ thị phân cấp tích hợp thông tin cấu trúc và tính chất hóa học cho dự đoán hoạt tính",
+          "speakerId": null,
+          "notes": "DS. Tô Văn Thịnh\nBộ môn Hóa hữu cơ"
+        },
+        {
+          "timeSlot": "16h30 - 16h45",
+          "title": "Tổng hợp và đánh giá khả năng ức chế enzym α-glucosidase của một số dẫn xuất của usnic enaminone-1,2,3-triazol gắn kết với dẫn xuất sulfonamid",
+          "speakerId": null,
+          "notes": "TS. Tưởng Lâm Trường\nBộ môn Hóa Dược"
+        }
+      ],
+      "materials": [],
+      "capacity": 100,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763286657861-iltg1k5ps",
+      "createdAt": "2025-11-16T09:50:57.861Z",
+      "updatedAt": "2025-11-16T09:50:57.861Z"
+    },
+    {
+      "day": 1,
+      "title": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC 1",
+      "track": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC 1",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-16T13:30",
+      "endTime": "2025-11-16T14:30",
+      "room": "Phòng họp 1",
+      "type": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC",
+      "chairIds": [
+        "speaker-1762863927749-yxzk3vdci"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "13h30 - 13h45",
+          "title": "Nghiên cứu điều chế vi nang giải phóng có kiểm soát chứa vitexin và isovitexin",
+          "speakerId": null,
+          "notes": "ThS. Đỗ Hoàng Hân\nBộ môn Công nghệ Dược phẩm"
+        },
+        {
+          "timeSlot": "13h45 - 14h00",
+          "title": "Thiết kế và khảo sát độ ổn định hệ niosome phân phối povidon iod",
+          "speakerId": null,
+          "notes": "TS. Huỳnh Trúc Thanh Ngọc\nBộ môn Bào chế"
+        },
+        {
+          "timeSlot": "14h00 - 14h15",
+          "title": "Ứng dụng kỹ thuật tạo hệ phân tán rắn trong điều chế viên nén bao phim gemfibrozil 600 mg",
+          "speakerId": null,
+          "notes": "DS. Nguyễn Huỳnh Tuyên"
+        },
+        {
+          "timeSlot": "14h15 - 14h30",
+          "title": "Xây dựng công thức bào chế viên nang chứa pellet ambroxol hydroclorid 75 mg phóng thích kéo dài",
+          "speakerId": null,
+          "notes": "ThS. Nguyễn Xuân An"
+        }
+      ],
+      "materials": [],
+      "capacity": 80,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763287029418-2ofk5nq3h",
+      "createdAt": "2025-11-16T09:57:09.418Z",
+      "updatedAt": "2025-11-16T09:58:43.248Z"
+    },
+    {
+      "day": 1,
+      "title": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC 2",
+      "track": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC 2",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-16T18:30",
+      "endTime": "2025-11-16T21:00",
+      "room": "Phòng họp 1",
+      "type": "PHIÊN BÀO CHẾ - CÔNG NGHIỆP DƯỢC",
+      "chairIds": [
+        "speaker-1762863927749-k7qgfzkvm"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "15h30 - 15h50",
+          "title": "Nanomedicines and microparticles for the treatment of pulmonary diseases",
+          "speakerId": null,
+          "notes": "Dr. Nicolas Tsapis\nPhó Viện trưởng, \nViện l’Institut Galien Paris-Saclay (IGPS)"
+        },
+        {
+          "timeSlot": "15h50 - 16h05",
+          "title": "Phát triển viên thuốc in 3D hướng đích cho alkaline phosphatase để điều trị viêm loét đại  trực tràng",
+          "speakerId": null,
+          "notes": "TS. Nguyễn Trung Trường Khanh\nBộ môn Bào chế"
+        }
+      ],
+      "materials": [],
+      "capacity": 80,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763288753393-3smiq25ee",
+      "createdAt": "2025-11-16T10:25:53.393Z",
+      "updatedAt": "2025-11-16T11:46:30.711Z"
+    },
+    {
+      "day": 2,
+      "title": "PHIÊN DƯỢC LÝ- HÓA SINH 1",
+      "track": "PHIÊN DƯỢC LÝ- HÓA SINH",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-17T08:00",
+      "endTime": "2025-11-17T08:45",
+      "room": "Giảng đường 1",
+      "type": "PHIÊN DƯỢC LÝ- HÓA SINH",
+      "chairIds": [
+        "speaker-1763032769167-moysjr8kb"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "8h00 - 8h15",
+          "title": "Giá trị lipoprotein (a) ở đối tượng nhân viên khám sức khỏe tổng quát tại Bệnh viện  Thống Nhất",
+          "speakerId": null,
+          "notes": "TS. Ngô Kiến Đức\nBộ môn Hóa sinh"
+        },
+        {
+          "timeSlot": "8h15 - 8h30",
+          "title": "Dẫn chất sesquiterpenoid và hexanorcucurbitacin từ trầm hương loài Aquilaria malaccensis với hoạt tính kháng viêm qua con đường ức chế STAT1/AKT/MAPK/NLRP3",
+          "speakerId": null,
+          "notes": "TS. Mã Chí Thành\nBộ môn Dược liệu - \nDược học cổ truyền"
+        },
+        {
+          "timeSlot": "8h30 - 8h45",
+          "title": "Nghiên cứu tác dụng của cao chiết từ Tri mẫu (Anemarrhenae rhizome) và Hoàng bá (Phellodendri cortex) trên mô hình chuột cái được gây dậy thì sớm ở bằng danazol",
+          "speakerId": null,
+          "notes": "TS. Trịnh Túy An\nTrung tâm Khoa học Công nghệ Dược Sài Gòn"
+        }
+      ],
+      "materials": [],
+      "capacity": 100,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763292864350-7nf4q3rfy",
+      "createdAt": "2025-11-16T11:34:24.350Z",
+      "updatedAt": "2025-11-16T11:39:11.386Z"
+    },
+    {
+      "day": 2,
+      "title": "PHIÊN DƯỢC LÝ- HÓA SINH 2",
+      "track": "PHIÊN DƯỢC LÝ- HÓA SINH 2",
+      "description": "",
+      "descriptionMd": "",
+      "startTime": "2025-11-17T10:00",
+      "endTime": "2025-11-17T10:30",
+      "room": "Giảng đường 1",
+      "type": "PHIÊN DƯỢC LÝ- HÓA SINH",
+      "chairIds": [
+        "speaker-1763032434642-o1lzx3ooj"
+      ],
+      "agendaItems": [
+        {
+          "timeSlot": "10h00 - 10h15",
+          "title": "Sàng lọc in vitro, in silico hoạt tính ức chế enzym HIV-1 Reverse Transcriptase của dẫn chất auron và chalcon",
+          "speakerId": null,
+          "notes": "PGS. TS. Võ Thị Cẩm Vân\nBộ môn Hóa Dược"
+        },
+        {
+          "timeSlot": "10h15 - 10h30",
+          "title": "Khảo sát chỉ dấu AFP, PIVKA-II của bệnh nhân ung thư biểu mô tế bào gan tại Bệnh viện Bình Dân giai đoạn 2022-2023",
+          "speakerId": null,
+          "notes": "ThS. Phạm Diễm Thu\nBộ môn Hóa sinh"
+        }
+      ],
+      "materials": [],
+      "capacity": 100,
+      "allowCmeCertificate": true,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "session-1763293006670-gk3jhlp0k",
+      "createdAt": "2025-11-16T11:36:46.670Z",
+      "updatedAt": "2025-11-16T11:39:23.208Z"
     }
   ],
   "speakers": [
     {
       "id": "speaker-1762863927745-v70vkrqpy",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Trần Thanh Vỹ",
-      "title": "Phó Giám đốc Bệnh viện Chợ Rẫy",
-      "credentials": "TS.BS",
-      "specialty": "Phẫu thuật lồng ngực - Tim mạch",
-      "photoUrl": "/uploads/image-1762863927745-282480343.png",
-      "bio": "Chuyên gia hàng đầu về phẫu thuật tim mạch với hơn 20 năm kinh nghiệm. Đã thực hiện hơn 5000 ca phẫu thuật tim mạch thành công.",
+      "name": "Trần Thành Đạo",
+      "title": "Giảng viên cao cấp, Hiệu trưởng Trường Dược",
+      "credentials": "GS.TS.DS",
+      "specialty": "Hóa dược",
+      "photoUrl": "/uploads/image-1763005849632-499723058.jpg",
+      "bio": "Đang cập nhật thông tin ...",
       "role": "moderator",
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-12T12:16:40.213Z",
-      "email": "nguyenvothanh04@gmail.com"
+      "updatedAt": "2025-11-13T04:03:55.347Z",
+      "email": ""
     },
     {
       "id": "speaker-1762863927745-s3phpfztc",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Trần Minh Bảo Luân",
-      "title": "Trưởng khoa Tim mạch",
-      "credentials": "TS.BS",
-      "specialty": "Can thiệp tim mạch",
-      "photoUrl": "/uploads/image-1762863927745-229620660.png",
-      "bio": "Chuyên gia điều trị can thiệp tim mạch, giảng viên Đại học Y Dược TP.HCM. Tham gia nhiều nghiên cứu quốc tế về bệnh mạch vành.",
+      "name": "Nguyễn Ngọc Khôi",
+      "title": "Giảng viên cao cấp, Trưởng phòng Đào tạo đại học, Trưởng bộ môn Dược lâm sàng",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Dược lâm sàng",
+      "photoUrl": "/uploads/image-1763005948472-502208364.jpeg",
+      "bio": "Đang cập nhật thông tin ........",
       "role": "moderator",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-13T04:00:35.132Z",
+      "email": ""
     },
     {
       "id": "speaker-1762863927749-8l16o799l",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Nguyễn Văn An",
-      "title": "Giảng viên Đại học Y Dược",
-      "credentials": "PGS.TS",
-      "specialty": "Nội khoa tổng hợp - Đái tháo đường",
-      "photoUrl": "/uploads/image-1762863927749-952451104.jpeg",
-      "bio": "Chuyên gia về bệnh đái tháo đường và rối loạn chuyển hóa. Tác giả của nhiều công trình nghiên cứu về quản lý đái tháo đường trong cộng đồng.",
-      "role": "speaker",
+      "name": "Trần Thị Vân Anh",
+      "title": "Giảng viên cao cấp, Trưởng bộ môn Dược liệu - Dược học cổ truyền",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Dược liệu - Dược học cổ truyền",
+      "photoUrl": "/uploads/image-1763006284451-906570694.jpg",
+      "bio": "Đang cập nhật thông tin ........",
+      "role": "both",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-13T04:00:57.299Z",
+      "email": ""
     },
     {
       "id": "speaker-1762863927749-1lta284jh",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Lê Thị Hương",
-      "title": "Trưởng khoa Y học gia đình",
-      "credentials": "TS.BS",
-      "specialty": "Y học gia đình và chăm sóc sức khỏe ban đầu",
-      "photoUrl": "/uploads/image-1762581008632-161152679.png",
-      "bio": "Chuyên gia y học gia đình với 15 năm kinh nghiệm. Tiên phong trong việc phát triển mô hình y học gia đình tại Việt Nam.",
-      "role": "both",
+      "name": "Nguyễn Đức Tuấn",
+      "title": "Giảng viên cao cấp, Phó Hiệu trưởng Trường Dược, Trưởng bộ môn Phân tích - Kiểm nghiệm",
+      "credentials": "GS.TS.DS",
+      "specialty": "Phân tích - Kiểm nghiệm",
+      "photoUrl": "/uploads/image-1763006119663-303999338.jpg",
+      "bio": "Đang cập nhật thông tin",
+      "role": "moderator",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-13T04:00:44.677Z",
+      "email": ""
     },
     {
       "id": "speaker-1762863927749-k7qgfzkvm",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Phạm Minh Tuấn",
-      "title": "Giám đốc Trung tâm Ung bướu",
-      "credentials": "GS.TS",
-      "specialty": "Ung thư học và Y học chính xác",
-      "photoUrl": "/uploads/image-1762523296899-38553040.png",
-      "bio": "Chuyên gia hàng đầu về điều trị ung thư tại Việt Nam. Chủ trì nhiều dự án nghiên cứu quốc tế về liệu pháp miễn dịch và điều trị đích.",
-      "role": "both",
+      "name": "Nguyễn Thiện Hải",
+      "title": "Giảng viên cao cấp, Phó Hiệu trưởng Trường Dược, Trưởng bộ môn Bào chế",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Bào chế",
+      "photoUrl": "/uploads/image-1763006217523-498468053.jpg",
+      "bio": "Đang cập nhật thông tin ..........",
+      "role": "moderator",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-13T04:00:49.271Z",
+      "email": ""
     },
     {
       "id": "speaker-1762863927749-6a6jci523",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Hoàng Thị Mai",
-      "title": "Phó trưởng khoa Nội tiết",
-      "credentials": "TS.BS",
-      "specialty": "Nội tiết - Đái tháo đường",
-      "photoUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop&crop=faces",
-      "bio": "Chuyên sâu về điều trị đái tháo đường type 2 và các biến chứng mạch máu. Tham gia nhiều chương trình đào tạo bác sĩ điều trị đái tháo đường.",
+      "name": "Nguyễn Thị Ngọc Hương",
+      "title": "Giảng viên bộ môn Dược liệu - Dược học cổ truyền",
+      "credentials": "TS",
+      "specialty": "Sinh vật",
+      "photoUrl": "",
+      "bio": "Đang cập nhật thông tin .......",
       "role": "speaker",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-13T04:02:33.017Z",
+      "email": ""
     },
     {
-      "name": "fghfghfg",
-      "title": "fghfgh",
-      "credentials": "fhgfhghgfv",
-      "specialty": "fghfghfgh",
-      "photoUrl": "/uploads/image-1762863927749-720864585.jpg",
-      "bio": "fgh",
-      "role": "speaker",
+      "name": "Lê Minh Quân",
+      "title": "Trưởng bộ môn Công nghệ dược phẩm",
+      "credentials": "TS",
+      "specialty": "Bào chế",
+      "photoUrl": "/uploads/image-1763006363494-229324253.jpg",
+      "bio": "Đang cập nhật thông tin ...........",
+      "role": "both",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "id": "speaker-1762863927749-yxzk3vdci",
       "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
+      "updatedAt": "2025-11-16T09:58:14.238Z",
+      "email": ""
+    },
+    {
+      "name": "Đỗ Thị Hồng Tươi",
+      "title": "Trưởng phòng Tổ chức cán bộ, Trưởng phòng Quản trị tổng hợp, Giảng viên cao cấp",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Dược lý",
+      "photoUrl": "/uploads/image-1763032360295-309349707.jpg",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763032434642-o1lzx3ooj",
+      "createdAt": "2025-11-13T11:13:54.642Z",
+      "updatedAt": "2025-11-13T11:13:54.642Z"
+    },
+    {
+      "name": "Lê Thị Hồng Vân",
+      "title": "Phó Trưởng bộ môn Dược liệu - Dược học cổ truyền",
+      "credentials": "TS",
+      "specialty": "Dược liệu - Dược học cổ truyền",
+      "photoUrl": "",
+      "bio": "",
+      "email": "",
+      "role": "both",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763032490057-5hw1ozy41",
+      "createdAt": "2025-11-13T11:14:50.057Z",
+      "updatedAt": "2025-11-13T11:14:50.057Z"
+    },
+    {
+      "name": "Trần Hùng",
+      "title": "Giảng viên cao cấp",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Dược liệu - Dược học cổ truyền",
+      "photoUrl": "",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763032528645-y3ssqearm",
+      "createdAt": "2025-11-13T11:15:28.645Z",
+      "updatedAt": "2025-11-13T11:15:28.645Z"
+    },
+    {
+      "name": "Nguyễn Tú Anh",
+      "title": "Trưởng phòng Khoa học - Đào tạo - Đối ngoại, Trưởng bộ môn Vi sinh - Ký sinh, Giảng viên cao cấp",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Vi sinh - Ký sinh",
+      "photoUrl": "/uploads/image-1763032701646-648428274.jpg",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763032769167-moysjr8kb",
+      "createdAt": "2025-11-13T11:19:29.167Z",
+      "updatedAt": "2025-11-13T11:19:29.167Z"
+    },
+    {
+      "name": "Vũ Thanh Thảo",
+      "title": "Phó Trưởng bộ môn Vi sinh - Ký sinh",
+      "credentials": "TS",
+      "specialty": "Vi sinh - Ký sinh",
+      "photoUrl": "",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763032811537-mpngy09nu",
+      "createdAt": "2025-11-13T11:20:11.537Z",
+      "updatedAt": "2025-11-13T11:20:11.537Z"
+    },
+    {
+      "name": "Phan Thanh Dũng",
+      "title": "Trưởng Trung tâm UMP, Phó Trưởng bộ môn Phân tích - Kiểm nghiệm, Giảng viên cao cấp",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Phân tích - Kiểm nghiệm",
+      "photoUrl": "",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763286101002-z3v7sadar",
+      "createdAt": "2025-11-16T09:41:41.002Z",
+      "updatedAt": "2025-11-16T09:43:01.980Z"
+    },
+    {
+      "name": "Trương Ngọc Tuyền",
+      "title": "Trưởng bộ môn Hóa hữu cơ, Giảng viên cao cấp",
+      "credentials": "PGS.TS.DS",
+      "specialty": "Hóa hữu cơ",
+      "photoUrl": "",
+      "bio": "",
+      "email": "",
+      "role": "moderator",
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "speaker-1763286151706-rh94catx8",
+      "createdAt": "2025-11-16T09:42:31.706Z",
+      "updatedAt": "2025-11-16T09:42:31.706Z"
     }
   ],
   "sponsors": [
-    {
-      "id": "sponsor-1762863927749-me7pfv9ak",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "name": "Pfizer Vietnam",
-      "logoUrl": "/uploads/image-1762863927749-473586246.png",
-      "tier": "diamond",
-      "websiteUrl": "https://www.pfizer.com",
-      "displayOrder": 1,
-      "createdAt": "2025-11-11T12:25:27.749Z",
-      "updatedAt": "2025-11-11T12:25:27.749Z"
-    },
     {
       "id": "sponsor-1762863927749-ao62aa2ax",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
@@ -482,76 +794,97 @@
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "createdAt": "2025-11-11T12:25:27.751Z",
       "updatedAt": "2025-11-11T12:25:27.751Z"
+    },
+    {
+      "name": "SERVIER",
+      "logoUrl": "/uploads/image-1763016439570-337820723.png",
+      "tier": "diamond",
+      "websiteUrl": "",
+      "displayOrder": 1,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "sponsor-1763016471442-w8f62svck",
+      "createdAt": "2025-11-13T06:47:51.442Z",
+      "updatedAt": "2025-11-13T06:47:51.442Z"
+    },
+    {
+      "name": "THAINHAN",
+      "logoUrl": "/uploads/image-1763016483547-114789343.png",
+      "tier": "diamond",
+      "websiteUrl": "",
+      "displayOrder": 2,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "sponsor-1763016500650-72gvzi4m0",
+      "createdAt": "2025-11-13T06:48:20.650Z",
+      "updatedAt": "2025-11-13T06:48:44.130Z"
+    },
+    {
+      "name": "PFIZER",
+      "logoUrl": "/uploads/image-1763016532747-665708485.png",
+      "tier": "diamond",
+      "websiteUrl": "",
+      "displayOrder": 3,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "sponsor-1763016549736-qgf1lvdi4",
+      "createdAt": "2025-11-13T06:49:09.736Z",
+      "updatedAt": "2025-11-13T06:49:18.588Z"
     }
   ],
   "announcements": [
     {
-      "id": "announcement-1762863927751-8brkwpeg1",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "title": "Thông báo Hội nghị khoa học liên ngành lần thứ 4",
-      "content": "<p><strong style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Trường Y - Đại học Y Dược Thành phố Hồ Chí Minh trân trọng thông báo về việc triển khai Hội nghị Khoa học Liên ngành lần thứ 4 với chủ đề “Phòng bệnh chủ động - Tương lai vững bền”. Hội nghị Khoa học Liên ngành là sự kiện thường niên quan trọng, nơi các chuyên gia, các nhà khoa học và quý đồng nghiệp cùng nhau chia sẻ những thành tựu nghiên cứu mới nhất, cập nhật kiến thức chuyên môn và thảo luận các vấn đề thời sự trong lĩnh vực y học.</strong></p><p><br></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_01.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_02.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_03.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_04.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_05.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_06.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_07.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_08.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_09.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p><p><span class=\"ql-cursor\">﻿</span><img src=\"https://hnkhkt.ump.edu.vn/Media/images/School%20of%20Medicine/2025/Announcement/th%C3%B4ng%20b%C3%A1o%20ng%C3%A0y%2013082025/TB%20155-HNKHLN%20La%CC%82%CC%80n%204_2025_Page_09.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\"></p>",
-      "excerpt": "Trường Y - Đại học Y Dược Thành phố Hồ Chí Minh trân trọng thông báo về việc triển khai Hội nghị Khoa học Liên ngành lần thứ 4 với chủ đề “Phòng bệnh chủ động - Tương lai vững bền”. Hội nghị Khoa học Liên ngành là sự kiện thường niên quan trọng, nơi các chuyên gia, các nhà khoa học và quý đồng nghiệp cùng nhau chia sẻ những thành tựu nghiên cứu mới nhất, cập nhật kiến thức chuyên môn và thảo luận các vấn đề thời sự trong lĩnh vực y học.",
-      "featuredImageUrl": "/uploads/image-1762687098279-240647983.png",
-      "category": "important",
-      "publishedAt": "2025-11-09T06:00",
-      "createdAt": "2025-11-11T12:25:27.770Z",
-      "updatedAt": "2025-11-11T12:25:27.770Z",
-      "views": 12,
-      "pdfUrl": "/uploads/image-1762863927751-990423905.pdf"
-    },
-    {
       "id": "announcement-1762863927770-inusis174",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "title": "Chủ đề: Phòng bệnh chủ động – Tương lai vững bền",
-      "content": "<p><strong>HỘI NGHỊ Y HỌC LIÊN NGÀNH – LẦN THỨ 4</strong></p><p><strong>Chủ đề:</strong>&nbsp;<strong>Phòng bệnh chủ động – Tương lai vững bền</strong></p><p>Trường Y – Đại học Y Dược TP. Hồ Chí Minh trân trọng thông báo và kính mời quý thầy cô, quý đồng nghiệp và quý đại biểu tham dự&nbsp;<strong>Hội nghị Y học Liên ngành lần thứ 4</strong>, sự kiện khoa học thường niên nơi các chuyên gia y tế chia sẻ nghiên cứu, cập nhật kiến thức và thảo luận các vấn đề thời sự trong lĩnh vực y học.</p><p><strong>Thông tin Hội nghị</strong></p><p class=\"ql-align-justify\">🗓 Thời gian:&nbsp;<strong>20/09/2025</strong></p><p class=\"ql-align-justify\">📍 Địa điểm:&nbsp;<strong>Tòa nhà 15 tầng, Đại học Y Dược TP.HCM, số 217 Hồng Bàng, P. Chợ Lớn, TP.HCM</strong></p><p class=\"ql-align-justify\">👥 Quy mô:&nbsp;<strong>30&nbsp;phiên báo cáo khoa học</strong>, thuộc các chuyên ngành&nbsp;Nội, Ngoại, Sản, Nhi,&nbsp;Ung bướu, Vaccine , Y học gia đình, Chấn thương chỉnh hình, Gây mê hồi sức, Vi sinh, Lão khoa, Nhãn khoa, Tiết niệu,&nbsp;Hồi sức cấp cứu, Thần kinh, và nhiều lĩnh vực khác.</p><p><strong>Đăng ký tham dự</strong></p><p class=\"ql-align-justify\">Thực hiện đăng ký trực tuyến tại:&nbsp;<a href=\"https://hnkhkt.ump.edu.vn/dang-ky-tham-du.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://hnkhkt.ump.edu.vn/dang-ky-tham-du.html</a></p><p class=\"ql-align-justify\">Thời gian đăng ký:&nbsp;<strong>01/08 – 08/09/2025</strong>&nbsp;(hoặc đến khi đủ số lượng đại biểu).</p><p class=\"ql-align-justify\">Lưu ý: Quý đại biểu cần giữ lại&nbsp;<strong>mã QR check-in</strong>&nbsp;để điểm danh và làm khảo sát.</p><p><strong>Phí tham dự quyền lợi</strong></p><p class=\"ql-align-justify\">Tham dự miễn phí (không cấp CME)</p><p class=\"ql-align-justify\">Đăng ký tham dự có cấp Giấy chứng nhận: 500.000đ/ phiên (bao gồm giấy chứng nhận CME, teabreak, cơm trưa)</p><p class=\"ql-align-justify\">Riêng phiên Chấn thương chỉnh hình - phục hồi chức năng (phải đăng kí cả 02 phiên sáng - chiều. ): 1.000.000đ</p><p><strong>Điều kiện cấp giấy CME</strong></p><p class=\"ql-align-justify\">Đóng phí tham dự theo quy định</p><p class=\"ql-align-justify\">Tham dự tối thiểu 90% thời lượng chương trình: Check in bằng mã QR tại hội nghị.&nbsp;</p><p class=\"ql-align-justify\">Hoàn thành khảo sát với điểm ≥ 60% và cung cấp bằng cấp phù hợp: Thực hiện tại Website Hội nghị.&nbsp;</p><p><strong>Thông tin liên hệ:&nbsp;</strong></p><p>Phòng Khoa học – Đào tạo – Đối Ngoại, Trường Y – Đại học Y Dược TP.HCM</p><p>📍 Địa chỉ: Lầu 2, tòa nhà 15 tầng, 217 Hồng Bàng, P. Chợ Lớn, TP.HCM</p><p>✉️ cmeyhocliennganh@ump.edu.vn</p><p>Chương trình chi tiết hội nghị:&nbsp;<a href=\"https://drive.google.com/file/d/1DoVfJ6M_Orxa4C3t4_USse3BfvGO-hvY/view?usp=sharing\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://drive.google.com/file/d/1DoVfJ6M_Orxa4C3t4_USse3BfvGO-hvY/view?usp=sharing</a></p><p>&nbsp;</p><blockquote>Thông báo đăng kí:&nbsp;<a href=\"https://hnkhkt.ump.edu.vn/thong-bao-hoi-nghi-khoa-hoc-lien-nganh-lan-thu-4-7132503948.html\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(51, 51, 51); background-color: transparent;\">https://hnkhkt.ump.edu.vn/thong-bao-hoi-nghi-khoa-hoc-lien-nganh-lan-thu-4-7132503948.html</a></blockquote>",
-      "excerpt": "Chủ đề chính của hội nghị năm 2025",
-      "featuredImageUrl": "/uploads/image-1762686861435-199234682.jpg",
-      "category": "general",
-      "publishedAt": "2025-11-09T12:00",
+      "title": "THÔNG BÁO SỐ 1",
+      "content": "<p>Họi nghị khoa học kỹ thuật Dược lần thứ 41</p>",
+      "excerpt": "Họi nghị khoa học kỹ thuật Dược lần thứ 41",
+      "featuredImageUrl": "/uploads/image-1763015868615-210697969.png",
+      "category": "deadline",
+      "publishedAt": "2025-10-31T09:30",
       "createdAt": "2025-11-11T12:25:27.770Z",
-      "updatedAt": "2025-11-11T12:25:27.770Z",
-      "views": 15,
-      "pdfUrl": ""
+      "updatedAt": "2025-11-13T08:18:39.806Z",
+      "views": 30,
+      "pdfUrl": "/uploads/pdf-1763015876133-777259819.pdf"
     },
     {
-      "id": "announcement-1762863927770-c7vufg8f2",
+      "title": "THÔNG BÁO SỐ 1",
+      "content": "<p>Hội nghị khoa học kỹ thuật Dược lần thứ 41</p>",
+      "excerpt": "Hội nghị khoa học kỹ thuật Dược lần thứ 41",
+      "featuredImageUrl": "/uploads/image-1763016071134-514414388.png",
+      "pdfUrl": "/uploads/pdf-1763016075402-134969088.pdf",
+      "category": "deadline",
+      "publishedAt": "2025-11-12T23:41",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "title": "Thư mời họp mặt nhà tài trợ Hội nghị Y học liên ngành 2025",
-      "content": "<h2 class=\"ql-align-justify\"><strong>Lời đầu tiên, Trường Y, Đại học Y Dược TP. Hồ Chí Minh xin gửi đến Quý Công ty lời chúc sức khoẻ, hạnh phúc và thành công. Với mục tiêu nâng cao chất lượng chăm sóc sức khoẻ cộng đồng và thúc đẩy chiến lược phòng ngừa tiên phát và thứ phát các bệnh lý thường gặp, Trường Y, Đại học Y Dược TP. Hồ Chí Minh tổ chức:</strong></h2><h2 class=\"ql-align-justify\"><strong>HỘI NGHỊ Y HỌC LIÊN NGÀNH - LẦN THỨ 4</strong></h2><h2 class=\"ql-align-justify\"><strong>Chủ đề: “PHÒNG BỆNH CHỦ ĐỘNG - TƯƠNG LAI VỮNG BỀN”</strong></h2><p class=\"ql-align-justify\"><img src=\"https://hnkhkt.ump.edu.vn/Media/files/[Web%20HNKH][Thong%20bao]Thu%CC%9B%20mo%CC%9B%CC%80i%20ho%CC%A3p%20ma%CC%A3%CC%86t%20nha%CC%80%20ta%CC%80i%20tro%CC%9B%CC%A3%202025%20July%2028_Page_1.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"1200\" width=\"793\"></p><p class=\"ql-align-justify\"><img src=\"https://hnkhkt.ump.edu.vn/Media/files/[Web%20HNKH][Thong%20bao]Thu%CC%9B%20mo%CC%9B%CC%80i%20ho%CC%A3p%20ma%CC%A3%CC%86t%20nha%CC%80%20ta%CC%80i%20tro%CC%9B%CC%A3%202025%20July%2028_Page_2.png\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"1200\" width=\"782\"></p><p class=\"ql-align-right\"><em>Nguồn phát hành:</em>&nbsp;<strong>Hội nghị Y học liên ngành</strong></p>",
-      "excerpt": "Lời đầu tiên, Trường Y, Đại học Y Dược TP. Hồ Chí Minh xin gửi đến Quý Công ty lời chúc sức khoẻ, hạnh phúc và thành công. Với mục tiêu nâng cao chất lượng chăm sóc sức khoẻ cộng đồng và thúc đẩy chiến lược phòng ngừa tiên phát và thứ phát các bệnh lý thường gặp, Trường Y, Đại học Y Dược TP. Hồ Chí Minh tổ chức:\n\nHỘI NGHỊ Y HỌC LIÊN NGÀNH - LẦN THỨ 4",
-      "featuredImageUrl": "/uploads/image-1762863927770-50298079.png",
-      "category": "important",
-      "publishedAt": "2025-11-09T03:00",
-      "createdAt": "2025-11-11T12:25:27.771Z",
-      "updatedAt": "2025-11-11T12:25:27.771Z",
-      "pdfUrl": ""
-    },
-    {
-      "title": "Cách thức đăng kí thông tin xuất hóa đơn - Hội nghị khoa học liên ngành lần 4",
-      "content": "<p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Ban tổ chức dự Hội nghị Khoa học Liên ngành - Lần thứ 4 xin thông báo:</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Quý đại biểu có nhu cầu xuất hóa đơn xin vui lòng điền thông đầy đủ thông tin vào&nbsp;</span><a href=\"https://hnkhkt.ump.edu.vn/Media/files/School%20of%20Medicine/2025/Announcement/PHIEU%20YEU%20CAU%20XUAT%20HOA%20DON.docx\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(77, 77, 230);\">Phiếu yêu cầu xuất hóa đơn</a><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">và gửi kèm ảnh chụp ủy nhiệm chi của ngân hàng gửi về Trung tâm đào tạo nhân lực y tế theo nhu cầu xã hội theo:</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Email:&nbsp;</span><a href=\"mailto:hoadonchpt@gmail.com\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(77, 153, 230);\">hoadonchpt@gmail.com</a></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Số điện thoại:&nbsp;</span><span style=\"color: rgb(77, 153, 230); background-color: rgb(255, 255, 255);\"> (028) 3853920</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(76, 76, 76);\">Trân trọng.</span></p>",
-      "excerpt": "Cách thức đăng kí thông tin xuất hóa đơn - Hội nghị khoa học liên ngành lần 4",
-      "featuredImageUrl": "/uploads/image-1762863927771-336268027.jpg",
-      "category": "general",
-      "publishedAt": "2025-11-06T20:32",
-      "id": "announcement-1762863927771-xv4ws2kmd",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "createdAt": "2025-11-11T12:25:27.771Z",
-      "updatedAt": "2025-11-11T12:25:27.771Z",
-      "views": 1,
-      "pdfUrl": ""
+      "views": 4,
+      "id": "announcement-1763016115028-hvvwcymz0",
+      "createdAt": "2025-11-13T06:41:55.028Z",
+      "updatedAt": "2025-11-13T08:18:31.289Z"
     }
   ],
   "sightseeing": [
     {
       "title": "Một số địa điểm tham quan trải nghiệm tại TP. HCM",
-      "content": "<p class=\"ql-align-justify\"><strong>1. Dinh Độc Lập (Independence Palace)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Đây là một công trình trong nhà hoàn hảo để tránh những cơn mưa bất chợt. Bạn có thể dành hàng giờ để tham quan các phòng ốc, tìm hiểu về lịch sử mà không bị ảnh hưởng bởi thời tiết. Hơn nữa, khuôn viên cây xanh rộng lớn của Dinh sau cơn mưa sẽ trở nên tươi mát và đầy sức sống, rất lý tưởng để dạo chơi và chụp ảnh.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Khám phá kiến trúc, tìm hiểu các sự kiện lịch sử quan trọng của Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/1-10.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"789\" width=\"1600\"></p><p class=\"ql-align-justify\"><strong>2. Phố lồng đèn Lương Nhữ Học, Phường Chợ Lớn</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Đây chính là địa điểm mang đậm dấu ấn mùa thu nhất Sài Gòn. Cứ vào dịp Tết Trung Thu (thường rơi vào tháng 8 âm lịch), con phố này lại trở nên rực rỡ với hàng ngàn chiếc lồng đèn đủ màu sắc, hình dáng. Đây là trải nghiệm văn hóa đặc sắc và là nơi để bạn có những bức ảnh \"check-in\" tuyệt đẹp.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Dạo phố, mua sắm lồng đèn, chụp ảnh và hòa mình vào không khí lễ hội.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/pho-long-den-2016-congancomvn-13.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"850\" width=\"1382\"></p><p class=\"ql-align-justify\"><strong>3. Bảo tàng Chứng tích Chiến tranh (War Remnants Museum)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Tương tự Dinh Độc Lập, đây là một điểm tham quan trong nhà, giúp bạn có một lịch trình liền mạch không bị gián đoạn bởi mưa. Bảo tàng mang đến một góc nhìn sâu sắc về lịch sử Việt Nam, là một trải nghiệm đáng giá và đầy cảm xúc.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Tham quan các khu trưng bày hiện vật, hình ảnh và câu chuyện về các cuộc chiến tranh tại Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/291a4f41-bao-tang-chung-tich-chien-tranh-1.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"600\" width=\"1000\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>4. Bưu điện Trung tâm Sài Gòn và Nhà thờ Đức Bà</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Bưu điện Trung tâm với kiến trúc cổ kính là một không gian trong nhà tuyệt đẹp để tham quan. Sau những cơn mưa, khu vực quảng trường trước Nhà thờ Đức Bà trở nên sạch sẽ, không khí trong lành và ánh nắng xiên lúc chiều tà tạo nên một khung cảnh rất lãng mạn, cổ điển kiểu châu Âu.</p><p class=\"ql-align-justify\"><strong>Hoạt động:&nbsp;</strong>Chiêm ngưỡng kiến trúc độc đáo của Bưu điện, gửi bưu thiếp và chụp ảnh với cụm kiến trúc biểu tượng của thành phố.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/nha-tho-duc-ba-buu-dien-trung-tam-sai-gon.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"530\" width=\"800\"></p><p class=\"ql-align-justify\"><strong>5. Saigon Skydeck tại Tháp tài chính Bitexco</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Ngắm nhìn thành phố từ trên cao khi một cơn mưa đang kéo đến hoặc vừa đi qua là một trải nghiệm vô cùng đặc biệt. Bạn sẽ được chứng kiến một Sài Gòn hùng vĩ, và nếu may mắn, bạn sẽ bắt được khoảnh khắc cầu vồng tuyệt đẹp sau mưa. Đây là một cách độc đáo để cảm nhận sự thay đổi của đất trời Sài Gòn.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Quan sát toàn cảnh 360 độ của thành phố, sử dụng ống nhòm để xem các địa danh và thưởng thức cà phê từ trên cao.</p><p class=\"ql-align-justify\"><strong>Gợi ý thêm:&nbsp;</strong>Mùa thu Sài Gòn là thời điểm lý tưởng để ngồi trong một quán cà phê có cửa sổ lớn, đọc một cuốn sách và ngắm những hạt mưa rơi. Chúc bạn có một chuyến đi thật nhiều trải nghiệm thú&nbsp;</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/Eon-Coffee-Shop.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p><p class=\"ql-align-justify\"><strong>6.Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;</strong></p><p class=\"ql-align-justify\">Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;của TP.HCM là một công trình giao thông hiện đại và cũng là một \"điểm tham quan\" mới rất được người dân và du khách quan tâm. Dưới đây là những thông tin tổng quan về tuyến Metro để bạn tham khảo cho chuyến tham quan của mình.</p><p class=\"ql-align-justify\">Thời gian hoạt động:&nbsp;Thường từ khoảng 5:00 sáng đến 22:00 tối hàng ngày.</p><p class=\"ql-align-justify\"><strong>Tần suất:</strong></p><p class=\"ql-align-justify\"><strong>Giờ cao điểm:</strong>&nbsp;Khoảng 8 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giờ bình thường:&nbsp;</strong>Khoảng 12 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giá vé:</strong>&nbsp;Vé được tính theo chặng. Giá vé lượt dao động từ khoảng 7.000 VNĐ đến 20.000 VNĐ cho toàn tuyến. Bạn có thể mua vé tại các máy bán vé tự động ở nhà ga.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/metro-so-1-ben-thanh-suoi-tien-36-1735785711.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p>",
+      "content": "<p class=\"ql-align-justify\"><strong>1. Dinh Độc Lập (Independence Palace)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Đây là một công trình trong nhà hoàn hảo để tránh những cơn mưa bất chợt. Bạn có thể dành hàng giờ để tham quan các phòng ốc, tìm hiểu về lịch sử mà không bị ảnh hưởng bởi thời tiết. Hơn nữa, khuôn viên cây xanh rộng lớn của Dinh sau cơn mưa sẽ trở nên tươi mát và đầy sức sống, rất lý tưởng để dạo chơi và chụp ảnh.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Khám phá kiến trúc, tìm hiểu các sự kiện lịch sử quan trọng của Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/1-10.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"789\" width=\"1600\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>2. Phố lồng đèn Lương Nhữ Học, Phường Chợ Lớn</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Đây chính là địa điểm mang đậm dấu ấn mùa thu nhất Sài Gòn. Cứ vào dịp Tết Trung Thu (thường rơi vào tháng 8 âm lịch), con phố này lại trở nên rực rỡ với hàng ngàn chiếc lồng đèn đủ màu sắc, hình dáng. Đây là trải nghiệm văn hóa đặc sắc và là nơi để bạn có những bức ảnh \"check-in\" tuyệt đẹp.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Dạo phố, mua sắm lồng đèn, chụp ảnh và hòa mình vào không khí lễ hội.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/pho-long-den-2016-congancomvn-13.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"850\" width=\"1382\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>3. Bảo tàng Chứng tích Chiến tranh (War Remnants Museum)</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Tương tự Dinh Độc Lập, đây là một điểm tham quan trong nhà, giúp bạn có một lịch trình liền mạch không bị gián đoạn bởi mưa. Bảo tàng mang đến một góc nhìn sâu sắc về lịch sử Việt Nam, là một trải nghiệm đáng giá và đầy cảm xúc.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Tham quan các khu trưng bày hiện vật, hình ảnh và câu chuyện về các cuộc chiến tranh tại Việt Nam.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/291a4f41-bao-tang-chung-tich-chien-tranh-1.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"600\" width=\"1000\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>4. Bưu điện Trung tâm Sài Gòn và Nhà thờ Đức Bà</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:&nbsp;</strong>Bưu điện Trung tâm với kiến trúc cổ kính là một không gian trong nhà tuyệt đẹp để tham quan. Sau những cơn mưa, khu vực quảng trường trước Nhà thờ Đức Bà trở nên sạch sẽ, không khí trong lành và ánh nắng xiên lúc chiều tà tạo nên một khung cảnh rất lãng mạn, cổ điển kiểu châu Âu.</p><p class=\"ql-align-justify\"><strong>Hoạt động:&nbsp;</strong>Chiêm ngưỡng kiến trúc độc đáo của Bưu điện, gửi bưu thiếp và chụp ảnh với cụm kiến trúc biểu tượng của thành phố.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/nha-tho-duc-ba-buu-dien-trung-tam-sai-gon.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"530\" width=\"800\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>5. Saigon Skydeck tại Tháp tài chính Bitexco</strong></p><p class=\"ql-align-justify\"><strong>Lý do nên đi vào mùa thu:</strong>&nbsp;Ngắm nhìn thành phố từ trên cao khi một cơn mưa đang kéo đến hoặc vừa đi qua là một trải nghiệm vô cùng đặc biệt. Bạn sẽ được chứng kiến một Sài Gòn hùng vĩ, và nếu may mắn, bạn sẽ bắt được khoảnh khắc cầu vồng tuyệt đẹp sau mưa. Đây là một cách độc đáo để cảm nhận sự thay đổi của đất trời Sài Gòn.</p><p class=\"ql-align-justify\"><strong>Hoạt động:</strong>&nbsp;Quan sát toàn cảnh 360 độ của thành phố, sử dụng ống nhòm để xem các địa danh và thưởng thức cà phê từ trên cao.</p><p class=\"ql-align-justify\"><strong>Gợi ý thêm:&nbsp;</strong>Mùa thu Sài Gòn là thời điểm lý tưởng để ngồi trong một quán cà phê có cửa sổ lớn, đọc một cuốn sách và ngắm những hạt mưa rơi. Chúc bạn có một chuyến đi thật nhiều trải nghiệm thú&nbsp;</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/Eon-Coffee-Shop.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><strong>6.Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;</strong></p><p class=\"ql-align-justify\">Tuyến Metro số 1 (Bến Thành - Suối Tiên)&nbsp;của TP.HCM là một công trình giao thông hiện đại và cũng là một \"điểm tham quan\" mới rất được người dân và du khách quan tâm. Dưới đây là những thông tin tổng quan về tuyến Metro để bạn tham khảo cho chuyến tham quan của mình.</p><p class=\"ql-align-justify\">Thời gian hoạt động:&nbsp;Thường từ khoảng 5:00 sáng đến 22:00 tối hàng ngày.</p><p class=\"ql-align-justify\"><strong>Tần suất:</strong></p><p class=\"ql-align-justify\"><strong>Giờ cao điểm:</strong>&nbsp;Khoảng 8 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giờ bình thường:&nbsp;</strong>Khoảng 12 phút/chuyến.</p><p class=\"ql-align-justify\"><strong>Giá vé:</strong>&nbsp;Vé được tính theo chặng. Giá vé lượt dao động từ khoảng 7.000 VNĐ đến 20.000 VNĐ cho toàn tuyến. Bạn có thể mua vé tại các máy bán vé tự động ở nhà ga.</p><p><img src=\"https://hnkhkt.ump.edu.vn/Media/files/metro-so-1-ben-thanh-suoi-tien-36-1735785711.jpg\" alt=\"Hội nghị Khoa học Ng&amp;#224;nh Y\" height=\"533\" width=\"800\"></p><p><br></p><h3><strong>7.Thiên đường giải trí Công viên Landmark 81</strong></h3><p>Với quy mô đầu tư lên đến 500 tỷ, <em>địa chỉ công viên Landmark 81</em> nhanh chóng trở thành một trong những điểm đến tham quan thú vị bậc nhất tại TP. Hồ Chí Minh. Đại công viên được lấy cảm hứng từ kỳ quan nổi tiếng Central Park của thành phố New York, từ đó mang trong mình sự giao thoa hài hòa của nhiều nền văn hóa độc đáo trên thế giới.&nbsp;</p><p>Nằm ngay sát <strong>địa chỉ&nbsp;Landmark 81</strong>, vẻ đẹp nơi đây xứng tầm thời thượng khi quy tụ hơn 40 hạng mục tiện ích cao cấp và hàng loạt các địa điểm ngắm cảnh tuyệt đẹp. Đặc biệt, bãi cỏ xanh trải dài cùng background “độc nhất” là tòa tháp cao nhất Việt Nam đang tạo nên cơn sốt, trở thành điểm cắm trại và dã ngoại ưa thích của giới trẻ Sài Thành.&nbsp;</p><p>Đặc biệt, <a href=\"https://vinhomes.vn/vi/cong-vien-landmark-81-dau-an-new-york-giua-long-sai-gon\" rel=\"noopener noreferrer\" target=\"_blank\"><strong>Công viên Landmark 81</strong></a> với diện tích rộng lớn được bao quanh bởi dòng sông Sài Gòn còn góp phần kiến tạo nên hệ sinh thái xanh trù phú nơi đại đô thị mang thương hiệu <a href=\"https://vinhomes.vn/\" rel=\"noopener noreferrer\" target=\"_blank\"><strong>Vinhomes</strong></a>. Các hoạt động như dạo bộ trên bờ sông xanh mát hay tập luyện thể thao giữa bầu không khí trong lành, tránh xa khói bụi thành phố tại đây chắc chắn sẽ mang đến những giờ phút nghỉ ngơi thư thái cho toàn bộ cư dân.&nbsp;<strong>&nbsp;</strong></p><p><img src=\"https://storage.googleapis.com/vinhomes-data-02/hinh-anh-dia-chi-landmark-81-o-dau-landmark-81-co-gi-so-1_1633062945.jpeg\" alt=\"hinh anh dia chi landmark 81 o dau landmark 81 co gi so 1\"></p>",
       "excerpt": "Một số địa điểm tham quan trải nghiệm tại TP. HCM",
       "featuredImageUrl": "/uploads/image-1762863927771-256376182.jpg",
       "id": "sightseeing-1762863927771-d9sremu63",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "createdAt": "2025-11-11T12:25:27.771Z",
-      "updatedAt": "2025-11-11T12:25:27.771Z"
+      "updatedAt": "2025-11-13T06:31:50.999Z"
     }
   ],
-  "whitelists": []
+  "whitelists": [],
+  "organizers": [
+    {
+      "name": "dfgdfg",
+      "title": "dfgdfg",
+      "credentials": "dfgdfgdfg",
+      "photoUrl": "/uploads/image-1763384564416-249922500.jpeg",
+      "bio": "sdfjklfsdjklsdfjlksdfjklsdfsdfsdfs",
+      "organizingRole": "Trưởng Ban",
+      "displayOrder": 0,
+      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
+      "id": "organizer-1763384572799-oo0dg301r",
+      "createdAt": "2025-11-17T13:02:52.799Z",
+      "updatedAt": "2025-11-17T13:06:27.943Z"
+    }
+  ]
 }

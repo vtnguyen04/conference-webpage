@@ -51,6 +51,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
     const allItems = [
       { href: isCurrentActive ? "/program" : `/conference/${conference.slug}/program`, label: "Chương trình hội nghị" },
       { href: isCurrentActive ? "/speakers" : `/conference/${conference.slug}/speakers`, label: "Chủ tọa & Diễn giả" },
+      { href: isCurrentActive ? "/organizers" : `/conference/${conference.slug}/organizers`, label: "Ban tổ chức" },
       { href: isCurrentActive ? "/sponsors" : `/conference/${conference.slug}/sponsors`, label: "Đơn vị tài trợ" },
       { href: isCurrentActive ? "/announcements" : `/conference/${conference.slug}/announcements`, label: "Thông báo" },
       { href: isCurrentActive ? "/documents" : `/conference/${conference.slug}/documents`, label: "Tài liệu báo cáo" },
@@ -67,6 +68,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
   const navItems = [
     { href: "/", label: "TRANG CHỦ" },
     { href: "/about", label: "GIỚI THIỆU" },
+    { href: "/organizers", label: "BAN TỔ CHỨC" },
   ];
 
   const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
@@ -75,8 +77,8 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
       className={cn(
         "relative px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
         location === href
-          ? "text-blue-600 font-semibold"
-          : "text-slate-700 hover:text-blue-600"
+          ? "text-teal-600 font-semibold"
+          : "text-slate-700 hover:text-teal-600"
       )}
     >
       {children}
@@ -126,8 +128,8 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                     <button
                       className={cn(
                         "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-200 mx-1 uppercase",
-                        "text-slate-700 hover:text-blue-600",
-                        location.startsWith(`/conference/${activeConference.slug}`) && "text-blue-600 font-semibold"
+                        "text-slate-700 hover:text-teal-600",
+                        location.startsWith(`/conference/${activeConference.slug}`) && "text-teal-600 font-semibold"
                       )}
                     >
                       {activeConference.name}
@@ -149,7 +151,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   <button
                     className={cn(
                       "flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-200 mx-1",
-                      "text-slate-700 hover:text-blue-600"
+                      "text-slate-700 hover:text-teal-600"
                     )}
                   >
                     CÁC KỲ HỘI NGHỊ
@@ -188,7 +190,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
             <div className="hidden lg:block flex-shrink-0">
               <Link href="/register">
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 text-sm"
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-medium px-6 py-2 text-sm"
                 >
                   Đăng ký tham dự
                 </Button>
@@ -214,7 +216,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   className={cn(
                     "block px-4 py-3 text-sm font-medium transition-colors rounded-lg",
                     location === item.href
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-teal-50 text-teal-700"
                       : "text-slate-700 hover:bg-slate-50"
                   )}
                   onClick={() => setMobileMenuOpen(false)}
@@ -282,7 +284,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
               <div className="pt-4 border-t border-slate-200">
                 <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
                   <Button
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3"
                   >
                     Đăng ký tham dự
                   </Button>
@@ -297,7 +299,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
         {children}
       </main>
 
-      <footer className="bg-slate-900 text-white">
+      <footer className="bg-teal-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
@@ -326,7 +328,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                 
                 {activeConference?.location && (
                   <div className="flex items-start gap-3 text-sm">
-                    <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-400" />
+                    <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-teal-400" />
                     <span className="text-slate-300">
                       {activeConference.location}
                     </span>
@@ -335,7 +337,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
 
                 {activeConference?.contactPhone && (
                   <div className="flex items-center gap-3 text-sm">
-                    <Phone className="h-4 w-4 flex-shrink-0 text-blue-400" />
+                    <Phone className="h-4 w-4 flex-shrink-0 text-teal-400" />
                     <span className="text-slate-300">
                       <span className="font-medium">Điện thoại:</span> {activeConference.contactPhone}
                     </span>
@@ -344,7 +346,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
 
                 {activeConference?.contactEmail && (
                   <div className="flex items-center gap-3 text-sm">
-                    <Mail className="h-4 w-4 flex-shrink-0 text-blue-400" />
+                    <Mail className="h-4 w-4 flex-shrink-0 text-teal-400" />
                     <span className="text-slate-300">
                       <span className="font-medium">Email:</span> {activeConference.contactEmail}
                     </span>

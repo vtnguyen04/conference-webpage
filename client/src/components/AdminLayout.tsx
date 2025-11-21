@@ -77,6 +77,11 @@ const menuItems = [
     label: "Diễn giả"
   },
   {
+    href: "/admin/organizers",
+    icon: Users,
+    label: "Ban tổ chức"
+  },
+  {
     href: "/admin/sponsors",
     icon: Award,
     label: "Nhà tài trợ"

@@ -12,6 +12,7 @@ import type {
   Conference,
   Session,
   Speaker,
+  Organizer,
   Sponsor,
   Announcement,
   Sightseeing,
@@ -22,6 +23,7 @@ interface ConferenceData {
   conference: Conference;
   sessions: Session[];
   speakers: Speaker[];
+  organizers: Organizer[];
   sponsors: Sponsor[];
   announcements: Announcement[];
   sightseeing: Sightseeing[];
@@ -230,6 +232,7 @@ export class JSONStorage {
       conference,
       sessions: [],
       speakers: [],
+      organizers: [],
       sponsors: [],
       announcements: [],
       sightseeing: [],
@@ -283,6 +286,7 @@ export class JSONStorage {
     }
     data.conference.bannerUrls?.forEach(deleteFile);
     data.speakers?.forEach((speaker: Speaker) => deleteFile(speaker.photoUrl));
+    data.organizers?.forEach((organizer: Organizer) => deleteFile(organizer.photoUrl));
     data.sponsors?.forEach((sponsor: Sponsor) => deleteFile(sponsor.logoUrl));
     data.announcements?.forEach((announcement: Announcement) => {
       deleteFile(announcement.featuredImageUrl);
@@ -466,6 +470,87 @@ export class JSONStorage {
 
     data.speakers.forEach((speaker: Speaker) => deleteFile(speaker.photoUrl));
     data.speakers = [];
+    writeConferenceData(slug, data);
+  }
+
+  // Get all organizers for a conference
+  async getOrganizers(slug: string): Promise<Organizer[]> {
+    const data = readConferenceData(slug);
+    return data?.organizers || [];
+  }
+
+  // Get an organizer by ID
+  async getOrganizerById(slug: string, id: string): Promise<Organizer | undefined> {
+    const data = readConferenceData(slug);
+    return data?.organizers.find((organizer: Organizer) => organizer.id === id);
+  }
+
+  // Create a new organizer
+  async createOrganizer(slug: string, organizer: Omit<Organizer, "id" | "createdAt" | "updatedAt">): Promise<Organizer> {
+    const data = readConferenceData(slug);
+    if (!data) throw new Error("Conference not found");
+
+    const newOrganizer: Organizer = {
+      ...organizer,
+      id: `organizer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      conferenceId: data.conference.slug,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (!data.organizers) {
+      data.organizers = [];
+    }
+    data.organizers.push(newOrganizer);
+    writeConferenceData(slug, data);
+    return newOrganizer;
+  }
+
+  // Update an organizer
+  async updateOrganizer(slug: string, id: string, updates: Partial<Organizer>): Promise<Organizer | undefined> {
+    const data = readConferenceData(slug);
+    if (!data || !data.organizers) return undefined;
+
+    const index = data.organizers.findIndex((o: Organizer) => o.id === id);
+    if (index === -1) return undefined;
+
+    const oldOrganizer = data.organizers[index];
+
+    if (updates.photoUrl && updates.photoUrl !== oldOrganizer.photoUrl) {
+      deleteFile(oldOrganizer.photoUrl);
+    }
+
+    data.organizers[index] = {
+      ...oldOrganizer,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    writeConferenceData(slug, data);
+    return data.organizers[index];
+  }
+
+  // Delete an organizer
+  async deleteOrganizer(slug: string, id: string): Promise<void> {
+    const data = readConferenceData(slug);
+    if (!data || !data.organizers) return;
+
+    const organizerToDelete = data.organizers.find((o: Organizer) => o.id === id);
+    if (organizerToDelete) {
+      deleteFile(organizerToDelete.photoUrl);
+    }
+
+    data.organizers = data.organizers.filter((o: Organizer) => o.id !== id);
+    writeConferenceData(slug, data);
+  }
+
+  // Delete all organizers
+  async deleteAllOrganizers(slug: string): Promise<void> {
+    const data = readConferenceData(slug);
+    if (!data || !data.organizers) return;
+
+    data.organizers.forEach((organizer: Organizer) => deleteFile(organizer.photoUrl));
+    data.organizers = [];
     writeConferenceData(slug, data);
   }
 
@@ -817,6 +902,14 @@ export class JSONStorage {
         id: `speaker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         conferenceId: newConferenceSlug,
         photoUrl: cloneFile(s.photoUrl) || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })),
+      organizers: sourceData.organizers.map((o: Organizer) => ({
+        ...o,
+        id: `organizer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        conferenceId: newConferenceSlug,
+        photoUrl: cloneFile(o.photoUrl) || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })),

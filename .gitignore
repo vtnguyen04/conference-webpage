@@ -10,4 +10,4 @@ attached_assets/
 .env
 commit.md
 server/data/*.db
-deploy.md
+# deploy.md

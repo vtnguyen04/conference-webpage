@@ -26,34 +26,34 @@
   --card-foreground: 220 50% 10%;
   --card-border: 220 12% 90%;
 
-  /* Sidebar colors - Royal Blue theme */
-  --sidebar: 228 85% 40%;
+  /* Sidebar colors - Teal theme */
+  --sidebar: 175 85% 40%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 228 75% 35%;
+  --sidebar-border: 175 75% 35%;
   --sidebar-primary: 185 100% 23%;
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 228 70% 45%;
+  --sidebar-accent: 175 70% 45%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 228 100% 60%;
+  --sidebar-ring: 175 100% 60%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 220 50% 10%;
   --popover-border: 220 12% 90%;
 
-  /* PRIMARY: Royal Blue #335CFF - Modern, professional, energetic */
-  --primary: 228 100% 60%;
-  --primary-foreground: 0 0% 100%;
+  /* PRIMARY: Turquoise #40E0D0 - Fresh, innovative, calm */
+  --primary: 175 72% 51%;
+  --primary-foreground: 220 50% 10%;
 
-  /* SECONDARY: Teal #006D77 - Medical trust, credibility */
-  --secondary: 185 100% 23%;
+  /* SECONDARY: Teal #008080 - Trust, credibility */
+  --secondary: 180 100% 25%;
   --secondary-foreground: 0 0% 100%;
 
   /* MUTED: Subtle gray for secondary text */
   --muted: 220 15% 94%;
   --muted-foreground: 220 20% 50%;
 
-  /* ACCENT: Electric Amber #FFC857 - Energy, optimism */
-  --accent: 41 100% 68%;
+  /* ACCENT: Now set to primary color */
+  --accent: 175 72% 51%;
   --accent-foreground: 220 50% 10%;
 
   /* DESTRUCTIVE: Coral #FF6B6B - Warmth, attention */
@@ -61,14 +61,14 @@
   --destructive-foreground: 0 0% 100%;
 
   --input: 220 12% 75%;
-  --ring: 228 100% 60%;
+  --ring: 175 72% 51%;
 
   /* Charts - vibrant palette */
-  --chart-1: 228 100% 60%;  /* Royal Blue */
-  --chart-2: 41 100% 68%;   /* Electric Amber */
-  --chart-3: 185 100% 23%;  /* Teal */
+  --chart-1: 175 72% 51%;  /* Turquoise */
+  --chart-2: 180 100% 25%;  /* Teal */
+  --chart-3: 145 63% 42%;   /* Green accent */
   --chart-4: 0 86% 71%;     /* Coral */
-  --chart-5: 280 65% 52%;   /* Purple accent */
+  --chart-5: 45 95% 55%;    /* Gold accent */
 
   /* Typography */
   --font-sans: Inter, system-ui, -apple-system, sans-serif;
@@ -93,10 +93,10 @@
   --spacing: 0.25rem;
 
   /* Gradient tokens for modern UI */
-  --gradient-hero: linear-gradient(135deg, #FFC857 0%, #FF6B6B 40%, #335CFF 100%);
+  --gradient-hero: linear-gradient(135deg, #40E0D0 0%, #008080 100%);
   --gradient-section: linear-gradient(180deg, #F5F7FB 0%, #FFFFFF 100%);
   --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
-  --gradient-card-hover: linear-gradient(135deg, rgba(51,92,255,0.1) 0%, rgba(255,200,87,0.1) 100%);
+  --gradient-card-hover: linear-gradient(135deg, rgba(64,224,208,0.1) 0%, rgba(0,128,128,0.1) 100%);
 
   /* Automatically computed borders */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
@@ -131,73 +131,73 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  /* Dark backgrounds - deep blue-black */
-  --background: 220 50% 6%;
-  --foreground: 210 25% 95%;
+  /* Dark backgrounds - deep teal-black */
+  --background: 180 50% 6%;
+  --foreground: 175 25% 95%;
 
-  --border: 220 30% 18%;
+  --border: 180 30% 18%;
 
-  --card: 220 45% 10%;
-  --card-foreground: 210 25% 95%;
-  --card-border: 220 30% 20%;
+  --card: 180 45% 10%;
+  --card-foreground: 175 25% 95%;
+  --card-border: 180 30% 20%;
 
-  /* Sidebar - darker royal blue */
-  --sidebar: 228 50% 12%;
-  --sidebar-foreground: 210 25% 92%;
-  --sidebar-border: 228 40% 20%;
+  /* Sidebar - darker teal */
+  --sidebar: 175 50% 12%;
+  --sidebar-foreground: 175 25% 92%;
+  --sidebar-border: 175 40% 20%;
   --sidebar-primary: 185 100% 35%;
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 228 40% 18%;
-  --sidebar-accent-foreground: 210 25% 92%;
-  --sidebar-ring: 228 100% 65%;
+  --sidebar-accent: 175 40% 18%;
+  --sidebar-accent-foreground: 175 25% 92%;
+  --sidebar-ring: 175 100% 65%;
 
-  --popover: 220 45% 12%;
-  --popover-foreground: 210 25% 92%;
-  --popover-border: 220 30% 22%;
+  --popover: 180 45% 12%;
+  --popover-foreground: 175 25% 92%;
+  --popover-border: 180 30% 22%;
 
-  /* PRIMARY: Lighter Royal Blue for dark mode */
-  --primary: 228 100% 65%;
-  --primary-foreground: 0 0% 100%;
+  /* PRIMARY: Lighter Turquoise for dark mode */
+  --primary: 175 72% 60%;
+  --primary-foreground: 220 50% 10%;
 
   /* SECONDARY: Brighter Teal for dark mode */
-  --secondary: 185 100% 35%;
+  --secondary: 180 100% 35%;
   --secondary-foreground: 0 0% 100%;
 
-  --muted: 220 30% 16%;
-  --muted-foreground: 220 20% 65%;
+  --muted: 180 30% 16%;
+  --muted-foreground: 175 20% 65%;
 
-  /* ACCENT: Brighter Electric Amber */
-  --accent: 41 100% 70%;
+  /* ACCENT: Now set to primary color */
+  --accent: 175 72% 60%;
   --accent-foreground: 220 50% 10%;
 
   /* DESTRUCTIVE: Softer Coral */
   --destructive: 0 86% 68%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 220 25% 25%;
-  --ring: 228 100% 65%;
+  --input: 180 25% 25%;
+  --ring: 175 72% 60%;
 
-  --chart-1: 228 100% 70%;
-  --chart-2: 41 100% 72%;
-  --chart-3: 185 100% 40%;
+  --chart-1: 175 72% 65%;
+  --chart-2: 180 100% 40%;
+  --chart-3: 145 63% 50%;
   --chart-4: 0 86% 68%;
-  --chart-5: 280 65% 60%;
+  --chart-5: 45 95% 55%;
 
   /* Dark mode shadows */
-  --shadow-2xs: 0px 1px 2px 0px hsl(220 10% 0% / 0.40);
-  --shadow-xs: 0px 1px 2px 0px hsl(220 10% 0% / 0.45);
-  --shadow-sm: 0px 2px 4px 0px hsl(220 10% 0% / 0.50), 0px 1px 2px -1px hsl(220 10% 0% / 0.50);
-  --shadow: 0px 4px 6px -1px hsl(220 10% 0% / 0.55), 0px 2px 4px -1px hsl(220 10% 0% / 0.55);
-  --shadow-md: 0px 6px 8px -1px hsl(220 10% 0% / 0.60), 0px 2px 4px -1px hsl(220 10% 0% / 0.60);
-  --shadow-lg: 0px 12px 16px -4px hsl(220 10% 0% / 0.65), 0px 4px 6px -2px hsl(220 10% 0% / 0.65);
-  --shadow-xl: 0px 24px 32px -8px hsl(220 10% 0% / 0.70), 0px 8px 12px -4px hsl(220 10% 0% / 0.70);
-  --shadow-2xl: 0px 32px 48px -12px hsl(220 10% 0% / 0.75);
+  --shadow-2xs: 0px 1px 2px 0px hsl(180 10% 0% / 0.40);
+  --shadow-xs: 0px 1px 2px 0px hsl(180 10% 0% / 0.45);
+  --shadow-sm: 0px 2px 4px 0px hsl(180 10% 0% / 0.50), 0px 1px 2px -1px hsl(180 10% 0% / 0.50);
+  --shadow: 0px 4px 6px -1px hsl(180 10% 0% / 0.55), 0px 2px 4px -1px hsl(180 10% 0% / 0.55);
+  --shadow-md: 0px 6px 8px -1px hsl(180 10% 0% / 0.60), 0px 2px 4px -1px hsl(180 10% 0% / 0.60);
+  --shadow-lg: 0px 12px 16px -4px hsl(180 10% 0% / 0.65), 0px 4px 6px -2px hsl(180 10% 0% / 0.65);
+  --shadow-xl: 0px 24px 32px -8px hsl(180 10% 0% / 0.70), 0px 8px 12px -4px hsl(180 10% 0% / 0.70);
+  --shadow-2xl: 0px 32px 48px -12px hsl(180 10% 0% / 0.75);
 
   /* Dark mode gradients - deeper, richer */
-  --gradient-hero: linear-gradient(135deg, #B8860B 0%, #DC143C 40%, #1E40AF 100%);
+  --gradient-hero: linear-gradient(135deg, #20B2AA 0%, #008080 100%);
   --gradient-section: linear-gradient(180deg, #0F172A 0%, #000000 100%);
   --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 100%);
-  --gradient-card-hover: linear-gradient(135deg, rgba(30,64,175,0.2) 0%, rgba(184,134,11,0.2) 100%);
+  --gradient-card-hover: linear-gradient(135deg, rgba(64,224,208,0.2) 0%, rgba(0,128,128,0.2) 100%);
 
   /* Automatically computed borders */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
@@ -221,6 +221,7 @@
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
+
 
 @layer base {
   * {

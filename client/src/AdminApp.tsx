@@ -10,6 +10,7 @@ import DashboardPage from "@/pages/admin/DashboardPage";
 import ConferencePage from "@/pages/admin/ConferencePage";
 import SessionsPage from "@/pages/admin/SessionsPage";
 import SpeakersManagementPage from "@/pages/admin/SpeakersManagementPage";
+import OrganizersManagementPage from "@/pages/admin/OrganizersManagementPage";
 import SponsorsManagementPage from "@/pages/admin/SponsorsManagementPage";
 import AnnouncementsManagementPage from "@/pages/admin/AnnouncementsManagementPage";
 import RegistrationsPage from "@/pages/admin/RegistrationsPage";
@@ -67,6 +68,7 @@ export function AdminApp() {
                   <Route path="/admin/conferences" component={ConferencesManagementPage} />
                   <Route path="/admin/sessions" component={SessionsPage} />
                   <Route path="/admin/speakers" component={SpeakersManagementPage} />
+                  <Route path="/admin/organizers" component={OrganizersManagementPage} />
                   <Route path="/admin/sponsors" component={SponsorsManagementPage} />
                   <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
                   <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
