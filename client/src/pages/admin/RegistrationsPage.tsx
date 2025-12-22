@@ -199,12 +199,11 @@ export default function RegistrationsPage() {
     });
   };
 
-  const getRoleForEmail = (email: string) => {
-    const role = speakerRoles.get(email);
-    if (role === 'moderator') return <Badge variant="outline">Chủ tọa</Badge>;
-    if (role === 'speaker') return <Badge variant="outline">Báo cáo viên</Badge>;
-    if (role === 'both') return <Badge variant="outline">Cả hai</Badge>;
-    return <Badge variant="secondary">Khách</Badge>;
+  const getRoleForRegistration = (registration: Registration) => {
+    if (registration.role === 'moderator') return <Badge variant="outline">Chủ tọa</Badge>;
+    if (registration.role === 'speaker') return <Badge variant="outline">Báo cáo viên</Badge>;
+    if (registration.role === 'both') return <Badge variant="outline">Cả hai</Badge>;
+    return <Badge variant="secondary">Tham dự</Badge>; // Default to participant
   };
 
   return (
@@ -248,7 +247,7 @@ export default function RegistrationsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả vai trò</SelectItem>
-                  <SelectItem value="attendee">Khách</SelectItem>
+                  <SelectItem value="attendee">Tham dự</SelectItem>
                   <SelectItem value="speaker">Báo cáo viên</SelectItem>
                   <SelectItem value="moderator">Chủ tọa</SelectItem>
                 </SelectContent>
@@ -310,7 +309,7 @@ export default function RegistrationsPage() {
                         <div className="font-semibold">{registration.fullName}</div>
                         <div className="text-sm text-muted-foreground">{registration.email}</div>
                       </TableCell>
-                      <TableCell>{getRoleForEmail(registration.email)}</TableCell>
+                      <TableCell>{getRoleForRegistration(registration)}</TableCell>
                       <TableCell>{session?.title || "N/A"}</TableCell>
                       <TableCell><Badge variant={registration.status === "confirmed" ? "default" : "secondary"}>{registration.status}</Badge></TableCell>
                       <TableCell>{registration.cmeCertificateRequested && <Badge variant="secondary"><Award className="h-3 w-3" /></Badge>}</TableCell>

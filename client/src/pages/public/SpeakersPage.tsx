@@ -69,7 +69,7 @@ export default function SpeakersPage() {
             <img
               src={speaker.photoUrl}
               alt={speaker.name}
-              className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-card"
+              className="w-32 h-32 rounded-full mx-auto mb-4 object-contain border-4 border-card"
               data-testid={`img-speaker-photo-${speaker.id}`}
             />
           ) : (

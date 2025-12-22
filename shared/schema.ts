@@ -55,6 +55,7 @@ export const registrations = sqliteTable("registrations", {
   phone: text("phone"),
   organization: text("organization"),
   position: text("position"),
+  role: text("role").notNull().default("participant"), // Added for self-declared role
   
   // Session-specific options
   cmeCertificateRequested: integer("cme_certificate_requested", { mode: "boolean" }).notNull().default(false),
@@ -462,6 +463,7 @@ export const batchRegistrationRequestSchema = z.object({
   position: z.string().optional(),
   
   // Options
+  role: z.enum(["participant", "speaker", "moderator"]).default("participant"),
   cmeCertificateRequested: z.boolean().default(false),
 });
 

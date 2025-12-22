@@ -35,8 +35,8 @@
       "track": "Toàn thể",
       "description": "",
       "descriptionMd": "## Phiên toàn thể\n\nCác chủ đề chính:\n- Cập nhật phương pháp phòng bệnh RSV ở trẻ sơ sinh\n- Quản lý rối loạn lipid máu theo khuyến cáo ESC 2025\n- Chiến lược phòng bệnh chủ động trong cộng đồng",
-      "startTime": "2025-11-17T09:00",
-      "endTime": "2025-11-17T22:00",
+      "startTime": "2025-12-21T09:00",
+      "endTime": "2025-12-24T22:00",
       "room": "Đại giảng đường",
       "type": "Toàn thể",
       "chairIds": [
@@ -73,7 +73,7 @@
         }
       ],
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-11-17T11:58:03.726Z",
+      "updatedAt": "2025-12-22T11:49:03.906Z",
       "capacity": 100,
       "allowCmeCertificate": true
     },

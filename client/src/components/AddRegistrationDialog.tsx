@@ -40,6 +40,9 @@ const formSchema = z.object({
   organization: z.string().optional(),
   position: z.string().optional(),
   sessionId: z.string().min(1, "Vui lòng chọn một phiên"),
+  role: z.enum(["participant", "speaker", "moderator"], {
+    required_error: "Vui lòng chọn một vai trò",
+  }),
   cmeCertificateRequested: z.boolean().default(false),
 });
 
@@ -62,8 +65,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
       phone: "",
       organization: "",
       position: "",
-      sessionId: "",
-      cmeCertificateRequested: false,
+      role: "participant",
     },
   });
 
@@ -82,6 +84,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     onSuccess: () => {
       toast({ title: "Thêm đăng ký thành công" });
       queryClient.invalidateQueries({ queryKey: ["registrations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] }); // Invalidate speakers query
       form.reset();
       onClose();
     },
@@ -204,6 +207,28 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                       ) : (
                         <p className="p-4 text-sm text-muted-foreground">Không có phiên nào.</p>
                       )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vai trò</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn một vai trò" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="participant">Tham dự</SelectItem>
+                      <SelectItem value="speaker">Báo cáo viên</SelectItem>
+                      <SelectItem value="moderator">Chủ tọa</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

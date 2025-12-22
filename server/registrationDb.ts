@@ -152,6 +152,39 @@ export async function createRegistration(
   return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;
 }
 
+export async function createAdminRegistration(
+  data: InsertRegistration
+): Promise<Registration> {
+  const id = randomUUID();
+  const qrData = `CONF|${data.conferenceSlug}|${data.sessionId}|${data.email}|${Date.now()}`;
+  const qrCodeImage = await QRCode.toDataURL(qrData);
+
+  const newRegistration = {
+    ...data,
+    id,
+    qrCode: qrCodeImage,
+    status: "confirmed", // Admin adds directly as confirmed
+    createdAt: new Date(),
+    registeredAt: new Date(),
+    cmeCertificateRequested: data.cmeCertificateRequested || false,
+    conferenceCertificateSent: false,
+    emailSent: false, // No verification email needed
+    confirmationToken: null, // No confirmation token needed
+    confirmationTokenExpires: null, // No confirmation token needed
+    reminderCount: 0,
+    lastReminderSentAt: null, // No reminder sent yet
+  };
+
+  console.log("createAdminRegistration: Inserting registration:", newRegistration); // Debug log
+
+  await db
+    .insert(registrations)
+    .values(newRegistration)
+    .run();
+
+  return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;
+}
+
 export async function batchRegisterSessions(
   request: BatchRegistrationRequest,
   sessions: Session[],
@@ -162,7 +195,7 @@ export async function batchRegisterSessions(
   error?: string;
   failedSessions?: string[];
 }> {
-  const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, cmeCertificateRequested } = request;
+  const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, role, cmeCertificateRequested } = request;
 
   const requestedSessions = sessions.filter(s => sessionIds.includes(s.id));
 
@@ -228,6 +261,7 @@ export async function batchRegisterSessions(
           phone,
           organization: organization || null,
           position: position || null,
+          role, // Added role
           cmeCertificateRequested,
           conferenceCertificateSent: false,
           status: "pending",
@@ -240,6 +274,7 @@ export async function batchRegisterSessions(
           reminderCount: 0,
         };
 
+        console.log("batchRegisterSessions: Inserting registration:", newRegistration); // Debug log
         tx
           .insert(registrations)
           .values(newRegistration)

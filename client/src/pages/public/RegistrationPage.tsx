@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -40,6 +47,9 @@ const registrationSchema = z.object({
   phone: z.string().min(10, "Số điện thoại không hợp lệ"),
   organization: z.string().optional(),
   position: z.string().optional(),
+  role: z.enum(["participant", "speaker", "moderator"], {
+    required_error: "Vui lòng chọn một vai trò",
+  }).default("participant"),
   cmeCertificateRequested: z.boolean().default(false),
   sessionIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một phiên"),
 });
@@ -195,6 +205,7 @@ export default function RegistrationPage() {
         phone: data.phone,
         organization: data.organization || undefined,
         position: data.position || undefined,
+        role: data.role, // Add the role field
         cmeCertificateRequested: data.cmeCertificateRequested,
         sessionIds: data.sessionIds,
         conferenceSlug: conference?.slug,
@@ -390,6 +401,32 @@ export default function RegistrationPage() {
                         )}
                       />
                     </div>
+
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vai trò *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-role">
+                                <SelectValue placeholder="Chọn vai trò của bạn" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="participant">Tham dự</SelectItem>
+                              <SelectItem value="speaker">Báo cáo viên</SelectItem>
+                              <SelectItem value="moderator">Chủ tọa</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Vui lòng chọn vai trò của bạn tại hội nghị.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}

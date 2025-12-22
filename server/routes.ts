@@ -18,6 +18,7 @@ import {
   deleteRegistrationsByConferenceSlug,
   deleteRegistration,
   searchRegistrations,
+  createAdminRegistration,
 } from "./registrationDb";
 import { generateCmeCertificate } from "./certificateService";
 import { sendCmeCertificateEmail, sendRegistrationVerificationEmail, sendConsolidatedRegistrationEmail } from "./emailService";
@@ -31,7 +32,7 @@ import {
 } from "./contactDb";
 import { setupAuth } from "./sessionAuth";
 
-import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertOrganizerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema } from "@shared/schema";
+import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertOrganizerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema, insertRegistrationSchema } from "@shared/schema";
 console.log('insertSponsorSchema:', insertSponsorSchema);
 import multer from "multer";
 import path from "path";
@@ -861,6 +862,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/admin/registrations', checkActiveConference, async (req: any, res) => {
+    try {
+      const conference = req.activeConference;
+      if (!conference) {
+        return res.status(404).json({ message: "No active conference" });
+      }
+
+      const registrationData = insertRegistrationSchema.parse({
+        ...req.body,
+        conferenceSlug: conference.slug,
+      });
+
+      const newRegistration = await createAdminRegistration(registrationData);
+      res.status(201).json(newRegistration);
+    } catch (error: any) {
+      console.error("Error adding admin registration:", error);
+      res.status(400).json({ message: error.message || "Failed to add registration." });
     }
   });
 
