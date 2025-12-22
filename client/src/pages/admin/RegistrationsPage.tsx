@@ -1,41 +1,41 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { AddRegistrationDialog } from "@/components/AddRegistrationDialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Download, Trash2, Search, UserCheck, Award, PlusCircle } from "lucide-react";
-import type { Registration, Session, Conference, Speaker } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useMemo } from "react";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { AddRegistrationDialog } from "@/components/AddRegistrationDialog";
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import type { Conference, Registration, Session, Speaker } from "@shared/schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Award, Download, PlusCircle, Search, Trash2, UserCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const isSessionActive = (session?: Session): boolean => {
   if (!session) return false;
@@ -88,7 +88,7 @@ export default function RegistrationsPage() {
     queryKey: ["/api/sessions", conference?.slug],
     enabled: !!conference,
   });
-  
+
   const { data: speakers = [] } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers", conference?.slug],
     enabled: !!conference,
@@ -111,13 +111,23 @@ export default function RegistrationsPage() {
   const filteredRegistrations = useMemo(() => {
     return registrations.filter(reg => {
       if (roleFilter === 'all') return true;
-      const role = speakerRoles.get(reg.email);
-      if (roleFilter === 'attendee') return !role;
-      if (roleFilter === 'speaker') return role === 'speaker' || role === 'both';
-      if (roleFilter === 'moderator') return role === 'moderator' || role === 'both';
+
+      // Sử dụng trực tiếp trường 'role' từ đối tượng đăng ký
+      const registrationRole = reg.role;
+
+      if (roleFilter === 'attendee') {
+        // 'Tham dự' tương ứng với vai trò 'participant'
+        return registrationRole === 'participant';
+      }
+      if (roleFilter === 'speaker') {
+        return registrationRole === 'speaker' || registrationRole === 'both';
+      }
+      if (roleFilter === 'moderator') {
+        return registrationRole === 'moderator' || registrationRole === 'both';
+      }
       return true;
     });
-  }, [registrations, roleFilter, speakerRoles]);
+  }, [registrations, roleFilter]);
 
   const sessionsMap = useMemo(() => new Map(sessions.map(s => [s.id, s])), [sessions]);
 
@@ -138,7 +148,7 @@ export default function RegistrationsPage() {
     },
     onError: (error: any) => toast({ title: "Lỗi check-in", description: error.message, variant: "destructive" }),
   });
-  
+
   const bulkCheckinMutation = useMutation({
     mutationFn: (data: { registrationIds: string[]; sessionId: string }) => apiRequest("POST", "/api/admin/bulk-checkin-registrations", data),
     onSuccess: (result: { successCount: number; failCount: number }) => {
