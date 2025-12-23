@@ -64,7 +64,8 @@ function createEmailTemplate(title: string, content: string, footerNote: string,
 
 export async function sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<boolean> {
   try {
-    const confirmationLink = `${process.env.BASE_URL}/api/registrations/confirm/${confirmationToken}`;
+    const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
+    const confirmationLink = `${baseUrl}/api/registrations/confirm/${confirmationToken}`;
     const title = "Xác nhận đăng ký của bạn";
     const content = `
       <p>Kính gửi <strong>${fullName}</strong>,</p>
@@ -175,7 +176,8 @@ export async function sendConsolidatedRegistrationEmail(
 
 
 export async function sendConfirmationReminderEmail(to: string, conferenceName: string, registrationDetails: any) {
-  const confirmationLink = `${process.env.BASE_URL}/api/registrations/confirm/${registrationDetails.confirmationToken}`;
+  const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
+  const confirmationLink = `${baseUrl}/api/registrations/confirm/${registrationDetails.confirmationToken}`;
   const title = `Nhắc nhở: Vui lòng xác nhận đăng ký tham gia ${conferenceName}`;
   const content = `
     <p>Kính gửi <strong>${registrationDetails.name}</strong>,</p>
