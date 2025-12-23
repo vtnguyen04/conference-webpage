@@ -329,7 +329,7 @@ export default function HomePage() {
                               <img
                                 src={organizer.photoUrl}
                                 alt={organizer.name}
-                                className="w-32 h-32 object-cover relative z-10"
+                                className="w-32 h-32 object-contain relative z-10"
                               />
                               <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
