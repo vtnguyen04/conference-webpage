@@ -4,7 +4,7 @@
     "slug": "hoi-nghi-khoa-hoc-lan-thu-5",
     "name": "HỘI NGHỊ KHOA HỌC KỸ THUẬT DƯỢC LẦN THỨ 41",
     "theme": "Khoa học Dược trong kỷ nguyên phát triển bền vững",
-    "logoUrl": "/uploads/image-1763022091929-154235735.gif",
+    "logoUrl": "/uploads/image-1766451308524-489098135.gif",
     "bannerUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop",
     "introContent": "<h2>Giới thiệu Hội nghị</h2><p>Hội nghị khoa học kỹ thuật dược lần thứ 41 là sự kiện quan trọng nhất năm 2025, quy tụ các chuyên gia hàng đầu trong và ngoài nước.</p><p>Chủ đề năm nay: <strong>Khoa học Dược trong kỷ nguyên phát triển bền vững</strong> tập trung vào các xu hướng mới trong Dược học chăm sóc sức khỏe cộng đồng và điều trị bệnh hiện đại.</p>",
     "startDate": "2025-11-14T00:00:00.000Z",
@@ -14,14 +14,14 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-11-11T12:25:27.745Z",
-    "updatedAt": "2025-11-16T04:55:45.909Z",
+    "updatedAt": "2025-12-23T00:57:04.750Z",
     "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
     "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy tham dự hội nghị, vui lòng chọn vào cột Cấp Giấy tham dự hội nghị",
     "filesToDelete": [
       "/uploads/image-1762674811408-218662510.jpg"
     ],
     "bannerUrls": [
-      "/uploads/banners-1763005734379-169852863.gif"
+      "/uploads/banners-1766451390381-24054919.jpg"
     ],
     "registrationBenefits": "- Nhận giấy chứng nhận tham gia hội nghị\n- Cập nhật các kiến mới trong lĩnh vực Dược",
     "registrationRules": "Mang theo mã QR được gửi về mail để xác nhận check im"
@@ -874,17 +874,17 @@
   "whitelists": [],
   "organizers": [
     {
-      "name": "dfgdfg",
-      "title": "dfgdfg",
-      "credentials": "dfgdfgdfg",
-      "photoUrl": "/uploads/image-1763384564416-249922500.jpeg",
-      "bio": "sdfjklfsdjklsdfjlksdfjklsdfsdfsdfs",
+      "name": "Trần Thành Đạo",
+      "title": "Hiệu trưởng Trường Dược",
+      "credentials": "GS.TS.DS",
+      "photoUrl": "/uploads/image-1766452740684-123731711.jpg",
+      "bio": "",
       "organizingRole": "Trưởng Ban",
       "displayOrder": 0,
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
       "id": "organizer-1763384572799-oo0dg301r",
       "createdAt": "2025-11-17T13:02:52.799Z",
-      "updatedAt": "2025-11-17T13:06:27.943Z"
+      "updatedAt": "2025-12-23T01:19:31.790Z"
     }
   ]
 }
