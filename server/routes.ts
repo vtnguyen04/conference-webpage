@@ -19,6 +19,7 @@ import {
   deleteRegistration,
   searchRegistrations,
   createAdminRegistration,
+  isRegisteredForSession,
 } from "./registrationDb";
 import { generateCmeCertificate } from "./certificateService";
 import { sendCmeCertificateEmail, sendRegistrationVerificationEmail, sendConsolidatedRegistrationEmail } from "./emailService";
@@ -878,8 +879,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         conferenceSlug: conference.slug,
       });
+      
+      const { email, sessionId } = registrationData;
+      const alreadyRegistered = await isRegisteredForSession(email, sessionId);
+
+      if (alreadyRegistered) {
+        return res.status(400).json({ message: "Email này đã được đăng ký cho phiên này." });
+      }
 
       const newRegistration = await createAdminRegistration(registrationData);
+
+      // Send confirmation email
+      const session = await jsonStorage.getSession(conference.slug, newRegistration.sessionId);
+      if (session) {
+        const startTime = new Date(session.startTime);
+        const endTime = new Date(session.endTime);
+        const sessionTime = `${startTime.toLocaleDateString('vi-VN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })} | ${startTime.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })} - ${endTime.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+
+        const sessionDetails = [{
+          title: session.title,
+          time: sessionTime,
+          room: session.room,
+          qrCode: newRegistration.qrCode,
+        }];
+
+        await sendConsolidatedRegistrationEmail(
+          newRegistration.email,
+          newRegistration.fullName,
+          conference.name,
+          newRegistration.cmeCertificateRequested,
+          sessionDetails
+        );
+      }
+
       res.status(201).json(newRegistration);
     } catch (error: any) {
       console.error("Error adding admin registration:", error);

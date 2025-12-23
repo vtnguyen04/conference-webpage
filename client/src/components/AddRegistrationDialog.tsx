@@ -89,11 +89,19 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
       onClose();
     },
     onError: (error: any) => {
-      toast({
-        title: "Lỗi",
-        description: error.message || "Không thể thêm đăng ký.",
-        variant: "destructive",
-      });
+      if (error && error.message && error.message.includes("Email này đã được đăng ký cho phiên này.")) {
+        toast({
+          title: "Lỗi đăng ký",
+          description: "Email này đã được đăng ký cho phiên đã chọn. Vui lòng chọn một phiên khác hoặc sử dụng email khác.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Lỗi",
+          description: error.message || "Không thể thêm đăng ký.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
