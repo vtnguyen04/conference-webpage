@@ -491,7 +491,7 @@ export default function HomePage() {
           
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader 
-              title="Chủ tọa & Diễn giả" 
+              title="Chủ tọa & Báo cáo viên" 
               subtitle="Đội ngũ chuyên gia hàng đầu"
               accentColor="bg-teal-600"
               cta={
@@ -557,7 +557,7 @@ export default function HomePage() {
                             <div className="h-0.5 w-12 bg-teal-600 mx-auto mb-3"></div>
                             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
                               {speaker.role === 'moderator' ? 'Chủ tọa' : 
-                              speaker.role === 'both' ? 'Chủ tọa & Diễn giả' : 'Diễn giả'}
+                              speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
                             </span>
                           </div>
                         </CardContent>
