@@ -1,3 +1,4 @@
+import React, { useState, useMemo, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import ReactQuill from "react-quill";
+const ReactQuill = React.lazy(() => import("react-quill"));
 import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useMemo, useRef } from "react";
 import type { Sightseeing, InsertSightseeing } from "@shared/schema";
 import { insertSightseeingSchema } from "@shared/schema";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
@@ -411,15 +411,17 @@ export default function SightseeingManagementPage() {
                   <FormItem>
                     <FormLabel>Nội dung</FormLabel>
                     <FormControl>
-                      <ReactQuill
-                        ref={quillRef}
-                        theme="snow"
-                        value={field.value}
-                        onChange={field.onChange}
-                        readOnly={isReadOnly}
-                        className="min-h-[200px]"
-                        modules={modules}
-                      />
+                      <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
+                        <ReactQuill
+                          ref={quillRef as React.RefObject<ReactQuill>}
+                          theme="snow"
+                          value={field.value}
+                          onChange={field.onChange}
+                          readOnly={isReadOnly}
+                          className="min-h-[200px]"
+                          modules={modules}
+                        />
+                      </React.Suspense>
                     </FormControl>
                     <FormDescription>
                       Nội dung chi tiết của bài viết

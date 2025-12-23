@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { QrCode, CheckCircle, X, Calendar, MapPin } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+// import { Html5Qrcode } from "html5-qrcode"; // Removed for lazy loading
 import type { Conference, Session, CheckIn, Registration } from "@shared/schema";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 
@@ -21,7 +21,7 @@ export default function CheckinPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
   const [page, setPage] = useState(1);
   const limit = 10; // Number of items per page
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerRef = useRef<any | null>(null); // Use `any` because Html5Qrcode type is loaded dynamically
 
   const { data: conference } = useQuery<Conference | null>({
     queryKey: ["/api/conferences/active"],
@@ -115,11 +115,10 @@ export default function CheckinPage() {
 
   const startScanning = async () => {
     try {
-      // Set scanning to true first to ensure the qr-reader div is rendered
-      setScanning(true); 
-      // Wait for the DOM to update before initializing Html5Qrcode
-      await new Promise(resolve => setTimeout(resolve, 0)); 
+      setScanning(true);
+      await new Promise(resolve => setTimeout(resolve, 0));
 
+      const { Html5Qrcode } = await import("html5-qrcode");
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
 

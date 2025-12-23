@@ -449,6 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               email: speaker.email,
               phone: '', // Optional now
               cmeCertificateRequested: false,
+              role: 'participant', // Added role
             }, allSessions);
 
             // Auto-confirm these registrations
@@ -508,6 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               email: updated.email!,
               phone: '',
               cmeCertificateRequested: false,
+              role: 'participant', // Added role
             }, allSessions);
             
             if (result.success && result.registrations) {

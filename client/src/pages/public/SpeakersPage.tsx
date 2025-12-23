@@ -108,7 +108,7 @@ export default function SpeakersPage() {
   return (
     <>
       <PageHeader
-        title="Chủ tọa & Diễn giả"
+        title="Chủ tọa & Báo cáo viên"
         subtitle="Gặp gỡ các chuyên gia hàng đầu và những người có tầm ảnh hưởng sẽ chia sẻ kiến thức tại hội nghị."
         bannerImageUrl={conference?.bannerUrls?.[0]}
       >
@@ -121,7 +121,7 @@ export default function SpeakersPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-white">Chủ tọa & Diễn giả</BreadcrumbPage>
+              <BreadcrumbPage className="text-white">Chủ tọa & Báo cáo viên</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -149,7 +149,7 @@ export default function SpeakersPage() {
           {regularSpeakers.length > 0 && (
             <section>
               <h2 className="text-2xl md:text-3xl font-bold mb-8 text-accent" data-testid="text-speakers-section-title">
-                Diễn giả
+                Báo cáo viên
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {regularSpeakers.map((speaker) => (

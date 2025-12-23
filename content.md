@@ -13,7 +13,7 @@
 
 #### KHAI MẠC HỘI NGHỊ - Đại Giảng đường
 
-| Thời gian | Nội dung | Diễn giả |
+| Thời gian | Nội dung | Báo cáo viên |
 |-----------|----------|----------|
 | 8h00 - 8h40 | Đăng ký tham dự | |
 | 8h40 - 8h50 | Văn nghệ chào mừng | |
@@ -22,7 +22,7 @@
 #### PHIÊN TOÀN THỂ - Đại Giảng đường
 **Chủ tọa:** GS.TS. Trần Thành Đạo, GS.TS. Nguyễn Đức Tuấn
 
-| Thời gian | Nội dung | Diễn giả |
+| Thời gian | Nội dung | Báo cáo viên |
 |-----------|----------|----------|
 | 9h00 - 9h30 | Luật sửa đổi, bổ sung một số điều của Luật Dược | **TS. Tạ Mạnh Hùng**<br>Phó Cục trưởng Cục Quản lý Dược, Bộ Y tế |
 | 9h30 - 10h00 | Therapeutic drug monitoring: USA clinical pharmacists role for serious Gram-negative infections | **Dr. Jennifer Le**<br>Chair Committee on International Pharmacy Education and Research<br>Skaggs School of Pharmacy, UC San Diego |

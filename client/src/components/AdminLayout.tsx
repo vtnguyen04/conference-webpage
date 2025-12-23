@@ -74,7 +74,7 @@ const menuItems = [
   {
     href: "/admin/speakers",
     icon: Users,
-    label: "Diễn giả"
+    label: "Báo cáo viên"
   },
   {
     href: "/admin/organizers",

@@ -51,7 +51,7 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
             <div className="h-0.5 w-12 bg-blue-600 mx-auto mb-3"></div>
             <span className="text-xs font-bold uppercase tracking-wider text-amber-600">
               {speaker.role === 'moderator' ? 'Chủ tọa' :
-                speaker.role === 'both' ? 'Chủ tọa & Diễn giả' : 'Diễn giả'}
+                speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
             </span>
           </div>
         </CardContent>
