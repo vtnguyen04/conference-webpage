@@ -1328,7 +1328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (registration.cmeCertificateRequested && !registration.conferenceCertificateSent) {
         if (session) {
           const certificate = await generateCmeCertificate(registration.fullName);
-          await sendCmeCertificateEmail(registration.email, registration.fullName, "", conference.name, certificate);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
           
           await db.update(registrationsTable).set({ conferenceCertificateSent: true }).where(eq(registrationsTable.id, registration.id)).run();
         }
@@ -1377,7 +1377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (registration.cmeCertificateRequested && !registration.conferenceCertificateSent) {
         if (session && conference) {
           const certificate = await generateCmeCertificate(registration.fullName);
-          await sendCmeCertificateEmail(registration.email, registration.fullName, "", conference.name, certificate);
+          await sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conference.name, certificate);
           
           await db.update(registrationsTable).set({ conferenceCertificateSent: true }).where(eq(registrationsTable.id, registration.id)).run();
         }
