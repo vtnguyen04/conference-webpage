@@ -14,7 +14,7 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-11-11T12:25:27.745Z",
-    "updatedAt": "2025-12-23T00:57:04.750Z",
+    "updatedAt": "2025-12-24T15:57:15.802Z",
     "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
     "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy tham dự hội nghị, vui lòng chọn vào cột Cấp Giấy tham dự hội nghị",
     "filesToDelete": [
@@ -36,7 +36,7 @@
       "description": "",
       "descriptionMd": "## Phiên toàn thể\n\nCác chủ đề chính:\n- Cập nhật phương pháp phòng bệnh RSV ở trẻ sơ sinh\n- Quản lý rối loạn lipid máu theo khuyến cáo ESC 2025\n- Chiến lược phòng bệnh chủ động trong cộng đồng",
       "startTime": "2025-12-21T09:00",
-      "endTime": "2025-12-24T22:00",
+      "endTime": "2026-01-02T22:00",
       "room": "Đại giảng đường",
       "type": "Toàn thể",
       "chairIds": [
@@ -73,7 +73,7 @@
         }
       ],
       "createdAt": "2025-11-11T12:25:27.745Z",
-      "updatedAt": "2025-12-22T11:49:03.906Z",
+      "updatedAt": "2025-12-24T15:05:48.456Z",
       "capacity": 100,
       "allowCmeCertificate": true
     },
@@ -831,32 +831,18 @@
   ],
   "announcements": [
     {
-      "id": "announcement-1762863927770-inusis174",
-      "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "title": "THÔNG BÁO SỐ 1",
-      "content": "<p>Họi nghị khoa học kỹ thuật Dược lần thứ 41</p>",
-      "excerpt": "Họi nghị khoa học kỹ thuật Dược lần thứ 41",
-      "featuredImageUrl": "/uploads/image-1763015868615-210697969.png",
-      "category": "deadline",
-      "publishedAt": "2025-10-31T09:30",
-      "createdAt": "2025-11-11T12:25:27.770Z",
-      "updatedAt": "2025-11-13T08:18:39.806Z",
-      "views": 38,
-      "pdfUrl": "/uploads/pdf-1763015876133-777259819.pdf"
-    },
-    {
       "title": "THÔNG BÁO SỐ 1",
       "content": "<p>Hội nghị khoa học kỹ thuật Dược lần thứ 41</p>",
       "excerpt": "Hội nghị khoa học kỹ thuật Dược lần thứ 41",
-      "featuredImageUrl": "/uploads/image-1763016071134-514414388.png",
-      "pdfUrl": "/uploads/pdf-1763016075402-134969088.pdf",
+      "featuredImageUrl": "",
+      "pdfUrl": "",
       "category": "deadline",
-      "publishedAt": "2025-11-12T23:41",
+      "publishedAt": "2025-11-12T02:41",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "views": 4,
+      "views": 36,
       "id": "announcement-1763016115028-hvvwcymz0",
       "createdAt": "2025-11-13T06:41:55.028Z",
-      "updatedAt": "2025-11-13T08:18:31.289Z"
+      "updatedAt": "2025-12-24T15:55:34.212Z"
     }
   ],
   "sightseeing": [

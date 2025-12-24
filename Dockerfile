@@ -1,38 +1,43 @@
-# Stage 1: Build the application
+# --- Stage 1: Build Stage ---
 FROM node:20 AS builder
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Install build essentials for native modules (better-sqlite3, sharp)
+RUN apt-get update && apt-get install -y python3 make g++ 
 
-# Install all dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application code
 COPY . .
 
-# Build the application
+# Build frontend and backend
 RUN npm run build
 
-# Stage 2: Production environment
-FROM node:20-alpine
+# --- Stage 2: Production Stage ---
+FROM node:20-slim
 
 WORKDIR /app
 
-# Copy built files from the builder stage
+# Better-sqlite3 needs some runtime libs
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+# Copy built artifacts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/server/data ./server/data
-COPY --from=builder /app/public/uploads ./public/uploads
+COPY --from=builder /app/server/fonts ./server/fonts
 
-# Copy and set the entrypoint script
+# Ensure upload directory exists
+RUN mkdir -p public/uploads server/data
+
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-# Expose the port the app runs on
 EXPOSE 5000
 
-# Set the entrypoint
+ENV NODE_ENV=production
+
 ENTRYPOINT ["./entrypoint.sh"]

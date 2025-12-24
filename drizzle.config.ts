@@ -1,11 +1,13 @@
 import { defineConfig } from "drizzle-kit";
-import path from 'path';
+import path from "path";
 
 export default defineConfig({
   out: "./migrations",
-  schema: path.join(__dirname, 'shared', 'schema.ts'),
+  schema: "./shared/schema.ts",
   dialect: "sqlite",
   dbCredentials: {
-    url: 'server/data/main.db',
+    url: path.resolve(process.cwd(), "server/data/main.db"),
   },
+  verbose: true,
+  strict: true,
 });
