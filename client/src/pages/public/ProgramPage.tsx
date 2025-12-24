@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useRoute, Link } from "wouter";
-import type { Conference, Session, Speaker } from "@shared/types";
+import type { Session, Speaker } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -11,59 +11,88 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { apiRequest } from "@/lib/queryClient";
 
 import { SessionList } from "@/components/SessionList";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { sessionService } from "@/services/sessionService";
+import { speakerService } from "@/services/speakerService";
+
 
 
 
 export default function ProgramPage() {
 
+
+
+
   const [, params] = useRoute("/conference/:slug/program");
+
+
+
 
   const slug = params?.slug;
 
 
 
-  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
-
-  const { data: conference } = useQuery<Conference>({
-
-    queryKey: [conferenceQueryKey],
-
-    queryFn: () => apiRequest("GET", conferenceQueryKey),
-
-  });
 
 
 
-  const conferenceId = conference?.id;
-
-  const sessionsApiUrl = slug ? `/api/sessions/${slug}` : "/api/sessions";
-
-  const { data: sessions = [], isLoading: sessionsLoading } = useQuery<Session[]>({
-
-    queryKey: ["sessions", slug || "active"], // Unique key for React Query
-
-    queryFn: () => apiRequest("GET", sessionsApiUrl),
-
-    enabled: !!conferenceId,
-
-  });
 
 
 
-  const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
+  const { conference } = useActiveConference();
 
-  const { data: speakers = [], isLoading: speakersLoading } = useQuery<Speaker[]>({
 
-    queryKey: ["speakers", slug || "active"], // Unique key for React Query
 
-    queryFn: () => apiRequest("GET", speakersApiUrl),
+    const conferenceId = conference?.id;
 
-    enabled: !!conferenceId,
 
-  });
+
+  
+
+
+
+    const { data: sessions = [], isLoading: sessionsLoading } = useQuery<Session[]>({
+
+
+
+      queryKey: ["sessions", slug || "active"], // Unique key for React Query
+
+
+
+      queryFn: () => sessionService.getSessions(slug),
+
+
+
+      enabled: !!conferenceId,
+
+
+
+    });
+
+
+
+    const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
+
+
+
+    const { data: speakers = [], isLoading: speakersLoading } = useQuery<Speaker[]>({
+
+
+
+      queryKey: ["speakers", slug || "active"], // Unique key for React Query
+
+
+
+      queryFn: () => speakerService.getSpeakers(slug),
+
+
+
+      enabled: !!conferenceId,
+
+
+
+    });
 
 
 

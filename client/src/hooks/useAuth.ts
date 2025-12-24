@@ -1,7 +1,7 @@
 // src/hooks/useAuth.ts
 
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest } from "@/services/apiClient";
 
 interface AuthUser {
   id: string;

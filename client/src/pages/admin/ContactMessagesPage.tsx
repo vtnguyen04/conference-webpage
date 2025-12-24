@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -18,16 +18,16 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Mail, Trash2, Search } from 'lucide-react';
 import type { ContactMessage } from '@shared/types';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
+import { contactMessageService } from '@/services/contactMessageService';
 
 const ContactMessagesPage: React.FC = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient(); // Added
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -46,14 +46,7 @@ const ContactMessagesPage: React.FC = () => {
 
   const { data, isLoading, isError, error } = useQuery<{ data: ContactMessage[], total: number }>({
     queryKey: ['contactMessages', debouncedSearchQuery, page, limit],
-    queryFn: async (): Promise<{ data: ContactMessage[], total: number }> => {
-      let url = `/api/contact-messages?page=${page}&limit=${limit}`;
-      if (debouncedSearchQuery) {
-        url = `/api/admin/contact-messages/search?query=${debouncedSearchQuery}&page=${page}&limit=${limit}`;
-      }
-      const response = await apiRequest("GET", url);
-      return response as { data: ContactMessage[], total: number };
-    },
+    queryFn: () => contactMessageService.getContactMessages(debouncedSearchQuery, page, limit),
     enabled: true, // Always run query
   });
 
@@ -62,9 +55,7 @@ const ContactMessagesPage: React.FC = () => {
   const totalPages = Math.ceil(totalMessages / limit);
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/admin/contact-messages/${id}`);
-    },
+    mutationFn: (id: string) => contactMessageService.deleteContactMessage(id),
     onSuccess: () => {
       toast({ title: "Xóa tin nhắn thành công" });
       queryClient.invalidateQueries({ queryKey: ["contactMessages", debouncedSearchQuery, page, limit] });
@@ -75,9 +66,7 @@ const ContactMessagesPage: React.FC = () => {
   });
 
   const deleteAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("DELETE", "/api/admin/contact-messages/all");
-    },
+    mutationFn: () => contactMessageService.deleteAllContactMessages(),
     onSuccess: () => {
       toast({ title: "Xóa tất cả tin nhắn thành công" });
       queryClient.invalidateQueries({ queryKey: ["contactMessages"] }); // Invalidate all contact messages queries

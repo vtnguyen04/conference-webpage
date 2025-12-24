@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
-import type { Speaker, Conference } from "@shared/types";
+import type { Speaker } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -15,23 +15,20 @@ import {
 import { Link, useRoute } from "wouter";
 
 import { useEffect, useRef } from "react";
-import { apiRequest } from "@/lib/queryClient";
+import { SpeakerCard } from "@/components/SpeakerCard";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { speakerService } from "@/services/speakerService";
 
 export default function SpeakersPage() {
   const [, params] = useRoute("/conference/:slug/speakers");
   const slug = params?.slug;
 
-  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
-  const { data: conference } = useQuery<Conference>({
-    queryKey: [conferenceQueryKey],
-    queryFn: () => apiRequest("GET", conferenceQueryKey),
-  });
+  const { conference } = useActiveConference();
 
   const conferenceId = conference?.id;
-  const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
   const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
     queryKey: ["speakers", slug || "active"], // Unique key for React Query
-    queryFn: () => apiRequest("GET", speakersApiUrl),
+    queryFn: () => speakerService.getSpeakers(slug),
     enabled: !!conferenceId,
   });
 
@@ -60,50 +57,6 @@ export default function SpeakersPage() {
       </div>
     );
   }
-
-  const SpeakerCard = ({ speaker }: { speaker: Speaker }) => (
-    <Card className="overflow-hidden hover-elevate transition-all h-full" data-testid={`card-speaker-${speaker.id}`}>
-      <CardContent className="p-6">
-        <div className="text-center">
-          {speaker.photoUrl ? (
-            <img
-              src={speaker.photoUrl}
-              alt={speaker.name}
-              className="w-32 h-32 rounded-full mx-auto mb-4 object-contain border-4 border-card"
-              data-testid={`img-speaker-photo-${speaker.id}`}
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full mx-auto mb-4 bg-muted flex items-center justify-center border-4 border-card">
-              <User className="h-16 w-16 text-muted-foreground" />
-            </div>
-          )}
-          <h3 className="text-lg font-semibold mb-1" data-testid={`text-speaker-name-${speaker.id}`}>
-            {speaker.name}
-          </h3>
-          {speaker.title && (
-            <p className="text-sm text-muted-foreground mb-2" data-testid={`text-speaker-title-${speaker.id}`}>
-              {speaker.title}
-            </p>
-          )}
-          {speaker.credentials && (
-            <p className="text-xs text-muted-foreground mb-2" data-testid={`text-speaker-credentials-${speaker.id}`}>
-              {speaker.credentials}
-            </p>
-          )}
-          {speaker.specialty && (
-            <Badge variant="secondary" className="mb-3" data-testid={`badge-speaker-specialty-${speaker.id}`}>
-              {speaker.specialty}
-            </Badge>
-          )}
-          {speaker.bio && (
-            <p className="text-sm text-muted-foreground mt-4 text-left" data-testid={`text-speaker-bio-${speaker.id}`}>
-              {speaker.bio}
-            </p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <>
@@ -134,7 +87,7 @@ export default function SpeakersPage() {
           {/* Moderators Section */}
           {moderators.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-primary" data-testid="text-moderators-title">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-slate-700 text-center" data-testid="text-moderators-title">
                 Chủ tọa
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -148,7 +101,7 @@ export default function SpeakersPage() {
           {/* Speakers Section */}
           {regularSpeakers.length > 0 && (
             <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-accent" data-testid="text-speakers-section-title">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-slate-700 text-center" data-testid="text-speakers-section-title">
                 Báo cáo viên
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

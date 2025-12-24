@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import type { Announcement, Conference } from "@shared/types";
+import type { Announcement } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -16,7 +16,8 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { apiRequest } from "@/lib/queryClient";
+import { useActiveConference } from "@/hooks/useActiveConference"; // Added
+import { announcementService } from "@/services/announcementService"; // Added
 
 export default function AnnouncementDetailPage() {
   const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
@@ -35,35 +36,20 @@ export default function AnnouncementDetailPage() {
   const queryClient = useQueryClient();
   const mainContentRef = useRef<HTMLDivElement>(null);
 
-  const conferenceQueryKey = slug
-    ? `/api/conferences/${slug}`
-    : "/api/conferences/active";
-  const { data: conference } = useQuery<Conference>({
-    queryKey: [conferenceQueryKey],
-    queryFn: () => apiRequest("GET", conferenceQueryKey),
-  });
+  const { conference } = useActiveConference();
 
-  const announcementApiUrl = slug
-    ? `/api/announcements/${slug}/${announcementId}`
-    : `/api/announcements/active/${announcementId}`;
   const {
     data: announcement,
     isLoading,
     error,
   } = useQuery<Announcement>({
-    queryKey: ["announcements", slug || "active", announcementId], // Unique key for React Query
-    queryFn: () => apiRequest("GET", announcementApiUrl),
+    queryKey: ["announcements", slug || "active", announcementId],
+    queryFn: () => announcementService.getAnnouncementById(announcementId!, slug),
     enabled: !!announcementId,
   });
 
   const incrementViewMutation = useMutation({
-    mutationFn: () =>
-      apiRequest(
-        "POST",
-        slug
-          ? `/api/announcements/${slug}/${announcementId}/view`
-          : `/api/announcements/${announcementId}/view`
-      ),
+    mutationFn: () => announcementService.incrementAnnouncementView(announcementId!, slug),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["announcements", slug || "active", announcementId],

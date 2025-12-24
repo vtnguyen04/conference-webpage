@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
@@ -38,10 +38,12 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Announcement, InsertAnnouncement } from "@shared/types";
 import { insertAnnouncementSchema } from "@shared/validation";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
+import { announcementService } from "@/services/announcementService";
+import { uploadService } from "@/services/uploadService";
+
 
 const categoryLabels: Record<string, string> = {
   general: "Thông báo chung",
@@ -70,7 +72,7 @@ export default function AnnouncementsManagementPage() {
     queryKey: ["/api/announcements", viewingSlug],
     queryFn: async () => {
       if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/announcements/slug/${viewingSlug}`);
+      return await announcementService.getAnnouncements(viewingSlug);
     },
     enabled: !!viewingSlug,
   });
@@ -114,9 +116,7 @@ export default function AnnouncementsManagementPage() {
   }, [editingAnnouncement, isDialogOpen, form]);
 
   const createMutation = useMutation({
-    mutationFn: async (data: InsertAnnouncement) => {
-      return await apiRequest("POST", "/api/announcements", data);
-    },
+    mutationFn: (data: InsertAnnouncement) => announcementService.createAnnouncement(data),
     onSuccess: () => {
       toast({ title: "Tạo thông báo thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
@@ -129,9 +129,8 @@ export default function AnnouncementsManagementPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertAnnouncement }) => {
-      return await apiRequest("PUT", `/api/announcements/${id}`, data);
-    },
+    mutationFn: ({ id, data }: { id: string; data: InsertAnnouncement }) =>
+      announcementService.updateAnnouncement(id, data),
     onSuccess: () => {
       toast({ title: "Cập nhật thông báo thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
@@ -145,9 +144,7 @@ export default function AnnouncementsManagementPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/announcements/${id}`);
-    },
+    mutationFn: (id: string) => announcementService.deleteAnnouncement(id),
     onSuccess: () => {
       toast({ title: "Xóa thông báo thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
@@ -158,9 +155,7 @@ export default function AnnouncementsManagementPage() {
   });
 
   const deleteAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("DELETE", "/api/admin/announcements/all");
-    },
+    mutationFn: () => announcementService.deleteAllAnnouncements(),
     onSuccess: () => {
       toast({ title: "Xóa tất cả thông báo thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
@@ -221,7 +216,7 @@ export default function AnnouncementsManagementPage() {
     setIsImageUploading(true);
 
     try {
-      const result = await apiUploadFile("/api/upload", formData);
+      const result = await uploadService.uploadImage(formData);
       form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
       toast({ title: 'Tải ảnh đại diện thành công' });
     } catch (error: any) {
@@ -242,7 +237,7 @@ export default function AnnouncementsManagementPage() {
     setIsImageDeleting(true);
 
     try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentImageUrl}`);
+      await uploadService.deleteFile(currentImageUrl);
       form.setValue("featuredImageUrl", "", { shouldValidate: true });
       toast({ title: 'Thành công', description: 'Ảnh đã được xóa thành công.' });
     } catch (error: any) {
@@ -269,7 +264,7 @@ export default function AnnouncementsManagementPage() {
     setIsPdfUploading(true);
 
     try {
-      const result = await apiUploadFile("/api/upload-pdf", formData);
+      const result = await uploadService.uploadPdf(formData);
       form.setValue("pdfUrl", result.pdfPath, { shouldValidate: true });
       toast({ title: 'Tải tệp PDF thành công' });
     } catch (error: any) {
@@ -290,7 +285,7 @@ export default function AnnouncementsManagementPage() {
     setIsPdfDeleting(true);
 
     try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentPdfUrl}`);
+      await uploadService.deleteFile(currentPdfUrl);
       form.setValue("pdfUrl", "", { shouldValidate: true });
       toast({ title: 'Thành công', description: 'Tệp đã được xóa thành công.' });
     } catch (error: any) {
@@ -315,7 +310,7 @@ export default function AnnouncementsManagementPage() {
         formData.append('image', file);
 
         try {
-          const result = await apiUploadFile('/api/upload', formData);
+          const result = await uploadService.uploadImage(formData);
           const imageUrl = result.imagePath;
 
           const quill = quillRef.current?.getEditor();

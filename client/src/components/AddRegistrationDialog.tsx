@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -31,8 +30,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Conference, Session } from "@shared/types";
+import type { Session } from "@shared/types";
 import { insertRegistrationSchema } from "@/shared/validation";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { sessionService } from "@/services/sessionService";
+import { registrationService } from "@/services/registrationService";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Họ và tên không được để trống"),
@@ -70,18 +72,17 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     },
   });
 
-  const { data: conference } = useQuery<Conference | null>({
-    queryKey: ["/api/conferences/active"],
-  });
+  const { conference } = useActiveConference();
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
+    queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
 
   const addRegistrationMutation = useMutation({
     mutationFn: (newRegistration: AddRegistrationFormValues & { conferenceSlug: string }) =>
-      apiRequest("POST", "/api/admin/registrations", newRegistration),
+      registrationService.addRegistration(newRegistration),
     onSuccess: () => {
       toast({ title: "Thêm đăng ký thành công" });
       queryClient.invalidateQueries({ queryKey: ["registrations"] });

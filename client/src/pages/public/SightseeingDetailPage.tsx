@@ -13,7 +13,7 @@ import {
 import { Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
-import { apiRequest } from "@/lib/queryClient";
+import { sightseeingService } from "@/services/sightseeingService"; // Added
 
 export default function SightseeingDetailPage() {
   const params = useParams();
@@ -22,7 +22,7 @@ export default function SightseeingDetailPage() {
 
   const { data: sightseeing, isLoading, error } = useQuery<Sightseeing>({
     queryKey: ["/api/sightseeing", sightseeingId],
-    queryFn: () => apiRequest("GET", `/api/sightseeing/${sightseeingId}`),
+    queryFn: () => sightseeingService.getSightseeingById(sightseeingId!),
     enabled: !!sightseeingId,
   });
 

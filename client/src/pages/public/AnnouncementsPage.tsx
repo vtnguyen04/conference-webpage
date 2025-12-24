@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Announcement, Conference } from "@shared/types";
+import type { Announcement } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -17,7 +17,8 @@ import {
 import { Link, useRoute } from "wouter";
 
 import { useEffect, useRef } from "react";
-import { apiRequest } from "@/lib/queryClient";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { announcementService } from "@/services/announcementService";
 
 export default function AnnouncementsPage() {
   const [isAnnouncements, announcementsParams] = useRoute("/announcements");
@@ -28,21 +29,12 @@ export default function AnnouncementsPage() {
   const slug = isConferenceAnnouncements
     ? conferenceAnnouncementsParams?.slug
     : undefined;
-  const conferenceQueryKey = slug
-    ? `/api/conferences/${slug}`
-    : "/api/conferences/active";
-  const { data: conference } = useQuery<Conference>({
-    queryKey: [conferenceQueryKey],
-    queryFn: () => apiRequest("GET", conferenceQueryKey),
-  });
+  const { conference } = useActiveConference();
 
   const conferenceId = conference?.id;
-  const announcementsApiUrl = slug
-    ? `/api/announcements/slug/${slug}`
-    : "/api/announcements";
   const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
     queryKey: ["announcements", slug || "active"], // Unique key for React Query
-    queryFn: () => apiRequest("GET", announcementsApiUrl),
+    queryFn: () => announcementService.getAnnouncements(slug),
     enabled: !!conferenceId,
   });
 

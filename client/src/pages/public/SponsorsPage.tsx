@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Sponsor, Conference } from "@shared/types";
+import type { Sponsor } from "@shared/types";
 import { Link, useRoute } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,7 +12,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useEffect, useRef } from "react";
-import { apiRequest } from "@/lib/queryClient";
+import { SponsorsList } from "@/components/SponsorsList";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { sponsorService } from "@/services/sponsorService";
 
 // Định nghĩa tên các hạng tài trợ như trong HomePage
 const tierNames: Record<string, string> = {
@@ -31,17 +33,12 @@ export default function SponsorsPage() {
   const [, params] = useRoute("/conference/:slug/sponsors");
   const slug = params?.slug;
 
-  const conferenceQueryKey = slug ? `/api/conferences/${slug}` : "/api/conferences/active";
-  const { data: conference } = useQuery<Conference>({
-    queryKey: [conferenceQueryKey],
-    queryFn: () => apiRequest("GET", conferenceQueryKey),
-  });
+  const { conference } = useActiveConference();
 
   const conferenceId = conference?.id;
-  const sponsorsApiUrl = slug ? `/api/sponsors/${slug}` : "/api/sponsors";
   const { data: sponsors = [], isLoading } = useQuery<Sponsor[]>({
     queryKey: ["sponsors", slug || "active"], // Unique key for React Query
-    queryFn: () => apiRequest("GET", sponsorsApiUrl),
+    queryFn: () => sponsorService.getSponsors(slug),
     enabled: !!conferenceId,
   });
 

@@ -15,14 +15,14 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-amber-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
         <div className="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <CardContent className="p-8 flex flex-col items-center text-center flex-1">
+        <CardContent className="p-6 flex flex-col items-center text-center flex-1">
           {speaker.photoUrl ? (
             <div className="relative mb-6">
               <div className="absolute -inset-2 border-2 border-blue-600/20 group-hover:border-blue-600 transition-colors duration-300"></div>
               <img
                 src={speaker.photoUrl}
                 alt={speaker.name}
-                className="w-32 h-32 object-cover relative z-10"
+                className="w-32 h-32 object-cover object-top relative z-10"
               />
               <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -48,9 +48,9 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
             <p className="text-sm text-slate-600 mb-4">{speaker.specialty}</p>
           )}
 
-          <div className="mt-auto pt-4 w-full">
+          <div className="mt-auto pt-4 w-full text-center">
             <div className="h-0.5 w-12 bg-blue-600 mx-auto mb-3"></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
               {speaker.role === 'moderator' ? 'Chủ tọa' :
                 speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
             </span>
