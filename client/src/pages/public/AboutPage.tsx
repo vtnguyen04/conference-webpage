@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Conference } from "@shared/schema";
+import type { Conference } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,

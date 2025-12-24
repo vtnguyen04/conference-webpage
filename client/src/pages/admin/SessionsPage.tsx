@@ -36,8 +36,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Session, InsertSession, Speaker } from "@shared/schema";
-import { insertSessionSchema } from "@shared/schema";
+import type { Session, InsertSession, Speaker } from "@shared/types";
+import { insertSessionSchema } from "@shared/validation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAdminView } from "@/hooks/useAdminView";
 

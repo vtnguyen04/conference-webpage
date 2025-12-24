@@ -33,7 +33,7 @@ import {
 } from "./contactDb";
 import { setupAuth } from "./sessionAuth";
 
-import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertOrganizerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema, insertRegistrationSchema } from "@shared/schema";
+import { insertConferenceSchema, insertSessionSchema, insertSpeakerSchema, insertOrganizerSchema, insertSponsorSchema, insertAnnouncementSchema, insertSightseeingSchema, batchRegistrationRequestSchema, contactFormSchema, insertRegistrationSchema } from "@shared/validation";
 console.log('insertSponsorSchema:', insertSponsorSchema);
 import multer from "multer";
 import path from "path";

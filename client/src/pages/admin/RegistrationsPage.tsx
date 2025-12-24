@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Conference, Registration, Session, Speaker } from "@shared/schema";
+import type { Conference, Registration, Session, Speaker } from "@shared/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Award, Download, PlusCircle, Search, Trash2, UserCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

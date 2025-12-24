@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, User } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Session, Speaker } from "@shared/schema";
+import type { Session, Speaker } from "@shared/types";
 
 interface SessionListProps {
   sessions: Session[];

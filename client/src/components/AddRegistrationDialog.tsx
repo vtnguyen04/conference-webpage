@@ -31,7 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Conference, Session } from "@shared/schema";
+import type { Conference, Session } from "@shared/types";
+import { insertRegistrationSchema } from "@/shared/validation";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Họ và tên không được để trống"),

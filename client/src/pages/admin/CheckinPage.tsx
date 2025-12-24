@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { QrCode, CheckCircle, X, Calendar, MapPin } from "lucide-react";
 // import { Html5Qrcode } from "html5-qrcode"; // Removed for lazy loading
-import type { Conference, Session, CheckIn, Registration } from "@shared/schema";
+import type { Conference, Session, CheckIn, Registration } from "@shared/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 
 interface CheckInWithDetails extends CheckIn {
@@ -27,9 +27,7 @@ export default function CheckinPage() {
     queryKey: ["/api/conferences/active"],
   });
 
-  useEffect(() => {
-    console.log("Active conference:", conference);
-  }, [conference]);
+
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
@@ -42,7 +40,6 @@ export default function CheckinPage() {
         // Session is currently happening if its start time has passed and end time has not yet passed
         return startTime <= now && endTime >= now;
       });
-      console.log("Filtered sessions (currently happening):", filteredSessions);
       return filteredSessions;
     }
   });
@@ -78,12 +75,10 @@ export default function CheckinPage() {
           qrData, 
           sessionId: selectedSessionId 
         });
-        console.log("API check-in response:", response);
         return response;
       } catch (error: any) {
         // If it's a 400 "Already checked in" error, treat it as a success for react-query's onSuccess callback
         if (error.message.includes("400: {\"message\":\"Already checked in for this session\"}")) {
-          console.log("Treating 'Already checked in' as a success for react-query.");
           // Return a resolved promise with a specific payload that onSuccess can interpret
           return { status: 400, message: "Already checked in for this session" };
         }
@@ -91,7 +86,6 @@ export default function CheckinPage() {
       }
     },
     onSuccess: (data) => { // data will contain the response from mutationFn
-      console.log("Check-in onSuccess callback fired.", data);
       if (data && data.status === 400 && data.message === "Already checked in for this session") {
         toast({ title: "Đã check-in", description: "Người tham dự đã được check-in cho phiên này.", variant: "default" });
       } else {
@@ -101,7 +95,6 @@ export default function CheckinPage() {
       stopScanning();
     },
     onError: (error: any) => {
-      console.log("Check-in onError callback fired:", error);
       toast({
         title: "Lỗi check-in",
         description: error.message,
@@ -147,21 +140,15 @@ export default function CheckinPage() {
   };
 
   const stopScanning = async () => {
-    console.log("stopScanning called.");
     if (scannerRef.current) {
-      console.log("scannerRef.current exists. Attempting to stop scanner.");
       try {
         await scannerRef.current.stop();
         scannerRef.current = null;
-        console.log("Scanner stopped successfully.");
       } catch (error) {
         console.error("Error stopping scanner:", error);
       }
-    } else {
-      console.log("scannerRef.current is null. Scanner not active.");
     }
     setScanning(false);
-    console.log("setScanning(false) called.");
   };
 
   useEffect(() => {

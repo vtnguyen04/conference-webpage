@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Users, FileText, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Conference, Announcement, Session, Speaker, Sponsor, Organizer } from "@shared/schema";
+import type { Conference, Announcement, Session, Speaker, Sponsor, Organizer } from "@shared/types";
 import Autoplay from "embla-carousel-autoplay";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";

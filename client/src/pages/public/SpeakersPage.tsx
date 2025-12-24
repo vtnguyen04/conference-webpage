@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
-import type { Speaker } from "@shared/schema";
+import type { Speaker, Conference } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-import type { Conference } from "@shared/schema";
+
 import { useEffect, useRef } from "react";
 import { apiRequest } from "@/lib/queryClient";
 

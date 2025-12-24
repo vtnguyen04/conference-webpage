@@ -26,7 +26,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Conference, Session } from "@shared/schema";
+import type { Conference, Session } from "@shared/types";
+import { batchRegistrationRequestSchema } from "@shared/validation";
 import { CheckCircle2, AlertCircle, Calendar, Clock, MapPin, Users, Mail } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";

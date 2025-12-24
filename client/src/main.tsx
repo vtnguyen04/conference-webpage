@@ -1,27 +1,26 @@
-// src/main.tsx
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "./lib/queryClient";
-import { PublicApp } from "./PublicApp";
-import { AdminApp } from "./AdminApp"; // Import AdminApp
-import { useLocation, Router } from "wouter"; // Import useLocation and Router
+// Dynamically import PublicApp and AdminApp
+const PublicApp = React.lazy(() => import("./PublicApp").then(module => ({ default: module.PublicApp })));
+const AdminApp = React.lazy(() => import("./AdminApp").then(module => ({ default: module.AdminApp })));
+import { useLocation, Router } from "wouter";
 import "./index.css";
 
 function App() {
   const [location] = useLocation();
-  console.log('main.tsx - Current location:', location);
 
-  // Determine if we are in the admin section
   const isAdminRoute = location.startsWith("/admin");
-  console.log('main.tsx - isAdminRoute:', isAdminRoute);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {isAdminRoute ? <AdminApp /> : <PublicApp />} {/* Conditionally render AdminApp or PublicApp */}
+        <Suspense fallback={<div>Loading...</div>}> {/* Add Suspense boundary */}
+          {isAdminRoute ? <AdminApp /> : <PublicApp />}
+        </Suspense>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

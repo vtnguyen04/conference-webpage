@@ -41,7 +41,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, CheckCircle, XCircle, Trash2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Conference } from '@shared/schema';
+import type { Conference } from '@shared/types';
 
 const fetchConferences = async (): Promise<Conference[]> => {
   const response = await fetch('/api/conferences');

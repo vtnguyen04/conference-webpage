@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Mail, Trash2, Search } from 'lucide-react';
-import type { ContactMessage } from '@shared/schema';
+import type { ContactMessage } from '@shared/types';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';

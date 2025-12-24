@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
 import { useAdminView } from "@/hooks/useAdminView";
-import type { Conference } from "@shared/schema";
+import type { Conference } from "@shared/types";
 import {
   Select,
   SelectContent,
@@ -192,13 +192,9 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      console.log("handleLogout: Function started.");
-      console.log("Attempting logout...");
       const response = await fetch("/api/logout", { method: "POST", credentials: "include" });
       const result = await response.json();
-      console.log("Logout API response:", result);
       if (response.ok) {
-        console.log("Logout successful, redirecting to /admin/login");
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] }); // Invalidate auth query
         await refetchAuth(); // Force refetch of auth status
         setLocation("/admin/login");

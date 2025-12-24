@@ -13,7 +13,7 @@ import {
 import { Menu, X, Mail, Phone, MapPin, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Conference } from "@shared/schema";
+import type { Conference } from "@shared/types";
 import { cn } from "@/lib/utils";
 
 interface PublicLayoutProps {

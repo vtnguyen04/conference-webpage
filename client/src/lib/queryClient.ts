@@ -54,7 +54,6 @@ export const getQueryFn: <T>(options: {
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      console.log('getQueryFn: Unauthorized, returning null.');
       return null;
     }
 

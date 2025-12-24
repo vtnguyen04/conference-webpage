@@ -19,8 +19,8 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { Copy } from "lucide-react";
-import type { Conference } from "@shared/schema";
-import { conferenceSchema } from "@shared/schema";
+import type { Conference } from "@shared/types";
+import { conferenceSchema } from "@shared/validation";
 import { useAdminView } from "@/hooks/useAdminView";
 
 export default function ConferencePage() {

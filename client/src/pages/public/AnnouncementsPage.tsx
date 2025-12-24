@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Announcement } from "@shared/schema";
+import type { Announcement, Conference } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -15,7 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-import type { Conference } from "@shared/schema";
+
 import { useEffect, useRef } from "react";
 import { apiRequest } from "@/lib/queryClient";
 

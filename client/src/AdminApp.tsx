@@ -1,30 +1,30 @@
-// src/AdminApp.tsx
-
+import React, { Suspense } from "react";
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
-// Admin pages
-import DashboardPage from "@/pages/admin/DashboardPage";
-import ConferencePage from "@/pages/admin/ConferencePage";
-import SessionsPage from "@/pages/admin/SessionsPage";
-import SpeakersManagementPage from "@/pages/admin/SpeakersManagementPage";
-import OrganizersManagementPage from "@/pages/admin/OrganizersManagementPage";
-import SponsorsManagementPage from "@/pages/admin/SponsorsManagementPage";
-import AnnouncementsManagementPage from "@/pages/admin/AnnouncementsManagementPage";
-import RegistrationsPage from "@/pages/admin/RegistrationsPage";
-import CheckinPage from "@/pages/admin/CheckinPage";
-import AnalyticsPage from "@/pages/admin/AnalyticsPage";
-import SightseeingManagementPage from "@/pages/admin/SightseeingManagementPage";
-import ContactMessagesPage from "@/pages/admin/ContactMessagesPage";
-import ConferencesManagementPage from "@/pages/admin/ConferencesManagementPage";
+// Lazy load all admin pages
+const DashboardPage = React.lazy(() => import("@/pages/admin/DashboardPage"));
+const ConferencePage = React.lazy(() => import("@/pages/admin/ConferencePage"));
+const SessionsPage = React.lazy(() => import("@/pages/admin/SessionsPage"));
+const SpeakersManagementPage = React.lazy(() => import("@/pages/admin/SpeakersManagementPage"));
+const OrganizersManagementPage = React.lazy(() => import("@/pages/admin/OrganizersManagementPage"));
+const SponsorsManagementPage = React.lazy(() => import("@/pages/admin/SponsorsManagementPage"));
+const AnnouncementsManagementPage = React.lazy(() => import("@/pages/admin/AnnouncementsManagementPage"));
+const RegistrationsPage = React.lazy(() => import("@/pages/admin/RegistrationsPage"));
+const CheckinPage = React.lazy(() => import("@/pages/admin/CheckinPage"));
+const AnalyticsPage = React.lazy(() => import("@/pages/admin/AnalyticsPage"));
+const SightseeingManagementPage = React.lazy(() => import("@/pages/admin/SightseeingManagementPage"));
+const ContactMessagesPage = React.lazy(() => import("@/pages/admin/ContactMessagesPage"));
+const ConferencesManagementPage = React.lazy(() => import("@/pages/admin/ConferencesManagementPage"));
 
 // Shared pages
 import Login from "@/pages/Login";
-import NotFound from "@/pages/NotFound";
-import { useAuth } from "@/hooks/useAuth";
-import { Loader2 } from "lucide-react";
+const NotFound = React.lazy(() => import("@/pages/NotFound"));
+
 
 /**
  * Component gốc của ứng dụng Admin.
@@ -62,26 +62,28 @@ export function AdminApp() {
             <ProtectedRoute>
               <AdminLayout>
                 {/* Bên trong khu vực được bảo vệ, chúng ta có một Switch thứ hai để chọn đúng trang */}
-                <Switch>
-                  {/* Đảm bảo thứ tự vẫn đúng: cụ thể nhất ở trên */}
-                  <Route path="/admin/conference" component={ConferencePage} />
-                  <Route path="/admin/conferences" component={ConferencesManagementPage} />
-                  <Route path="/admin/sessions" component={SessionsPage} />
-                  <Route path="/admin/speakers" component={SpeakersManagementPage} />
-                  <Route path="/admin/organizers" component={OrganizersManagementPage} />
-                  <Route path="/admin/sponsors" component={SponsorsManagementPage} />
-                  <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
-                  <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
-                  <Route path="/admin/registrations" component={RegistrationsPage} />
-                  <Route path="/admin/checkin" component={CheckinPage} />
-                  <Route path="/admin/analytics" component={AnalyticsPage} />
-                  <Route path="/admin/contact-messages" component={ContactMessagesPage} />
+                <Suspense fallback={<div className="p-6"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
+                  <Switch>
+                    {/* Đảm bảo thứ tự vẫn đúng: cụ thể nhất ở trên */}
+                    <Route path="/admin/conference" component={ConferencePage} />
+                    <Route path="/admin/conferences" component={ConferencesManagementPage} />
+                    <Route path="/admin/sessions" component={SessionsPage} />
+                    <Route path="/admin/speakers" component={SpeakersManagementPage} />
+                    <Route path="/admin/organizers" component={OrganizersManagementPage} />
+                    <Route path="/admin/sponsors" component={SponsorsManagementPage} />
+                    <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
+                    <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
+                    <Route path="/admin/registrations" component={RegistrationsPage} />
+                    <Route path="/admin/checkin" component={CheckinPage} />
+                    <Route path="/admin/analytics" component={AnalyticsPage} />
+                    <Route path="/admin/contact-messages" component={ContactMessagesPage} />
 
-                  {/* Route gốc /admin ở cuối cùng */}
-                  <Route path="/admin" component={DashboardPage} />
-                  
-                  <Route component={NotFound} />
-                </Switch>
+                    {/* Route gốc /admin ở cuối cùng */}
+                    <Route path="/admin" component={DashboardPage} />
+                    
+                    <Route component={NotFound} />
+                  </Switch>
+                </Suspense>
               </AdminLayout>
             </ProtectedRoute>
           </SidebarProvider>

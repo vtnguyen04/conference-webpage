@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Sponsor, Conference } from "@shared/schema";
+import type { Sponsor, Conference } from "@shared/types";
 import { Link, useRoute } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";

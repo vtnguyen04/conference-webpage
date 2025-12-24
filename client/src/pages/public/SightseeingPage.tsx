@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-import type { Sightseeing } from "@shared/schema";
+import type { Sightseeing } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -12,7 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
-import type { Conference } from "@shared/schema";
+import type { Conference } from "@shared/types";
 import { useEffect, useRef } from "react";
 import { Building } from "lucide-react"; 
 

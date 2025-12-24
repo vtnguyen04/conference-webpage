@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UserCheck, Calendar, Award, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import type { Conference } from "@shared/schema";
+import type { Conference } from "@shared/types";
 
 interface DashboardStats {
   totalRegistrations: number;

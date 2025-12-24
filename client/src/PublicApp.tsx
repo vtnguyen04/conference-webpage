@@ -15,7 +15,8 @@ import RegistrationPage from "@/pages/public/RegistrationPage";
 import RegistrationConfirmedPage from "@/pages/public/RegistrationConfirmedPage";
 import RegistrationFailedPage from "@/pages/public/RegistrationFailedPage";
 import ContactPage from "@/pages/public/ContactPage";
-import NotFound from "@/pages/NotFound";
+import React from "react";
+const NotFound = React.lazy(() => import("@/pages/NotFound"));
 import DocumentsPage from "@/pages/public/DocumentsPage";
 
 export function PublicApp() {

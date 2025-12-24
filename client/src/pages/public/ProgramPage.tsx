@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useRoute, Link } from "wouter";
-import type { Conference, Session, Speaker } from "@shared/schema";
+import type { Conference, Session, Speaker } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,

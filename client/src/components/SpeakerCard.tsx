@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { Speaker } from "@shared/schema";
+import type { Speaker } from "@shared/types";
 
 interface SpeakerCardProps {
   speaker: Speaker;

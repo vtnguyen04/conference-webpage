@@ -2,10 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import 'dotenv/config';
+import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
   plugins: [
     react(),
+    visualizer({ open: true }),
   ],
   resolve: {
     alias: {
@@ -23,6 +25,13 @@ export default defineConfig({
         main: path.resolve(process.cwd(), "client/index.html"),
         admin: path.resolve(process.cwd(), "client/admin.html"),
       },
+      output: {
+        manualChunks(id) {
+          if (id.includes('html5-qrcode')) {
+            return 'vendor-qr-scanner';
+          }
+        }
+      }
     },
   },
   server: {
