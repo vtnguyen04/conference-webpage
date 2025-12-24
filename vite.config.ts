@@ -26,11 +26,6 @@ export default defineConfig({
         admin: path.resolve(process.cwd(), "client/admin.html"),
       },
       output: {
-        manualChunks(id) {
-          if (id.includes('html5-qrcode')) {
-            return 'vendor-qr-scanner';
-          }
-        }
       }
     },
   },

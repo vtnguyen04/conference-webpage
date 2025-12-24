@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useInView } from 'framer-motion';
+import { motion as m } from 'framer-motion'; 
 
 interface ScrollAnimatedSectionProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export const ScrollAnimatedSection: React.FC<ScrollAnimatedSectionProps> = ({ ch
   };
 
   return (
-    <motion.section
+    <m.section
       ref={ref}
       className={className}
       initial="hidden"
@@ -25,6 +26,7 @@ export const ScrollAnimatedSection: React.FC<ScrollAnimatedSectionProps> = ({ ch
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       {children}
-    </motion.section>
+    </m.section>
   );
 };
+

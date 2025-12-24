@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Speaker } from "@shared/types";
 
@@ -5,7 +6,7 @@ interface SpeakerCardProps {
   speaker: Speaker;
 }
 
-export function SpeakerCard({ speaker }: SpeakerCardProps) {
+export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardProps) {
   return (
     <div className="p-1 h-full">
       <Card
@@ -58,4 +59,5 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
       </Card>
     </div>
   );
-}
+});
+

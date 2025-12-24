@@ -15,3 +15,6 @@ server/data/*.db
 /migrations/meta/
 server/data/*.docx
 server/data/*.pptx
+
+# Build artifacts & reports
+stats.html
