@@ -1,16 +1,16 @@
 # Hệ Thống Quản Lý Hội Nghị Khoa Học (Full-stack)
 
-Hệ thống quản lý hội nghị chuyên nghiệp hỗ trợ đăng ký trực tuyến, xác nhận qua email (QR Code), quản lý nội dung đa hội thảo và quản trị thông tin chi tiết các phiên làm việc, diễn giả, nhà tài trợ.
+Hệ thống quản lý hội nghị, quản lý nội dung đa hội thảo và quản trị thông tin chi tiết các phiên làm việc, diễn giả, nhà tài trợ.
 
 ---
 
 ## Mục lục
-1. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-2. [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-3. [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
-4. [Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
-5. [Triển khai với Docker](#-triển-khai-với-docker)
-6. [Các lệnh quản trị](#-các-lệnh-quản-trị)
+1. [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+2. [Cấu trúc thư mục](#cấu-trúc-thư-mục)
+3. [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+4. [Hướng dẫn cài đặt](#hướng-dẫn-cài-đặt)
+5. [Triển khai với Docker](#triển-khai-với-docker)
+6. [Các lệnh quản trị](#các-lệnh-quản-trị)
 
 ---
 
@@ -29,16 +29,14 @@ Hệ thống quản lý hội nghị chuyên nghiệp hỗ trợ đăng ký tr�
 conference-webpage/
 ├── client/                     # Mã nguồn Frontend (React)
 │   └── src/
-│       ├── components/         # UI Components (Admin, Public, Sections)
-│       ├── hooks/              # Custom Hooks (useRegistrations, useAuth...)
-│       ├── services/           # Service Layer (API calls centralized)
+│       ├── components/         # UI Components
 │       ├── pages/              # Giao diện chính (Admin & Public)
 │       └── AdminApp.tsx        # Router trang quản trị
 ├── server/                     # Mã nguồn Backend (Express)
-│   ├── routers/
-│   ├── controllers/
+│   ├── routers/                # API Routes
+│   ├── controllers/            # Xử lý Logic
 │   ├── services/               # Nghiệp vụ tập trung (Email, Registration)
-│   ├── repositories/           # Truy cập dữ liệu (JSON/DB)
+│   ├── repositories/           # Truy vấn dữ liệu (JSON/DB)
 │   ├── middlewares/            # Auth, Error Handler, v.v.
 │   └── data/                   # Database (.db) và Content (.json)
 ├── shared/                     # Code dùng chung (Schema, Types, Validation)
@@ -59,7 +57,7 @@ conference-webpage/
 
 ### 1. Clone mã nguồn
 ```bash
-git clone https://github.com/vtnguyen04/conference-webpage.git
+git clone <url-repository-cua-ban>
 cd conference-webpage
 ```
 
@@ -123,3 +121,6 @@ docker run -d \
 - **Kiểm tra lỗi Type**: `npm run check`
 - **Giao diện quản trị Database**: `npx drizzle-kit studio`
 - **Build cho Production**: `npm run build`
+
+---
+*Tài liệu được cập nhật ngày 24/12/2025.*
