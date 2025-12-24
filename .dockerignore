@@ -1,0 +1,13 @@
+node_modules
+dist
+.vite
+.git
+server/data/*.db
+server/data/*.db-journal
+public/uploads/*
+!public/uploads/.gitkeep
+.env
+npm-debug.log
+**/core
+**/out
+.vscode
