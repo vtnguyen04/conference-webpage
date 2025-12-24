@@ -6,12 +6,12 @@ import {
   index,
 } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 
 // ============================================================================
 // DATABASE TABLES (Transactional data only)
 // ============================================================================
 
-// Session storage table
 export const sessions = sqliteTable(
   "sessions",
   {
@@ -24,22 +24,25 @@ export const sessions = sqliteTable(
   })
 );
 
-// Users table
+export const systemConfig = sqliteTable("system_config", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+});
+
 export const users = sqliteTable("users", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
   email: text("email").unique().notNull(),
   passwordHash: text("password_hash"),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  role: text("role").notNull().default("user"), // admin, editor, user
+  role: text("role").notNull().default("user"),
   profileImageUrl: text("profile_image_url"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
 });
 
-// Registrations table
 export const registrations = sqliteTable("registrations", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
   conferenceSlug: text("conference_slug").notNull(),
   sessionId: text("session_id").notNull(),
   fullName: text("full_name").notNull(),
@@ -67,9 +70,8 @@ export const registrations = sqliteTable("registrations", {
   confirmationTokenIdx: index("idx_registrations_confirmation_token").on(table.confirmationToken),
 }));
 
-// Check-ins table
 export const checkIns = sqliteTable("check_ins", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
   registrationId: text("registration_id")
     .notNull()
     .references(() => registrations.id, { onDelete: "cascade" }),
@@ -84,9 +86,8 @@ export const checkIns = sqliteTable("check_ins", {
   checkedAtIdx: index("idx_checkins_checked_at").on(table.checkedInAt),
 }));
 
-// Audit logs
 export const auditLogs = sqliteTable("audit_logs", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
   userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
   action: text("action").notNull(),
   entityType: text("entity_type").notNull(),
@@ -98,15 +99,17 @@ export const auditLogs = sqliteTable("audit_logs", {
   createdIdx: index("idx_audit_logs_created").on(table.createdAt),
 }));
 
-// Contact Messages table
 export const contactMessages = sqliteTable("contact_messages", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
   name: text("name").notNull(),
   email: text("email").notNull(),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   submittedAt: integer("submitted_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
-});
+}, (table) => ({
+  emailIdx: index("idx_contact_email").on(table.email),
+  submittedIdx: index("idx_contact_submitted").on(table.submittedAt),
+}));
 
 // ============================================================================
 // RELATIONS
@@ -129,3 +132,27 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// ============================================================================
+// EXPORT TYPES
+// ============================================================================
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export type Registration = typeof registrations.$inferSelect;
+export type InsertRegistration = typeof registrations.$inferInsert;
+export type CheckIn = typeof checkIns.$inferSelect;
+export type InsertCheckIn = typeof checkIns.$inferInsert;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = typeof contactMessages.$inferInsert;
+
+// Import JSON-only types from types.ts
+import { 
+  Conference, Session, Speaker, Organizer, Sponsor, Announcement, Sightseeing, Whitelist, DashboardStats 
+} from "./types";
+
+export type { 
+  Conference, Session, Speaker, Organizer, Sponsor, Announcement, Sightseeing, Whitelist, DashboardStats 
+};

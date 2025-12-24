@@ -1,101 +1,42 @@
 
 import dotenv from 'dotenv';
-
-import { initializeEmailTransporter } from "./emailService";
-
 dotenv.config();
-initializeEmailTransporter(); // Initialize transporter after dotenv.config()
 
-import express, { type Request, Response, NextFunction } from "express";
+import express from "express";
 import path from "path";
-import { registerRoutes } from "./routes";
+import { createServer } from 'http';
+import mainRouter from "./routers";
+import { setupAuth } from './sessionAuth';
 import { setupVite, serveStatic, log } from "./vite";
-import { startReminderService } from "./reminderService";
-import { startConfirmationReminderService } from "./confirmationReminderService";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+import { errorHandler } from "./middlewares/errorHandler";
+
+// Import services from the services folder
+import { reminderService } from "./services/reminderService";
+import { confirmationReminderService } from "./services/confirmationReminderService";
 
 const app = express();
+const server = createServer(app);
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
-
-declare module 'http' {
-  interface IncomingMessage {
-    rawBody: unknown
-  }
-}
-app.use(express.json({
-  verify: (req, _res, buf) => {
-    req.rawBody = buf;
-  }
-}));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
 (async () => {
-  try {
-    db.run(sql`SELECT 1`);
-    log("Database connection successful");
-  } catch (error) {
-    log("Database connection failed:", String(error));
-    process.exit(1);
-  }
+  try { db.run(sql`SELECT 1`); log("Database connection successful"); } catch (error) { process.exit(1); }
 
-  const server = await registerRoutes(app);
+  setupAuth(app);
+  app.use('/api', mainRouter);
+  
+  // Start background services
+  reminderService.start();
+  confirmationReminderService.start();
 
-  startReminderService();
-  startConfirmationReminderService();
+  app.use(errorHandler);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    throw err;
-  });
+  if (app.get("env") === "development") await setupVite(app, server); else serveStatic(app);
 
-  // Set up Vite in development after other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  // Serve on the specified port or 5000
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  server.listen({ port, host: "0.0.0.0" }, () => log(`serving on port ${port}`));
 })();
