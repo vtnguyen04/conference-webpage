@@ -57,7 +57,7 @@ conference-webpage/
 
 ### 1. Clone mã nguồn
 ```bash
-git clone <url-repository-cua-ban>
+git clone https://github.com/vtnguyen04/conference-webpage.git
 cd conference-webpage
 ```
 
