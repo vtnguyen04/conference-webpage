@@ -22,13 +22,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
-
 type ContactFormValues = z.infer<typeof contactFormSchema>;
-
 const ContactPage: React.FC = () => {
   const { toast } = useToast();
   const contentRef = useRef<HTMLDivElement>(null);
-
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -39,11 +36,9 @@ const ContactPage: React.FC = () => {
       recaptcha: false,
     },
   });
-
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
-
   const mutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
       const response = await fetch('/api/contact', {
@@ -73,12 +68,9 @@ const ContactPage: React.FC = () => {
       });
     },
   });
-
   const onSubmit = (data: ContactFormValues) => {
     mutation.mutate(data);
   };
-
-  // Auto scroll to content
   useEffect(() => {
     const timer = setTimeout(() => {
       if (contentRef.current) {
@@ -88,10 +80,8 @@ const ContactPage: React.FC = () => {
         });
       }
     }, 100);
-
     return () => clearTimeout(timer);
   }, []);
-
   return (
     <>
       <PageHeader
@@ -113,7 +103,6 @@ const ContactPage: React.FC = () => {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={contentRef} className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
@@ -123,7 +112,6 @@ const ContactPage: React.FC = () => {
                 Nếu bạn có bất kỳ câu hỏi nào, vui lòng điền vào biểu mẫu dưới đây.
               </p>
             </div>
-            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -163,7 +151,6 @@ const ContactPage: React.FC = () => {
                     )}
                   />
                 </div>
-
                 <FormField
                   control={form.control}
                   name="subject"
@@ -181,7 +168,6 @@ const ContactPage: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="message"
@@ -200,7 +186,6 @@ const ContactPage: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="recaptcha"
@@ -222,7 +207,6 @@ const ContactPage: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
                 <div>
                   <Button 
                     type="submit" 
@@ -235,7 +219,6 @@ const ContactPage: React.FC = () => {
               </form>
             </Form>
           </div>
-
           <div className="lg:col-span-1">
             {conference && (
               <Card className="border border-gray-200 shadow-none">
@@ -264,5 +247,4 @@ const ContactPage: React.FC = () => {
     </>
   );
 };
-
 export default ContactPage;

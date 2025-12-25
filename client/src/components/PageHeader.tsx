@@ -1,14 +1,12 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
   bannerImageUrl?: string;
   className?: string;
-  children?: React.ReactNode; // For breadcrumbs or other elements
+  children?: React.ReactNode;
 }
-
 export function PageHeader({ title, subtitle, bannerImageUrl, className, children }: PageHeaderProps) {
   return (
     <section className={cn(
@@ -24,7 +22,6 @@ export function PageHeader({ title, subtitle, bannerImageUrl, className, childre
         />
       )}
       <div className="absolute inset-0 bg-black/50"></div> {/* Dark overlay */}
-
       <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-4 uppercase">
           {title}

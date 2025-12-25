@@ -15,30 +15,24 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Conference } from "@shared/types";
 import { cn } from "@/lib/utils";
-
 interface PublicLayoutProps {
   children: React.ReactNode;
   className?: string;
 }
-
 export function PublicLayout({ children, className }: PublicLayoutProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
   const { data: allConferences = [] } = useQuery<Conference[]>({
     queryKey: ["/api/conferences"],
   });
-
   const activeConference = allConferences.find(c => c.isActive);
   const pastConferences = allConferences.filter(c => !c.isActive).sort((a, b) => (b.startDate ? new Date(b.startDate).getTime() : 0) - (a.startDate ? new Date(a.startDate).getTime() : 0));
-
   useEffect(() => {
     if (activeConference?.name) {
       document.title = activeConference.name;
     }
   }, [activeConference]);
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -46,7 +40,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
   const getConferenceMenuItems = (conference: Conference, isCurrentActive: boolean) => {
     const allItems = [
       { href: isCurrentActive ? "/program" : `/conference/${conference.slug}/program`, label: "Chương trình hội nghị" },
@@ -64,13 +57,11 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
     }
     return allItems;
   };
-
   const navItems = [
     { href: "/", label: "TRANG CHỦ" },
     { href: "/about", label: "GIỚI THIỆU" },
     { href: "/organizers", label: "BAN TỔ CHỨC" },
   ];
-
   const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
     <Link
       href={href}
@@ -84,7 +75,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
       {children}
     </Link>
   );
-
   const DropdownMenuNavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
     <Link href={href}>
       <DropdownMenuItem className="cursor-pointer">
@@ -92,7 +82,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
       </DropdownMenuItem>
     </Link>
   );
-
   return (
     <div className={cn("min-h-screen bg-white dark:bg-slate-950", className)}>
       <header className={cn(
@@ -116,12 +105,10 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                 </div>
               )}
             </Link>
-
             <nav className="hidden lg:flex items-center space-x-0 mx-auto">
               {navItems.map((item) => (
                 <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
               ))}
-
               {activeConference && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -145,7 +132,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -181,12 +167,9 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-              
               <NavLink href="/sightseeing">ĐỊA ĐIỂM THAM QUAN</NavLink>
               <NavLink href="/contact">LIÊN HỆ</NavLink>
-
             </nav>
-
             <div className="hidden lg:block flex-shrink-0">
               <Link href="/register">
                 <Button
@@ -196,7 +179,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                 </Button>
               </Link>
             </div>
-
             <button
               className="lg:hidden p-2 hover:bg-slate-100 rounded transition-colors flex-shrink-0"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -205,7 +187,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
             </button>
           </div>
         </div>
-
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 bg-white">
             <nav className="container mx-auto p-4 space-y-1 max-h-[80vh] overflow-y-auto">
@@ -224,7 +205,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   {item.label}
                 </Link>
               ))}
-
               {activeConference && (
                 <div className="border-t border-slate-200 pt-3 mt-3">
                    <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase">
@@ -244,7 +224,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                     </div>
                 </div>
               )}
-
               <div className="border-t border-slate-200 pt-3 mt-3">
                  <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase">
                    Các kỳ hội nghị cũ
@@ -273,14 +252,12 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   <p className="px-4 text-sm text-slate-500">Không có hội nghị cũ</p>
                  )}
               </div>
-              
               <Link href="/sightseeing" className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                 ĐỊA ĐIỂM THAM QUAN
               </Link>
               <Link href="/contact" className="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                 LIÊN HỆ
               </Link>
-
               <div className="pt-4 border-t border-slate-200">
                 <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
                   <Button
@@ -294,11 +271,9 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
           </div>
         )}
       </header>
-
       <main className="relative">
         {children}
       </main>
-
       <footer className="bg-teal-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -320,12 +295,10 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   </p>
                 </div>
               </div>
-
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm mb-3 text-slate-200 uppercase tracking-wide">
                   Thông tin liên hệ
                 </h4>
-                
                 {activeConference?.location && (
                   <div className="flex items-start gap-3 text-sm">
                     <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-teal-400" />
@@ -334,7 +307,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                     </span>
                   </div>
                 )}
-
                 {activeConference?.contactPhone && (
                   <div className="flex items-center gap-3 text-sm">
                     <Phone className="h-4 w-4 flex-shrink-0 text-teal-400" />
@@ -343,7 +315,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                     </span>
                   </div>
                 )}
-
                 {activeConference?.contactEmail && (
                   <div className="flex items-center gap-3 text-sm">
                     <Mail className="h-4 w-4 flex-shrink-0 text-teal-400" />
@@ -354,7 +325,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                 )}
               </div>
             </div>
-
             {activeConference?.location && (
               <div>
                 <h4 className="font-semibold text-sm mb-3 text-slate-200 uppercase tracking-wide">
@@ -374,7 +344,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
               </div>
             )}
           </div>
-
           <div className="mt-8 pt-6 border-t border-slate-800">
             <div className="text-center">
               <p className="text-sm text-slate-300">

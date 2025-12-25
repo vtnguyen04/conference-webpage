@@ -41,7 +41,6 @@ import { Label } from '@/components/ui/label';
 import { Loader2, CheckCircle, XCircle, Trash2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Conference } from '@shared/types';
-
 const fetchConferences = async (): Promise<Conference[]> => {
   const response = await fetch('/api/conferences');
   if (!response.ok) {
@@ -49,7 +48,6 @@ const fetchConferences = async (): Promise<Conference[]> => {
   }
   return response.json();
 };
-
 const activateConference = async (slug: string) => {
   const response = await fetch(`/api/conferences/${slug}/activate`, {
     method: 'POST',
@@ -59,7 +57,6 @@ const activateConference = async (slug: string) => {
   }
   return response.json();
 };
-
 const deleteConference = async (slug: string) => {
   const response = await fetch(`/api/conferences/${slug}`, {
     method: 'DELETE',
@@ -70,7 +67,6 @@ const deleteConference = async (slug: string) => {
   }
   return response.json();
 };
-
 const cloneConference = async ({ fromSlug, newConferenceName }: { fromSlug: string, newConferenceName: string }) => {
   const response = await fetch(`/api/conferences/${fromSlug}/clone`, {
     method: 'POST',
@@ -83,7 +79,6 @@ const cloneConference = async ({ fromSlug, newConferenceName }: { fromSlug: stri
   }
   return response.json();
 };
-
 const ConferencesManagementPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -91,12 +86,10 @@ const ConferencesManagementPage: React.FC = () => {
   const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [newConferenceName, setNewConferenceName] = useState<string>('');
-
   const { data: conferences, isLoading, isError, error } = useQuery<Conference[]>({
     queryKey: ['conferences'],
     queryFn: fetchConferences,
   });
-
   const activationMutation = useMutation({
     mutationFn: activateConference,
     onSuccess: (_, slug) => {
@@ -115,7 +108,6 @@ const ConferencesManagementPage: React.FC = () => {
       });
     },
   });
-
   const deletionMutation = useMutation({
     mutationFn: deleteConference,
     onSuccess: (_, slug) => {
@@ -137,7 +129,6 @@ const ConferencesManagementPage: React.FC = () => {
       setSelectedSlug(null);
     }
   });
-
   const cloneMutation = useMutation({
     mutationFn: cloneConference,
     onSuccess: (_, { newConferenceName }) => {
@@ -159,31 +150,26 @@ const ConferencesManagementPage: React.FC = () => {
       setSelectedSlug(null);
     }
   });
-
   const handleDeleteClick = (slug: string) => {
     setSelectedSlug(slug);
     setIsAlertOpen(true);
   };
-
   const handleCloneClick = (slug: string) => {
     setSelectedSlug(slug);
     const currentYear = new Date().getFullYear();
     setNewConferenceName(`Copy of ${conferences?.find(c => c.slug === slug)?.name} ${currentYear}`);
     setIsCloneDialogOpen(true);
   };
-
   const handleConfirmDelete = () => {
     if (selectedSlug) {
       deletionMutation.mutate(selectedSlug);
     }
   };
-
   const handleConfirmClone = () => {
     if (selectedSlug && newConferenceName) {
       cloneMutation.mutate({ fromSlug: selectedSlug, newConferenceName });
     }
   };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -191,7 +177,6 @@ const ConferencesManagementPage: React.FC = () => {
       </div>
     );
   }
-
   if (isError) {
     return (
       <Alert variant="destructive">
@@ -200,7 +185,6 @@ const ConferencesManagementPage: React.FC = () => {
       </Alert>
     );
   }
-
   return (
     <>
       <Card>
@@ -280,7 +264,6 @@ const ConferencesManagementPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
-
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -300,7 +283,6 @@ const ConferencesManagementPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
       <Dialog open={isCloneDialogOpen} onOpenChange={setIsCloneDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -334,5 +316,4 @@ const ConferencesManagementPage: React.FC = () => {
     </>
   );
 };
-
 export default ConferencesManagementPage;

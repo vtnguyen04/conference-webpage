@@ -2,7 +2,6 @@ import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from './ui/button';
 import { Trash2, UploadCloud } from 'lucide-react';
-
 interface ImageUploaderProps {
   onDrop: (acceptedFiles: File[]) => void;
   onDelete: () => void;
@@ -11,7 +10,6 @@ interface ImageUploaderProps {
   isDeleting: boolean;
   disabled?: boolean;
 }
-
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   onDrop,
   onDelete,
@@ -26,12 +24,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     multiple: false,
     disabled: disabled || isUploading || isDeleting,
   });
-
   const handleDeleteClick = () => {
     if (disabled) return;
     onDelete();
   }
-
   return (
     <div className="flex items-center space-x-4">
       <div

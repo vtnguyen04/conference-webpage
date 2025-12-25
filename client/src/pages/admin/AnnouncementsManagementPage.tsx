@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 const ReactQuill = React.lazy(() => import("react-quill"));
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import {
   Select,
   SelectContent,
@@ -43,20 +43,16 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
 import { announcementService } from "@/services/announcementService";
 import { uploadService } from "@/services/uploadService";
-
-
 const categoryLabels: Record<string, string> = {
   general: "Thông báo chung",
   important: "Quan trọng",
   deadline: "Hạn chót",
 };
-
 const categoryColors: Record<string, string> = {
   general: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
   important: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
   deadline: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 };
-
 export default function AnnouncementsManagementPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -68,7 +64,6 @@ export default function AnnouncementsManagementPage() {
   const [isPdfDeleting, setIsPdfDeleting] = useState(false);
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: announcements = [] } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements", viewingSlug],
     queryFn: async () => {
@@ -77,7 +72,6 @@ export default function AnnouncementsManagementPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertAnnouncement>({
     resolver: zodResolver(insertAnnouncementSchema),
     defaultValues: {
@@ -89,7 +83,6 @@ export default function AnnouncementsManagementPage() {
       publishedAt: new Date().toISOString().slice(0, 16),
     },
   });
-
   useEffect(() => {
     if (isDialogOpen) {
       if (editingAnnouncement) {
@@ -115,7 +108,6 @@ export default function AnnouncementsManagementPage() {
       }
     }
   }, [editingAnnouncement, isDialogOpen, form]);
-
   const createMutation = useMutation({
     mutationFn: (data: InsertAnnouncement) => announcementService.createAnnouncement(data),
     onSuccess: () => {
@@ -128,7 +120,6 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: InsertAnnouncement }) =>
       announcementService.updateAnnouncement(id, data),
@@ -143,7 +134,6 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) => announcementService.deleteAnnouncement(id),
     onSuccess: () => {
@@ -154,7 +144,6 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: () => announcementService.deleteAllAnnouncements(),
     onSuccess: () => {
@@ -165,33 +154,28 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingAnnouncement(null);
     setIsDialogOpen(true);
   };
-
   const handleEdit = (announcement: Announcement) => {
     if (isReadOnly) return;
     setEditingAnnouncement(announcement);
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa thông báo "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ thông báo? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertAnnouncement) => {
     if (isReadOnly) return;
     if (editingAnnouncement) {
@@ -200,22 +184,17 @@ export default function AnnouncementsManagementPage() {
       createMutation.mutate(data);
     }
   };
-
   const handleImageDrop = async (acceptedFiles: File[]) => {
     if (isReadOnly) return;
     const file = acceptedFiles[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('image', file);
-
     const oldImageUrl = form.getValues("featuredImageUrl");
     if (oldImageUrl) {
       formData.append("oldImagePath", oldImageUrl);
     }
-
     setIsImageUploading(true);
-
     try {
       const result = await uploadService.uploadImage(formData);
       form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
@@ -227,16 +206,13 @@ export default function AnnouncementsManagementPage() {
       setIsImageUploading(false);
     }
   };
-
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentImageUrl = form.getValues("featuredImageUrl");
     if (!currentImageUrl || !confirm("Bạn có chắc muốn xóa ảnh này?")) {
       return;
     }
-
     setIsImageDeleting(true);
-
     try {
       await uploadService.deleteFile(currentImageUrl);
       form.setValue("featuredImageUrl", "", { shouldValidate: true });
@@ -248,22 +224,17 @@ export default function AnnouncementsManagementPage() {
       setIsImageDeleting(false);
     }
   };
-
   const handlePdfFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (isReadOnly) return;
     const file = event.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('pdf', file);
-
     const oldPdfUrl = form.getValues("pdfUrl");
     if (oldPdfUrl) {
       formData.append("oldPdfPath", oldPdfUrl);
     }
-
     setIsPdfUploading(true);
-
     try {
       const result = await uploadService.uploadPdf(formData);
       form.setValue("pdfUrl", result.pdfPath, { shouldValidate: true });
@@ -275,16 +246,13 @@ export default function AnnouncementsManagementPage() {
       setIsPdfUploading(false);
     }
   };
-
   const handlePdfDelete = async () => {
     if (isReadOnly) return;
     const currentPdfUrl = form.getValues("pdfUrl");
     if (!currentPdfUrl || !confirm("Bạn có chắc muốn xóa tệp này?")) {
       return;
     }
-
     setIsPdfDeleting(true);
-
     try {
       await uploadService.deleteFile(currentPdfUrl);
       form.setValue("pdfUrl", "", { shouldValidate: true });
@@ -296,24 +264,20 @@ export default function AnnouncementsManagementPage() {
       setIsPdfDeleting(false);
     }
   };
-
   const imageHandler = () => {
     if (isReadOnly) return;
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.click();
-
     input.onchange = async () => {
       const file = input.files ? input.files[0] : null;
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-
         try {
           const result = await uploadService.uploadImage(formData);
           const imageUrl = result.imagePath;
-
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
@@ -327,7 +291,6 @@ export default function AnnouncementsManagementPage() {
       }
     };
   };
-
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -342,11 +305,9 @@ export default function AnnouncementsManagementPage() {
       },
     },
   }), [isReadOnly]);
-
   const sortedAnnouncements = [...announcements].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -369,7 +330,6 @@ export default function AnnouncementsManagementPage() {
           </Button>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Danh sách thông báo</CardTitle>
@@ -435,7 +395,6 @@ export default function AnnouncementsManagementPage() {
           )}
         </CardContent>
       </Card>
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -446,7 +405,6 @@ export default function AnnouncementsManagementPage() {
               Điền thông tin chi tiết về thông báo
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -472,7 +430,6 @@ export default function AnnouncementsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="pdfUrl"
@@ -499,7 +456,6 @@ export default function AnnouncementsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="title"
@@ -513,7 +469,6 @@ export default function AnnouncementsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="excerpt"
@@ -530,7 +485,6 @@ export default function AnnouncementsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <Controller
                 name="content"
                 control={form.control}
@@ -557,7 +511,6 @@ export default function AnnouncementsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -581,7 +534,6 @@ export default function AnnouncementsManagementPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="publishedAt"
@@ -596,7 +548,6 @@ export default function AnnouncementsManagementPage() {
                   )}
                 />
               </div>
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

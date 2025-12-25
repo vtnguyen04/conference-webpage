@@ -595,12 +595,55 @@ Các trang phản hồi sau khi đại biểu tương tác qua Email đã đư�
 
 ---
 
-## 5.38. Lời kết: Một hệ thống sẵn sàng cho Quy mô lớn
+---
+
+## 5.39. Cấu hình Rate Limiting thông minh (Smart Rate Limiting)
+
+Sau quá trình vận hành thử nghiệm, chúng tôi nhận thấy việc áp dụng Rate Limit quá khắt khe lên các yêu cầu lấy dữ liệu (GET) có thể gây gián đoạn trải nghiệm người dùng, đặc biệt khi trang web có nhiều thành phần gọi API đồng thời.
+
+### 5.3.1. Phân tách chiến lược theo Method
+Chúng tôi đã nâng cấp `apiLimiter` để hoạt động thông minh hơn:
+- **Tăng ngưỡng giới hạn**: Nâng từ 1000 lên 5000 yêu cầu / 15 phút.
+- **Bỏ qua yêu cầu GET**: Các yêu cầu lấy thông tin công khai (Hội nghị, Diễn giả, Thông báo) sẽ không bị tính vào Rate Limit. Điều này đảm bảo nội dung luôn sẵn sàng cho đại biểu ngay cả khi lưu lượng truy cập tăng đột biến.
+- **Tập trung bảo vệ POST/PUT/DELETE**: Giới hạn tốc độ vẫn được áp dụng chặt chẽ cho các thao tác thay đổi dữ liệu để ngăn chặn spam và tấn công phá hoại.
+
+### Key Code: server/index.ts
+```typescript
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5000,
+  skip: (req) => req.method === 'GET', // Ưu tiên cho việc đọc dữ liệu
+  message: "Quá nhiều yêu cầu từ IP này, vui lòng thử lại sau 15 phút"
+});
+```
+
+---
+
+## 5.40. Hệ thống xử lý lỗi hướng người dùng (User-Centric Error Handling)
+
+Một trong những cải tiến quan trọng nhất về trải nghiệm người dùng (UX) là việc thay thế các thông báo lỗi kỹ thuật khô khan bằng các chỉ dẫn tiếng Việt thân thiện.
+
+### 5.40.1. Lớp lỗi tùy chỉnh ApiError
+Chúng tôi xây dựng lớp `ApiError` kế thừa từ `Error` để đính kèm mã trạng thái HTTP (status code) vào mọi lỗi API. Việc này giúp Frontend nhận diện chính xác loại lỗi (401, 404, 500) mà không cần dựa vào việc phân tích chuỗi văn bản (string matching).
+
+### 5.40.2. Cơ chế "Việt hóa" lỗi tự động
+Thay vì hiển thị dữ liệu JSON thô (`{"message": "Invalid credentials"}`), hệ thống hiện tại:
+1. Thử giải mã JSON lỗi từ server để lấy thông tin thực tế.
+2. Ánh xạ các mã lỗi quan trọng (như 401) sang câu thông báo lịch sự.
+3. Đảm bảo mọi thông báo lỗi trên Toast đều rõ ràng, giúp người dùng biết chính xác họ cần làm gì (ví dụ: "Mật khẩu không chính xác" thay vì "401 Unauthorized").
+
+### 5.40.3. Tối ưu hóa Cache Xác thực
+Chúng tôi cấu hình `staleTime: 0` cho các truy vấn xác thực (`useAuth`). Điều này đảm bảo rằng trạng thái đăng nhập của Admin luôn được kiểm tra trực tiếp với Server, tránh hiện tượng "treo" giao diện hoặc truy cập trái phép do sử dụng dữ liệu cũ trong cache.
+
+---
+
+## Lời kết: Một hệ thống sẵn sàng cho Quy mô lớn
 
 Với những cải tiến cuối cùng về độ sạch của mã nguồn, tính chính xác của logic nghiệp vụ và sự chuyên nghiệp trong giao diện, hệ thống Quản lý Hội nghị Khoa học đã sẵn sàng để phục vụ các sự kiện thực tế với quy mô hàng nghìn đại biểu. Chúng tôi không chỉ mang lại một công cụ hoạt động được, mà còn mang lại một **Nền tảng Kỹ thuật chuẩn mực**.
 
 ---
 *(Cập nhật bổ sung ngày 25/12/2025)*
+
 
 
 

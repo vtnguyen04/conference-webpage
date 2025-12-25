@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { SpeakerCard } from "@/components/SpeakerCard";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { speakerService } from "@/services/speakerService"; // Added
-
+import { speakerService } from "@/services/speakerService";
 const SpeakersSection = () => {
     const { conference } = useActiveConference();
     const { data: speakers = [] } = useQuery<Speaker[]>({
@@ -16,11 +15,9 @@ const SpeakersSection = () => {
         queryFn: () => speakerService.getSpeakers(conference?.slug),
         enabled: !!conference,
     });
-
     if (speakers.length === 0) {
         return null;
     }
-
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
@@ -35,7 +32,6 @@ const SpeakersSection = () => {
                     </Link>
                 }
             />
-
             <Carousel
                 opts={{
                     align: "start",
@@ -59,5 +55,4 @@ const SpeakersSection = () => {
         </div>
     )
 }
-
 export default SpeakersSection;

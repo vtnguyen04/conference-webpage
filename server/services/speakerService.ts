@@ -5,7 +5,6 @@ import { db } from "../db";
 import { registrations as registrationsTable } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { Speaker, Conference } from "@shared/schema";
-
 export class SpeakerService {
   async autoRegisterModerator(speaker: Speaker, conference: Conference) {
     if ((speaker.role !== 'moderator' && speaker.role !== 'both') || !speaker.email) return;
@@ -36,13 +35,11 @@ export class SpeakerService {
       console.error("Auto-registration error:", e);
     }
   }
-
   async createSpeaker(slug: string, data: any, conference: Conference) {
     const speaker = await speakerRepository.create(slug, data);
     await this.autoRegisterModerator(speaker, conference);
     return speaker;
   }
-
   async updateSpeaker(slug: string, id: string, updates: any, conference: Conference) {
     const oldSpeaker = await speakerRepository.getById(slug, id);
     const updated = await speakerRepository.update(slug, id, updates);

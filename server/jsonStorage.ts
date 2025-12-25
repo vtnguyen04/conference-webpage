@@ -1,4 +1,3 @@
-
 import { existsSync } from "fs";
 import { readdir, unlink } from "fs/promises";
 import type {
@@ -14,7 +13,6 @@ import {
     DATA_DIR,
     ConferenceData 
 } from "./dataContext";
-
 export class JSONStorage {
   async getActiveConference(): Promise<Conference | undefined> {
     const config = await readConfig();
@@ -23,12 +21,10 @@ export class JSONStorage {
     const data = await readConferenceData(slug);
     return data?.conference;
   }
-
   async getConferenceBySlug(slug: string): Promise<Conference | undefined> {
     const data = await readConferenceData(slug);
     return data?.conference;
   }
-
   async getAllConferences(): Promise<Conference[]> {
     try {
       const files = await readdir(DATA_DIR);
@@ -49,7 +45,6 @@ export class JSONStorage {
       return [];
     }
   }
-
   async createConference(conf: Partial<Conference>): Promise<Conference> {
     const baseSlug = slugify(conf.name!);
     let slug = baseSlug;
@@ -58,7 +53,6 @@ export class JSONStorage {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }
-
     const conference: Conference = {
       id: slug,
       slug: slug,
@@ -80,16 +74,13 @@ export class JSONStorage {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     } as any;
-
     const newData: ConferenceData = {
       conference,
       sessions: [], speakers: [], organizers: [], sponsors: [], announcements: [], sightseeing: [], whitelists: [],
     };
-
     await writeConferenceData(slug, newData);
     return conference;
   }
-
   async updateConference(slug: string, updates: Partial<Conference>): Promise<Conference | undefined> {
     const data = await readConferenceData(slug);
     if (!data) return undefined;
@@ -97,7 +88,6 @@ export class JSONStorage {
     await writeConferenceData(slug, data);
     return data.conference;
   }
-
   async deleteConference(slug: string): Promise<void> {
     const filePath = getConferenceFilePath(slug);
     if (existsSync(filePath)) {
@@ -109,13 +99,11 @@ export class JSONStorage {
       await writeConfig(config);
     }
   }
-
   async setActiveConference(slugToActivate: string): Promise<void> {
     const config = await readConfig();
     config.activeConferenceSlug = slugToActivate;
     await writeConfig(config);
   }
-
   async getContentStats(slug: string): Promise<{ totalSessions: number; totalSponsors: number }> {
     const data = await readConferenceData(slug);
     if (!data) return { totalSessions: 0, totalSponsors: 0 };
@@ -125,5 +113,4 @@ export class JSONStorage {
     };
   }
 }
-
 export const jsonStorage = new JSONStorage();

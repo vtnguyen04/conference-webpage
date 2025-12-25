@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { Organizer } from "@shared/types";
-
 export const OrganizerCard = ({ organizer }: { organizer: Organizer }) => (
     <Card className="overflow-hidden transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 hover:shadow-xl h-full flex flex-col group relative">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>

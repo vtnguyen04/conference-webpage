@@ -1,13 +1,10 @@
-
 import cron from "node-cron";
 import { registrationRepository } from "../repositories/registrationRepository";
 import { conferenceRepository } from "../repositories/conferenceRepository";
 import { emailService } from "./emailService";
-
 const REMINDER_INTERVAL_HOURS = 4;
 const MAX_REMINDERS = 2;
 const CANCELLATION_THRESHOLD_HOURS = 24;
-
 export class ConfirmationReminderService {
   start() {
     cron.schedule("0 * * * *", async () => {
@@ -15,9 +12,7 @@ export class ConfirmationReminderService {
       try {
         const activeConference = await conferenceRepository.getActive();
         if (!activeConference) return;
-
         const pending = await registrationRepository.getDueForReminder(activeConference.slug, REMINDER_INTERVAL_HOURS, MAX_REMINDERS);
-
         for (const reg of pending) {
           const registeredAt = reg.registeredAt ? new Date(reg.registeredAt) : null;
           if (registeredAt && (new Date().getTime() - registeredAt.getTime()) > CANCELLATION_THRESHOLD_HOURS * 60 * 60 * 1000) {
@@ -35,5 +30,4 @@ export class ConfirmationReminderService {
     });
   }
 }
-
 export const confirmationReminderService = new ConfirmationReminderService();

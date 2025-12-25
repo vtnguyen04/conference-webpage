@@ -11,19 +11,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
 import { useEffect, useRef } from "react";
-
 export default function AboutPage() {
   const { data: conference, isLoading } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (conference && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [conference]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,7 +31,6 @@ export default function AboutPage() {
       </div>
     );
   }
-
   return (
     <>
       <PageHeader
@@ -56,7 +52,6 @@ export default function AboutPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -71,7 +66,6 @@ export default function AboutPage() {
               Nội dung giới thiệu đang được cập nhật.
             </p>
           )}
-
           {conference && (
             <div className="mt-12 grid md:grid-cols-2 gap-6">
               <div className="bg-card p-6 rounded-lg border">
@@ -98,7 +92,6 @@ export default function AboutPage() {
                   </p>
                 )}
               </div>
-
               <div className="bg-card p-6 rounded-lg border">
                 <h3 className="text-xl font-semibold mb-4">Thời gian tổ chức</h3>
                 <p className="mb-2">

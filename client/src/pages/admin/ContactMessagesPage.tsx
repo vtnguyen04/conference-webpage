@@ -24,36 +24,30 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
 import { contactMessageService } from '@/services/contactMessageService';
-
 const ContactMessagesPage: React.FC = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient(); // Added
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 10; // Number of items per page
-
+  const limit = 10;
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setPage(1); // Reset to first page on new search
-    }, 500); // 500ms debounce delay
-
+      setPage(1);
+    }, 500);
     return () => {
       clearTimeout(timer);
     };
   }, [searchQuery]);
-
   const { data, isLoading, isError, error } = useQuery<{ data: ContactMessage[], total: number }>({
     queryKey: ['contactMessages', debouncedSearchQuery, page, limit],
     queryFn: () => contactMessageService.getContactMessages(debouncedSearchQuery, page, limit),
-    enabled: true, // Always run query
+    enabled: true,
   });
-
   const messages = data?.data || [];
   const totalMessages = data?.total || 0;
   const totalPages = Math.ceil(totalMessages / limit);
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) => contactMessageService.deleteContactMessage(id),
     onSuccess: () => {
@@ -64,18 +58,16 @@ const ContactMessagesPage: React.FC = () => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: () => contactMessageService.deleteAllContactMessages(),
     onSuccess: () => {
       toast({ title: "Xóa tất cả tin nhắn thành công" });
-      queryClient.invalidateQueries({ queryKey: ["contactMessages"] }); // Invalidate all contact messages queries
+      queryClient.invalidateQueries({ queryKey: ["contactMessages"] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -83,7 +75,6 @@ const ContactMessagesPage: React.FC = () => {
       </div>
     );
   }
-
   if (isError) {
     return (
       <Alert variant="destructive">
@@ -92,19 +83,16 @@ const ContactMessagesPage: React.FC = () => {
       </Alert>
     );
   }
-
   const handleDelete = (id: string) => {
     if (confirm("Bạn có chắc muốn xóa tin nhắn này?")) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = () => {
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ tin nhắn liên hệ? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -208,5 +196,4 @@ const ContactMessagesPage: React.FC = () => {
     </Card>
   );
 };
-
 export default ContactMessagesPage;

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-
 interface AdminViewStore {
   viewingSlug: string | null;
   activeSlug: string | null;
@@ -7,7 +6,6 @@ interface AdminViewStore {
   setViewingSlug: (slug: string) => void;
   setSlugs: (viewingSlug: string, activeSlug: string) => void;
 }
-
 export const useAdminView = create<AdminViewStore>((set, get) => ({
   viewingSlug: null,
   activeSlug: null,

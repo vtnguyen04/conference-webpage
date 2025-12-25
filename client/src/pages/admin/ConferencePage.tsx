@@ -21,20 +21,16 @@ import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import type { Conference } from "@shared/types";
 import { conferenceSchema } from "@shared/validation";
 import { useAdminView } from "@/hooks/useAdminView";
-
 export default function ConferencePage() {
   const { toast } = useToast();
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isLogoDeleting, setIsLogoDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: conferences = [] } = useQuery<Conference[]>({
     queryKey: ["/api/conferences"],
   });
-
   const selectedConference = conferences.find(c => c.slug === viewingSlug);
-
   const form = useForm<Conference>({
     resolver: zodResolver(conferenceSchema),
     defaultValues: {
@@ -56,8 +52,6 @@ export default function ConferencePage() {
       isActive: true,
     },
   });
-
-  // Reset form when the selected conference changes
   useEffect(() => {
     if (selectedConference) {
       form.reset({
@@ -67,7 +61,6 @@ export default function ConferencePage() {
       });
     }
   }, [selectedConference, form]);
-
   const updateMutation = useMutation({
     mutationFn: async (data: Conference) => {
       if (!selectedConference) throw new Error("No conference selected");
@@ -77,20 +70,18 @@ export default function ConferencePage() {
       toast({ title: "Cập nhật thành công" });
       queryClient.invalidateQueries({ queryKey: ["/api/conferences/active"] });
       queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
-      setFilesToDelete([]); // Clear staged deletions on success
+      setFilesToDelete([]);
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     }
   });
-
   const handleStageBannerForDeletion = (path: string) => {
     if (isReadOnly) return;
     setFilesToDelete(prev => [...prev, path]);
     const currentBanners = form.getValues("bannerUrls") || [];
     form.setValue("bannerUrls", currentBanners.filter(p => p !== path));
   };
-
   const onSubmit = (data: Conference) => {
     if (isReadOnly) return;
     const payload = {
@@ -99,22 +90,17 @@ export default function ConferencePage() {
     };
     updateMutation.mutate(payload);
   };
-
   const handleLogoDrop = async (acceptedFiles: File[]) => {
     if (isReadOnly) return;
     const file = acceptedFiles[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('image', file);
-
     const oldLogoUrl = form.getValues("logoUrl");
     if (oldLogoUrl) {
       formData.append("oldImagePath", oldLogoUrl);
     }
-
     setIsLogoUploading(true);
-
     try {
       const result = await apiUploadFile("/api/upload", formData);
       form.setValue("logoUrl", result.imagePath, { shouldValidate: true });
@@ -126,16 +112,13 @@ export default function ConferencePage() {
       setIsLogoUploading(false);
     }
   };
-
   const handleLogoDelete = async () => {
     if (isReadOnly) return;
     const currentLogoUrl = form.getValues("logoUrl");
     if (!currentLogoUrl || !confirm("Bạn có chắc muốn xóa logo này?")) {
       return;
     }
-
     setIsLogoDeleting(true);
-
     try {
       await apiRequest("DELETE", `/api/upload?filePath=${currentLogoUrl}`);
       form.setValue("logoUrl", "", { shouldValidate: true });
@@ -147,16 +130,13 @@ export default function ConferencePage() {
       setIsLogoDeleting(false);
     }
   };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900" data-testid="text-conference-title">
           Quản lý hội nghị
         </h1>
-
       </div>
-
       <Card className="border border-gray-200">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg font-medium">Thông tin hội nghị</CardTitle>
@@ -184,7 +164,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="name"
@@ -198,7 +177,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="theme"
@@ -212,7 +190,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="location"
@@ -226,7 +203,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="contactEmail"
@@ -240,7 +216,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="contactPhone"
@@ -254,7 +229,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="startDate"
@@ -275,7 +249,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="endDate"
@@ -297,7 +270,6 @@ export default function ConferencePage() {
                     )}
                   />
                 </div>
-
                 <FormField
                   control={form.control as any}
                   name="introContent"
@@ -317,7 +289,6 @@ export default function ConferencePage() {
                     </FormItem>
                   )}
                 />
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control as any}
@@ -338,7 +309,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="registrationNote2"
@@ -359,7 +329,6 @@ export default function ConferencePage() {
                     )}
                   />
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control as any}
@@ -380,7 +349,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="registrationRules"
@@ -401,7 +369,6 @@ export default function ConferencePage() {
                     )}
                   />
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control as any}
@@ -423,7 +390,6 @@ export default function ConferencePage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control as any}
                     name="bannerUrls"
@@ -443,7 +409,6 @@ export default function ConferencePage() {
                     )}
                   />
                 </div>
-
                 <div className="flex justify-end pt-4 border-t border-gray-200">
                   <Button 
                     type="submit" 

@@ -7,28 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { QrCode, CheckCircle, X, Calendar, MapPin } from "lucide-react";
-// import { Html5Qrcode } from "html5-qrcode"; // Removed for lazy loading
 import type { Conference, Session, CheckIn, Registration } from "@shared/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
-
 interface CheckInWithDetails extends CheckIn {
   registration?: Registration;
 }
-
 export default function CheckinPage() {
   const { toast } = useToast();
   const [scanning, setScanning] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string>("");
   const [page, setPage] = useState(1);
-  const limit = 10; // Number of items per page
-  const scannerRef = useRef<any | null>(null); // Use `any` because Html5Qrcode type is loaded dynamically
-
+  const limit = 10;
+  const scannerRef = useRef<any | null>(null);
   const { data: conference } = useQuery<Conference | null>({
     queryKey: ["/api/conferences/active"],
   });
-
-
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
     enabled: !!conference?.slug,
@@ -37,13 +30,11 @@ export default function CheckinPage() {
       const filteredSessions = data.filter(session => {
         const startTime = new Date(session.startTime);
         const endTime = new Date(session.endTime);
-        // Session is currently happening if its start time has passed and end time has not yet passed
         return startTime <= now && endTime >= now;
       });
       return filteredSessions;
     }
   });
-
   const { data: checkInsData } = useQuery<{ data: CheckInWithDetails[], total: number }>({
     queryKey: ["/api/check-ins/session", selectedSessionId, page, limit],
     queryFn: async () => {
@@ -52,19 +43,15 @@ export default function CheckinPage() {
     },
     enabled: !!selectedSessionId,
   });
-
   const recentCheckIns = checkInsData?.data || [];
   const totalCheckIns = checkInsData?.total || 0;
   const totalPages = Math.ceil(totalCheckIns / limit);
-
-  // Reset selectedSessionId if the session is no longer in the filtered list
   useEffect(() => {
     if (selectedSessionId && !sessions.some(s => s.id === selectedSessionId)) {
       setSelectedSessionId("");
-      setPage(1); // Reset page when session changes
+      setPage(1);
     }
   }, [sessions, selectedSessionId]);
-
   const checkInMutation = useMutation({
     mutationFn: async (qrData: string) => {
       if (!selectedSessionId) {
@@ -77,15 +64,13 @@ export default function CheckinPage() {
         });
         return response;
       } catch (error: any) {
-        // If it's a 400 "Already checked in" error, treat it as a success for react-query's onSuccess callback
         if (error.message.includes("400: {\"message\":\"Already checked in for this session\"}")) {
-          // Return a resolved promise with a specific payload that onSuccess can interpret
           return { status: 400, message: "Already checked in for this session" };
         }
-        throw error; // Re-throw other errors to trigger onError
+        throw error;
       }
     },
-    onSuccess: (data) => { // data will contain the response from mutationFn
+    onSuccess: (data) => {
       if (data && data.status === 400 && data.message === "Already checked in for this session") {
         toast({ title: "Đã check-in", description: "Người tham dự đã được check-in cho phiên này.", variant: "default" });
       } else {
@@ -100,21 +85,15 @@ export default function CheckinPage() {
         description: error.message,
         variant: "destructive",
       });
-      // stopScanning() is now handled by onSuccess for "Already checked in" case
-      // For other errors, we might still want to stop the scanner, or let it continue.
-      // For now, only stop on success or specific handled errors.
     },
   });
-
   const startScanning = async () => {
     try {
       setScanning(true);
       await new Promise(resolve => setTimeout(resolve, 0));
-
       const { Html5Qrcode } = await import("html5-qrcode");
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
-
       await scanner.start(
         { facingMode: "environment" },
         {
@@ -125,7 +104,6 @@ export default function CheckinPage() {
           checkInMutation.mutate(decodedText);
         },
         () => {
-          // Ignore scan errors - they happen frequently
         }
       );
     } catch (error) {
@@ -138,7 +116,6 @@ export default function CheckinPage() {
       setScanning(false);
     }
   };
-
   const stopScanning = async () => {
     if (scannerRef.current) {
       try {
@@ -150,7 +127,6 @@ export default function CheckinPage() {
     }
     setScanning(false);
   };
-
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
@@ -158,9 +134,7 @@ export default function CheckinPage() {
       }
     };
   }, []);
-
   const selectedSession = sessions.find(s => s.id === selectedSessionId);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -168,7 +142,6 @@ export default function CheckinPage() {
           Check-in phiên
         </h1>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Chọn phiên check-in</CardTitle>
@@ -186,7 +159,6 @@ export default function CheckinPage() {
               ))}
             </SelectContent>
           </Select>
-
           {selectedSession && (
             <div className="mt-4 p-4 bg-muted/50 rounded-lg space-y-2" data-testid="selected-session-details">
               <h3 className="font-semibold" data-testid="text-session-title">{selectedSession.title}</h3>
@@ -204,7 +176,6 @@ export default function CheckinPage() {
           )}
         </CardContent>
       </Card>
-
       {selectedSessionId && (
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -243,7 +214,6 @@ export default function CheckinPage() {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">

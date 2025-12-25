@@ -1,4 +1,3 @@
-// Section Header Component
 const SectionHeader = ({ title, subtitle, accentColor = "bg-teal-600", cta }: { title: string; subtitle:string; accentColor?: string; cta?: React.ReactNode }) => {
   const isSplitTitle = title.includes("||");
   const titleParts = isSplitTitle ? title.split("||").map(part => part.trim()) : [title];

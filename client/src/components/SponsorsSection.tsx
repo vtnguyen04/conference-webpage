@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SponsorsList } from "@/components/SponsorsList";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { sponsorService } from "@/services/sponsorService"; // Added
-
+import { sponsorService } from "@/services/sponsorService";
 const SponsorsSection = () => {
     const { conference } = useActiveConference();
     const { data: sponsors = [] } = useQuery<Sponsor[]>({
@@ -14,11 +13,9 @@ const SponsorsSection = () => {
         queryFn: () => sponsorService.getSponsors(conference?.slug),
         enabled: !!conference,
     });
-
     if (sponsors.length === 0) {
         return null;
     }
-
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
@@ -26,7 +23,6 @@ const SponsorsSection = () => {
                 subtitle="Cảm ơn sự đồng hành của các đối tác"
                 accentColor="bg-gray-500"
             />
-
             <SponsorsList sponsors={sponsors} />
             <div className="text-center mt-16">
                 <Link href="/sponsors">
@@ -38,5 +34,4 @@ const SponsorsSection = () => {
         </div>
     )
 }
-
 export default SponsorsSection;

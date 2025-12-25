@@ -4,26 +4,21 @@ import { Button } from './ui/button';
 import { Trash2, UploadCloud } from 'lucide-react';
 import { apiUploadFile } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-
 interface MultiImageManagerProps {
   value: string[];
   onChange: (value: string[]) => void;
   onDelete: (path: string) => void;
   disabled?: boolean;
 }
-
 export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = [], onChange, onDelete, disabled }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (disabled || acceptedFiles.length === 0) return;
-
     const formData = new FormData();
     acceptedFiles.forEach(file => {
       formData.append('banners', file);
     });
-
     setIsUploading(true);
     try {
       const result = await apiUploadFile('/api/upload/banners', formData);
@@ -36,14 +31,12 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
       setIsUploading(false);
     }
   }, [value, onChange, toast, disabled]);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] },
     multiple: true,
     disabled: disabled || isUploading,
   });
-
   const handleDelete = (imagePathToDelete: string) => {
     if (disabled) return;
     if (!confirm('Are you sure you want to delete this banner?')) {
@@ -51,9 +44,7 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
     }
     onDelete(imagePathToDelete);
   };
-
   const urls = Array.isArray(value) ? value : [];
-
   return (
     <div className="space-y-4 p-4 border rounded-lg">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -68,7 +59,6 @@ export const MultiImageManager: React.FC<MultiImageManagerProps> = ({ value = []
           </div>
         ))}
       </div>
-
       <div
         {...getRootProps()}
         className={`p-6 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-colors

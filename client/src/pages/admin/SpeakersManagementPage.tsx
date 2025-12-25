@@ -38,7 +38,6 @@ import { insertSpeakerSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
-
 export default function SpeakersManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,7 +45,6 @@ export default function SpeakersManagementPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: speakers = [] } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers", viewingSlug],
     queryFn: async () => {
@@ -55,7 +53,6 @@ export default function SpeakersManagementPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertSpeaker>({
     resolver: zodResolver(insertSpeakerSchema),
     defaultValues: {
@@ -69,7 +66,6 @@ export default function SpeakersManagementPage() {
       role: "speaker",
     },
   });
-
   const createMutation = useMutation({
     mutationFn: async (data: InsertSpeaker) => {
       return await apiRequest("POST", "/api/speakers", data);
@@ -84,7 +80,6 @@ export default function SpeakersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSpeaker }) => {
       return await apiRequest("PUT", `/api/speakers/${id}`, data);
@@ -100,7 +95,6 @@ export default function SpeakersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/speakers/${id}`);
@@ -113,7 +107,6 @@ export default function SpeakersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/speakers/all");
@@ -126,7 +119,6 @@ export default function SpeakersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSpeaker(null);
@@ -142,7 +134,6 @@ export default function SpeakersManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleEdit = (speaker: Speaker) => {
     if (isReadOnly) return;
     setEditingSpeaker(speaker);
@@ -158,21 +149,18 @@ export default function SpeakersManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa báo cáo viên "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ báo cáo viên? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertSpeaker) => {
     if (isReadOnly) return;
     if (editingSpeaker) {
@@ -181,18 +169,15 @@ export default function SpeakersManagementPage() {
       createMutation.mutate(data);
     }
   };
-
   const handleImageUpload = async (files: File[]) => {
     if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
-
     const oldPhotoUrl = form.getValues("photoUrl");
     if (oldPhotoUrl) {
       formData.append("oldImagePath", oldPhotoUrl);
     }
-
     setIsUploading(true);
     try {
       const result = await apiUploadFile("/api/upload", formData);
@@ -204,7 +189,6 @@ export default function SpeakersManagementPage() {
       setIsUploading(false);
     }
   };
-
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentPhotoUrl = form.getValues("photoUrl");
@@ -221,10 +205,8 @@ export default function SpeakersManagementPage() {
       setIsDeleting(false);
     }
   };
-
   const moderators = speakers.filter((s) => s.role === "moderator" || s.role === "both");
   const regularSpeakers = speakers.filter((s) => s.role === "speaker" || s.role === "both");
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -247,7 +229,6 @@ export default function SpeakersManagementPage() {
           </Button>
         </div>
       </div>
-
       {moderators.length > 0 && (
         <Card>
           <CardHeader>
@@ -303,7 +284,6 @@ export default function SpeakersManagementPage() {
           </CardContent>
         </Card>
       )}
-
       {regularSpeakers.length > 0 && (
         <Card>
           <CardHeader>
@@ -359,7 +339,6 @@ export default function SpeakersManagementPage() {
           </CardContent>
         </Card>
       )}
-
       {speakers.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
@@ -369,7 +348,6 @@ export default function SpeakersManagementPage() {
           </CardContent>
         </Card>
       )}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -380,7 +358,6 @@ export default function SpeakersManagementPage() {
               Điền thông tin chi tiết về báo cáo viên/chủ tọa
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -406,7 +383,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -421,7 +397,6 @@ export default function SpeakersManagementPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="name"
@@ -436,7 +411,6 @@ export default function SpeakersManagementPage() {
                   )}
                 />
               </div>
-
               <FormField
                 control={form.control}
                 name="title"
@@ -450,7 +424,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="specialty"
@@ -464,7 +437,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="email"
@@ -481,7 +453,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="bio"
@@ -495,7 +466,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="role"
@@ -518,7 +488,6 @@ export default function SpeakersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

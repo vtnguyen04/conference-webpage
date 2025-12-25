@@ -11,19 +11,16 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { announcementService } from "@/services/announcementService";
-
 const AnnouncementsSection = () => {
     const { conference } = useActiveConference();
     const { data: announcements = [] } = useQuery<Announcement[]> ({
         queryKey: ["/api/announcements"],
-        queryFn: () => announcementService.getAnnouncements(conference?.slug, 6), // Fetch a limited number for the homepage
+        queryFn: () => announcementService.getAnnouncements(conference?.slug, 6),
         enabled: !!conference,
     });
-
     if (announcements.length === 0) {
         return null;
     }
-
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
@@ -38,7 +35,6 @@ const AnnouncementsSection = () => {
                     </Link>
                 }
             />
-
             <Carousel
                 opts={{
                     align: "start",
@@ -98,5 +94,4 @@ const AnnouncementsSection = () => {
         </div>
     )
 }
-
 export default AnnouncementsSection;

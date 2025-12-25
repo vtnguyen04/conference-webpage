@@ -36,7 +36,6 @@ import { insertSponsorSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
-
 const tierLabels: Record<string, string> = {
   diamond: "Kim cương",
   gold: "Vàng",
@@ -45,7 +44,6 @@ const tierLabels: Record<string, string> = {
   supporting: "Ủng hộ",
   other: "Khác",
 };
-
 const tierOrder: Record<string, number> = {
   diamond: 1,
   gold: 2,
@@ -54,7 +52,6 @@ const tierOrder: Record<string, number> = {
   supporting: 5,
   other: 6,
 };
-
 export default function SponsorsManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -62,7 +59,6 @@ export default function SponsorsManagementPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: sponsors = [] } = useQuery<Sponsor[]>({
     queryKey: ["/api/sponsors", viewingSlug],
     queryFn: async () => {
@@ -71,7 +67,6 @@ export default function SponsorsManagementPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertSponsor>({
     resolver: zodResolver(insertSponsorSchema),
     defaultValues: {
@@ -82,7 +77,6 @@ export default function SponsorsManagementPage() {
       displayOrder: 0,
     },
   });
-
   const createMutation = useMutation({
     mutationFn: async (data: InsertSponsor) => {
       return await apiRequest("POST", "/api/sponsors", data);
@@ -97,7 +91,6 @@ export default function SponsorsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSponsor }) => {
       return await apiRequest("PUT", `/api/sponsors/${id}`, data);
@@ -113,7 +106,6 @@ export default function SponsorsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/sponsors/${id}`);
@@ -126,7 +118,6 @@ export default function SponsorsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/sponsors/all");
@@ -139,7 +130,6 @@ export default function SponsorsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSponsor(null);
@@ -152,7 +142,6 @@ export default function SponsorsManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleEdit = (sponsor: Sponsor) => {
     if (isReadOnly) return;
     setEditingSponsor(sponsor);
@@ -165,21 +154,18 @@ export default function SponsorsManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa nhà tài trợ "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ nhà tài trợ? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertSponsor) => {
     if (isReadOnly) return;
     if (editingSponsor) {
@@ -188,18 +174,15 @@ export default function SponsorsManagementPage() {
       createMutation.mutate(data);
     }
   };
-
   const handleImageUpload = async (files: File[]) => {
     if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
-
     const oldImageUrl = form.getValues("logoUrl");
     if (oldImageUrl) {
       formData.append("oldImagePath", oldImageUrl);
     }
-
     setIsUploading(true);
     try {
       const result = await apiUploadFile("/api/upload", formData);
@@ -211,7 +194,6 @@ export default function SponsorsManagementPage() {
       setIsUploading(false);
     }
   };
-
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentLogoUrl = form.getValues("logoUrl");
@@ -228,8 +210,6 @@ export default function SponsorsManagementPage() {
       setIsDeleting(false);
     }
   };
-
-
   const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
     if (!acc[sponsor.tier]) {
       acc[sponsor.tier] = [];
@@ -237,11 +217,9 @@ export default function SponsorsManagementPage() {
     acc[sponsor.tier].push(sponsor);
     return acc;
   }, {} as Record<string, Sponsor[]>);
-
   const sortedTiers = Object.keys(sponsorsByTier).sort(
     (a, b) => tierOrder[a] - tierOrder[b]
   );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -264,7 +242,6 @@ export default function SponsorsManagementPage() {
           </Button>
         </div>
       </div>
-
       {sortedTiers.map((tier) => (
         <Card key={tier}>
           <CardHeader>
@@ -334,7 +311,6 @@ export default function SponsorsManagementPage() {
           </CardContent>
         </Card>
       ))}
-
       {sponsors.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
@@ -344,7 +320,6 @@ export default function SponsorsManagementPage() {
           </CardContent>
         </Card>
       )}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -355,7 +330,6 @@ export default function SponsorsManagementPage() {
               Điền thông tin chi tiết về nhà tài trợ
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -381,7 +355,6 @@ export default function SponsorsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="name"
@@ -395,7 +368,6 @@ export default function SponsorsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="tier"
@@ -421,7 +393,6 @@ export default function SponsorsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="websiteUrl"
@@ -435,7 +406,6 @@ export default function SponsorsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="displayOrder"
@@ -457,7 +427,6 @@ export default function SponsorsManagementPage() {
                   </FormItem>
                 )}
               />
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

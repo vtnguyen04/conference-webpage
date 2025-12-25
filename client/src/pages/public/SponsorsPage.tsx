@@ -11,20 +11,15 @@ import { Link, useRoute } from "wouter";
 import { useEffect, useRef } from "react";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import SponsorsSection from "@/components/SponsorsSection";
-
 export default function SponsorsPage() {
   const [, _params] = useRoute("/conference/:slug/sponsors");
-
   const { conference } = useActiveConference();
-
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
-
   return (
     <>
       {/* PHẦN 1: KHÔI PHỤC LẠI PAGE HEADER VÀ BANNER */}
@@ -47,7 +42,6 @@ export default function SponsorsPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       {/* PHẦN 2: NỘI DUNG TRANG VỚI STYLE ĐÃ SỬA ĐÚNG TỪ HOMEPAGE */}
       <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">

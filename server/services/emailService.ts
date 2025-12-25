@@ -1,16 +1,11 @@
-
 import nodemailer from 'nodemailer';
-
 export class EmailService {
   private transporter: nodemailer.Transporter | null = null;
   private defaultFrom: string = '';
-
   private ensureTransporter() {
     if (this.transporter) return;
-
     console.log('[EmailService] Initializing transporter...');
     this.defaultFrom = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Hệ thống Hội nghị" <noreply@conference.edu.vn>';
-    
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
       port: parseInt(process.env.SMTP_PORT || "587"),
@@ -21,7 +16,6 @@ export class EmailService {
       } : undefined,
     });
   }
-
   private createEmailTemplate(title: string, content: string, footerNote: string, conferenceName: string) {
     const emailStyles = `
       body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6; }
@@ -35,7 +29,6 @@ export class EmailService {
       .footer { padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; }
       .footer p { margin: 0 0 10px; font-size: 14px; color: #6b7280; }
     `;
-
     return `
       <!DOCTYPE html>
       <html>
@@ -69,7 +62,6 @@ export class EmailService {
       </html>
     `;
   }
-
   async sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<boolean> {
     this.ensureTransporter();
     try {
@@ -82,7 +74,6 @@ export class EmailService {
         <div style="margin: 30px 0;"><a href="${confirmationLink}" class="button">Xác nhận đăng ký</a></div>
       `;
       const html = this.createEmailTemplate(title, content, "Email này được gửi tự động. Vui lòng không trả lời.", conferenceName);
-
       await this.transporter!.sendMail({
         from: this.defaultFrom,
         to: email,
@@ -96,7 +87,6 @@ export class EmailService {
       return false;
     }
   }
-
   async sendConsolidatedRegistrationEmail(
     email: string,
     fullName: string,
@@ -111,14 +101,12 @@ export class EmailService {
         const cid = `qrcode_${index}`;
         const base64Parts = session.qrCode.split(',');
         const base64Data = base64Parts.length > 1 ? base64Parts[1] : base64Parts[0];
-        
         attachments.push({
           filename: `qrcode-${index}.png`,
           content: Buffer.from(base64Data, 'base64'),
           contentType: 'image/png',
           cid: cid,
         });
-
         return `
           <tr>
             <td style="padding: 20px 0; ${index > 0 ? 'border-top: 1px solid #e5e7eb;' : ''}">
@@ -134,21 +122,17 @@ export class EmailService {
           </tr>
         `;
       }).join('');
-
       const cmeNote = cmeCertificateRequested ? `
         <div style="padding: 12px; background-color: #FFFBEB; border-left: 4px solid #FBBF24; margin: 15px 0;">
           <p style="margin: 0; color: #92400E; font-size: 14px;">Bạn đã yêu cầu chứng chỉ CME cho các phiên này.</p>
         </div>` : '';
-
       const content = `
         <p>Kính gửi <strong>${fullName}</strong>,</p>
         <p>Chúc mừng bạn đã đăng ký thành công các phiên làm việc tại <strong>${conferenceName}</strong>.</p>
         ${cmeNote}
         <table style="width: 100%;">${sessionRows}</table>
       `;
-      
       const html = this.createEmailTemplate("Đăng ký thành công!", content, "Email này được gửi tự động.", conferenceName);
-
       await this.transporter!.sendMail({
         from: this.defaultFrom,
         to: email,
@@ -163,7 +147,6 @@ export class EmailService {
       return false;
     }
   }
-
   async sendConfirmationReminderEmail(to: string, conferenceName: string, details: any) {
     this.ensureTransporter();
     try {
@@ -178,7 +161,6 @@ export class EmailService {
       await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: Xác nhận đăng ký ${conferenceName}`, html });
     } catch (e) { console.error("Reminder email failed:", e); }
   }
-
   async sendCmeCertificateEmail(to: string, userName: string, sessionTitle: string, conferenceName: string, certificate: Buffer) {
     this.ensureTransporter();
     try {
@@ -193,7 +175,6 @@ export class EmailService {
       });
     } catch (e) { console.error("Certificate email failed:", e); }
   }
-
   async sendReminderEmail(to: string, sessionTitle: string, time: string, conferenceName: string) {
     this.ensureTransporter();
     try {
@@ -203,5 +184,4 @@ export class EmailService {
     } catch (e) { console.error("Session reminder email failed:", e); }
   }
 }
-
 export const emailService = new EmailService();

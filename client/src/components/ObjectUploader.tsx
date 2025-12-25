@@ -2,7 +2,6 @@ import { useRef } from "react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-
 interface ObjectUploaderProps {
   onFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onDelete: () => void;
@@ -14,7 +13,6 @@ interface ObjectUploaderProps {
   buttonClassName?: string;
   disabled?: boolean;
 }
-
 export function ObjectUploader({
   onFileSelect,
   onDelete,
@@ -26,7 +24,6 @@ export function ObjectUploader({
   buttonClassName,
 }: ObjectUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   return (
     <div className="flex items-center gap-2">
       <input

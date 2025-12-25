@@ -40,13 +40,11 @@ import type { Session, InsertSession, Speaker } from "@shared/types";
 import { insertSessionSchema } from "@shared/validation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAdminView } from "@/hooks/useAdminView";
-
 export default function SessionsPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", viewingSlug],
     queryFn: async () => {
@@ -55,7 +53,6 @@ export default function SessionsPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const { data: speakers = [] } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers", viewingSlug],
     queryFn: async () => {
@@ -64,7 +61,6 @@ export default function SessionsPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertSession>({
     resolver: zodResolver(insertSessionSchema),
     defaultValues: {
@@ -83,12 +79,10 @@ export default function SessionsPage() {
       capacity: null,
     },
   });
-
   const { fields: agendaFields, append: appendAgenda, remove: removeAgenda } = useFieldArray({
     control: form.control,
     name: "agendaItems",
   });
-
   const createMutation = useMutation({
     mutationFn: async (data: InsertSession) => {
       return await apiRequest("POST", "/api/sessions", data);
@@ -103,7 +97,6 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSession }) => {
       return await apiRequest("PUT", `/api/sessions/${id}`, data);
@@ -119,7 +112,6 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/sessions/${id}`);
@@ -132,7 +124,6 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/sessions/all");
@@ -145,7 +136,6 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSession(null);
@@ -166,7 +156,6 @@ export default function SessionsPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleEdit = (session: Session) => {
     if (isReadOnly) return;
     setEditingSession(session);
@@ -187,21 +176,18 @@ export default function SessionsPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa phiên họp "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ phiên họp? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertSession) => {
     if (isReadOnly) return;
     if (editingSession) {
@@ -210,7 +196,6 @@ export default function SessionsPage() {
       createMutation.mutate(data);
     }
   };
-
   const sessionsByDay = sessions.reduce((acc, session) => {
     if (!acc[session.day]) {
       acc[session.day] = [];
@@ -218,7 +203,6 @@ export default function SessionsPage() {
     acc[session.day].push(session);
     return acc;
   }, {} as Record<number, Session[]>);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -241,7 +225,6 @@ export default function SessionsPage() {
           </Button>
         </div>
       </div>
-
       {Object.keys(sessionsByDay).sort().map((day) => (
         <Card key={day}>
           <CardHeader>
@@ -308,7 +291,6 @@ export default function SessionsPage() {
           </CardContent>
         </Card>
       ))}
-
       {sessions.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
@@ -318,7 +300,6 @@ export default function SessionsPage() {
           </CardContent>
         </Card>
       )}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -329,7 +310,6 @@ export default function SessionsPage() {
               Điền thông tin chi tiết về phiên họp
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -352,7 +332,6 @@ export default function SessionsPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="track"
@@ -367,7 +346,6 @@ export default function SessionsPage() {
                   )}
                 />
               </div>
-
               <FormField
                 control={form.control}
                 name="title"
@@ -381,7 +359,6 @@ export default function SessionsPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="description"
@@ -395,7 +372,6 @@ export default function SessionsPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="chairIds"
@@ -458,7 +434,6 @@ export default function SessionsPage() {
                   </FormItem>
                 )}
               />
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -473,7 +448,6 @@ export default function SessionsPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="endTime"
@@ -488,7 +462,6 @@ export default function SessionsPage() {
                   )}
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -503,7 +476,6 @@ export default function SessionsPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="type"
@@ -517,7 +489,6 @@ export default function SessionsPage() {
                                       </FormItem>
                                     )}
                                   />
-                      
                                   <FormField
                                     control={form.control}
                                     name="capacity"
@@ -650,7 +621,6 @@ export default function SessionsPage() {
                   </div>
                 )}
               </div>
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

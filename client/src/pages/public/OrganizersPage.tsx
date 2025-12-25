@@ -11,33 +11,26 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-
 import { useEffect, useRef } from "react";
 import { OrganizerCard } from "@/components/OrganizerCard";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { organizerService } from "@/services/organizerService";
-
 export default function OrganizersPage() {
   const [, params] = useRoute("/conference/:slug/organizers");
   const slug = params?.slug;
-
   const { conference } = useActiveConference();
-
   const conferenceId = conference?.id;
   const { data: organizers = [], isLoading } = useQuery<Organizer[]>({
-    queryKey: ["organizers", slug || "active"], // Unique key for React Query
+    queryKey: ["organizers", slug || "active"],
     queryFn: () => organizerService.getOrganizers(slug),
     enabled: !!conferenceId,
   });
-
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (organizers.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [organizers]);
-
   const groupedOrganizers = organizers.reduce((acc, organizer) => {
     const role = organizer.organizingRole;
     if (!acc[role]) {
@@ -46,9 +39,7 @@ export default function OrganizersPage() {
     acc[role].push(organizer);
     return acc;
   }, {} as Record<string, Organizer[]>);
-
   const roleOrder: (keyof typeof groupedOrganizers)[] = ["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"];
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -59,9 +50,6 @@ export default function OrganizersPage() {
       </div>
     );
   }
-
-
-
   return (
     <>
       <PageHeader
@@ -83,11 +71,9 @@ export default function OrganizersPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-
           {roleOrder.map(role => (
             groupedOrganizers[role] && (
               <section className="mb-16" key={role}>
@@ -102,7 +88,6 @@ export default function OrganizersPage() {
               </section>
             )
           ))}
-
           {organizers.length === 0 && (
             <Card>
               <CardContent className="p-12 text-center">

@@ -1,10 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Redirect } from "wouter";
 import { Loader2 } from "lucide-react";
-
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -12,10 +10,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-
   if (!isAuthenticated) {
     return <Redirect to="/admin/login" />;
   }
-
   return <>{children}</>;
 }

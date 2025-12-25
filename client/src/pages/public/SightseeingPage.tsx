@@ -15,24 +15,19 @@ import { Link } from "wouter";
 import type { Conference } from "@shared/types";
 import { useEffect, useRef } from "react";
 import { Building } from "lucide-react"; 
-
 export default function SightseeingPage() {
   const { data: sightseeing = [], isLoading } = useQuery<Sightseeing[]>({
     queryKey: ["/api/sightseeing"],
   });
-
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
-
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (sightseeing.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [sightseeing]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -43,7 +38,6 @@ export default function SightseeingPage() {
       </div>
     );
   }
-
   return (
     <>
       <PageHeader
@@ -65,7 +59,6 @@ export default function SightseeingPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -75,7 +68,6 @@ export default function SightseeingPage() {
                 <h2 className="text-xl font-semibold text-gray-900">Tất cả địa điểm</h2>
                 <div className="flex-1 h-0.5 bg-gray-400"></div>
               </div>
-
               {sightseeing.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {sightseeing.map((item) => (

@@ -16,9 +16,8 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useActiveConference } from "@/hooks/useActiveConference"; // Added
-import { announcementService } from "@/services/announcementService"; // Added
-
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { announcementService } from "@/services/announcementService";
 export default function AnnouncementDetailPage() {
   const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
     "/conference/:slug/announcements/:id"
@@ -26,7 +25,6 @@ export default function AnnouncementDetailPage() {
   const [_isAnnouncements, announcementsParams] = useRoute(
     "/announcements/:id"
   );
-
   const slug = isConferenceAnnouncements
     ? conferenceAnnouncementsParams?.slug
     : undefined;
@@ -35,9 +33,7 @@ export default function AnnouncementDetailPage() {
     : announcementsParams?.id;
   const queryClient = useQueryClient();
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   const { conference } = useActiveConference();
-
   const {
     data: announcement,
     isLoading,
@@ -47,7 +43,6 @@ export default function AnnouncementDetailPage() {
     queryFn: () => announcementService.getAnnouncementById(announcementId!, slug),
     enabled: !!announcementId,
   });
-
   const incrementViewMutation = useMutation({
     mutationFn: () => announcementService.incrementAnnouncementView(announcementId!, slug),
     onSuccess: () => {
@@ -56,25 +51,21 @@ export default function AnnouncementDetailPage() {
       });
     },
   });
-
   useEffect(() => {
     if (announcementId) {
       incrementViewMutation.mutate();
     }
   }, [announcementId]);
-
   useEffect(() => {
     if (announcement && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [announcement]);
-
   const handleFacebookShare = () => {
     const url = window.location.href;
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     window.open(facebookShareUrl, "_blank", "width=600,height=400");
   };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,7 +76,6 @@ export default function AnnouncementDetailPage() {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -100,7 +90,6 @@ export default function AnnouncementDetailPage() {
       </div>
     );
   }
-
   if (!announcement) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -113,11 +102,9 @@ export default function AnnouncementDetailPage() {
       </div>
     );
   }
-
   const announcementsLink = slug
     ? `/conference/${slug}/announcements`
     : "/announcements";
-
   return (
     <>
       <PageHeader
@@ -147,7 +134,6 @@ export default function AnnouncementDetailPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -159,7 +145,6 @@ export default function AnnouncementDetailPage() {
                 {announcement.excerpt}
               </p>
             )}
-
             <div className="flex justify-between items-center mb-8">
               <Card>
                 <CardContent className="p-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -198,12 +183,10 @@ export default function AnnouncementDetailPage() {
                 Chia sẻ
               </Button>
             </div>
-
             <div
               className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
               dangerouslySetInnerHTML={{ __html: announcement.content }}
             />
-
             {announcement.pdfUrl && (
               <div className="mt-8 p-4 border rounded-lg bg-gray-50">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -239,4 +222,3 @@ export default function AnnouncementDetailPage() {
     </>
   );
 }
-

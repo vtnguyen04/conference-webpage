@@ -1,4 +1,3 @@
-
 import {
     Table,
     TableBody,
@@ -12,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Award, Trash2, UserCheck } from "lucide-react";
 import type { Registration, Session } from "@shared/types";
-
 type RegistrationTableProps = {
   registrations: Registration[];
   isLoading: boolean;
@@ -21,18 +19,16 @@ type RegistrationTableProps = {
   handleRowSelect: (id: string, checked: boolean) => void;
   sessionsMap: Map<string, Session>;
   handleCheckIn: (registrationId: string) => void;
-  checkInMutation: any; // Simplified for brevity
+  checkInMutation: any;
   handleDelete: (id: string) => void;
   isSessionActive: (session?: Session) => boolean;
 };
-
 const getRoleForRegistration = (registration: Registration) => {
   if (registration.role === 'moderator') return <Badge variant="outline">Chủ tọa</Badge>;
   if (registration.role === 'speaker') return <Badge variant="outline">Báo cáo viên</Badge>;
   if (registration.role === 'both') return <Badge variant="outline">Cả hai</Badge>;
-  return <Badge variant="secondary">Tham dự</Badge>; // Default to participant
+  return <Badge variant="secondary">Tham dự</Badge>;
 };
-
 export const RegistrationTable = ({
   registrations,
   isLoading,

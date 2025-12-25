@@ -15,37 +15,30 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-
 import { useEffect, useRef } from "react";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { announcementService } from "@/services/announcementService";
-
 export default function AnnouncementsPage() {
   const [_isAnnouncements, _announcementsParams] = useRoute("/announcements");
   const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
     "/conference/:slug/announcements"
   );
-
   const slug = isConferenceAnnouncements
     ? conferenceAnnouncementsParams?.slug
     : undefined;
   const { conference } = useActiveConference();
-
   const conferenceId = conference?.id;
   const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
-    queryKey: ["announcements", slug || "active"], // Unique key for React Query
+    queryKey: ["announcements", slug || "active"],
     queryFn: () => announcementService.getAnnouncements(slug),
     enabled: !!conferenceId,
   });
-
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (announcements.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [announcements]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -56,8 +49,6 @@ export default function AnnouncementsPage() {
       </div>
     );
   }
-
-  // Phân loại thông báo theo category để hiển thị
   const featuredAnnouncements = announcements
     .filter((a) => a.category === "important")
     .slice(0, 2);
@@ -65,7 +56,6 @@ export default function AnnouncementsPage() {
     (a) =>
       a.category !== "important" || !featuredAnnouncements.includes(a)
   );
-
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "important":
@@ -78,7 +68,6 @@ export default function AnnouncementsPage() {
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
-
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case "important":
@@ -91,13 +80,11 @@ export default function AnnouncementsPage() {
         return "THÔNG BÁO";
     }
   };
-
   const getLinkUrl = (announcementId: string) => {
     return slug
       ? `/conference/${slug}/announcements/${announcementId}`
       : `/announcements/${announcementId}`;
   };
-
   return (
     <>
       <PageHeader
@@ -121,7 +108,6 @@ export default function AnnouncementsPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -195,7 +181,6 @@ export default function AnnouncementsPage() {
                 </div>
               </section>
             )}
-
             {/* Regular Announcements - Danh sách tin thường */}
             <section>
               <div className="flex items-center gap-3 mb-8">
@@ -205,7 +190,6 @@ export default function AnnouncementsPage() {
                 </h2>
                 <div className="flex-1 h-0.5 bg-gray-400"></div>
               </div>
-
               {regularAnnouncements.length > 0 ? (
                 <div className="space-y-6">
                   {regularAnnouncements.map((announcement) => (
@@ -228,7 +212,6 @@ export default function AnnouncementsPage() {
                                 </div>
                               </div>
                             )}
-
                             {/* Nội dung */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-3 mb-3">
@@ -263,17 +246,14 @@ export default function AnnouncementsPage() {
                                   </span>
                                 </div>
                               </div>
-
                               <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                                 {announcement.title}
                               </h3>
-
                               {announcement.excerpt && (
                                 <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                                   {announcement.excerpt}
                                 </p>
                               )}
-
                               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                                 <span className="text-blue-600 text-sm font-medium group-hover:underline">
                                   Xem chi tiết
@@ -303,7 +283,6 @@ export default function AnnouncementsPage() {
                 </Card>
               ) : null}
             </section>
-
             {/* Thống kê */}
             {announcements.length > 0 && (
               <div className="mt-16 pt-8 border-t border-gray-200">

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,17 +6,14 @@ import { Clock, MapPin, User } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Session, Speaker } from "@shared/types";
-
 interface SessionListProps {
   sessions: Session[];
   speakers: Speaker[];
   view?: 'homepage' | 'full'; 
 }
-
 interface SpeakerMap {
   [key: string]: Speaker;
 }
-
 const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Session; speakerMap: SpeakerMap }) => {
   return (
     <AccordionItem key={session.id} value={session.id} className="border rounded-lg overflow-hidden bg-background">
@@ -80,7 +76,6 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
     </AccordionItem>
   );
 });
-
 export function SessionList({ sessions, speakers, view: _view = 'full' }: SessionListProps) {
   const speakerMap = useMemo(() => {
     return speakers.reduce((acc, speaker) => {
@@ -88,17 +83,14 @@ export function SessionList({ sessions, speakers, view: _view = 'full' }: Sessio
       return acc;
     }, {} as Record<string, Speaker>);
   }, [speakers]);
-
   const sessionsBySlot = useMemo(() => {
     const grouped: Record<string, Session[]> = {};
     const sortedSessions = [...sessions].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
     for (const session of sortedSessions) {
       const date = new Date(session.startTime);
       const dateKey = format(date, "yyyy-MM-dd");
       const timeOfDay = date.getHours() < 12 ? "Sáng" : "Chiều";
       const combinedKey = `${dateKey}_${timeOfDay}`;
-
       if (!grouped[combinedKey]) {
         grouped[combinedKey] = [];
       }
@@ -106,9 +98,7 @@ export function SessionList({ sessions, speakers, view: _view = 'full' }: Sessio
     }
     return grouped;
   }, [sessions]);
-
   const sortedSlots = Object.keys(sessionsBySlot).sort();
-
   if (sessions.length === 0) {
     return (
       <div className="text-center py-12">
@@ -116,7 +106,6 @@ export function SessionList({ sessions, speakers, view: _view = 'full' }: Sessio
       </div>
     );
   }
-
   return (
     <Tabs defaultValue={sortedSlots[0]} className="w-full">
       <TabsList className="w-full justify-start mb-8 flex-wrap h-auto gap-2">
@@ -129,7 +118,6 @@ export function SessionList({ sessions, speakers, view: _view = 'full' }: Sessio
           )
         })}
       </TabsList>
-
       {sortedSlots.map(slot => (
         <TabsContent key={slot} value={slot} className="mt-0">
           <Accordion type="single" collapsible className="space-y-4">

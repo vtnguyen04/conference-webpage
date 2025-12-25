@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-// Helper to convert string to boolean for multipart/form-data or older clients
 const stringToBoolean = z.preprocess((val) => {
   if (typeof val === "string") {
     if (val === "true") return true;
@@ -8,8 +6,6 @@ const stringToBoolean = z.preprocess((val) => {
   }
   return val;
 }, z.boolean());
-
-// Conference validation schema
 export const insertConferenceSchema = z.object({
   slug: z.string().min(1),
   name: z.string().min(1),
@@ -28,26 +24,22 @@ export const insertConferenceSchema = z.object({
   contactPhone: z.string().optional().or(z.literal("")),
   isActive: z.coerce.boolean().default(true),
 });
-
 export const conferenceSchema = insertConferenceSchema.extend({
   id: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-
 export const agendaItemSchema = z.object({
   timeSlot: z.string(),
   title: z.string(),
   speakerId: z.string().nullable().optional(),
   notes: z.string().optional(),
 });
-
 export const materialSchema = z.object({
   type: z.string(),
   title: z.string(),
   url: z.string(),
 });
-
 export const insertSessionSchema = z.object({
   day: z.coerce.number().int().min(1),
   title: z.string().min(1),
@@ -64,7 +56,6 @@ export const insertSessionSchema = z.object({
   capacity: z.coerce.number().int().positive().nullable().optional(),
   allowCmeCertificate: z.coerce.boolean().optional().default(true),
 });
-
 export const insertSpeakerSchema = z.object({
   name: z.string().min(1),
   title: z.string(),
@@ -75,7 +66,6 @@ export const insertSpeakerSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   role: z.enum(["speaker", "moderator", "both"]).default("speaker"),
 });
-
 export const insertOrganizerSchema = z.object({
   name: z.string().min(1),
   title: z.string(),
@@ -85,7 +75,6 @@ export const insertOrganizerSchema = z.object({
   organizingRole: z.enum(["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"]),
   displayOrder: z.coerce.number().int().default(0),
 });
-
 export const insertSponsorSchema = z.object({
   name: z.string().min(1),
   logoUrl: z.string().optional().or(z.literal("")),
@@ -93,7 +82,6 @@ export const insertSponsorSchema = z.object({
   websiteUrl: z.string().url().optional().or(z.literal("")),
   displayOrder: z.coerce.number().int().default(0),
 });
-
 export const insertAnnouncementSchema = z.object({
   title: z.string().min(1),
   content: z.string(),
@@ -103,14 +91,12 @@ export const insertAnnouncementSchema = z.object({
   category: z.enum(["general", "important", "deadline"]).default("general"),
   publishedAt: z.string().optional(),
 });
-
 export const insertSightseeingSchema = z.object({
   title: z.string().min(1),
   content: z.string(),
   excerpt: z.string(),
   featuredImageUrl: z.string().optional().or(z.literal("")),
 });
-
 export const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -120,7 +106,6 @@ export const contactFormSchema = z.object({
     message: "You must confirm you are not a robot.",
   }),
 });
-
 export const batchRegistrationRequestSchema = z.object({
   conferenceSlug: z.string().min(1),
   sessionIds: z.array(z.string()).min(1),
@@ -132,7 +117,6 @@ export const batchRegistrationRequestSchema = z.object({
   role: z.string().default("participant"),
   cmeCertificateRequested: stringToBoolean.default(false),
 });
-
 export const insertRegistrationSchema = z.object({
     conferenceSlug: z.string(),
     sessionId: z.string(),
@@ -145,7 +129,6 @@ export const insertRegistrationSchema = z.object({
     cmeCertificateRequested: stringToBoolean.default(false),
     status: z.enum(["pending", "confirmed", "cancelled"]).default("confirmed"),
 });
-
 export type BatchRegistrationRequest = z.infer<typeof batchRegistrationRequestSchema>;
 export type InsertRegistrationRequest = z.infer<typeof insertRegistrationSchema>;
 export type ContactFormRequest = z.infer<typeof contactFormSchema>;

@@ -25,11 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 const ReactQuill = React.lazy(() => import("react-quill"));
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
 import { apiUploadFile } from "@/lib/queryClient";
 import { DialogFooter } from "@/components/ui/dialog";
-
 interface AnnouncementFormProps {
   initialData?: Announcement | null;
   onSubmit: (data: InsertAnnouncement) => void;
@@ -45,7 +44,6 @@ interface AnnouncementFormProps {
   isPdfDeleting: boolean;
   onCancel: () => void;
 }
-
 const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   initialData,
   onSubmit,
@@ -63,7 +61,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
 }) => {
   const { toast } = useToast();
   const quillRef = useRef<any>(null);
-
   const form = useForm<InsertAnnouncement>({
     resolver: zodResolver(insertAnnouncementSchema),
     defaultValues: {
@@ -75,7 +72,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       publishedAt: new Date().toISOString().slice(0, 16),
     },
   });
-
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -99,24 +95,20 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       });
     }
   }, [initialData, form]);
-
   const imageHandler = () => {
     if (isReadOnly) return;
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.click();
-
     input.onchange = async () => {
       const file = input.files ? input.files[0] : null;
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-
         try {
           const result = await apiUploadFile('/api/upload', formData);
           const imageUrl = result.imagePath;
-
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
@@ -130,7 +122,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       }
     };
   };
-
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -145,7 +136,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       },
     },
   }), [isReadOnly]);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -172,7 +162,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="pdfUrl"
@@ -199,7 +188,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="title"
@@ -213,7 +201,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="excerpt"
@@ -230,7 +217,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             </FormItem>
           )}
         />
-
         <Controller
           name="content"
           control={form.control}
@@ -257,7 +243,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             </FormItem>
           )}
         />
-
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -281,7 +266,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="publishedAt"
@@ -296,7 +280,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
             )}
           />
         </div>
-
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onCancel}>
             Hủy
@@ -317,5 +300,4 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
     </Form>
   );
 };
-
 export default AnnouncementForm;

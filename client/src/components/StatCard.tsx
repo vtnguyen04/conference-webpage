@@ -1,13 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
-
 interface StatCardProps {
     title: string;
     value: string | number;
     icon: React.ElementType;
     iconColor: string;
 }
-
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, iconColor }) => (
     <Card>
         <CardContent className="p-6">
@@ -21,5 +19,4 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, iconColor
         </CardContent>
     </Card>
 );
-
 export default StatCard;

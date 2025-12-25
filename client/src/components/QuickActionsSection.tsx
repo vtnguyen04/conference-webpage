@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Users } from "lucide-react";
 import { Link } from "wouter";
-
 const QuickActionsSection = () => {
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
@@ -16,7 +15,6 @@ const QuickActionsSection = () => {
                     </CardContent>
                 </Card>
             </Link>
-
             <Link href="/program">
                 <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-gray-500 relative overflow-hidden group" data-testid="card-action-program">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gray-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -28,7 +26,6 @@ const QuickActionsSection = () => {
                     </CardContent>
                 </Card>
             </Link>
-
             <Link href="/sponsors">
                 <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-teal-600 relative overflow-hidden group" data-testid="card-action-sponsors">
                     <div className="absolute top-0 left-0 w-full h-1 bg-teal-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -40,7 +37,6 @@ const QuickActionsSection = () => {
                     </CardContent>
                 </Card>
             </Link>
-
             <Link href="/announcements">
                 <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl border-2 border-slate-200 hover:border-gray-500 relative overflow-hidden group" data-testid="card-action-announcements">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gray-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -55,5 +51,4 @@ const QuickActionsSection = () => {
         </div>
     )
 }
-
 export default QuickActionsSection;

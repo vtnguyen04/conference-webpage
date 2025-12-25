@@ -5,7 +5,6 @@ import { randomUUID } from "node:crypto";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { registrationRepository } from "../repositories/registrationRepository";
-
 export class RegistrationService {
     private checkSessionTimeOverlap(sessions: Session[]): boolean {
         if (sessions.length <= 1) return false;
@@ -15,16 +14,12 @@ export class RegistrationService {
         }
         return false;
     }
-
     async batchRegisterSessions(request: BatchRegistrationRequest): Promise<{ success: boolean; registrations?: Registration[]; confirmationToken?: string; error?: string; failedSessions?: string[]; }> {
         const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, role, cmeCertificateRequested } = request;
         const allSessions = await sessionRepository.getAll(conferenceSlug);
         const requested = allSessions.filter(s => sessionIds.includes(s.id));
-        
         if (requested.length !== sessionIds.length) return { success: false, error: "Sessions not found" };
         if (this.checkSessionTimeOverlap(requested)) return { success: false, error: "Overlapping time" };
-
-        // Check capacity for each requested session
         const failedSessions: string[] = [];
         for (const session of requested) {
             if (session.capacity) {
@@ -34,7 +29,6 @@ export class RegistrationService {
                 }
             }
         }
-
         if (failedSessions.length > 0) {
             return { 
                 success: false, 
@@ -42,7 +36,6 @@ export class RegistrationService {
                 failedSessions 
             };
         }
-        
         try {
             const token = crypto.randomBytes(32).toString("hex");
             const newRegistrationsData = await Promise.all(sessionIds.map(async (sid) => {
@@ -68,7 +61,6 @@ export class RegistrationService {
                     reminderCount: 0,
                 } as any;
             }));
-            
             const created = await registrationRepository.createBatchInDb(newRegistrationsData);
             return { success: true, registrations: created, confirmationToken: token };
         } catch (e: any) {

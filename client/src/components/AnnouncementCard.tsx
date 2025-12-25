@@ -5,13 +5,11 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import type { Announcement } from "@shared/types";
 import { Link } from "wouter";
-
 interface AnnouncementCardProps {
     announcement: Announcement;
     slug?: string;
     type: 'featured' | 'regular';
 }
-
 const getCategoryColor = (category: string) => {
     switch (category) {
         case "important":
@@ -24,7 +22,6 @@ const getCategoryColor = (category: string) => {
             return "bg-gray-100 text-gray-800 border-gray-200";
     }
 };
-
 const getCategoryLabel = (category: string) => {
     switch (category) {
         case "important":
@@ -37,14 +34,12 @@ const getCategoryLabel = (category: string) => {
             return "THÔNG BÁO";
     }
 };
-
 export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardProps) => {
     const getLinkUrl = (announcementId: string) => {
         return slug
             ? `/conference/${slug}/announcements/${announcementId}`
             : `/announcements/${announcementId}`;
     };
-
     if (type === 'featured') {
         return (
             <Link
@@ -103,7 +98,6 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
             </Link>
         )
     }
-
     return (
         <Link
             key={announcement.id}
@@ -124,7 +118,6 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                 </div>
                             </div>
                         )}
-
                         {/* Nội dung */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-3">
@@ -159,17 +152,14 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                     </span>
                                 </div>
                             </div>
-
                             <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                                 {announcement.title}
                             </h3>
-
                             {announcement.excerpt && (
                                 <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                                     {announcement.excerpt}
                                 </p>
                             )}
-
                             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                                 <span className="text-blue-600 text-sm font-medium group-hover:underline">
                                     Xem chi tiết

@@ -1,14 +1,11 @@
 import SectionHeader from "@/components/SectionHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { useActiveConference } from "@/hooks/useActiveConference";
-
 const IntroductionSection = () => {
     const { conference } = useActiveConference();
-
     if (!conference?.introContent) {
         return null;
     }
-
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto">
@@ -33,5 +30,4 @@ const IntroductionSection = () => {
         </div>
     )
 }
-
 export default IntroductionSection;

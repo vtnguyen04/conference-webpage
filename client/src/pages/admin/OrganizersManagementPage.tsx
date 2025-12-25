@@ -38,7 +38,6 @@ import { insertOrganizerSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
-
 export default function OrganizersManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,7 +45,6 @@ export default function OrganizersManagementPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: organizers = [] } = useQuery<Organizer[]>({
     queryKey: ["/api/organizers", viewingSlug],
     queryFn: async () => {
@@ -55,7 +53,6 @@ export default function OrganizersManagementPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertOrganizer>({
     resolver: zodResolver(insertOrganizerSchema),
     defaultValues: {
@@ -68,7 +65,6 @@ export default function OrganizersManagementPage() {
       displayOrder: 0,
     },
   });
-
   const createMutation = useMutation({
     mutationFn: async (data: InsertOrganizer) => {
       return await apiRequest("POST", "/api/organizers", data);
@@ -83,7 +79,6 @@ export default function OrganizersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertOrganizer }) => {
       return await apiRequest("PUT", `/api/organizers/${id}`, data);
@@ -99,7 +94,6 @@ export default function OrganizersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/organizers/${id}`);
@@ -112,7 +106,6 @@ export default function OrganizersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/organizers/all");
@@ -125,7 +118,6 @@ export default function OrganizersManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingOrganizer(null);
@@ -140,7 +132,6 @@ export default function OrganizersManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleEdit = (organizer: Organizer) => {
     if (isReadOnly) return;
     setEditingOrganizer(organizer);
@@ -155,21 +146,18 @@ export default function OrganizersManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa thành viên "${name}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ thành viên BTC? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertOrganizer) => {
     if (isReadOnly) return;
     if (editingOrganizer) {
@@ -178,18 +166,15 @@ export default function OrganizersManagementPage() {
       createMutation.mutate(data);
     }
   };
-
   const handleImageUpload = async (files: File[]) => {
     if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
-
     const oldPhotoUrl = form.getValues("photoUrl");
     if (oldPhotoUrl) {
       formData.append("oldImagePath", oldPhotoUrl);
     }
-
     setIsUploading(true);
     try {
       const result = await apiUploadFile("/api/upload", formData);
@@ -201,7 +186,6 @@ export default function OrganizersManagementPage() {
       setIsUploading(false);
     }
   };
-
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentPhotoUrl = form.getValues("photoUrl");
@@ -218,7 +202,6 @@ export default function OrganizersManagementPage() {
       setIsDeleting(false);
     }
   };
-  
   const groupedOrganizers = organizers.reduce((acc, organizer) => {
     const role = organizer.organizingRole;
     if (!acc[role]) {
@@ -227,10 +210,7 @@ export default function OrganizersManagementPage() {
     acc[role].push(organizer);
     return acc;
   }, {} as Record<string, Organizer[]>);
-
   const roleOrder: (keyof typeof groupedOrganizers)[] = ["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"];
-
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -252,7 +232,6 @@ export default function OrganizersManagementPage() {
           </Button>
         </div>
       </div>
-
       {roleOrder.map(role => (
         groupedOrganizers[role] && (
           <Card key={role}>
@@ -305,7 +284,6 @@ export default function OrganizersManagementPage() {
           </Card>
         )
       ))}
-
       {organizers.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
@@ -315,7 +293,6 @@ export default function OrganizersManagementPage() {
           </CardContent>
         </Card>
       )}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -326,7 +303,6 @@ export default function OrganizersManagementPage() {
               Điền thông tin chi tiết về thành viên ban tổ chức
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -352,7 +328,6 @@ export default function OrganizersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -367,7 +342,6 @@ export default function OrganizersManagementPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="name"
@@ -382,7 +356,6 @@ export default function OrganizersManagementPage() {
                   )}
                 />
               </div>
-
               <FormField
                 control={form.control}
                 name="title"
@@ -396,7 +369,6 @@ export default function OrganizersManagementPage() {
                   </FormItem>
                 )}
               />
-              
               <FormField
                 control={form.control}
                 name="organizingRole"
@@ -420,7 +392,6 @@ export default function OrganizersManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="bio"
@@ -434,7 +405,6 @@ export default function OrganizersManagementPage() {
                   </FormItem>
                 )}
               />
-              
               <FormField
                   control={form.control}
                   name="displayOrder"
@@ -448,8 +418,6 @@ export default function OrganizersManagementPage() {
                     </FormItem>
                   )}
                 />
-
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

@@ -1,11 +1,9 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Speaker } from "@shared/types";
-
 interface SpeakerCardProps {
   speaker: Speaker;
 }
-
 export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardProps) {
   return (
     <div className="p-1 h-full">
@@ -35,19 +33,15 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
               <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           )}
-
           <h3 className="font-bold text-lg mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">
             {speaker.credentials && `${speaker.credentials}. `}{speaker.name}
           </h3>
-
           {speaker.title && (
             <p className="text-sm font-semibold text-slate-700 mb-3">{speaker.title}</p>
           )}
-
           {speaker.specialty && (
             <p className="text-sm text-slate-600 mb-4">{speaker.specialty}</p>
           )}
-
           <div className="mt-auto pt-4 w-full text-center">
             <div className="h-0.5 w-12 bg-blue-600 mx-auto mb-3"></div>
             <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
@@ -60,4 +54,3 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
     </div>
   );
 });
-

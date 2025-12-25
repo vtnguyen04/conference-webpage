@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { OrganizerCard } from "@/components/OrganizerCard";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { organizerService } from "@/services/organizerService"; // Added
-
+import { organizerService } from "@/services/organizerService";
 const OrganizersSection = () => {
     const { conference } = useActiveConference();
     const { data: organizers = [] } = useQuery<Organizer[]> ({
@@ -16,11 +15,9 @@ const OrganizersSection = () => {
         queryFn: () => organizerService.getOrganizers(conference?.slug),
         enabled: !!conference,
     });
-
     if (organizers.length === 0) {
-        return null; // Don't render the section if there are no organizers
+        return null;
     }
-
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
@@ -35,7 +32,6 @@ const OrganizersSection = () => {
                     </Link>
                 }
             />
-
             <Carousel
                 opts={{
                     align: "start",
@@ -59,5 +55,4 @@ const OrganizersSection = () => {
         </div>
     )
 }
-
 export default OrganizersSection;

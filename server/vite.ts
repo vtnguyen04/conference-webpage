@@ -5,9 +5,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
-
 const viteLogger = createLogger();
-
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -15,17 +13,14 @@ export function log(message: string, source = "express") {
     second: "2-digit",
     hour12: true,
   });
-
   console.log(`${formattedTime} [${source}] ${message}`);
 }
-
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
     allowedHosts: true as const,
   };
-
   const vite = await createViteServer({
     ...viteConfig,
     configFile: false,
@@ -39,16 +34,12 @@ export async function setupVite(app: Express, server: Server) {
     server: serverOptions,
     appType: "custom",
   });
-
   app.use(vite.middlewares);
-
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
-
     try {
       let templatePath: string;
       let entryPoint: string;
-
       if (url.startsWith("/admin")) {
         templatePath = path.resolve(import.meta.dirname, "..", "client", "admin.html");
         entryPoint = "/src/admin.tsx";
@@ -56,7 +47,6 @@ export async function setupVite(app: Express, server: Server) {
         templatePath = path.resolve(import.meta.dirname, "..", "client", "index.html");
         entryPoint = "/src/main.tsx";
       }
-
       let template = await fs.promises.readFile(templatePath, "utf-8");
       template = template.replace(
         `src="${entryPoint}"`,
@@ -70,25 +60,17 @@ export async function setupVite(app: Express, server: Server) {
     }
   });
 }
-
 export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
-
   if (!fs.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
-
-  // Serve static assets
   app.use(express.static(distPath));
-
-  // Fallback for specific routes
   app.use("/admin", (_req, res) => {
     res.sendFile(path.resolve(distPath, "admin.html"));
   });
-
-  // Fallback for all other routes (public app)
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });

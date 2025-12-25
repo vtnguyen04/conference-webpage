@@ -11,7 +11,6 @@ import type {
   Sightseeing,
   Whitelist,
 } from "@shared/schema";
-
 export interface ConferenceData {
   conference: Conference;
   sessions: Session[];
@@ -22,16 +21,12 @@ export interface ConferenceData {
   sightseeing: Sightseeing[];
   whitelists: Whitelist[];
 }
-
 export const DATA_DIR = join(process.cwd(), "server", "data");
 export const CONFIG_FILE_PATH = join(DATA_DIR, "config.json");
-
 if (!existsSync(DATA_DIR)) {
   mkdirSync(DATA_DIR, { recursive: true });
 }
-
 const fileLocks = new Map<string, Promise<any>>();
-
 async function acquireLock(key: string): Promise<() => void> {
     let release: () => void;
     const promise = new Promise<void>((resolve) => {
@@ -42,15 +37,12 @@ async function acquireLock(key: string): Promise<() => void> {
     await previousLock;
     return release!;
 }
-
 export function slugify(text: string): string {
   return text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-');
 }
-
 export function getConferenceFilePath(slug: string): string {
   return join(DATA_DIR, `${slug}.json`);
 }
-
 export async function readConferenceData(slug: string): Promise<ConferenceData | null> {
   const release = await acquireLock(slug);
   try {
@@ -68,7 +60,6 @@ export async function readConferenceData(slug: string): Promise<ConferenceData |
     release();
   }
 }
-
 export async function writeConferenceData(slug: string, data: ConferenceData): Promise<void> {
   const release = await acquireLock(slug);
   try {
@@ -81,7 +72,6 @@ export async function writeConferenceData(slug: string, data: ConferenceData): P
     release();
   }
 }
-
 export async function deleteFile(filePathRelative: string) {
   if (filePathRelative && filePathRelative.startsWith('/uploads/')) {
     const absolutePath = join(process.cwd(), "public", filePathRelative);
@@ -90,7 +80,6 @@ export async function deleteFile(filePathRelative: string) {
     }
   }
 }
-
 export async function cloneFile(filePathRelative: string | null | undefined): Promise<string | undefined> {
   if (!filePathRelative || !filePathRelative.startsWith('/uploads/')) return filePathRelative ?? undefined;
   const sourcePath = join(process.cwd(), "public", filePathRelative);
@@ -106,9 +95,7 @@ export async function cloneFile(filePathRelative: string | null | undefined): Pr
     return filePathRelative;
   }
 }
-
 export interface Config { activeConferenceSlug: string | null; }
-
 export async function readConfig(): Promise<Config> {
   const release = await acquireLock('config');
   try {
@@ -119,7 +106,6 @@ export async function readConfig(): Promise<Config> {
     release();
   }
 }
-
 export async function writeConfig(config: Config): Promise<void> {
   const release = await acquireLock('config');
   try {

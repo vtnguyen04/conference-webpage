@@ -6,11 +6,9 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
-
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     let errorMessage = res.statusText || `Error ${res.status}`;
-    
     try {
       const data = await res.json();
       if (data && data.message) {
@@ -19,17 +17,13 @@ async function throwIfResNotOk(res: Response) {
         errorMessage = data;
       }
     } catch (e) {
-      // Not a JSON response
     }
-
     if (res.status === 401) {
       throw new ApiError("Mật khẩu không chính xác hoặc phiên đăng nhập đã hết hạn.", 401);
     }
-    
     throw new ApiError(errorMessage, res.status);
   }
 }
-
 export async function apiRequest(
   method: string,
   url: string,
@@ -42,19 +36,15 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
     });
-
     await throwIfResNotOk(res);
-    
     if (method !== "DELETE" && res.headers.get("content-type")?.includes("application/json")) {
       return await res.json();
     }
-
     return {};
   } catch (error) {
     throw error;
   }
 }
-
 export async function apiUploadFile(
   url: string,
   formData: FormData,
@@ -64,7 +54,6 @@ export async function apiUploadFile(
     body: formData,
     credentials: "include",
   });
-
   await throwIfResNotOk(res);
   return await res.json();
 }

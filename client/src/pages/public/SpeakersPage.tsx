@@ -11,40 +11,32 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-
 import { useEffect, useRef } from "react";
 import { SpeakerCard } from "@/components/SpeakerCard";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { speakerService } from "@/services/speakerService";
-
 export default function SpeakersPage() {
   const [, params] = useRoute("/conference/:slug/speakers");
   const slug = params?.slug;
-
   const { conference } = useActiveConference();
-
   const conferenceId = conference?.id;
   const { data: speakers = [], isLoading } = useQuery<Speaker[]>({
-    queryKey: ["speakers", slug || "active"], // Unique key for React Query
+    queryKey: ["speakers", slug || "active"],
     queryFn: () => speakerService.getSpeakers(slug),
     enabled: !!conferenceId,
   });
-
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (speakers.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [speakers]);
-
   const moderators = speakers.filter(
     (s) => s.role === "moderator" || s.role === "both"
   );
   const regularSpeakers = speakers.filter(
     (s) => s.role === "speaker" || s.role === "both"
   );
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -55,7 +47,6 @@ export default function SpeakersPage() {
       </div>
     );
   }
-
   return (
     <>
       <PageHeader
@@ -77,11 +68,9 @@ export default function SpeakersPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-
       <div ref={mainContentRef} className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-
           {/* Moderators Section */}
           {moderators.length > 0 && (
             <section className="mb-16">
@@ -95,7 +84,6 @@ export default function SpeakersPage() {
               </div>
             </section>
           )}
-
           {/* Speakers Section */}
           {regularSpeakers.length > 0 && (
             <section>
@@ -109,7 +97,6 @@ export default function SpeakersPage() {
               </div>
             </section>
           )}
-
           {speakers.length === 0 && (
             <Card>
               <CardContent className="p-12 text-center">

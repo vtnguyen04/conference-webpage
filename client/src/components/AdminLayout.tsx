@@ -46,7 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 const menuItems = [
   {
     href: "/admin",
@@ -114,15 +113,12 @@ const menuItems = [
     label: "Tin nhắn liên hệ"
   }
 ];
-
 const ConferenceSelector = () => {
   const { data: conferences = [] } = useQuery<Conference[]>({
     queryKey: ['api/conferences'],
   });
   const { viewingSlug, setViewingSlug, isReadOnly } = useAdminView();
-
   if (!viewingSlug) return null;
-
   return (
     <div className="flex items-center gap-2">
       <Select
@@ -149,30 +145,24 @@ const ConferenceSelector = () => {
     </div>
   );
 };
-
 interface AdminLayoutProps {
   children: React.ReactNode;
   className?: string;
 }
-
 export function AdminLayout({ children, className }: AdminLayoutProps) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const { open: sidebarOpen, toggleSidebar } = useSidebar();
   const { refetch: refetchAuth } = useAuth();
   const setSlugs = useAdminView(state => state.setSlugs);
-
   const { data: activeConference } = useQuery<Conference>({
     queryKey: ['api', 'conferences', 'active'],
   });
-
   useEffect(() => {
     if (activeConference) {
       setSlugs(activeConference.slug, activeConference.slug);
     }
   }, [activeConference, setSlugs]);
-
-  // Fetch contact message count
   const { data: contactMessageCount = { count: 0 } } = useQuery<{ count: number }>({
     queryKey: ["api", "stats", "contact-messages"],
     queryFn: async () => {
@@ -182,16 +172,15 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
       }
       return response.json();
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
-
   const handleLogout = async () => {
     try {
       const response = await fetch("/api/logout", { method: "POST", credentials: "include" });
       const result = await response.json();
       if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] }); // Invalidate auth query
-        await refetchAuth(); // Force refetch of auth status
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        await refetchAuth();
         setLocation("/admin/login");
         toast({
           title: "Đã đăng xuất",
@@ -210,7 +199,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
       });
     }
   };
-
   return (
     <div className="flex h-screen w-full bg-white">
       {/* Sidebar */}
@@ -236,7 +224,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
               </div>
             </SidebarGroupLabel>
           </SidebarGroup>
-
           <SidebarGroup className="mt-2">
             <SidebarGroupContent>
               <SidebarMenu>
@@ -255,7 +242,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                     >
                       <div className="flex items-center gap-3 w-full">
                         <item.icon className="h-4 w-4" />
-                        
                         {sidebarOpen && (
                           <div className="flex-1 flex items-center justify-between">
                             <span className="font-medium text-sm">{item.label}</span>
@@ -275,7 +261,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-
       {/* Main Content */}
       <SidebarInset>
         {/* Header */}
@@ -289,10 +274,8 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             >
               <Menu className="h-4 w-4" />
             </Button>
-            
             <ConferenceSelector />
           </div>
-
           <div className="flex items-center gap-3">
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative h-8 w-8">
@@ -301,7 +284,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                 3
               </span>
             </Button>
-
             {/* User Menu */}
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
@@ -309,7 +291,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                   AU
                 </AvatarFallback>
               </Avatar>
-              
               {sidebarOpen && (
                 <>
                   <div className="flex flex-col items-start">
@@ -320,12 +301,10 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                       Quản trị viên
                     </p>
                   </div>
-                  
                   <ChevronDown className="h-4 w-4 text-gray-400" />
                 </>
               )}
             </div>
-
             {/* Quick Actions */}
             <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
               <Link href="/">
@@ -345,7 +324,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             </div>
           </div>
         </header>
-
         {/* Page Title */}
         <div className="border-b border-gray-200 bg-white">
           <div className="px-6 py-4">
@@ -358,7 +336,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             </div>
           </div>
         </div>
-
         {/* Main Content */}
         <main className={cn(
           "flex-1 overflow-y-auto p-6 bg-gray-50",

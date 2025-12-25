@@ -8,32 +8,20 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/services/apiClient";
 import { Loader2 } from "lucide-react";
-
 export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { refetch } = useAuth();
-
-  // This is not the most secure solution, but it matches the user's request for a simple admin login.
-  // A better implementation would be to have a proper login form with both email and password fields.
   const email = "admin@example.com";
-
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setIsLoading(true);
-
   try {
-    // Bước 1: Gọi API để đăng nhập như cũ
     await apiRequest("POST", "/api/login", { email, password });
-
-    // Bước 2: Chờ cho useAuth() cập nhật xong VÀ kiểm tra kết quả của nó
-    // refetch() sẽ trả về trạng thái query mới nhất.
     const refetchResult = await refetch();
     const isSuccess = refetchResult.isSuccess;
-
-    // Bước 3: CHỈ chuyển trang NẾU việc cập nhật trạng thái đã thành công
     if (isSuccess && refetchResult.data) {
       toast({
         title: "Đăng nhập thành công",
@@ -41,18 +29,15 @@ export default function Login() {
       });
       setLocation("/admin");
     } else {
-      // Trường hợp hiếm gặp, nhưng nên có để phòng lỗi
       throw new Error("Không thể xác nhận trạng thái đăng nhập.");
     }
   } catch (error: any) {
     let description = "Đã xảy ra lỗi không xác định. Vui lòng thử lại.";
-    
     if (error instanceof Error) {
       description = error.message;
     } else if (typeof error === 'string') {
       description = error;
     }
-
     toast({
       title: "Đăng nhập thất bại",
       description: description,
@@ -62,7 +47,6 @@ export default function Login() {
     setIsLoading(false);
   }
 };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
       <Card className="w-full max-w-md">

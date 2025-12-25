@@ -34,7 +34,6 @@ import type { Session } from "@shared/types";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
-
 const formSchema = z.object({
   fullName: z.string().min(1, "Họ và tên không được để trống"),
   email: z.string().email("Email không hợp lệ"),
@@ -47,18 +46,14 @@ const formSchema = z.object({
   }),
   cmeCertificateRequested: z.boolean().default(false),
 });
-
 type AddRegistrationFormValues = z.infer<typeof formSchema>;
-
 interface AddRegistrationDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
   const form = useForm<AddRegistrationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,15 +65,12 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
       role: "participant",
     },
   });
-
   const { conference } = useActiveConference();
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
     queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
-
   const { data: capacityData = [] } = useQuery<Array<{
     sessionId: string;
     registered: number;
@@ -93,21 +85,19 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     },
     enabled: !!conference,
   });
-
   const capacityMap = useMemo(() => {
     return capacityData.reduce((acc, item) => {
       acc[item.sessionId] = item;
       return acc;
     }, {} as Record<string, typeof capacityData[0]>);
   }, [capacityData]);
-
   const addRegistrationMutation = useMutation({
     mutationFn: (newRegistration: AddRegistrationFormValues & { conferenceSlug: string }) =>
       registrationService.addRegistration(newRegistration),
     onSuccess: () => {
       toast({ title: "Thêm đăng ký thành công" });
       queryClient.invalidateQueries({ queryKey: ["registrations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] }); // Invalidate speakers query
+      queryClient.invalidateQueries({ queryKey: ["/api/speakers"] });
       form.reset();
       onClose();
     },
@@ -127,7 +117,6 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
       }
     },
   });
-
   const onSubmit = (values: AddRegistrationFormValues) => {
     if (!conference?.slug) {
       toast({
@@ -139,7 +128,6 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     }
     addRegistrationMutation.mutate({ ...values, conferenceSlug: conference.slug });
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -234,7 +222,6 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                           const cap = capacityMap[session.id];
                           const capText = cap ? `(${cap.registered}/${cap.capacity || "∞"})` : "";
                           const isFull = cap?.isFull || false;
-                          
                           return (
                             <SelectItem key={session.id} value={session.id} disabled={isFull}>
                               {session.title} {capText} {isFull ? "- ĐÃ HẾT CHỖ" : ""}

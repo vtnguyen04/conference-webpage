@@ -32,7 +32,6 @@ import { insertSightseeingSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
-
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -41,7 +40,6 @@ export default function SightseeingManagementPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
-
   const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
     queryKey: ["/api/sightseeing", viewingSlug],
     queryFn: async () => {
@@ -50,7 +48,6 @@ export default function SightseeingManagementPage() {
     },
     enabled: !!viewingSlug,
   });
-
   const form = useForm<InsertSightseeing>({
     resolver: zodResolver(insertSightseeingSchema),
     defaultValues: {
@@ -60,7 +57,6 @@ export default function SightseeingManagementPage() {
       featuredImageUrl: "",
     },
   });
-
   const createMutation = useMutation({
     mutationFn: async (data: InsertSightseeing) => {
       return await apiRequest("POST", "/api/sightseeing", data);
@@ -75,7 +71,6 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSightseeing }) => {
       return await apiRequest("PUT", `/api/sightseeing/${id}`, data);
@@ -91,7 +86,6 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/sightseeing/${id}`);
@@ -104,7 +98,6 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/sightseeing/all");
@@ -117,7 +110,6 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSightseeing(null);
@@ -129,7 +121,6 @@ export default function SightseeingManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleEdit = (sightseeing: Sightseeing) => {
     if (isReadOnly) return;
     setEditingSightseeing(sightseeing);
@@ -141,21 +132,18 @@ export default function SightseeingManagementPage() {
     });
     setIsDialogOpen(true);
   };
-
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa địa điểm "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan? Hành động này không thể hoàn tác.")) {
       deleteAllMutation.mutate();
     }
   };
-
   const onSubmit = (data: InsertSightseeing) => {
     if (isReadOnly) return;
     if (editingSightseeing) {
@@ -164,18 +152,15 @@ export default function SightseeingManagementPage() {
       createMutation.mutate(data);
     }
   };
-
   const handleImageDrop = async (files: File[]) => {
     if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
-
     const oldImageUrl = form.getValues("featuredImageUrl");
     if (oldImageUrl) {
       formData.append("oldImagePath", oldImageUrl);
     }
-
     setIsUploading(true);
     try {
       const result = await apiUploadFile("/api/upload", formData);
@@ -187,7 +172,6 @@ export default function SightseeingManagementPage() {
       setIsUploading(false);
     }
   };
-
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentImageUrl = form.getValues("featuredImageUrl");
@@ -204,20 +188,17 @@ export default function SightseeingManagementPage() {
       setIsDeleting(false);
     }
   };
-
   const imageHandler = () => {
     if (isReadOnly) return;
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.click();
-
     input.onchange = async () => {
       const file = input.files ? input.files[0] : null;
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-
         try {
           const response = await fetch('/api/upload', {
             method: 'POST',
@@ -225,7 +206,6 @@ export default function SightseeingManagementPage() {
           });
           const result = await response.json();
           const imageUrl = result.imagePath;
-
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
@@ -239,7 +219,6 @@ export default function SightseeingManagementPage() {
       }
     };
   };
-
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -254,11 +233,9 @@ export default function SightseeingManagementPage() {
       },
     },
   }), [isReadOnly]);
-
   const sortedSightseeing = [...sightseeing].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -281,7 +258,6 @@ export default function SightseeingManagementPage() {
           </Button>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Danh sách địa điểm tham quan</CardTitle>
@@ -335,7 +311,6 @@ export default function SightseeingManagementPage() {
           )}
         </CardContent>
       </Card>
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -346,7 +321,6 @@ export default function SightseeingManagementPage() {
               Điền thông tin chi tiết về địa điểm tham quan
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -372,7 +346,6 @@ export default function SightseeingManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="title"
@@ -386,7 +359,6 @@ export default function SightseeingManagementPage() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="excerpt"
@@ -403,7 +375,6 @@ export default function SightseeingManagementPage() {
                   </FormItem>
                 )}
               />
-
               <Controller
                 name="content"
                 control={form.control}
@@ -430,7 +401,6 @@ export default function SightseeingManagementPage() {
                   </FormItem>
                 )}
               />
-
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy

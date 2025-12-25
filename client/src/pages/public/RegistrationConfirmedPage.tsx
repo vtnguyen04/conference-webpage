@@ -6,18 +6,14 @@ import { useQuery } from "@tanstack/react-query";
 import type { Session } from "@shared/types";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
-
 export default function RegistrationConfirmedPage() {
   const [location] = useLocation();
   const queryParams = new URLSearchParams(location.split('?')[1]);
   const sessionId = queryParams.get('sessionId');
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions"],
   });
-
   const confirmedSession = sessionId ? sessions.find(s => s.id === sessionId) : null;
-
   return (
     <div className="py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -31,7 +27,6 @@ export default function RegistrationConfirmedPage() {
               <p className="text-muted-foreground mb-8">
                 Phiên họp của bạn đã được xác nhận. Mã QR tham dự đã được gửi đến email của bạn.
               </p>
-
               {confirmedSession && (
                 <div className="mb-8">
                   <Card className="bg-muted/50 border-dashed border-2">
@@ -55,7 +50,6 @@ export default function RegistrationConfirmedPage() {
                   </Card>
                 </div>
               )}
-
               <Button onClick={() => window.location.href = '/'}>
                 Quay lại trang chủ
               </Button>

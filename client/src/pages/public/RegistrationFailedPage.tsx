@@ -2,12 +2,10 @@ import { useLocation } from "wouter";
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 export default function RegistrationFailedPage() {
   const [location] = useLocation();
   const queryParams = new URLSearchParams(location.split('?')[1]);
   const errorMessage = queryParams.get('error') || "Có lỗi xảy ra trong quá trình xác nhận đăng ký của bạn.";
-
   return (
     <div className="py-16 md:py-24">
       <div className="container mx-auto px-4">

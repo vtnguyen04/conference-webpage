@@ -14,7 +14,6 @@ import { Pagination } from "@/components/ui/pagination";
 import { useRegistrations } from "@/hooks/useRegistrations";
 import { RegistrationToolbar } from "@/components/admin/RegistrationToolbar";
 import { RegistrationTable } from "@/components/admin/RegistrationTable";
-
 export default function RegistrationsPage() {
     const {
         searchQuery,
@@ -45,7 +44,6 @@ export default function RegistrationsPage() {
         handleBulkCheckinConfirm,
         bulkCheckinSessionId
     } = useRegistrations();
-
     return (
         <div className="space-y-6">
             <RegistrationToolbar
@@ -61,12 +59,10 @@ export default function RegistrationsPage() {
                 handleBulkCheckin={handleBulkCheckin}
                 bulkCheckinMutation={bulkCheckinMutation}
             />
-
             <AddRegistrationDialog
                 isOpen={isAddUserDialogOpen}
                 onClose={() => setIsAddUserDialogOpen(false)}
             />
-
             <Card>
                 <CardHeader>
                     <CardTitle>Danh sách đăng ký ({total})</CardTitle>
@@ -86,11 +82,9 @@ export default function RegistrationsPage() {
                     />
                 </CardContent>
             </Card>
-
             <Pagination>
                 {/* Pagination content remains the same and can be added here */}
             </Pagination>
-
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>

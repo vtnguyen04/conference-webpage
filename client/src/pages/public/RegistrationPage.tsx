@@ -40,7 +40,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
-
 const registrationSchema = z.object({
   fullName: z.string().min(2, "Vui lòng nhập họ tên đầy đủ"),
   email: z.string().email("Email không hợp lệ"),
@@ -53,35 +52,28 @@ const registrationSchema = z.object({
   cmeCertificateRequested: z.boolean().default(false),
   sessionIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một phiên"),
 });
-
 type RegistrationFormData = z.infer<typeof registrationSchema>;
-
 interface SuccessData {
   success: boolean;
   registrations?: any[];
   emailSent?: boolean;
 }
-
 export default function RegistrationPage() {
   const { toast } = useToast();
   const [registrationState, setRegistrationState] = useState<'form' | 'pendingConfirmation'>('form');
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
-
   const { data: conference } = useQuery<Conference>({
     queryKey: ["api/conferences/active"],
   });
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["api/sessions"],
     enabled: !!conference?.slug,
   });
-
   const { data: capacityData = [] } = useQuery<Array<{
     sessionId: string;
     sessionTitle: string;
@@ -94,14 +86,12 @@ export default function RegistrationPage() {
     enabled: !!conference?.slug,
     staleTime: 0,
   });
-
   const capacityMap = useMemo(() => {
     return capacityData.reduce((acc, item) => {
       acc[item.sessionId] = item;
       return acc;
     }, {} as Record<string, typeof capacityData[0]>);
   }, [capacityData]);
-
   const form = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -114,20 +104,16 @@ export default function RegistrationPage() {
       sessionIds: [],
     },
   });
-
   const sessionIds = form.watch("sessionIds");
   const sessionIdsString = JSON.stringify([...sessionIds].sort());
-
   const sessionsBySlot = useMemo(() => {
     const grouped: Record<string, Session[]> = {};
     const sortedSessions = [...sessions].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
     for (const session of sortedSessions) {
       const date = new Date(session.startTime);
       const dateKey = format(date, "yyyy-MM-dd");
       const timeSlotKey = date.getHours() < 12 ? "Sáng" : "Chiều";
       const combinedKey = `${dateKey}_${timeSlotKey}`;
-
       if (!grouped[combinedKey]) {
         grouped[combinedKey] = [];
       }
@@ -135,19 +121,15 @@ export default function RegistrationPage() {
     }
     return grouped;
   }, [sessions]);
-
   const sortedSlots = Object.keys(sessionsBySlot).sort();
-
   const checkTimeOverlap = (currentSessionIds: string[]): boolean => {
     const selectedSessionObjs = sessions.filter(s => currentSessionIds.includes(s.id));
-    
     for (let i = 0; i < selectedSessionObjs.length; i++) {
       for (let j = i + 1; j < selectedSessionObjs.length; j++) {
         const s1Start = new Date(selectedSessionObjs[i].startTime);
         const s1End = new Date(selectedSessionObjs[i].endTime);
         const s2Start = new Date(selectedSessionObjs[j].startTime);
         const s2End = new Date(selectedSessionObjs[j].endTime);
-
         if (
           (s1Start < s2End && s1End > s2Start) ||
           (s2Start < s1End && s2End > s1Start)
@@ -158,32 +140,24 @@ export default function RegistrationPage() {
     }
     return false;
   };
-
   const hasOverlap = useMemo(() => {
     return checkTimeOverlap(sessionIds);
   }, [sessionIdsString, sessions]);
-
   const disabledSessions = useMemo(() => {
     const disabled = new Set<string>();
     const selected = sessions.filter(s => sessionIds.includes(s.id));
     const now = new Date();
-
     const hasPlenary = selected.some(s => s.track === 'Toàn thể');
     const hasMorningBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() < 12);
     const hasAfternoonBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() >= 12);
-
     sessions.forEach(session => {
-      // Disable if session has already ended
       if (new Date(session.endTime) < now) {
         disabled.add(session.id);
         return;
       }
-
       if (sessionIds.includes(session.id)) return;
-
       const isMorning = new Date(session.startTime).getHours() < 12;
       const isPlenary = session.track === 'Toàn thể';
-
       if (isPlenary && hasPlenary) {
         disabled.add(session.id);
       }
@@ -194,10 +168,8 @@ export default function RegistrationPage() {
         disabled.add(session.id);
       }
     });
-
     return disabled;
   }, [sessionIdsString, sessions]);
-
   const mutation = useMutation({
     mutationFn: async (data: RegistrationFormData) => {
       const response = await apiRequest("POST", "/api/registrations/batch", {
@@ -206,7 +178,7 @@ export default function RegistrationPage() {
         phone: data.phone,
         organization: data.organization || undefined,
         position: data.position || undefined,
-        role: data.role, // Add the role field
+        role: data.role,
         cmeCertificateRequested: data.cmeCertificateRequested,
         sessionIds: data.sessionIds,
         conferenceSlug: conference?.slug,
@@ -217,7 +189,6 @@ export default function RegistrationPage() {
       setRegistrationState('pendingConfirmation');
       form.reset();
       queryClient.invalidateQueries({ queryKey: ['/api/sessions/capacity'] });
-
       if (data.emailSent) {
         toast({
           title: "Đăng ký thành công!",
@@ -244,16 +215,13 @@ export default function RegistrationPage() {
       });
     },
   });
-
   const handleSessionToggle = (sessionId: string) => {
     const currentSelection = form.getValues("sessionIds");
     const newSelection = currentSelection.includes(sessionId)
       ? currentSelection.filter(id => id !== sessionId)
       : [...currentSelection, sessionId];
-
     form.setValue("sessionIds", newSelection);
   };
-
   const onSubmit = (data: RegistrationFormData) => {
     if (hasOverlap) {
       toast({
@@ -265,7 +233,6 @@ export default function RegistrationPage() {
     }
     mutation.mutate(data);
   };
-
   if (registrationState === 'pendingConfirmation') {
     return (
       <div className="py-16 md:py-24">
@@ -290,7 +257,6 @@ export default function RegistrationPage() {
       </div>
     );
   }
-
   return (
     <>
     <PageHeader
@@ -320,7 +286,6 @@ export default function RegistrationPage() {
               <p dangerouslySetInnerHTML={{ __html: conference.registrationNote1.replace(/\n/g, '<br />') }} />
             </div>
           )}
-
           <div className="grid lg:grid-cols-3 gap-8">
             <Card className="lg:col-span-2">
               <CardHeader>
@@ -342,7 +307,6 @@ export default function RegistrationPage() {
                         </FormItem>
                       )}
                     />
-
                     <div className="grid md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -357,7 +321,6 @@ export default function RegistrationPage() {
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name="phone"
@@ -372,7 +335,6 @@ export default function RegistrationPage() {
                         )}
                       />
                     </div>
-
                     <div className="grid md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -387,7 +349,6 @@ export default function RegistrationPage() {
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name="position"
@@ -402,7 +363,6 @@ export default function RegistrationPage() {
                         )}
                       />
                     </div>
-
                     <FormField
                       control={form.control}
                       name="role"
@@ -428,7 +388,6 @@ export default function RegistrationPage() {
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="cmeCertificateRequested"
@@ -452,16 +411,13 @@ export default function RegistrationPage() {
                         </FormItem>
                       )}
                     />
-
                     <div className="border-t pt-6">
                       <h3 className="text-lg font-semibold mb-4">Chọn phiên tham dự *</h3>
-                      
                       {conference?.registrationNote2 && (
                         <div className="prose prose-sm max-w-none bg-blue-100/50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6 text-blue-900">
                           <div dangerouslySetInnerHTML={{ __html: conference.registrationNote2.replace(/\n/g, '<br />') }} />
                         </div>
                       )}
-
                       {hasOverlap && (
                         <div className="bg-destructive/10 border border-destructive rounded-md p-4 mb-4 flex items-start gap-2">
                           <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
@@ -470,7 +426,6 @@ export default function RegistrationPage() {
                           </p>
                         </div>
                       )}
-
                       <Tabs defaultValue={sortedSlots[0]} className="w-full">
                         <TabsList className="w-full justify-start mb-8 flex-wrap h-auto gap-2">
                           {sortedSlots.map(slot => {
@@ -482,7 +437,6 @@ export default function RegistrationPage() {
                             )
                           })}
                         </TabsList>
-
                         {sortedSlots.map(slot => (
                           <TabsContent key={slot} value={slot} className="mt-0">
                             <div className="space-y-2">
@@ -492,7 +446,6 @@ export default function RegistrationPage() {
                                 const isFull = capacityInfo?.isFull ?? false;
                                 const hasEnded = new Date(session.endTime) < new Date();
                                 const isDisabled = isFull || disabledSessions.has(session.id) || hasEnded;
-
                                 return (
                                   <Card 
                                     key={session.id} 
@@ -536,7 +489,6 @@ export default function RegistrationPage() {
                                               )}
                                             </div>
                                           </div>
-
                                           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                             <div className="flex items-center gap-1">
                                               <Clock className="h-3 w-3" />
@@ -549,7 +501,6 @@ export default function RegistrationPage() {
                                               <span>{session.room}</span>
                                             </div>
                                           </div>
-
                                           {session.description && (
                                             <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
                                               {session.description}
@@ -566,7 +517,6 @@ export default function RegistrationPage() {
                         ))}
                       </Tabs>
                     </div>
-
                     <Button
                       type="submit"
                       className="w-full"
@@ -579,7 +529,6 @@ export default function RegistrationPage() {
                 </Form>
               </CardContent>
             </Card>
-
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -593,7 +542,6 @@ export default function RegistrationPage() {
                   )}
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Lưu ý</CardTitle>
@@ -606,7 +554,6 @@ export default function RegistrationPage() {
                   )}
                 </CardContent>
               </Card>
-
               {sessionIds.length > 0 && (
                 <Card>
                   <CardHeader>

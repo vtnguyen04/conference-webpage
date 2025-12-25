@@ -4,31 +4,25 @@ import { Users, UserCheck, Calendar, Award, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import type { Conference } from "@shared/types";
-
 interface DashboardStats {
   totalRegistrations: number;
   totalCheckIns: number;
   totalSessions: number;
   totalSponsors: number;
 }
-
 interface ContactMessagesStats {
   count: number;
 }
-
 export default function DashboardPage() {
   const { data: conference } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
-
   const { data: stats } = useQuery<DashboardStats>({
     queryKey: ["/api/admin/stats"],
   });
-
   const { data: contactMessagesStats } = useQuery<ContactMessagesStats>({
     queryKey: ["/api/stats/contact-messages"],
   });
-
   const statCards = [
     {
       title: "Đăng ký",
@@ -66,7 +60,6 @@ export default function DashboardPage() {
       href: "/admin/contact-messages",
     },
   ];
-
   return (
     <div className="space-y-8">
       <div>
@@ -79,7 +72,6 @@ export default function DashboardPage() {
           </p>
         )}
       </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => (
@@ -100,7 +92,6 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
-
       {/* Quick Actions */}
       <Card>
         <CardHeader>

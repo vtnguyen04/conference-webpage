@@ -13,31 +13,26 @@ import {
 import { Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
-import { sightseeingService } from "@/services/sightseeingService"; // Added
-
+import { sightseeingService } from "@/services/sightseeingService";
 export default function SightseeingDetailPage() {
   const params = useParams();
   const sightseeingId = params.id;
   const mainContentRef = useRef<HTMLDivElement>(null);
-
   const { data: sightseeing, isLoading, error } = useQuery<Sightseeing>({
     queryKey: ["/api/sightseeing", sightseeingId],
     queryFn: () => sightseeingService.getSightseeingById(sightseeingId!),
     enabled: !!sightseeingId,
   });
-
   useEffect(() => {
     if (sightseeing && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [sightseeing]);
-
   const handleFacebookShare = () => {
     const url = window.location.href;
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     window.open(facebookShareUrl, "_blank", "width=600,height=400");
   };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -48,7 +43,6 @@ export default function SightseeingDetailPage() {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -59,7 +53,6 @@ export default function SightseeingDetailPage() {
       </div>
     );
   }
-
   if (!sightseeing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,7 +63,6 @@ export default function SightseeingDetailPage() {
       </div>
     );
   }
-
     return (
       <>
         <PageHeader
@@ -98,7 +90,6 @@ export default function SightseeingDetailPage() {
             </BreadcrumbList>
           </Breadcrumb>
         </PageHeader>
-  
         <div ref={mainContentRef} className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -110,12 +101,10 @@ export default function SightseeingDetailPage() {
                   {sightseeing.excerpt}
                 </p>
               )}
-  
               <div
                 className="prose prose-lg max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: sightseeing.content }}
               />
-
               <div className="mt-8 flex justify-end">
                 <Button onClick={handleFacebookShare} variant="outline">
                   <Facebook className="h-4 w-4 mr-2" />

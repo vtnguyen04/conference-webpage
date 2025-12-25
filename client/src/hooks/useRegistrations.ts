@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
 import { useActiveConference } from "@/hooks/useActiveConference";
-
 const isSessionActive = (session?: Session): boolean => {
   if (!session) return false;
   const now = new Date();
@@ -13,7 +12,6 @@ const isSessionActive = (session?: Session): boolean => {
   const endTime = new Date(session.endTime);
   return startTime <= now && now <= endTime;
 };
-
 export const useRegistrations = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -26,9 +24,7 @@ export const useRegistrations = () => {
   const [bulkCheckinSessionId, setBulkCheckinSessionId] = useState<string>("");
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
-
   const { conference } = useActiveConference();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -36,27 +32,22 @@ export const useRegistrations = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
   const { data, isLoading } = useQuery<{ data: Registration[], total: number }>({
     queryKey: ["registrations", conference?.slug, debouncedSearchQuery, page, limit],
     queryFn: () => registrationService.getRegistrations(conference!.slug, debouncedSearchQuery, page, limit),
     enabled: !!conference?.slug,
   });
-
   const registrations = data?.data || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
-
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
     queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
-
   const activeSessions = useMemo(() => {
     return sessions.filter(session => isSessionActive(session));
   }, [sessions]);
-
   const filteredRegistrations = useMemo(() => {
     return registrations.filter(reg => {
       if (roleFilter === 'all') return true;
@@ -67,9 +58,7 @@ export const useRegistrations = () => {
       return true;
     });
   }, [registrations, roleFilter]);
-
   const sessionsMap = useMemo(() => new Map(sessions.map(s => [s.id, s])), [sessions]);
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) => registrationService.deleteRegistration(id),
     onSuccess: () => {
@@ -78,7 +67,6 @@ export const useRegistrations = () => {
     },
     onError: (error: any) => toast({ title: "Lỗi", description: error.message, variant: "destructive" }),
   });
-
   const checkInMutation = useMutation({
     mutationFn: (registrationId: string) => registrationService.checkInRegistration(registrationId),
     onSuccess: () => {
@@ -87,7 +75,6 @@ export const useRegistrations = () => {
     },
     onError: (error: any) => toast({ title: "Lỗi check-in", description: error.message, variant: "destructive" }),
   });
-
   const bulkCheckinMutation = useMutation({
     mutationFn: (data: { registrationIds: string[]; sessionId: string }) => registrationService.bulkCheckinRegistrations(data.registrationIds, data.sessionId),
     onSuccess: (result: { successCount: number; failCount: number }) => {
@@ -100,22 +87,17 @@ export const useRegistrations = () => {
     },
     onError: (error: any) => toast({ title: "Lỗi check-in hàng loạt", description: error.message, variant: "destructive" }),
   });
-
   const handleExportCSV = async () => {
-    // This can be further implemented
     console.log("Exporting CSV...");
   };
-
   const handleDelete = (id: string) => {
     if (confirm("Bạn có chắc muốn xóa đăng ký này?")) {
       deleteMutation.mutate(id);
     }
   };
-
   const handleCheckIn = (registrationId: string) => {
     checkInMutation.mutate(registrationId);
   };
-
   const handleSelectAll = (checked: boolean | "indeterminate") => {
     const newSelectedRows: Record<string, boolean> = {};
     if (checked === true) {
@@ -125,14 +107,11 @@ export const useRegistrations = () => {
     }
     setSelectedRows(newSelectedRows);
   };
-
   const handleRowSelect = (id: string, checked: boolean) => {
     setSelectedRows(prev => ({ ...prev, [id]: checked }));
   };
-
   const selectedRegistrationIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
   const numSelected = selectedRegistrationIds.length;
-
   const handleBulkCheckin = () => {
     if (numSelected === 0 || !bulkCheckinSessionId) {
       toast({ title: "Thiếu thông tin", description: "Vui lòng chọn người dùng và phiên để check-in.", variant: "destructive" });
@@ -140,7 +119,6 @@ export const useRegistrations = () => {
     }
     setIsAlertOpen(true);
   };
-
   const handleBulkCheckinConfirm = () => {
     if (!bulkCheckinSessionId) return;
     bulkCheckinMutation.mutate({
@@ -149,9 +127,7 @@ export const useRegistrations = () => {
     });
     setIsAlertOpen(false);
   };
-  
     return {
-        // State
         searchQuery,
         page,
         limit,
@@ -160,8 +136,6 @@ export const useRegistrations = () => {
         bulkCheckinSessionId,
         isAlertOpen,
         isAddUserDialogOpen,
-        
-        // Setters
         setSearchQuery,
         setPage,
         setSelectedRows,
@@ -169,21 +143,15 @@ export const useRegistrations = () => {
         setBulkCheckinSessionId,
         setIsAlertOpen,
         setIsAddUserDialogOpen,
-        
-        // Data
         registrations: filteredRegistrations,
         total,
         totalPages,
         isLoading,
         activeSessions,
         sessionsMap,
-        
-        // Mutations
         deleteMutation,
         checkInMutation,
         bulkCheckinMutation,
-
-        // Handlers
         handleExportCSV,
         handleDelete,
         handleCheckIn,
@@ -191,8 +159,6 @@ export const useRegistrations = () => {
         handleRowSelect,
         handleBulkCheckin,
         handleBulkCheckinConfirm,
-
-        // Derived state
         numSelected,
         selectedRegistrationIds,
         isSessionActive

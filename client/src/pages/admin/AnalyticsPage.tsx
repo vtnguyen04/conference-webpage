@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, Users, UserCheck } from "lucide-react";
-
 export default function AnalyticsPage() {
   const { data: analytics } = useQuery<{
     totalRegistrations: number;
@@ -11,21 +10,17 @@ export default function AnalyticsPage() {
   }>({
     queryKey: ["/api/analytics"],
   });
-
   const attendanceRate = analytics?.totalRegistrations
     ? Math.round((analytics.totalCheckIns / analytics.totalRegistrations) * 100)
     : 0;
-
   const notCheckedIn = analytics
     ? analytics.totalRegistrations - analytics.totalCheckIns
     : 0;
-
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold" data-testid="text-analytics-title">
         Thống kê & Phân tích
       </h1>
-
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardContent className="p-6">
@@ -38,7 +33,6 @@ export default function AnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -50,7 +44,6 @@ export default function AnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -62,7 +55,6 @@ export default function AnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -75,7 +67,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -94,7 +85,6 @@ export default function AnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>Tỷ lệ tham dự</CardTitle>

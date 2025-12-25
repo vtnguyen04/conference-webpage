@@ -7,18 +7,14 @@ import { Link } from "wouter";
 import React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { useActiveConference } from "@/hooks/useActiveConference";
-
 const HeroSection = () => {
     const { conference, isLoading } = useActiveConference();
-    
     const plugin = React.useRef(
         Autoplay({ delay: 5000, stopOnInteraction: true })
     );
-
     if (isLoading) {
         return <div className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-slate-900"></div>
     }
-
     return (
         <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-slate-900">
             <Carousel
@@ -47,17 +43,12 @@ const HeroSection = () => {
                 <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 text-white bg-black/50 hover:bg-black/70 border-none" />
                 <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 text-white bg-black/50 hover:bg-black/70 border-none" />
             </Carousel>
-
             <div className="absolute inset-0 bg-slate-900/80 z-0"></div>
-
             <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 relative z-10">
                 <div className="max-w-5xl mx-auto text-center">
-
-
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-white tracking-tight leading-tight" data-testid="text-conference-name">
                         {conference?.name || "Hội Nghị Y Học"}
                     </h1>
-
                     {conference?.theme && (
                         <div className="mb-10">
                             <div className="flex items-center justify-center gap-3 mb-6">
@@ -75,7 +66,6 @@ const HeroSection = () => {
                             </div>
                         </div>
                     )}
-
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-white mb-12">
                         {conference?.startDate && conference?.endDate && (
                             <div className="flex items-center gap-3">
@@ -85,7 +75,6 @@ const HeroSection = () => {
                                 </span>
                             </div>
                         )}
-
                         {conference?.location && (
                             <div className="flex items-center gap-3">
                                 <MapPin className="h-5 w-5 text-gray-400" />
@@ -93,7 +82,6 @@ const HeroSection = () => {
                             </div>
                         )}
                     </div>
-
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link href="/register">
                             <Button size="lg" className="bg-teal-600 text-white hover:bg-teal-700 text-base font-semibold px-10 py-6 border-0 shadow-lg" data-testid="button-register-hero">
@@ -111,5 +99,4 @@ const HeroSection = () => {
         </section>
     )
 }
-
 export default HeroSection;

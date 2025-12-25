@@ -1,15 +1,3 @@
-// ============================================================================
-// IMPORTANT
-// This file is intended for CLIENT-SIDE type definitions.
-// It should ONLY contain pure TypeScript types and interfaces.
-// DO NOT import any server-side dependencies (like drizzle, zod, etc.) here.
-// ============================================================================
-
-
-// ============================================================================
-// DATABASE-DERIVED TYPES (Manually defined for client-side safety)
-// ============================================================================
-
 export interface User {
   id: string;
   email: string;
@@ -21,7 +9,6 @@ export interface User {
   createdAt: Date | null;
   updatedAt: Date | null;
 }
-
 export interface Registration {
   id: string;
   conferenceSlug: string;
@@ -33,9 +20,9 @@ export interface Registration {
   position?: string | null;
   role: string;
   cmeCertificateRequested: boolean;
-  conferenceCertificateSent: boolean; // NEW FIELD
+  conferenceCertificateSent: boolean;
   qrCode?: string | null;
-  status: string; // 'pending', 'confirmed', 'cancelled'
+  status: string;
   emailSent?: boolean | null;
   confirmationToken?: string | null;
   confirmationTokenExpires?: Date | null;
@@ -44,7 +31,6 @@ export interface Registration {
   registeredAt?: Date | null;
   createdAt?: Date | null;
 }
-
 export interface CheckIn {
   id: string;
   registrationId: string;
@@ -54,17 +40,15 @@ export interface CheckIn {
   checkedInAt: Date | null;
   createdAt: Date | null;
 }
-
 export interface AuditLog {
   id: string;
   userId: string | null;
   action: string;
   entityType: string;
   entityId: string | null;
-  metadata: any | null; // JSON blob
+  metadata: any | null;
   createdAt: Date | null;
 }
-
 export interface ContactMessage {
   id: string;
   name: string;
@@ -73,28 +57,17 @@ export interface ContactMessage {
   message: string;
   submittedAt: Date | null;
 }
-
-
-// ============================================================================
-// JSON-ONLY TYPES (Conference content - NOT stored in database)
-// ============================================================================
-
-// Agenda item for a session
 export interface AgendaItem {
   timeSlot: string;
   title: string;
   speakerId?: string | null;
   notes?: string;
 }
-
-// Material/document
 export interface Material {
   type: string;
   title: string;
   url: string;
 }
-
-// Session (phiên hội nghị)
 export interface Session {
   id: string;
   conferenceId: string;
@@ -115,8 +88,6 @@ export interface Session {
   createdAt: string;
   updatedAt: string;
 }
-
-// Speaker/Chair
 export interface Speaker {
   id: string;
   conferenceId: string;
@@ -131,8 +102,6 @@ export interface Speaker {
   createdAt: string;
   updatedAt: string;
 }
-
-// Organizer (Ban To Chuc)
 export interface Organizer {
   id: string;
   conferenceId: string;
@@ -146,8 +115,6 @@ export interface Organizer {
   createdAt: string;
   updatedAt: string;
 }
-
-// Sponsor
 export interface Sponsor {
   id: string;
   conferenceId: string;
@@ -159,8 +126,6 @@ export interface Sponsor {
   createdAt: string;
   updatedAt: string;
 }
-
-// Announcement
 export interface Announcement {
   id: string;
   conferenceId: string;
@@ -175,8 +140,6 @@ export interface Announcement {
   createdAt: string;
   updatedAt: string;
 }
-
-// Sightseeing
 export interface Sightseeing {
   id: string;
   conferenceId: string;
@@ -187,8 +150,6 @@ export interface Sightseeing {
   createdAt: string;
   updatedAt: string;
 }
-
-// Whitelist
 export interface Whitelist {
   id: string;
   conferenceId: string;
@@ -196,8 +157,6 @@ export interface Whitelist {
   name: string;
   createdAt: string;
 }
-
-// Document (Material/Attachment)
 export interface Document {
   id?: string;
   title: string;
@@ -205,11 +164,6 @@ export interface Document {
   type: string;
   conferenceId?: string;
 }
-
-// ============================================================================
-// INSERT TYPES (For creating new records)
-// ============================================================================
-
 export type InsertAnnouncement = Omit<Announcement, "id" | "createdAt" | "updatedAt" | "views" | "publishedAt"> & { publishedAt?: string };
 export type InsertOrganizer = Omit<Organizer, "id" | "createdAt" | "updatedAt">;
 export type InsertSession = Omit<Session, "id" | "createdAt" | "updatedAt">;
@@ -221,15 +175,12 @@ export type InsertRegistration = Omit<Registration,
   "conferenceCertificateSent" | "qrCode" | "status" | "emailSent" | 
   "confirmationToken" | "confirmationTokenExpires" | "reminderCount" | "lastReminderSentAt"
 >;
-
 export interface DashboardStats {
   totalRegistrations: number;
   totalCheckIns: number;
   totalSessions: number;
   totalSponsors: number;
 }
-
-// Conference
 export interface Conference {
   id: string;
   slug: string;

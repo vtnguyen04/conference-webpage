@@ -1,6 +1,4 @@
 import type { Sponsor } from "@shared/types";
-
-// Định nghĩa tên các hạng tài trợ như trong HomePage
 const tierNames: Record<string, string> = {
   diamond: 'ĐƠN VỊ TÀI TRỢ KIM CƯƠNG',
   gold: 'ĐƠN VỊ TÀI TRỢ VÀNG',
@@ -9,34 +7,25 @@ const tierNames: Record<string, string> = {
   supporting: 'ĐƠN VỊ ĐỒNG HÀNH',
   other: 'ĐƠN VỊ HỖ TRỢ',
 };
-
-// Thứ tự hiển thị các hạng
 const tierOrder = ['diamond', 'gold', 'silver', 'bronze', 'supporting', 'other'];
-
 interface SponsorsListProps {
     sponsors: Sponsor[];
 }
-
 export const SponsorsList = ({ sponsors }: SponsorsListProps) => {
-    // Nhóm các nhà tài trợ theo hạng
     const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
         const tier = sponsor.tier || "other";
         if (!acc[tier]) acc[tier] = [];
         acc[tier].push(sponsor);
         return acc;
     }, {} as Record<string, Sponsor[]>);
-
-    // Sắp xếp các nhà tài trợ trong mỗi hạng
     Object.keys(sponsorsByTier).forEach((tier) => {
         sponsorsByTier[tier].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     });
-
     return (
         <div className="space-y-16 max-w-6xl mx-auto">
             {tierOrder.map(tier => {
                 const tierSponsors = sponsorsByTier[tier];
                 if (!tierSponsors || tierSponsors.length === 0) return null;
-
                 const tierColors: Record<string, string> = {
                     diamond: 'border-blue-600 bg-blue-600',
                     gold: 'border-amber-400 bg-amber-400',
@@ -45,7 +34,6 @@ export const SponsorsList = ({ sponsors }: SponsorsListProps) => {
                     supporting: 'border-blue-600 bg-blue-600',
                     other: 'border-slate-500 bg-slate-500',
                 };
-
                 return (
                     <div key={tier} className="text-center" data-testid={`sponsor-tier-${tier}`}>
                         <div className="mb-10 relative inline-block">
