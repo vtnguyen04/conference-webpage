@@ -8,6 +8,7 @@ import {
   gt,
   lt,
   sql,
+  count,
 } from "drizzle-orm";
 import { db } from "../db";
 import {
@@ -26,8 +27,8 @@ export class RegistrationRepository {
   async getByConferenceSlug(slug: string, page: number, limit: number): Promise<{ data: Registration[]; total: number }> {
     const offset = (page - 1) * limit;
     const data = await db.select().from(registrations).where(eq(registrations.conferenceSlug, slug)).limit(limit).offset(offset).all();
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(registrations).where(eq(registrations.conferenceSlug, slug)).get();
-    return { data: data, total: Number(totalResult?.count || 0) };
+    const [totalResult] = await db.select({ value: count() }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
+    return { data: data, total: totalResult.value };
   }
 
   async getBySession(sessionId: string): Promise<Registration[]> {
@@ -48,8 +49,17 @@ export class RegistrationRepository {
   }
 
   async getSessionRegistrationCount(sessionId: string): Promise<number> {
-    const result = await db.select({ count: sql<number>`count(*)` }).from(registrations).where(and(eq(registrations.sessionId, sessionId), eq(registrations.status, "confirmed"))).get();
-    return Number(result?.count || 0);
+    const [result] = await db.select({ value: count() })
+      .from(registrations)
+      .where(
+        and(
+          eq(registrations.sessionId, sessionId),
+          or(eq(registrations.status, "confirmed"), eq(registrations.status, "checked-in"))
+        )
+      )
+      .all();
+    
+    return result.value;
   }
 
   async createAdmin(data: InsertRegistration): Promise<Registration> {
@@ -93,8 +103,8 @@ export class RegistrationRepository {
     }
 
     const data = await db.select().from(registrations).where(whereClause).limit(limit).offset(offset).all();
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(registrations).where(whereClause).get();
-    return { data: data, total: Number(totalResult?.count || 0) };
+    const [totalResult] = await db.select({ value: count() }).from(registrations).where(whereClause).all();
+    return { data: data, total: totalResult.value };
   }
 
   async getDueForReminder(conferenceSlug: string, intervalHours: number, maxReminders: number): Promise<Registration[]> {
@@ -124,9 +134,20 @@ export class RegistrationRepository {
 
   async getCheckInsBySession(sessionId: string, page: number = 1, limit: number = 10): Promise<{ data: any[], total: number }> {
     const offset = (page - 1) * limit;
-    const data = await db.select().from(checkIns).leftJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(checkIns.sessionId, sessionId)).limit(limit).offset(offset).all();
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(checkIns).where(eq(checkIns.sessionId, sessionId)).get();
-    return { data: data, total: Number(totalResult?.count || 0) };
+    const results = await db.select().from(checkIns)
+      .leftJoin(registrations, eq(checkIns.registrationId, registrations.id))
+      .where(eq(checkIns.sessionId, sessionId))
+      .limit(limit)
+      .offset(offset)
+      .all();
+    
+    const data = results.map(row => ({
+      ...row.check_ins,
+      registration: row.registrations
+    }));
+
+    const [totalResult] = await db.select({ value: count() }).from(checkIns).where(eq(checkIns.sessionId, sessionId)).all();
+    return { data: data, total: totalResult.value };
   }
 
   async isCheckedIn(registrationId: string, sessionId: string): Promise<boolean> {
@@ -135,11 +156,11 @@ export class RegistrationRepository {
   }
 
   async getStats(slug: string) {
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(registrations).where(eq(registrations.conferenceSlug, slug)).get();
-    const uniqueAttendeesResult = await db.select({ count: sql<number>`count(distinct ${registrations.email})` }).from(registrations).where(eq(registrations.conferenceSlug, slug)).get();
-    const totalCheckInsResult = await db.select({ count: sql<number>`count(*)` }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).get();
-    const uniqueCheckedInResult = await db.select({ count: sql<number>`count(distinct ${registrations.email})` }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).get();
-    return { totalRegistrations: totalResult?.count || 0, uniqueAttendees: uniqueAttendeesResult?.count || 0, totalCheckIns: totalCheckInsResult?.count || 0, uniqueCheckedInAttendees: uniqueCheckedInResult?.count || 0 };
+    const [totalResult] = await db.select({ value: count() }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
+    const [uniqueAttendeesResult] = await db.select({ value: count(registrations.email) }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
+    const [totalCheckInsResult] = await db.select({ value: count() }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).all();
+    const [uniqueCheckedInResult] = await db.select({ value: count(registrations.email) }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).all();
+    return { totalRegistrations: totalResult.value, uniqueAttendees: uniqueAttendeesResult.value, totalCheckIns: totalCheckInsResult.value, uniqueCheckedInAttendees: uniqueCheckedInResult.value };
   }
 
   async getSessionCapacityStatus(sessions: any[]): Promise<any[]> {

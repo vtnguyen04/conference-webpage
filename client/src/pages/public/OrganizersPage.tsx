@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { User } from "lucide-react";
 import type { Organizer } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {

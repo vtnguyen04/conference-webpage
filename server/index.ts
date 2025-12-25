@@ -2,19 +2,18 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { sql } from "drizzle-orm";
 import express from "express";
-import path from "path";
 import { createServer } from 'http';
+import path from "path";
+import { db } from "./db";
+import { errorHandler } from "./middlewares/errorHandler";
 import mainRouter from "./routers";
 import { setupAuth } from './sessionAuth';
-import { setupVite, serveStatic, log } from "./vite";
-import { db } from "./db";
-import { sql } from "drizzle-orm";
-import { errorHandler } from "./middlewares/errorHandler";
+import { log, serveStatic, setupVite } from "./vite";
 
-// Import services from the services folder
-import { reminderService } from "./services/reminderService";
 import { confirmationReminderService } from "./services/confirmationReminderService";
+import { reminderService } from "./services/reminderService";
 
 const app = express();
 const server = createServer(app);
@@ -28,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 
   setupAuth(app);
   app.use('/api', mainRouter);
-  
+
   // Start background services
   reminderService.start();
   confirmationReminderService.start();

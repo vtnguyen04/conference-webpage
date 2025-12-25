@@ -27,8 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Conference, Session } from "@shared/types";
-import { batchRegistrationRequestSchema } from "@shared/validation";
-import { CheckCircle2, AlertCircle, Calendar, Clock, MapPin, Users, Mail } from "lucide-react";
+import { AlertCircle, Clock, MapPin, Users, Mail } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { PageHeader } from "@/components/PageHeader";
@@ -75,11 +74,11 @@ export default function RegistrationPage() {
   }, []);
 
   const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
+    queryKey: ["api/conferences/active"],
   });
 
   const { data: sessions = [] } = useQuery<Session[]>({
-    queryKey: ["/api/sessions"],
+    queryKey: ["api/sessions"],
     enabled: !!conference?.slug,
   });
 
@@ -91,8 +90,9 @@ export default function RegistrationPage() {
     available: number | null;
     isFull: boolean;
   }>>({
-    queryKey: ["/api/sessions/capacity"],
+    queryKey: ["api/sessions/capacity"],
     enabled: !!conference?.slug,
+    staleTime: 0,
   });
 
   const capacityMap = useMemo(() => {
@@ -489,7 +489,6 @@ export default function RegistrationPage() {
                               {sessionsBySlot[slot].map((session) => {
                                 const isSelected = sessionIds.includes(session.id);
                                 const capacityInfo = capacityMap[session.id];
-                                const spotsRemaining = capacityInfo?.available ?? undefined;
                                 const isFull = capacityInfo?.isFull ?? false;
                                 const hasEnded = new Date(session.endTime) < new Date();
                                 const isDisabled = isFull || disabledSessions.has(session.id) || hasEnded;
@@ -526,10 +525,10 @@ export default function RegistrationPage() {
                                                   <Users className="h-3 w-3" />
                                                   <span data-testid={`text-capacity-${session.id}`}>
                                                     {isFull ? (
-                                                      <span className="text-destructive font-medium">Hết chỗ</span>
+                                                      <span className="text-destructive font-medium">Hết chỗ ({session.capacity}/{session.capacity})</span>
                                                     ) : (
                                                       <span className="text-muted-foreground">
-                                                        {spotsRemaining}/{session.capacity}
+                                                        {capacityInfo?.registered || 0}/{session.capacity}
                                                       </span>
                                                     )}
                                                   </span>

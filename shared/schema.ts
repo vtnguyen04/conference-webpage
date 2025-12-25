@@ -1,11 +1,10 @@
-import { sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
+  index,
+  integer,
   sqliteTable,
   text,
-  integer,
-  index,
 } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 
 // ============================================================================
@@ -149,10 +148,16 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
 
 // Import JSON-only types from types.ts
-import { 
-  Conference, Session, Speaker, Organizer, Sponsor, Announcement, Sightseeing, Whitelist, DashboardStats 
+import {
+  Announcement,
+  Conference,
+  DashboardStats,
+  Organizer,
+  Session,
+  Sightseeing,
+  Speaker,
+  Sponsor,
+  Whitelist
 } from "./types";
 
-export type { 
-  Conference, Session, Speaker, Organizer, Sponsor, Announcement, Sightseeing, Whitelist, DashboardStats 
-};
+export type { Announcement, Conference, DashboardStats, Organizer, Session, Sightseeing, Speaker, Sponsor, Whitelist };

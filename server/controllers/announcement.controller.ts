@@ -36,6 +36,7 @@ export const createAnnouncement = async (req: RequestWithActiveConference, res: 
         const data = insertAnnouncementSchema.parse(req.body);
         const announcement = await announcementRepository.create(req.activeConference.slug, {
             ...data,
+            publishedAt: data.publishedAt || new Date().toISOString(),
             conferenceId: req.activeConference.slug,
             views: 0
         });

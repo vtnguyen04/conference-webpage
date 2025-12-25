@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Session } from "@shared/types";
-import { insertRegistrationSchema } from "@/shared/validation";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
@@ -79,6 +78,28 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
+
+  const { data: capacityData = [] } = useQuery<Array<{
+    sessionId: string;
+    registered: number;
+    capacity: number | null;
+    isFull: boolean;
+  }>>({
+    queryKey: ["/api/sessions/capacity", conference?.slug],
+    queryFn: async () => {
+      const response = await fetch("/api/sessions/capacity");
+      if (!response.ok) throw new Error("Failed to fetch capacity");
+      return response.json();
+    },
+    enabled: !!conference,
+  });
+
+  const capacityMap = useMemo(() => {
+    return capacityData.reduce((acc, item) => {
+      acc[item.sessionId] = item;
+      return acc;
+    }, {} as Record<string, typeof capacityData[0]>);
+  }, [capacityData]);
 
   const addRegistrationMutation = useMutation({
     mutationFn: (newRegistration: AddRegistrationFormValues & { conferenceSlug: string }) =>
@@ -209,11 +230,17 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                     </FormControl>
                     <SelectContent>
                       {sessions.length > 0 ? (
-                        sessions.map((session) => (
-                          <SelectItem key={session.id} value={session.id}>
-                            {session.title}
-                          </SelectItem>
-                        ))
+                        sessions.map((session) => {
+                          const cap = capacityMap[session.id];
+                          const capText = cap ? `(${cap.registered}/${cap.capacity || "∞"})` : "";
+                          const isFull = cap?.isFull || false;
+                          
+                          return (
+                            <SelectItem key={session.id} value={session.id} disabled={isFull}>
+                              {session.title} {capText} {isFull ? "- ĐÃ HẾT CHỖ" : ""}
+                            </SelectItem>
+                          );
+                        })
                       ) : (
                         <p className="p-4 text-sm text-muted-foreground">Không có phiên nào.</p>
                       )}

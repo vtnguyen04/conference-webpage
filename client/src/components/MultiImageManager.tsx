@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from './ui/button';
-import { Trash2, Plus, UploadCloud } from 'lucide-react';
+import { Trash2, UploadCloud } from 'lucide-react';
 import { apiUploadFile } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 

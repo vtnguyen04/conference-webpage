@@ -1,15 +1,14 @@
 import { type Response } from "express";
-import { type RequestWithActiveConference } from "../middlewares/checkActiveConference";
 import { conferenceRepository } from "../repositories/conferenceRepository";
 import { registrationRepository } from "../repositories/registrationRepository";
 import { insertConferenceSchema } from "@shared/validation";
 import { deleteFile } from "../utils";
 
-export const getAllConferences = async (req: any, res: Response) => {
+export const getAllConferences = async (_req: any, res: Response) => {
   try { res.json(await conferenceRepository.getAll()); } catch (error) { res.status(500).json({ message: "Failed" }); }
 };
 
-export const getActiveConference = async (req: any, res: Response) => {
+export const getActiveConference = async (_req: any, res: Response) => {
   try { res.json(await conferenceRepository.getActive() || null); } catch (error) { res.status(500).json({ message: "Failed" }); }
 };
 
@@ -33,7 +32,7 @@ export const updateConference = async (req: any, res: Response) => {
   } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 
-export const cloneConference = async (req: any, res: Response) => {
+export const cloneConference = async (_req: any, res: Response) => {
   try {
     res.status(501).json({ message: "Chức năng Clone đang được bảo trì." });
   } catch (error: any) { res.status(400).json({ message: error.message }); }

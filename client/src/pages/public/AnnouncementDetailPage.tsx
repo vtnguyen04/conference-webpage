@@ -23,7 +23,7 @@ export default function AnnouncementDetailPage() {
   const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
     "/conference/:slug/announcements/:id"
   );
-  const [isAnnouncements, announcementsParams] = useRoute(
+  const [_isAnnouncements, announcementsParams] = useRoute(
     "/announcements/:id"
   );
 

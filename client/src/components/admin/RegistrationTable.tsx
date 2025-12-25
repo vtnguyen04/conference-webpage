@@ -12,7 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Award, Trash2, UserCheck } from "lucide-react";
 import type { Registration, Session } from "@shared/types";
-import type { useRegistrations } from "@/hooks/useRegistrations"; // For type inference
 
 type RegistrationTableProps = {
   registrations: Registration[];

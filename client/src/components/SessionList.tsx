@@ -11,7 +11,7 @@ import type { Session, Speaker } from "@shared/types";
 interface SessionListProps {
   sessions: Session[];
   speakers: Speaker[];
-  view: 'homepage' | 'full'; 
+  view?: 'homepage' | 'full'; 
 }
 
 interface SpeakerMap {
@@ -81,7 +81,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
   );
 });
 
-export function SessionList({ sessions, speakers, view }: SessionListProps) {
+export function SessionList({ sessions, speakers, view: _view = 'full' }: SessionListProps) {
   const speakerMap = useMemo(() => {
     return speakers.reduce((acc, speaker) => {
       acc[speaker.id] = speaker;

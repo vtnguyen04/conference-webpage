@@ -28,21 +28,21 @@ export interface Registration {
   sessionId: string;
   fullName: string;
   email: string;
-  phone: string | null;
-  organization: string | null;
-  position: string | null;
+  phone?: string | null;
+  organization?: string | null;
+  position?: string | null;
   role: string;
   cmeCertificateRequested: boolean;
   conferenceCertificateSent: boolean; // NEW FIELD
-  qrCode: string | null;
+  qrCode?: string | null;
   status: string; // 'pending', 'confirmed', 'cancelled'
-  emailSent: boolean | null;
-  confirmationToken: string | null;
-  confirmationTokenExpires: Date | null;
+  emailSent?: boolean | null;
+  confirmationToken?: string | null;
+  confirmationTokenExpires?: Date | null;
   reminderCount: number;
-  lastReminderSentAt: Date | null;
-  registeredAt: Date | null;
-  createdAt: Date | null;
+  lastReminderSentAt?: Date | null;
+  registeredAt?: Date | null;
+  createdAt?: Date | null;
 }
 
 export interface CheckIn {
@@ -124,7 +124,7 @@ export interface Speaker {
   title: string;
   credentials: string;
   specialty: string;
-  photoUrl: string;
+  photoUrl?: string;
   bio: string;
   email?: string;
   role: "speaker" | "moderator" | "both";
@@ -139,7 +139,7 @@ export interface Organizer {
   name: string;
   title: string;
   credentials: string;
-  photoUrl: string;
+  photoUrl?: string;
   bio: string;
   organizingRole: "Trưởng Ban" | "Phó trưởng Ban" | "Thành viên" | "Thành viên TK";
   displayOrder: number;
@@ -152,9 +152,9 @@ export interface Sponsor {
   id: string;
   conferenceId: string;
   name: string;
-  logoUrl: string;
+  logoUrl?: string;
   tier: "diamond" | "gold" | "silver" | "bronze" | "supporting" | "other";
-  websiteUrl: string;
+  websiteUrl?: string;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -167,7 +167,7 @@ export interface Announcement {
   title: string;
   content: string;
   excerpt: string;
-  featuredImageUrl: string;
+  featuredImageUrl?: string;
   pdfUrl?: string;
   views: number;
   category: "general" | "important" | "deadline";
@@ -183,7 +183,7 @@ export interface Sightseeing {
   title: string;
   content: string;
   excerpt: string;
-  featuredImageUrl: string;
+  featuredImageUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -196,6 +196,31 @@ export interface Whitelist {
   name: string;
   createdAt: string;
 }
+
+// Document (Material/Attachment)
+export interface Document {
+  id?: string;
+  title: string;
+  url: string;
+  type: string;
+  conferenceId?: string;
+}
+
+// ============================================================================
+// INSERT TYPES (For creating new records)
+// ============================================================================
+
+export type InsertAnnouncement = Omit<Announcement, "id" | "createdAt" | "updatedAt" | "views" | "publishedAt"> & { publishedAt?: string };
+export type InsertOrganizer = Omit<Organizer, "id" | "createdAt" | "updatedAt">;
+export type InsertSession = Omit<Session, "id" | "createdAt" | "updatedAt">;
+export type InsertSightseeing = Omit<Sightseeing, "id" | "createdAt" | "updatedAt">;
+export type InsertSpeaker = Omit<Speaker, "id" | "createdAt" | "updatedAt">;
+export type InsertSponsor = Omit<Sponsor, "id" | "createdAt" | "updatedAt">;
+export type InsertRegistration = Omit<Registration, 
+  "id" | "createdAt" | "updatedAt" | "registeredAt" | 
+  "conferenceCertificateSent" | "qrCode" | "status" | "emailSent" | 
+  "confirmationToken" | "confirmationTokenExpires" | "reminderCount" | "lastReminderSentAt"
+>;
 
 export interface DashboardStats {
   totalRegistrations: number;

@@ -1,9 +1,7 @@
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/services/apiClient";
-import type { Registration, Session, Speaker } from "@shared/types";
+import type { Registration, Session } from "@shared/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { speakerService } from "@/services/speakerService";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
 import { useActiveConference } from "@/hooks/useActiveConference";
@@ -52,12 +50,6 @@ export const useRegistrations = () => {
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
     queryFn: () => sessionService.getSessions(conference?.slug),
-    enabled: !!conference,
-  });
-
-  const { data: speakers = [] } = useQuery<Speaker[]>({
-    queryKey: ["/api/speakers", conference?.slug],
-    queryFn: () => speakerService.getSpeakers(conference?.slug),
     enabled: !!conference,
   });
 

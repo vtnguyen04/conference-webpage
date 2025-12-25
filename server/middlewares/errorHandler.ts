@@ -3,8 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(`[ERROR] ${req.method} ${req.path}:`, err);
+export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(`[ERROR] ${_req.method} ${_req.path}:`, err);
 
     if (err instanceof ZodError) {
         const validationError = fromZodError(err);

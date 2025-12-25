@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import type { Session } from "@shared/types";
 import { Download, PlusCircle, Search } from "lucide-react";
-import type { useRegistrations } from "@/hooks/useRegistrations";
 
 type RegistrationToolbarProps = {
   searchQuery: string;
@@ -24,7 +23,6 @@ type RegistrationToolbarProps = {
   activeSessions: Session[];
   handleBulkCheckin: () => void;
   bulkCheckinMutation: any; // Simplified for brevity
-  total: number;
 };
 
 export const RegistrationToolbar = ({
@@ -39,7 +37,6 @@ export const RegistrationToolbar = ({
   activeSessions,
   handleBulkCheckin,
   bulkCheckinMutation,
-  total
 }: RegistrationToolbarProps) => {
   return (
     <>

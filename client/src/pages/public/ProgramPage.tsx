@@ -72,10 +72,6 @@ export default function ProgramPage() {
 
 
 
-    const speakersApiUrl = slug ? `/api/speakers/${slug}` : "/api/speakers";
-
-
-
     const { data: speakers = [], isLoading: speakersLoading } = useQuery<Speaker[]>({
 
 
@@ -184,7 +180,7 @@ export default function ProgramPage() {
 
           <div className="max-w-5xl mx-auto">
 
-            <SessionList sessions={sessions} speakers={speakers} view="full" />
+            <SessionList sessions={sessions} speakers={speakers} />
 
           </div>
 

@@ -1,21 +1,12 @@
 
-import { existsSync, readdirSync, unlinkSync } from "fs";
+import { existsSync } from "fs";
 import { readdir, unlink } from "fs/promises";
 import type {
   Conference,
-  Session,
-  Speaker,
-  Organizer,
-  Sponsor,
-  Announcement,
-  Sightseeing,
-  Whitelist,
 } from "@shared/schema";
 import { 
     readConferenceData, 
     writeConferenceData, 
-    deleteFile, 
-    cloneFile, 
     readConfig, 
     writeConfig, 
     getConferenceFilePath, 

@@ -60,7 +60,6 @@ export default function RegistrationsPage() {
                 activeSessions={activeSessions}
                 handleBulkCheckin={handleBulkCheckin}
                 bulkCheckinMutation={bulkCheckinMutation}
-                total={total}
             />
 
             <AddRegistrationDialog

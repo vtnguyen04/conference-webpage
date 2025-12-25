@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Announcement, InsertAnnouncement } from "@shared/types";
@@ -24,8 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-const ReactQuill = React.lazy(() => import("react-quill-new"));
-import "react-quill-new/dist/quill.snow.css"; // Import Quill styles
+const ReactQuill = React.lazy(() => import("react-quill"));
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { useToast } from "@/hooks/use-toast";
 import { apiUploadFile } from "@/lib/queryClient";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -62,7 +62,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   onCancel,
 }) => {
   const { toast } = useToast();
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
 
   const form = useForm<InsertAnnouncement>({
     resolver: zodResolver(insertAnnouncementSchema),
@@ -240,7 +240,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
               <FormControl>
                 <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
                   <ReactQuill
-                    ref={quillRef as React.RefObject<ReactQuill>}
+                    ref={quillRef}
                     theme="snow"
                     value={field.value}
                     onChange={field.onChange}

@@ -29,5 +29,16 @@ export const deleteAllSessions = async (req: RequestWithActiveConference, res: R
 };
 
 export const getSessionsCapacity = async (req: RequestWithActiveConference, res: Response) => {
-    try { if (!req.activeConference) return res.json([]); res.json(await registrationRepository.getSessionCapacityStatus(await sessionRepository.getAll(req.activeConference.slug))); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { 
+        if (!req.activeConference) {
+            return res.json([]); 
+        }
+        
+        const sessions = await sessionRepository.getAll(req.activeConference.slug);
+        const status = await registrationRepository.getSessionCapacityStatus(sessions);
+        
+        res.json(status); 
+    } catch (error: any) { 
+        res.status(500).json({ message: "Failed" }); 
+    }
 };

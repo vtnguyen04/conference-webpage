@@ -1,4 +1,4 @@
-import { readConferenceData, writeConferenceData, deleteFile, ConferenceData } from "../dataContext";
+import { readConferenceData, writeConferenceData, ConferenceData } from "../dataContext";
 
 type ResourceKeys = keyof Omit<ConferenceData, 'conference'>;
 

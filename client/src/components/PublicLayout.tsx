@@ -22,7 +22,7 @@ interface PublicLayoutProps {
 }
 
 export function PublicLayout({ children, className }: PublicLayoutProps) {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 

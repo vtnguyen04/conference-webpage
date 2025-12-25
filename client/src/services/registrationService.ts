@@ -21,7 +21,7 @@ interface SuccessData {
 }
 
 export const registrationService = {
-  getRegistrations: async (slug: string | undefined, query?: string, page: number = 1, limit: number = 10): Promise<{ data: Registration[], total: number }> => {
+  getRegistrations: async (_slug: string | undefined, query?: string, page: number = 1, limit: number = 10): Promise<{ data: Registration[], total: number }> => {
     // The slug is used to make the query dependent, but the server uses middleware to identify the conference.
     const url = `/api/admin/registrations/search?query=${query || ''}&page=${page}&limit=${limit}`;
     return apiRequest("GET", url);

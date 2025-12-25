@@ -124,7 +124,7 @@ export default function CheckinPage() {
         (decodedText) => {
           checkInMutation.mutate(decodedText);
         },
-        (errorMessage) => {
+        () => {
           // Ignore scan errors - they happen frequently
         }
       );
@@ -281,7 +281,7 @@ export default function CheckinPage() {
                       <PaginationPrevious onClick={() => setPage(prev => Math.max(prev - 1, 1))} />
                     </PaginationItem>
                     {Array.from({ length: totalPages }, (_, i) => (
-                      <PaginationItem key={i}>
+                      <PaginationItem key={`page-${i + 1}`}>
                         <PaginationLink onClick={() => setPage(i + 1)} isActive={page === i + 1}>
                           {i + 1}
                         </PaginationLink>

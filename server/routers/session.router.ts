@@ -13,10 +13,10 @@ import { checkActiveConference } from "../middlewares/checkActiveConference";
 
 const router = Router();
 
-router.get("/:conferenceSlug", getSessionsByConferenceSlug);
+router.get("/capacity", checkActiveConference, getSessionsCapacity);
 router.get("/", checkActiveConference, getActiveConferenceSessions);
 router.post("/", checkActiveConference, createSession);
-router.get("/capacity", checkActiveConference, getSessionsCapacity);
+router.get("/:conferenceSlug", getSessionsByConferenceSlug);
 router.delete("/admin/all", checkActiveConference, deleteAllSessions);
 router.put("/:id", checkActiveConference, updateSession);
 router.delete("/:id", checkActiveConference, deleteSession);

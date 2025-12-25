@@ -1,18 +1,17 @@
+import { contactFormSchema, insertSightseeingSchema } from "@shared/validation";
 import { type Response } from "express";
-import { type RequestWithActiveConference } from "../middlewares/checkActiveConference";
-import { jsonStorage } from "../jsonStorage";
-import { insertSightseeingSchema, contactFormSchema } from "@shared/validation";
-import { deleteFile } from "../utils";
-import { sightseeingRepository } from "../repositories/sightseeingRepository";
-import { sessionRepository } from "../repositories/sessionRepository";
-import { sponsorRepository } from "../repositories/sponsorRepository";
-import { registrationRepository } from "../repositories/registrationRepository";
-import { contactRepository } from "../repositories/contactRepository";
-import path from 'path';
 import fs from 'fs/promises';
+import path from 'path';
 import sharp from 'sharp';
+import { type RequestWithActiveConference } from "../middlewares/checkActiveConference";
+import { contactRepository } from "../repositories/contactRepository";
+import { registrationRepository } from "../repositories/registrationRepository";
+import { sessionRepository } from "../repositories/sessionRepository";
+import { sightseeingRepository } from "../repositories/sightseeingRepository";
+import { sponsorRepository } from "../repositories/sponsorRepository";
+import { deleteFile } from "../utils";
 
-async function processAndSaveImage(buffer: Buffer, originalName: string, type: 'banner' | 'avatar' | 'general' = 'general'): Promise<string> {
+async function processAndSaveImage(buffer: Buffer, _originalName: string, type: 'banner' | 'avatar' | 'general' = 'general'): Promise<string> {
     const filename = `img-${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
     const absolutePath = path.join(process.cwd(), "public", "uploads", filename);
     let pipeline = sharp(buffer).rotate();
@@ -109,6 +108,6 @@ export const deleteAdminContactMessage = async (req: RequestWithActiveConference
     try { if (await contactRepository.delete(req.params.id)) res.json({ success: true }); else res.status(404).json({ message: "Not found" }); } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 
-export const deleteAllAdminContactMessages = async (req: any, res: Response) => {
+export const deleteAllAdminContactMessages = async (_req: any, res: Response) => {
     try { await contactRepository.deleteAll(); res.json({ success: true }); } catch (error: any) { res.status(400).json({ message: error.message }); }
 };

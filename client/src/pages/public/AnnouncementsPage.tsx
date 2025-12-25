@@ -21,7 +21,7 @@ import { useActiveConference } from "@/hooks/useActiveConference";
 import { announcementService } from "@/services/announcementService";
 
 export default function AnnouncementsPage() {
-  const [isAnnouncements, announcementsParams] = useRoute("/announcements");
+  const [_isAnnouncements, _announcementsParams] = useRoute("/announcements");
   const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
     "/conference/:slug/announcements"
   );

@@ -18,7 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
-import { Copy } from "lucide-react";
 import type { Conference } from "@shared/types";
 import { conferenceSchema } from "@shared/validation";
 import { useAdminView } from "@/hooks/useAdminView";
@@ -85,17 +84,6 @@ export default function ConferencePage() {
     }
   });
 
-  const cloneMutation = useMutation({
-    mutationFn: async (newConferenceName: string) => {
-      if (!selectedConference) throw new Error("No conference selected");
-      return await apiRequest("POST", "/api/conferences/clone", { newConferenceName });
-    },
-    onSuccess: () => {
-      toast({ title: "Sao chép hội nghị thành công" });
-      queryClient.invalidateQueries({ queryKey: ["/api/conferences"] });
-    },
-  });
-
   const handleStageBannerForDeletion = (path: string) => {
     if (isReadOnly) return;
     setFilesToDelete(prev => [...prev, path]);
@@ -110,14 +98,6 @@ export default function ConferencePage() {
       filesToDelete,
     };
     updateMutation.mutate(payload);
-  };
-
-  const handleClone = () => {
-    if (!selectedConference) return;
-    const newConferenceName = prompt(`Nhập tên cho hội nghị mới (sao chép từ "${selectedConference.name}"):`);
-    if (newConferenceName) {
-      cloneMutation.mutate(newConferenceName);
-    }
   };
 
   const handleLogoDrop = async (acceptedFiles: File[]) => {

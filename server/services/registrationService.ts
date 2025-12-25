@@ -1,5 +1,5 @@
 import { sessionRepository } from "../repositories/sessionRepository";
-import { InsertRegistration, Session, Registration } from "@shared/schema";
+import { Session, Registration } from "@shared/schema";
 import { BatchRegistrationRequest } from "@shared/validation";
 import { randomUUID } from "node:crypto";
 import crypto from "node:crypto";
@@ -23,6 +23,25 @@ export class RegistrationService {
         
         if (requested.length !== sessionIds.length) return { success: false, error: "Sessions not found" };
         if (this.checkSessionTimeOverlap(requested)) return { success: false, error: "Overlapping time" };
+
+        // Check capacity for each requested session
+        const failedSessions: string[] = [];
+        for (const session of requested) {
+            if (session.capacity) {
+                const currentCount = await registrationRepository.getSessionRegistrationCount(session.id);
+                if (currentCount >= session.capacity) {
+                    failedSessions.push(session.title);
+                }
+            }
+        }
+
+        if (failedSessions.length > 0) {
+            return { 
+                success: false, 
+                error: `Một số phiên đã hết chỗ: ${failedSessions.join(", ")}`,
+                failedSessions 
+            };
+        }
         
         try {
             const token = crypto.randomBytes(32).toString("hex");

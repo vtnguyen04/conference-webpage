@@ -59,13 +59,14 @@ const categoryColors: Record<string, string> = {
 
 export default function AnnouncementsManagementPage() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [isImageDeleting, setIsImageDeleting] = useState(false);
   const [isPdfUploading, setIsPdfUploading] = useState(false);
   const [isPdfDeleting, setIsPdfDeleting] = useState(false);
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: announcements = [] } = useQuery<Announcement[]>({
@@ -539,7 +540,7 @@ export default function AnnouncementsManagementPage() {
                     <FormControl>
                       <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
                         <ReactQuill
-                          ref={quillRef as React.RefObject<ReactQuill>}
+                          ref={quillRef}
                           theme="snow"
                           value={field.value}
                           onChange={field.onChange}

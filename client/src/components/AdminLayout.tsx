@@ -16,7 +16,6 @@ import {
   LogOut,
   ChevronDown,
   Bell,
-  Search,
   Menu,
   Building,
   Mail,
@@ -32,13 +31,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider,
   useSidebar,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
 import { useAdminView } from "@/hooks/useAdminView";
 import type { Conference } from "@shared/types";
@@ -120,7 +117,7 @@ const menuItems = [
 
 const ConferenceSelector = () => {
   const { data: conferences = [] } = useQuery<Conference[]>({
-    queryKey: ['/api/conferences'],
+    queryKey: ['api/conferences'],
   });
   const { viewingSlug, setViewingSlug, isReadOnly } = useAdminView();
 
@@ -166,7 +163,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   const setSlugs = useAdminView(state => state.setSlugs);
 
   const { data: activeConference } = useQuery<Conference>({
-    queryKey: ['/api/conferences/active'],
+    queryKey: ['api', 'conferences', 'active'],
   });
 
   useEffect(() => {
@@ -177,7 +174,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
 
   // Fetch contact message count
   const { data: contactMessageCount = { count: 0 } } = useQuery<{ count: number }>({
-    queryKey: ["/api/stats/contact-messages"],
+    queryKey: ["api", "stats", "contact-messages"],
     queryFn: async () => {
       const response = await fetch("/api/stats/contact-messages");
       if (!response.ok) {
@@ -187,8 +184,6 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
-
-
 
   const handleLogout = async () => {
     try {

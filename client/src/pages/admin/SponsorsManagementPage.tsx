@@ -31,7 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import type { Sponsor, InsertSponsor, Conference } from "@shared/types";
+import type { Sponsor, InsertSponsor } from "@shared/types";
 import { insertSponsorSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";

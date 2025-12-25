@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
 import type { Speaker } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {

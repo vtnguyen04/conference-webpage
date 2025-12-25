@@ -399,7 +399,7 @@ export default function SessionsPage() {
               <FormField
                 control={form.control}
                 name="chairIds"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Chủ tọa</FormLabel>
                     <FormDescription>
@@ -437,7 +437,7 @@ export default function SessionsPage() {
                                               ])
                                             : field.onChange(
                                                 field.value?.filter(
-                                                  (value) =>
+                                                  (value: string) =>
                                                     value !== speaker.id
                                                 )
                                               );

@@ -1,13 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Calendar, MapPin } from "lucide-react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import type { Conference } from "@shared/types";
-import Autoplay from "embla-carousel-autoplay";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";
 import { LazyMotion, domAnimation } from "framer-motion";
 
@@ -21,17 +14,10 @@ import SpeakersSection from "@/components/SpeakersSection";
 import SponsorsSection from "@/components/SponsorsSection";
 import IntroductionSection from "@/components/IntroductionSection";
 
-import SectionHeader from "@/components/SectionHeader";
-import { Card, CardContent } from "@/components/ui/card";
-
 export default function HomePage() {
   const { data: conference, isLoading, error } = useQuery<Conference>({
     queryKey: ["/api/conferences/active"],
   });
-
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  );
 
   if (error) {
     return (
@@ -70,7 +56,7 @@ export default function HomePage() {
     <LazyMotion features={domAnimation}>
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
-        <HeroSection conference={conference} />
+        <HeroSection />
 
         {/* Decorative Border */}
         <div className="relative h-2 bg-slate-100">
@@ -129,7 +115,7 @@ export default function HomePage() {
               <div className="absolute top-20 left-10 w-32 h-32 border-4 border-teal-600 rotate-45"></div>
               <div className="absolute bottom-20 right-10 w-24 h-24 border-4 border-gray-400"></div>
             </div>
-            <IntroductionSection conference={conference} />
+            <IntroductionSection />
         </ScrollAnimatedSection>
 
         {/* Footer Decorative Border */}

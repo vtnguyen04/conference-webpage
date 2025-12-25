@@ -39,7 +39,7 @@ export default function SightseeingManagementPage() {
   const [editingSightseeing, setEditingSightseeing] = useState<Sightseeing | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
   const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
@@ -413,7 +413,7 @@ export default function SightseeingManagementPage() {
                     <FormControl>
                       <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
                         <ReactQuill
-                          ref={quillRef as React.RefObject<ReactQuill>}
+                          ref={quillRef}
                           theme="snow"
                           value={field.value}
                           onChange={field.onChange}
