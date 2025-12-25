@@ -1,7 +1,7 @@
 // src/hooks/useAuth.ts
 
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/services/apiClient";
+import { apiRequest, ApiError } from "@/services/apiClient";
 
 interface AuthUser {
   id: string;
@@ -19,18 +19,20 @@ export function useAuth() {
         const user = await apiRequest("GET", "/api/auth/user");
         return user as AuthUser;
       } catch (err: any) {
-        // apiRequest now throws an error for non-ok responses
-        // Check if the error message indicates a 401 Unauthorized status
-        if (err.message && err.message.includes("401")) {
-          return null; // Not authenticated
+        // Check for 401 Unauthorized using status code or ApiError
+        if (err instanceof ApiError && err.status === 401) {
+          return null;
         }
-        throw err; // Re-throw other errors
+        if (err.status === 401) {
+          return null;
+        }
+        throw err;
       }
     },
-    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Garbage collect data after 10 minutes
-    retry: false, // Do not retry on auth checks
-    refetchOnWindowFocus: false, // Do not refetch on window focus
+    staleTime: 0, // Auth status should be checked frequently
+    gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: true,
   });
 
   const isAuthenticated = !!user;

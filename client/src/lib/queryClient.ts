@@ -1,11 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-
-async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
-  }
-}
+import { ApiError } from "@/services/apiClient";
 
 export async function apiRequest(
   method: string,
@@ -62,14 +56,36 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
+async function throwIfResNotOk(res: Response) {
+  if (!res.ok) {
+    let errorMessage = res.statusText || `Error ${res.status}`;
+    
+    try {
+      const data = await res.json();
+      if (data && data.message) {
+        errorMessage = data.message;
+      }
+    } catch (e) {
+      // Not a JSON response
+    }
+
+    throw new ApiError(errorMessage, res.status);
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0,
-      retry: false,
+      staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 401 or 404
+        if (error instanceof ApiError && (error.status === 401 || error.status === 404)) return false;
+        if (error?.status === 401 || error?.status === 404) return false;
+        return failureCount < 2;
+      },
     },
     mutations: {
       retry: false,

@@ -45,9 +45,17 @@ export default function Login() {
       throw new Error("Không thể xác nhận trạng thái đăng nhập.");
     }
   } catch (error: any) {
+    let description = "Đã xảy ra lỗi không xác định. Vui lòng thử lại.";
+    
+    if (error instanceof Error) {
+      description = error.message;
+    } else if (typeof error === 'string') {
+      description = error;
+    }
+
     toast({
       title: "Đăng nhập thất bại",
-      description: error.message || "Mật khẩu không đúng hoặc có lỗi xảy ra.",
+      description: description,
       variant: "destructive",
     });
   } finally {

@@ -1,7 +1,32 @@
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = "ApiError";
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage = res.statusText || `Error ${res.status}`;
+    
+    try {
+      const data = await res.json();
+      if (data && data.message) {
+        errorMessage = data.message;
+      } else if (data && typeof data === 'string') {
+        errorMessage = data;
+      }
+    } catch (e) {
+      // Not a JSON response
+    }
+
+    if (res.status === 401) {
+      throw new ApiError("Mật khẩu không chính xác hoặc phiên đăng nhập đã hết hạn.", 401);
+    }
+    
+    throw new ApiError(errorMessage, res.status);
   }
 }
 

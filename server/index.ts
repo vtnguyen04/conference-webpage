@@ -30,9 +30,10 @@ app.use(cors());
 // Rate limiting for API routes
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000,
+  max: 5000, // Increased limit
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'GET', // Skip rate limiting for GET requests
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 
