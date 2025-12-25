@@ -9,4 +9,4 @@ npm run db:migrate
 
 # Start the application
 echo "Starting application in production mode..."
-npm start
+exec npm start
