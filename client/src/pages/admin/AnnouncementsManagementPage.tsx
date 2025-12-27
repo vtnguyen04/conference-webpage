@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
+import { Pencil, Trash2, Calendar, Eye, MoreHorizontal, FileText, Megaphone, Info, Clock, Paperclip } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -43,16 +43,28 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
 import { announcementService } from "@/services/announcementService";
 import { uploadService } from "@/services/uploadService";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 const categoryLabels: Record<string, string> = {
   general: "Thông báo chung",
   important: "Quan trọng",
   deadline: "Hạn chót",
 };
+
 const categoryColors: Record<string, string> = {
-  general: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  important: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-  deadline: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  general: "bg-blue-50 text-blue-700 border-blue-100",
+  important: "bg-amber-50 text-amber-700 border-amber-100",
+  deadline: "bg-rose-50 text-rose-700 border-rose-100",
 };
+
 export default function AnnouncementsManagementPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -64,6 +76,7 @@ export default function AnnouncementsManagementPage() {
   const [isPdfDeleting, setIsPdfDeleting] = useState(false);
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
+
   const { data: announcements = [] } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements", viewingSlug],
     queryFn: async () => {
@@ -72,6 +85,7 @@ export default function AnnouncementsManagementPage() {
     },
     enabled: !!viewingSlug,
   });
+
   const form = useForm<InsertAnnouncement>({
     resolver: zodResolver(insertAnnouncementSchema),
     defaultValues: {
@@ -83,6 +97,7 @@ export default function AnnouncementsManagementPage() {
       publishedAt: new Date().toISOString().slice(0, 16),
     },
   });
+
   useEffect(() => {
     if (isDialogOpen) {
       if (editingAnnouncement) {
@@ -108,10 +123,11 @@ export default function AnnouncementsManagementPage() {
       }
     }
   }, [editingAnnouncement, isDialogOpen, form]);
+
   const createMutation = useMutation({
     mutationFn: (data: InsertAnnouncement) => announcementService.createAnnouncement(data),
     onSuccess: () => {
-      toast({ title: "Tạo thông báo thành công" });
+      toast({ title: "Thành công", description: "Đã đăng thông báo mới." });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
@@ -120,11 +136,12 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: InsertAnnouncement }) =>
       announcementService.updateAnnouncement(id, data),
     onSuccess: () => {
-      toast({ title: "Cập nhật thông báo thành công" });
+      toast({ title: "Thành công", description: "Đã cập nhật thông báo." });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
       setIsDialogOpen(false);
       setEditingAnnouncement(null);
@@ -134,48 +151,55 @@ export default function AnnouncementsManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => announcementService.deleteAnnouncement(id),
     onSuccess: () => {
-      toast({ title: "Xóa thông báo thành công" });
+      toast({ title: "Thành công", description: "Đã xóa thông báo." });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const deleteAllMutation = useMutation({
     mutationFn: () => announcementService.deleteAllAnnouncements(),
     onSuccess: () => {
-      toast({ title: "Xóa tất cả thông báo thành công" });
+      toast({ title: "Thành công", description: "Đã dọn sạch thông báo." });
       queryClient.invalidateQueries({ queryKey: ["/api/announcements", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingAnnouncement(null);
     setIsDialogOpen(true);
   };
+
   const handleEdit = (announcement: Announcement) => {
     if (isReadOnly) return;
     setEditingAnnouncement(announcement);
     setIsDialogOpen(true);
   };
+
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
-    if (confirm(`Bạn có chắc muốn xóa thông báo "${title}"?`)) {
+    if (confirm(`Xác nhận xóa thông báo: "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
+
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
-    if (confirm("Bạn có chắc muốn xóa TẤT CẢ thông báo? Hành động này không thể hoàn tác.")) {
+    if (confirm("Cảnh báo: Bạn có chắc muốn xóa TẤT CẢ thông báo?")) {
       deleteAllMutation.mutate();
     }
   };
+
   const onSubmit = (data: InsertAnnouncement) => {
     if (isReadOnly) return;
     if (editingAnnouncement) {
@@ -184,6 +208,7 @@ export default function AnnouncementsManagementPage() {
       createMutation.mutate(data);
     }
   };
+
   const handleImageDrop = async (acceptedFiles: File[]) => {
     if (isReadOnly) return;
     const file = acceptedFiles[0];
@@ -191,39 +216,36 @@ export default function AnnouncementsManagementPage() {
     const formData = new FormData();
     formData.append('image', file);
     const oldImageUrl = form.getValues("featuredImageUrl");
-    if (oldImageUrl) {
-      formData.append("oldImagePath", oldImageUrl);
-    }
+    if (oldImageUrl) formData.append("oldImagePath", oldImageUrl);
+
     setIsImageUploading(true);
     try {
       const result = await uploadService.uploadImage(formData);
       form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
       toast({ title: 'Tải ảnh đại diện thành công' });
     } catch (error: any) {
-      console.error('Error uploading featured image:', error);
-      toast({ title: 'Lỗi tải ảnh đại diện', description: error.message, variant: 'destructive' });
+      toast({ title: 'Lỗi tải ảnh', description: error.message, variant: 'destructive' });
     } finally {
       setIsImageUploading(false);
     }
   };
+
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentImageUrl = form.getValues("featuredImageUrl");
-    if (!currentImageUrl || !confirm("Bạn có chắc muốn xóa ảnh này?")) {
-      return;
-    }
+    if (!currentImageUrl || !confirm("Xác nhận xóa ảnh?")) return;
     setIsImageDeleting(true);
     try {
       await uploadService.deleteFile(currentImageUrl);
       form.setValue("featuredImageUrl", "", { shouldValidate: true });
-      toast({ title: 'Thành công', description: 'Ảnh đã được xóa thành công.' });
+      toast({ title: 'Đã xóa ảnh' });
     } catch (error: any) {
-      console.error('Delete error:', error);
-      toast({ title: 'Lỗi', description: error.message || 'Không thể xóa ảnh.', variant: 'destructive' });
+      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     } finally {
       setIsImageDeleting(false);
     }
   };
+
   const handlePdfFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (isReadOnly) return;
     const file = event.target.files?.[0];
@@ -231,39 +253,36 @@ export default function AnnouncementsManagementPage() {
     const formData = new FormData();
     formData.append('pdf', file);
     const oldPdfUrl = form.getValues("pdfUrl");
-    if (oldPdfUrl) {
-      formData.append("oldPdfPath", oldPdfUrl);
-    }
+    if (oldPdfUrl) formData.append("oldPdfPath", oldPdfUrl);
+
     setIsPdfUploading(true);
     try {
       const result = await uploadService.uploadPdf(formData);
       form.setValue("pdfUrl", result.pdfPath, { shouldValidate: true });
       toast({ title: 'Tải tệp PDF thành công' });
     } catch (error: any) {
-      console.error('Error uploading PDF:', error);
-      toast({ title: 'Lỗi tải tệp PDF', description: error.message, variant: 'destructive' });
+      toast({ title: 'Lỗi tải PDF', description: error.message, variant: 'destructive' });
     } finally {
       setIsPdfUploading(false);
     }
   };
+
   const handlePdfDelete = async () => {
     if (isReadOnly) return;
     const currentPdfUrl = form.getValues("pdfUrl");
-    if (!currentPdfUrl || !confirm("Bạn có chắc muốn xóa tệp này?")) {
-      return;
-    }
+    if (!currentPdfUrl || !confirm("Xác nhận xóa tệp đính kèm?")) return;
     setIsPdfDeleting(true);
     try {
       await uploadService.deleteFile(currentPdfUrl);
       form.setValue("pdfUrl", "", { shouldValidate: true });
-      toast({ title: 'Thành công', description: 'Tệp đã được xóa thành công.' });
+      toast({ title: 'Đã xóa tệp' });
     } catch (error: any) {
-      console.error('Delete error:', error);
-      toast({ title: 'Lỗi', description: error.message || 'Không thể xóa tệp.', variant: 'destructive' });
+      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     } finally {
       setIsPdfDeleting(false);
     }
   };
+
   const imageHandler = () => {
     if (isReadOnly) return;
     const input = document.createElement('input');
@@ -277,20 +296,18 @@ export default function AnnouncementsManagementPage() {
         formData.append('image', file);
         try {
           const result = await uploadService.uploadImage(formData);
-          const imageUrl = result.imagePath;
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
-            if (range) {
-              quill.insertEmbed(range.index, 'image', imageUrl);
-            }
+            if (range) quill.insertEmbed(range.index, 'image', result.imagePath);
           }
         } catch (error: any) {
-          toast({ title: 'Lỗi tải ảnh lên', description: error.message, variant: 'destructive' });
+          toast({ title: 'Lỗi chèn ảnh', description: error.message, variant: 'destructive' });
         }
       }
     };
   };
+
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -300,268 +317,281 @@ export default function AnnouncementsManagementPage() {
         ['link', 'image'],
         ['clean']
       ],
-      handlers: {
-        image: imageHandler,
-      },
+      handlers: { image: imageHandler },
     },
   }), [isReadOnly]);
+
   const sortedAnnouncements = [...announcements].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="text-announcements-mgmt-title">
-          Quản lý thông báo
-        </h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleDeleteAll}
-            variant="destructive"
-            data-testid="button-delete-all-announcements"
-            disabled={deleteAllMutation.isPending || isReadOnly}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Xóa tất cả
-          </Button>
-          <Button onClick={handleAdd} data-testid="button-add-announcement" disabled={isReadOnly}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm thông báo
-          </Button>
+
+  const renderAnnouncementItem = (announcement: Announcement) => (
+    <div
+      key={announcement.id}
+      className="group relative bg-white border border-slate-200/60 rounded-xl overflow-hidden hover:border-indigo-200 hover:shadow-md transition-all duration-300"
+    >
+      <div className="flex flex-col md:flex-row">
+        {announcement.featuredImageUrl && (
+          <div className="md:w-48 h-48 md:h-auto shrink-0 overflow-hidden">
+            <img
+              src={announcement.featuredImageUrl}
+              alt={announcement.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+        <div className="flex-1 p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge className={cn("px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-tighter shadow-sm border-none", categoryColors[announcement.category])}>
+                {categoryLabels[announcement.category]}
+              </Badge>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center">
+                <Clock className="h-3 w-3 mr-1.5" />
+                {format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Eye className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">{announcement.views || 0}</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-2">
+              {announcement.title}
+            </h3>
+            <p className="text-sm text-slate-500 line-clamp-2 font-medium leading-relaxed">
+              {announcement.excerpt}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-3">
+              {announcement.pdfUrl && (
+                <Badge variant="outline" className="bg-rose-50 text-rose-600 border-rose-100 text-[9px] font-bold uppercase tracking-tighter">
+                  <Paperclip className="h-2.5 w-2.5 mr-1" /> PDF Đính kèm
+                </Badge>
+              )}
+            </div>
+            {!isReadOnly && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem onClick={() => handleEdit(announcement)} className="text-indigo-600 font-medium cursor-pointer">
+                    <Pencil className="h-3.5 w-3.5 mr-2" /> Sửa
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDelete(announcement.id, announcement.title)} className="text-rose-600 font-medium cursor-pointer">
+                    <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Danh sách thông báo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sortedAnnouncements.length > 0 ? (
-            <div className="space-y-3">
-              {sortedAnnouncements.map((announcement) => (
-                <div
-                  key={announcement.id}
-                  className="border rounded-lg p-4 hover:border-primary transition-colors"
-                  data-testid={`announcement-item-${announcement.id}`}
-                >
-                  <div className="flex items-start gap-4">
-                    {announcement.featuredImageUrl && (
-                      <img
-                        src={announcement.featuredImageUrl}
-                        alt={announcement.title}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-xs px-2 py-1 rounded ${categoryColors[announcement.category]}`}>
-                          {categoryLabels[announcement.category]}
-                        </span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })}
-                        </span>
-                      </div>
-                      <h3 className="font-semibold mb-1">{announcement.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{announcement.excerpt}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(announcement)}
-                        data-testid={`button-edit-announcement-${announcement.id}`}
-                        disabled={isReadOnly}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(announcement.id, announcement.title)}
-                        data-testid={`button-delete-announcement-${announcement.id}`}
-                        disabled={isReadOnly}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              Chưa có thông báo nào. Nhấn "Thêm thông báo" để tạo mới.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <AdminPageHeader 
+        title="Quản lý Thông báo"
+        description="Đăng và điều chỉnh các bản tin, cập nhật quan trọng dành cho người tham dự hội nghị."
+        onAdd={handleAdd}
+        addLabel="Đăng thông báo"
+        onDeleteAll={announcements.length > 0 ? handleDeleteAll : undefined}
+        isReadOnly={isReadOnly}
+      />
+
+      <div className="space-y-4">
+        {sortedAnnouncements.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {sortedAnnouncements.map(renderAnnouncementItem)}
+          </div>
+        ) : (
+          <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
+            <CardContent className="p-12 text-center">
+              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
+                <Megaphone className="h-8 w-8 text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-medium">Hệ thống chưa có thông báo nào.</p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Đăng thông báo đầu tiên &rarr;</Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingAnnouncement ? "Chỉnh sửa thông báo" : "Thêm thông báo mới"}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 border-none shadow-2xl">
+          <DialogHeader className="p-6 bg-slate-900 text-white">
+            <DialogTitle className="text-xl font-bold">
+              {editingAnnouncement ? "Cập nhật thông báo" : "Đăng thông báo mới"}
             </DialogTitle>
-            <DialogDescription>
-              Điền thông tin chi tiết về thông báo
+            <DialogDescription className="text-slate-400">
+              Nội dung sẽ được hiển thị ngay trên trang chủ hội nghị.
             </DialogDescription>
           </DialogHeader>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="featuredImageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ảnh đại diện</FormLabel>
-                    <FormControl>
-                      <ImageUploader
-                        onDrop={handleImageDrop}
-                        onDelete={handleImageDelete}
-                        preview={field.value}
-                        isUploading={isImageUploading}
-                        isDeleting={isImageDeleting}
-                        disabled={isReadOnly}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Tải lên ảnh đại diện cho thông báo
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pdfUrl"
-                render={({ field: { value } }) => (
-                  <FormItem>
-                    <FormLabel>Tệp PDF đính kèm</FormLabel>
-                    <FormControl>
-                      <ObjectUploader
-                        acceptedFileTypes="application/pdf"
-                        onFileSelect={handlePdfFileSelect}
-                        onDelete={handlePdfDelete}
-                        currentFileUrl={value || undefined}
-                        isUploading={isPdfUploading}
-                        isDeleting={isPdfDeleting}
-                        disabled={isReadOnly}
-                      >
-                        {value ? "Thay đổi tệp PDF" : "Tải lên tệp PDF"}
-                      </ObjectUploader>
-                    </FormControl>
-                    <FormDescription>
-                      Tải lên tệp PDF đính kèm cho thông báo (ví dụ: hợp đồng, nội quy)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tiêu đề</FormLabel>
-                    <FormControl>
-                      <Input {...field} data-testid="input-announcement-title" readOnly={isReadOnly} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="excerpt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tóm tắt</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={2} data-testid="input-announcement-excerpt" readOnly={isReadOnly} />
-                    </FormControl>
-                    <FormDescription>
-                      Mô tả ngắn gọn (hiển thị trong danh sách)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Controller
-                name="content"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nội dung</FormLabel>
-                    <FormControl>
-                      <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
-                        <ReactQuill
-                          ref={quillRef}
-                          theme="snow"
-                          value={field.value}
-                          onChange={field.onChange}
-                          readOnly={isReadOnly}
-                          className="min-h-[200px]"
-                          modules={modules}
-                        />
-                      </React.Suspense>
-                    </FormControl>
-                    <FormDescription>
-                      Nội dung chi tiết của thông báo/bài viết
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Danh mục</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Media Section */}
+                <div className="lg:col-span-4 space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="featuredImageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Ảnh đại diện</FormLabel>
                         <FormControl>
-                          <SelectTrigger data-testid="select-announcement-category">
-                            <SelectValue placeholder="Chọn danh mục" />
-                          </SelectTrigger>
+                          <ImageUploader
+                            preview={field.value}
+                            onDrop={handleImageDrop}
+                            onDelete={handleImageDelete}
+                            isUploading={isImageUploading}
+                            isDeleting={isImageDeleting}
+                            disabled={isReadOnly}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="general">Thông báo chung</SelectItem>
-                          <SelectItem value="important">Quan trọng</SelectItem>
-                          <SelectItem value="deadline">Hạn chót</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="pdfUrl"
+                    render={({ field: { value } }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Tài liệu đính kèm (PDF)</FormLabel>
+                        <FormControl>
+                          <ObjectUploader
+                            acceptedFileTypes="application/pdf"
+                            onFileSelect={handlePdfFileSelect}
+                            onDelete={handlePdfDelete}
+                            currentFileUrl={value || undefined}
+                            isUploading={isPdfUploading}
+                            isDeleting={isPdfDeleting}
+                            disabled={isReadOnly}
+                          >
+                            {value ? "Thay đổi tài liệu" : "Tải tệp PDF"}
+                          </ObjectUploader>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Content Section */}
+                <div className="lg:col-span-8 space-y-5">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tiêu đề thông báo</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Nhập tiêu đề..." className="bg-slate-50 border-slate-200 font-bold h-11" readOnly={isReadOnly} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Danh mục</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
+                            <FormControl>
+                              <SelectTrigger className="bg-slate-50 border-slate-200">
+                                <SelectValue placeholder="Chọn danh mục" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="general">Thông báo chung</SelectItem>
+                              <SelectItem value="important">Quan trọng</SelectItem>
+                              <SelectItem value="deadline">Hạn chót</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="publishedAt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Ngày xuất bản</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} className="bg-slate-50 border-slate-200" readOnly={isReadOnly} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="excerpt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tóm tắt ngắn (Excerpt)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={2} className="bg-slate-50 border-slate-200 resize-none" placeholder="Mô tả ngắn gọn để thu hút người đọc..." readOnly={isReadOnly} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <Controller
+                  name="content"
                   control={form.control}
-                  name="publishedAt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ngày xuất bản</FormLabel>
+                      <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Nội dung chi tiết</FormLabel>
                       <FormControl>
-                        <Input type="datetime-local" {...field} data-testid="input-announcement-published" readOnly={isReadOnly} />
+                        <React.Suspense fallback={<div className="h-40 bg-slate-50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-400 uppercase">Đang tải trình soạn thảo...</div>}>
+                          <ReactQuill
+                            ref={quillRef}
+                            theme="snow"
+                            value={field.value}
+                            onChange={field.onChange}
+                            readOnly={isReadOnly}
+                            className="bg-white rounded-lg min-h-[300px]"
+                            modules={modules}
+                          />
+                        </React.Suspense>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Hủy
-                </Button>
+
+              <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-8">
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">Hủy bỏ</Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
-                  data-testid="button-submit-announcement"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? "Đang lưu..."
-                    : editingAnnouncement
-                    ? "Cập nhật"
-                    : "Tạo mới"}
+                  {createMutation.isPending || updateMutation.isPending ? "Đang xử lý..." : editingAnnouncement ? "Lưu thay đổi" : "Đăng thông báo"}
                 </Button>
               </DialogFooter>
             </form>

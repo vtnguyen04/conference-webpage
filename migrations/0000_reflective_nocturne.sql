@@ -34,6 +34,8 @@ CREATE TABLE `contact_messages` (
 	`submitted_at` integer
 );
 --> statement-breakpoint
+CREATE INDEX `idx_contact_email` ON `contact_messages` (`email`);--> statement-breakpoint
+CREATE INDEX `idx_contact_submitted` ON `contact_messages` (`submitted_at`);--> statement-breakpoint
 CREATE TABLE `registrations` (
 	`id` text PRIMARY KEY NOT NULL,
 	`conference_slug` text NOT NULL,
@@ -43,6 +45,7 @@ CREATE TABLE `registrations` (
 	`phone` text,
 	`organization` text,
 	`position` text,
+	`role` text DEFAULT 'participant' NOT NULL,
 	`cme_certificate_requested` integer DEFAULT false NOT NULL,
 	`conference_certificate_sent` integer DEFAULT false NOT NULL,
 	`qr_code` text,
@@ -60,6 +63,7 @@ CREATE INDEX `idx_registrations_slug` ON `registrations` (`conference_slug`);-->
 CREATE INDEX `idx_registrations_session` ON `registrations` (`session_id`);--> statement-breakpoint
 CREATE INDEX `idx_registrations_email` ON `registrations` (`email`);--> statement-breakpoint
 CREATE INDEX `idx_registrations_email_session` ON `registrations` (`email`,`session_id`);--> statement-breakpoint
+CREATE INDEX `idx_registrations_email_slug` ON `registrations` (`email`,`conference_slug`);--> statement-breakpoint
 CREATE INDEX `idx_registrations_confirmation_token` ON `registrations` (`confirmation_token`);--> statement-breakpoint
 CREATE TABLE `sessions` (
 	`sid` text PRIMARY KEY NOT NULL,
@@ -68,6 +72,11 @@ CREATE TABLE `sessions` (
 );
 --> statement-breakpoint
 CREATE INDEX `IDX_session_expire` ON `sessions` (`expire`);--> statement-breakpoint
+CREATE TABLE `system_config` (
+	`key` text PRIMARY KEY NOT NULL,
+	`value` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `users` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,

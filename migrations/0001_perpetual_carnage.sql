@@ -1,1 +1,0 @@
-ALTER TABLE `registrations` ADD `role` text DEFAULT 'participant' NOT NULL;

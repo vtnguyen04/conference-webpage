@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8839ea62-aa79-4168-acce-b15aad7eb0ec",
+  "id": "6570818c-a833-49af-9fb2-76ad064cc2ad",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "audit_logs": {
@@ -234,7 +234,22 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_contact_email": {
+          "name": "idx_contact_email",
+          "columns": [
+            "email"
+          ],
+          "isUnique": false
+        },
+        "idx_contact_submitted": {
+          "name": "idx_contact_submitted",
+          "columns": [
+            "submitted_at"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -298,6 +313,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'participant'"
         },
         "cme_certificate_requested": {
           "name": "cme_certificate_requested",
@@ -412,6 +435,14 @@
           ],
           "isUnique": false
         },
+        "idx_registrations_email_slug": {
+          "name": "idx_registrations_email_slug",
+          "columns": [
+            "email",
+            "conference_slug"
+          ],
+          "isUnique": false
+        },
         "idx_registrations_confirmation_token": {
           "name": "idx_registrations_confirmation_token",
           "columns": [
@@ -459,6 +490,30 @@
           "isUnique": false
         }
       },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "system_config": {
+      "name": "system_config",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

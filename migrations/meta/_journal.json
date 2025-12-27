@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1763050072987,
-      "tag": "0000_thankful_valkyrie",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1766405856538,
-      "tag": "0001_perpetual_carnage",
+      "when": 1766851058950,
+      "tag": "0000_reflective_nocturne",
       "breakpoints": true
     }
   ]

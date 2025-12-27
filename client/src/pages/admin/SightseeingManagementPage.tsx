@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Map, Camera, FileText, MoreHorizontal, Info, Clock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,16 @@ import { insertSightseeingSchema } from "@shared/validation";
 import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -40,6 +50,7 @@ export default function SightseeingManagementPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
+
   const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
     queryKey: ["/api/sightseeing", viewingSlug],
     queryFn: async () => {
@@ -48,6 +59,7 @@ export default function SightseeingManagementPage() {
     },
     enabled: !!viewingSlug,
   });
+
   const form = useForm<InsertSightseeing>({
     resolver: zodResolver(insertSightseeingSchema),
     defaultValues: {
@@ -57,12 +69,13 @@ export default function SightseeingManagementPage() {
       featuredImageUrl: "",
     },
   });
+
   const createMutation = useMutation({
     mutationFn: async (data: InsertSightseeing) => {
       return await apiRequest("POST", "/api/sightseeing", data);
     },
     onSuccess: () => {
-      toast({ title: "Tạo địa điểm thành công" });
+      toast({ title: "Thành công", description: "Đã thêm địa điểm tham quan mới." });
       queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
@@ -71,12 +84,13 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSightseeing }) => {
       return await apiRequest("PUT", `/api/sightseeing/${id}`, data);
     },
     onSuccess: () => {
-      toast({ title: "Cập nhật địa điểm thành công" });
+      toast({ title: "Thành công", description: "Đã cập nhật thông tin địa điểm." });
       queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSightseeing(null);
@@ -86,30 +100,33 @@ export default function SightseeingManagementPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/sightseeing/${id}`);
     },
     onSuccess: () => {
-      toast({ title: "Xóa địa điểm thành công" });
+      toast({ title: "Thành công", description: "Đã xóa địa điểm tham quan." });
       queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", "/api/admin/sightseeing/all");
     },
     onSuccess: () => {
-      toast({ title: "Xóa tất cả địa điểm tham quan thành công" });
+      toast({ title: "Thành công", description: "Đã dọn sạch danh sách địa điểm." });
       queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSightseeing(null);
@@ -121,29 +138,33 @@ export default function SightseeingManagementPage() {
     });
     setIsDialogOpen(true);
   };
-  const handleEdit = (sightseeing: Sightseeing) => {
+
+  const handleEdit = (item: Sightseeing) => {
     if (isReadOnly) return;
-    setEditingSightseeing(sightseeing);
+    setEditingSightseeing(item);
     form.reset({
-      title: sightseeing.title,
-      content: sightseeing.content,
-      excerpt: sightseeing.excerpt,
-      featuredImageUrl: sightseeing.featuredImageUrl,
+      title: item.title,
+      content: item.content,
+      excerpt: item.excerpt,
+      featuredImageUrl: item.featuredImageUrl || "",
     });
     setIsDialogOpen(true);
   };
+
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
-    if (confirm(`Bạn có chắc muốn xóa địa điểm "${title}"?`)) {
+    if (confirm(`Xác nhận xóa địa điểm: "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
+
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
-    if (confirm("Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan? Hành động này không thể hoàn tác.")) {
+    if (confirm("Cảnh báo: Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan?")) {
       deleteAllMutation.mutate();
     }
   };
+
   const onSubmit = (data: InsertSightseeing) => {
     if (isReadOnly) return;
     if (editingSightseeing) {
@@ -152,42 +173,44 @@ export default function SightseeingManagementPage() {
       createMutation.mutate(data);
     }
   };
+
   const handleImageDrop = async (files: File[]) => {
     if (files.length === 0 || isReadOnly) return;
     const file = files[0];
     const formData = new FormData();
     formData.append("image", file);
     const oldImageUrl = form.getValues("featuredImageUrl");
-    if (oldImageUrl) {
-      formData.append("oldImagePath", oldImageUrl);
-    }
+    if (oldImageUrl) formData.append("oldImagePath", oldImageUrl);
+
     setIsUploading(true);
     try {
       const result = await apiUploadFile("/api/upload", formData);
       form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
       toast({ title: "Tải ảnh lên thành công" });
     } catch (error: any) {
-      toast({ title: "Lỗi tải ảnh lên", description: error.message, variant: "destructive" });
+      toast({ title: "Lỗi tải ảnh", description: error.message, variant: "destructive" });
     } finally {
       setIsUploading(false);
     }
   };
+
   const handleImageDelete = async () => {
     if (isReadOnly) return;
     const currentImageUrl = form.getValues("featuredImageUrl");
     if (!currentImageUrl) return;
-    if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
+    if (!confirm("Xác nhận xóa ảnh này?")) return;
     setIsDeleting(true);
     try {
       await apiRequest("DELETE", `/api/upload?filePath=${currentImageUrl}`);
       form.setValue("featuredImageUrl", "", { shouldValidate: true });
-      toast({ title: "Xóa ảnh thành công" });
+      toast({ title: "Đã xóa ảnh" });
     } catch (error: any) {
       toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
     } finally {
       setIsDeleting(false);
     }
   };
+
   const imageHandler = () => {
     if (isReadOnly) return;
     const input = document.createElement('input');
@@ -209,16 +232,15 @@ export default function SightseeingManagementPage() {
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
-            if (range) {
-              quill.insertEmbed(range.index, 'image', imageUrl);
-            }
+            if (range) quill.insertEmbed(range.index, 'image', imageUrl);
           }
         } catch (error) {
-          toast({ title: 'Lỗi tải ảnh lên', description: 'Không thể tải ảnh lên.', variant: 'destructive' });
+          toast({ title: 'Lỗi chèn ảnh', description: 'Không thể tải ảnh vào nội dung.', variant: 'destructive' });
         }
       }
     };
   };
+
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -228,192 +250,221 @@ export default function SightseeingManagementPage() {
         ['link', 'image'],
         ['clean']
       ],
-      handlers: {
-        image: imageHandler,
-      },
+      handlers: { image: imageHandler },
     },
   }), [isReadOnly]);
+
   const sortedSightseeing = [...sightseeing].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime()
   );
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
-          Quản lý địa điểm tham quan
-        </h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleDeleteAll}
-            variant="destructive"
-            data-testid="button-delete-all-sightseeing"
-            disabled={deleteAllMutation.isPending || isReadOnly}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Xóa tất cả
-          </Button>
-          <Button onClick={handleAdd} disabled={isReadOnly}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm địa điểm
-          </Button>
-        </div>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Danh sách địa điểm tham quan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sortedSightseeing.length > 0 ? (
-            <div className="space-y-3">
-              {sortedSightseeing.map((item) => (
-                <div
-                  key={item.id}
-                  className="border rounded-lg p-4 hover:border-primary transition-colors"
-                >
-                  <div className="flex items-start gap-4">
-                    {item.featuredImageUrl && (
-                      <img
-                        src={item.featuredImageUrl}
-                        alt={item.title}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{item.excerpt}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(item)}
-                        disabled={isReadOnly}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(item.id, item.title)}
-                        disabled={isReadOnly}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+  const renderSightseeingItem = (item: Sightseeing) => (
+    <Card 
+      key={item.id} 
+      className="group relative bg-white border border-slate-200/60 rounded-xl overflow-hidden hover:border-indigo-200 hover:shadow-md transition-all duration-300"
+    >
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          {item.featuredImageUrl && (
+            <div className="md:w-56 h-48 md:h-auto shrink-0 overflow-hidden">
+              <img
+                src={item.featuredImageUrl}
+                alt={item.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
             </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              Chưa có địa điểm nào. Nhấn "Thêm địa điểm" để tạo mới.
-            </p>
           )}
-        </CardContent>
-      </Card>
+          <div className="flex-1 p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center">
+                <Clock className="h-3 w-3 mr-1.5" />
+                {item.createdAt ? format(new Date(item.createdAt), "dd/MM/yyyy", { locale: vi }) : "N/A"}
+              </span>
+              {!isReadOnly && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuItem onClick={() => handleEdit(item)} className="text-indigo-600 font-medium cursor-pointer">
+                      <Pencil className="h-3.5 w-3.5 mr-2" /> Sửa
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDelete(item.id, item.title)} className="text-rose-600 font-medium cursor-pointer">
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-2">
+                {item.title}
+              </h3>
+              <p className="text-sm text-slate-500 line-clamp-2 font-medium leading-relaxed">
+                {item.excerpt}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter flex items-center">
+                <FileText className="h-3 w-3 mr-1.5 text-slate-300" />
+                Xem nội dung giới thiệu
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <AdminPageHeader 
+        title="Quản lý Địa điểm Tham quan"
+        description="Biên tập danh sách các danh lam thắng cảnh, địa điểm ẩm thực và tour du lịch đặc trưng tại khu vực tổ chức hội nghị."
+        onAdd={handleAdd}
+        addLabel="Thêm địa điểm"
+        onDeleteAll={sightseeing.length > 0 ? handleDeleteAll : undefined}
+        isReadOnly={isReadOnly}
+      />
+
+      <div className="space-y-4">
+        {sortedSightseeing.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {sortedSightseeing.map(renderSightseeingItem)}
+          </div>
+        ) : (
+          <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
+            <CardContent className="p-12 text-center">
+              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
+                <Map className="h-8 w-8 text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-medium">Chưa có dữ liệu địa điểm tham quan.</p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Bắt đầu thêm ngay &rarr;</Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingSightseeing ? "Chỉnh sửa địa điểm" : "Thêm địa điểm mới"}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 border-none shadow-2xl">
+          <DialogHeader className="p-6 bg-slate-900 text-white">
+            <DialogTitle className="text-xl font-bold">
+              {editingSightseeing ? "Cập nhật địa điểm" : "Thêm địa điểm tham quan"}
             </DialogTitle>
-            <DialogDescription>
-              Điền thông tin chi tiết về địa điểm tham quan
+            <DialogDescription className="text-slate-400">
+              Thông tin chi tiết về địa danh sẽ giúp người tham dự có trải nghiệm du lịch tốt hơn.
             </DialogDescription>
           </DialogHeader>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="featuredImageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ảnh đại diện</FormLabel>
-                    <FormControl>
-                      <ImageUploader
-                        preview={field.value}
-                        onDrop={handleImageDrop}
-                        onDelete={handleImageDelete}
-                        isUploading={isUploading}
-                        isDeleting={isDeleting}
-                        disabled={isReadOnly}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Tải lên ảnh đại diện cho địa điểm
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tiêu đề</FormLabel>
-                    <FormControl>
-                      <Input {...field} readOnly={isReadOnly} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="excerpt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tóm tắt</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={2} readOnly={isReadOnly} />
-                    </FormControl>
-                    <FormDescription>
-                      Mô tả ngắn gọn (hiển thị trong danh sách)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Controller
-                name="content"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nội dung</FormLabel>
-                    <FormControl>
-                      <React.Suspense fallback={<div>Đang tải trình soạn thảo...</div>}>
-                        <ReactQuill
-                          ref={quillRef}
-                          theme="snow"
-                          value={field.value}
-                          onChange={field.onChange}
-                          readOnly={isReadOnly}
-                          className="min-h-[200px]"
-                          modules={modules}
-                        />
-                      </React.Suspense>
-                    </FormControl>
-                    <FormDescription>
-                      Nội dung chi tiết của bài viết
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Hủy
-                </Button>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Media Section */}
+                <div className="lg:col-span-4 space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="featuredImageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center">
+                          <Camera className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
+                          Ảnh tiêu biểu
+                        </FormLabel>
+                        <FormControl>
+                          <ImageUploader
+                            preview={field.value}
+                            onDrop={handleImageDrop}
+                            onDelete={handleImageDelete}
+                            isUploading={isUploading}
+                            isDeleting={isDeleting}
+                            disabled={isReadOnly}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+                    <Info className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-amber-700 font-medium leading-relaxed">
+                      Hãy chọn ảnh đẹp nhất để giới thiệu vẻ đẹp của địa điểm đến khách tham dự.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="lg:col-span-8 space-y-5">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tên địa danh / Địa điểm</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ví dụ: Chùa Cầu Hội An, Bánh mì Phượng..." className="bg-slate-50 border-slate-200 font-bold h-11" readOnly={isReadOnly} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="excerpt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Mô tả ngắn gọn</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={3} className="bg-slate-50 border-slate-200 resize-none" placeholder="Tóm tắt ngắn về điểm đến này..." readOnly={isReadOnly} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <Controller
+                  name="content"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center">
+                        <FileText className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
+                        Giới thiệu chi tiết
+                      </FormLabel>
+                      <FormControl>
+                        <React.Suspense fallback={<div className="h-40 bg-slate-50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-400 uppercase">Đang tải trình soạn thảo...</div>}>
+                          <ReactQuill
+                            ref={quillRef}
+                            theme="snow"
+                            value={field.value}
+                            onChange={field.onChange}
+                            readOnly={isReadOnly}
+                            className="bg-white rounded-lg min-h-[300px]"
+                            modules={modules}
+                          />
+                        </React.Suspense>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-8">
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">Hủy bỏ</Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? "Đang lưu..."
-                    : editingSightseeing
-                    ? "Cập nhật"
-                    : "Tạo mới"}
+                  {createMutation.isPending || updateMutation.isPending ? "Đang xử lý..." : editingSightseeing ? "Lưu thay đổi" : "Thêm địa điểm mới"}
                 </Button>
               </DialogFooter>
             </form>

@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Clock, MapPin, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, MapPin, X, Calendar as CalendarIcon, Info, Users, Layout, MoreHorizontal } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,11 +40,22 @@ import type { Session, InsertSession, Speaker } from "@shared/types";
 import { insertSessionSchema } from "@shared/validation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAdminView } from "@/hooks/useAdminView";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 export default function SessionsPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
+
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", viewingSlug],
     queryFn: async () => {
@@ -53,6 +64,7 @@ export default function SessionsPage() {
     },
     enabled: !!viewingSlug,
   });
+
   const { data: speakers = [] } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers", viewingSlug],
     queryFn: async () => {
@@ -61,6 +73,7 @@ export default function SessionsPage() {
     },
     enabled: !!viewingSlug,
   });
+
   const form = useForm<InsertSession>({
     resolver: zodResolver(insertSessionSchema),
     defaultValues: {
@@ -79,16 +92,18 @@ export default function SessionsPage() {
       capacity: null,
     },
   });
+
   const { fields: agendaFields, append: appendAgenda, remove: removeAgenda } = useFieldArray({
     control: form.control,
     name: "agendaItems",
   });
+
   const createMutation = useMutation({
     mutationFn: async (data: InsertSession) => {
       return await apiRequest("POST", "/api/sessions", data);
     },
     onSuccess: () => {
-      toast({ title: "Tạo phiên họp thành công" });
+      toast({ title: "Thành công", description: "Đã tạo phiên họp mới." });
       queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
       setIsDialogOpen(false);
       form.reset();
@@ -97,12 +112,13 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: InsertSession }) => {
       return await apiRequest("PUT", `/api/sessions/${id}`, data);
     },
     onSuccess: () => {
-      toast({ title: "Cập nhật phiên họp thành công" });
+      toast({ title: "Thành công", description: "Đã cập nhật phiên họp." });
       queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
       setIsDialogOpen(false);
       setEditingSession(null);
@@ -112,30 +128,20 @@ export default function SessionsPage() {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/sessions/${id}`);
     },
     onSuccess: () => {
-      toast({ title: "Xóa phiên họp thành công" });
+      toast({ title: "Thành công", description: "Đã xóa phiên họp." });
       queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
     },
     onError: (error: any) => {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
-  const deleteAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("DELETE", "/api/admin/sessions/all");
-    },
-    onSuccess: () => {
-      toast({ title: "Xóa tất cả phiên họp thành công" });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
+
   const handleAdd = () => {
     if (isReadOnly) return;
     setEditingSession(null);
@@ -156,6 +162,7 @@ export default function SessionsPage() {
     });
     setIsDialogOpen(true);
   };
+
   const handleEdit = (session: Session) => {
     if (isReadOnly) return;
     setEditingSession(session);
@@ -176,18 +183,14 @@ export default function SessionsPage() {
     });
     setIsDialogOpen(true);
   };
+
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa phiên họp "${title}"?`)) {
       deleteMutation.mutate(id);
     }
   };
-  const handleDeleteAll = async () => {
-    if (isReadOnly) return;
-    if (confirm("Bạn có chắc muốn xóa TẤT CẢ phiên họp? Hành động này không thể hoàn tác.")) {
-      deleteAllMutation.mutate();
-    }
-  };
+
   const onSubmit = (data: InsertSession) => {
     if (isReadOnly) return;
     if (editingSession) {
@@ -196,6 +199,7 @@ export default function SessionsPage() {
       createMutation.mutate(data);
     }
   };
+
   const sessionsByDay = sessions.reduce((acc, session) => {
     if (!acc[session.day]) {
       acc[session.day] = [];
@@ -203,438 +207,456 @@ export default function SessionsPage() {
     acc[session.day].push(session);
     return acc;
   }, {} as Record<number, Session[]>);
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="text-sessions-title">
-          Quản lý phiên họp
-        </h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleDeleteAll}
-            variant="destructive"
-            data-testid="button-delete-all-sessions"
-            disabled={deleteAllMutation.isPending || isReadOnly}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Xóa tất cả
-          </Button>
-          <Button onClick={handleAdd} data-testid="button-add-session" disabled={isReadOnly}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm phiên họp
-          </Button>
-        </div>
-      </div>
-      {Object.keys(sessionsByDay).sort().map((day) => (
-        <Card key={day}>
-          <CardHeader>
-            <CardTitle>Ngày {day}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {sessionsByDay[Number(day)].map((session) => (
-                <div
-                  key={session.id}
-                  className="border rounded-lg p-4 hover:border-primary transition-colors"
-                  data-testid={`session-item-${session.id}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center gap-1 text-sm text-primary font-semibold">
-                          <Clock className="h-4 w-4" />
-                          {format(new Date(session.startTime), "HH:mm", { locale: vi })} -{" "}
-                          {format(new Date(session.endTime), "HH:mm", { locale: vi })}
-                        </div>
-                        {session.track && (
-                          <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded">
-                            {session.track}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-semibold mb-1">{session.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{session.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {session.room || "TBA"}
-                        </span>
-                        <span className="bg-muted px-2 py-0.5 rounded text-xs">
-                          {session.type}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(session)}
-                        data-testid={`button-edit-session-${session.id}`}
-                        disabled={isReadOnly}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(session.id, session.title)}
-                        data-testid={`button-delete-session-${session.id}`}
-                        disabled={isReadOnly}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+  const renderSessionItem = (session: Session) => (
+    <div
+      key={session.id}
+      className="group relative bg-white border border-slate-200/60 rounded-xl p-5 hover:border-indigo-200 hover:shadow-md transition-all duration-300"
+    >
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="flex-1 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold ring-1 ring-indigo-100">
+              <Clock className="h-3.5 w-3.5" />
+              {format(new Date(session.startTime), "HH:mm", { locale: vi })} -{" "}
+              {format(new Date(session.endTime), "HH:mm", { locale: vi })}
             </div>
-          </CardContent>
-        </Card>
-      ))}
-      {sessions.length === 0 && (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <p className="text-muted-foreground">
-              Chưa có phiên họp nào. Nhấn "Thêm phiên họp" để tạo mới.
+            {session.track && (
+              <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase">
+                {session.track}
+              </Badge>
+            )}
+            <Badge variant="outline" className="border-slate-200 text-slate-400 font-bold text-[10px] uppercase tracking-tighter">
+              {session.type}
+            </Badge>
+          </div>
+          
+          <div>
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+              {session.title}
+            </h3>
+            <p className="text-sm text-slate-500 line-clamp-2 mt-1 font-medium leading-relaxed">
+              {session.description}
             </p>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 pt-1">
+            <span className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+              <MapPin className="h-3.5 w-3.5 mr-1.5 text-slate-300" />
+              {session.room || "Chưa xác định"}
+            </span>
+            {session.capacity && (
+              <span className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Users className="h-3.5 w-3.5 mr-1.5 text-slate-300" />
+                Sức chứa: {session.capacity}
+              </span>
+            )}
+            {session.agendaItems && session.agendaItems.length > 0 && (
+              <span className="flex items-center text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                <Layout className="h-3.5 w-3.5 mr-1.5" />
+                {session.agendaItems.length} mục chương trình
+              </span>
+            )}
+          </div>
+        </div>
+
+        {!isReadOnly && (
+          <div className="flex md:flex-col gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-slate-600">
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32 font-medium">
+                <DropdownMenuItem onClick={() => handleEdit(session)} className="text-indigo-600">
+                  <Pencil className="h-3.5 w-3.5 mr-2" />
+                  Chỉnh sửa
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDelete(session.id, session.title)} className="text-rose-600">
+                  <Trash2 className="h-3.5 w-3.5 mr-2" />
+                  Xóa bỏ
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <AdminPageHeader 
+        title="Lịch trình & Phiên họp"
+        description="Xây dựng kịch bản hội nghị, quản lý các phiên báo cáo và phân bổ thời gian cho từng chuyên đề."
+        onAdd={handleAdd}
+        addLabel="Thêm phiên họp"
+        isReadOnly={isReadOnly}
+      />
+
+      <div className="space-y-10">
+        {Object.keys(sessionsByDay).length > 0 ? (
+          Object.keys(sessionsByDay).sort().map((day) => (
+            <div key={day} className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                  {day}
+                </div>
+                <h2 className="text-lg font-extrabold text-slate-800 tracking-tight flex items-center">
+                  Ngày {day} của hội nghị
+                  <span className="ml-3 h-[1px] flex-1 bg-slate-100 min-w-[100px]" />
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {sessionsByDay[Number(day)].map(renderSessionItem)}
+              </div>
+            </div>
+          ))
+        ) : (
+          <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
+            <CardContent className="p-12 text-center">
+              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
+                <CalendarIcon className="h-8 w-8 text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-medium">
+                Chưa có dữ liệu phiên họp. Hãy bắt đầu xây dựng lịch trình.
+              </p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">
+                Tạo phiên họp đầu tiên &rarr;
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingSession ? "Chỉnh sửa phiên họp" : "Thêm phiên họp mới"}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 border-none shadow-2xl">
+          <DialogHeader className="p-6 bg-slate-900 text-white">
+            <DialogTitle className="text-xl font-bold">
+              {editingSession ? "Cập nhật phiên họp" : "Thêm phiên họp mới"}
             </DialogTitle>
-            <DialogDescription>
-              Điền thông tin chi tiết về phiên họp
+            <DialogDescription className="text-slate-400">
+              Cấu hình thông tin thời gian, địa điểm và chương trình chi tiết.
             </DialogDescription>
           </DialogHeader>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="day"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ngày</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="1"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          data-testid="input-session-day"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="track"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Track</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Toàn thể, Phẫu thuật..." data-testid="input-session-track" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tiêu đề</FormLabel>
-                    <FormControl>
-                      <Input {...field} data-testid="input-session-title" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mô tả ngắn</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} data-testid="input-session-description" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chairIds"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Chủ tọa</FormLabel>
-                    <FormDescription>
-                      Chọn một hoặc nhiều chủ tọa cho phiên họp này.
-                    </FormDescription>
-                    <ScrollArea className="h-40 rounded-md border">
-                      <div className="p-4">
-                        {speakers
-                          .filter(
-                            (speaker) =>
-                              speaker.role === "moderator" ||
-                              speaker.role === "both"
-                          )
-                          .map((speaker) => (
-                            <FormField
-                              key={speaker.id}
-                              control={form.control}
-                              name="chairIds"
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={speaker.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                {/* Basic Info Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
+                      <Info className="h-4 w-4" />
+                    </div>
+                    <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Thông tin cơ bản</h4>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="day"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Ngày thứ mấy</FormLabel>
+                          <FormControl>
+                            <Input type="number" min="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="track"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Track / Nhóm</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Toàn thể, Phẫu thuật..." className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tiêu đề phiên họp</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Nhập tiêu đề..." className="bg-slate-50 border-slate-200 font-bold" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Giờ bắt đầu</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Giờ kết thúc</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="room"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Hội trường</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Hội trường 3D..." className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Loại phiên</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Khai mạc, Báo cáo..." className="bg-slate-50 border-slate-200" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Additional Details Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Chủ tọa & Quản lý</h4>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="chairIds"
+                    render={() => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Chọn Chủ tọa (Moderators)</FormLabel>
+                        <ScrollArea className="h-32 rounded-lg border border-slate-200 bg-slate-50/50 p-3">
+                          <div className="space-y-2">
+                            {speakers
+                              .filter(s => s.role === "moderator" || s.role === "both")
+                              .map((speaker) => (
+                                <FormField
+                                  key={speaker.id}
+                                  control={form.control}
+                                  name="chairIds"
+                                  render={({ field }) => (
+                                    <div className="flex items-center space-x-3 py-1">
                                       <Checkbox
-                                        checked={field.value?.includes(
-                                          speaker.id
-                                        )}
+                                        checked={field.value?.includes(speaker.id)}
                                         onCheckedChange={(checked) => {
                                           return checked
-                                            ? field.onChange([
-                                                ...(field.value || []),
-                                                speaker.id,
-                                              ])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (value: string) =>
-                                                    value !== speaker.id
-                                                )
-                                              );
+                                            ? field.onChange([...(field.value || []), speaker.id])
+                                            : field.onChange(field.value?.filter(v => v !== speaker.id));
                                         }}
+                                        className="border-slate-300 data-[state=checked]:bg-indigo-600"
                                       />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {speaker.credentials} {speaker.name}
-                                    </FormLabel>
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          ))}
-                      </div>
-                    </ScrollArea>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="startTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Giờ bắt đầu</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} data-testid="input-session-start" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="endTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Giờ kết thúc</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} data-testid="input-session-end" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                      <span className="text-xs font-medium text-slate-700">
+                                        {speaker.credentials} {speaker.name}
+                                      </span>
+                                    </div>
+                                  )}
+                                />
+                              ))}
+                          </div>
+                        </ScrollArea>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Mô tả tóm tắt</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={4} className="bg-slate-50 border-slate-200 resize-none" placeholder="Nhập mô tả ngắn về mục đích của phiên họp..." />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="capacity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Sức chứa tối đa (Tùy chọn)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => field.onChange(e.target.value === '' ? null : parseInt(e.target.value, 10))}
+                            placeholder="Không giới hạn"
+                            className="bg-slate-50 border-slate-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="room"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phòng/Hội trường</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Hội trường 3D" data-testid="input-session-room" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                                        <FormLabel>Loại phiên</FormLabel>
-                                        <FormControl>
-                                          <Input {...field} placeholder="Khai mạc, Báo cáo, Thảo luận..." data-testid="input-session-type" />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={form.control}
-                                    name="capacity"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Sức chứa (để trống nếu không giới hạn)</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            type="number"
-                                            {...field}
-                                            value={field.value ?? ''}
-                                            onChange={(e) => field.onChange(e.target.value === '' ? null : parseInt(e.target.value, 10))}
-                                            data-testid="input-session-capacity"
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <FormLabel>Chương trình chi tiết (Agenda)</FormLabel>
+
+              {/* Agenda Items Section */}
+              <div className="pt-8 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-amber-50 text-amber-600 rounded-md">
+                      <Layout className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Chương trình chi tiết (Agenda)</h4>
+                      <p className="text-[10px] text-slate-400 font-medium">Xác định các mục nhỏ trong phiên họp</p>
+                    </div>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => appendAgenda({ timeSlot: "", title: "", speakerId: null })}
-                    data-testid="button-add-agenda-item"
+                    className="h-8 border-slate-200 text-indigo-600 font-bold hover:bg-indigo-50"
                     disabled={isReadOnly}
                   >
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
                     Thêm mục
                   </Button>
                 </div>
-                <FormDescription>
-                  Thêm các mục chương trình theo thời gian (ví dụ: Khai mạc, Báo cáo, Thảo luận)
-                </FormDescription>
-                {agendaFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-3 space-y-3 bg-muted/30">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Mục {index + 1}</span>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {agendaFields.map((field, index) => (
+                    <div key={field.id} className="relative border border-slate-100 rounded-xl p-4 bg-slate-50/30 group">
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         onClick={() => removeAgenda(index)}
-                        data-testid={`button-remove-agenda-${index}`}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border border-slate-200 shadow-sm text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"
                         disabled={isReadOnly}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3 w-3" />
                       </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name={`agendaItems.${index}.timeSlot`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Thời gian</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="07g00-07g30" data-testid={`input-agenda-time-${index}`} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`agendaItems.${index}.speakerId`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Báo cáo viên (tùy chọn)</FormLabel>
-                            <Select 
-                              onValueChange={(value) => field.onChange(value === "_none_" ? null : value)} 
-                              value={field.value || "_none_"}
-                            >
+                      
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <FormField
+                          control={form.control}
+                          name={`agendaItems.${index}.timeSlot`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Thời lượng</FormLabel>
                               <FormControl>
-                                <SelectTrigger data-testid={`select-agenda-speaker-${index}`}>
-                                  <SelectValue placeholder="Không có báo cáo viên" />
-                                </SelectTrigger>
+                                <Input {...field} placeholder="08:00 - 08:15" className="h-8 bg-white text-xs border-slate-200" />
                               </FormControl>
-                              <SelectContent>
-                                <SelectItem value="_none_">Không có báo cáo viên</SelectItem>
-                                {speakers.map((speaker) => (
-                                  <SelectItem key={speaker.id} value={speaker.id}>
-                                    {speaker.credentials} {speaker.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`agendaItems.${index}.speakerId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Báo cáo viên</FormLabel>
+                              <Select 
+                                onValueChange={(value) => field.onChange(value === "_none_" ? null : value)} 
+                                value={field.value || "_none_"}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="h-8 bg-white text-xs border-slate-200">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="_none_">Không có</SelectItem>
+                                  {speakers.map((s) => (
+                                    <SelectItem key={s.id} value={s.id} className="text-xs">
+                                      {s.credentials} {s.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name={`agendaItems.${index}.title`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Tên bài báo cáo / Công việc</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="h-8 bg-white text-xs font-bold border-slate-200" />
+                            </FormControl>
                           </FormItem>
                         )}
                       />
                     </div>
-                    <FormField
-                      control={form.control}
-                      name={`agendaItems.${index}.title`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tiêu đề</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Khai mạc, Báo cáo chuyên đề..." data-testid={`input-agenda-title-${index}`} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`agendaItems.${index}.notes`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ghi chú (tùy chọn)</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} value={field.value || ""} placeholder="Ghi chú bổ sung..." data-testid={`input-agenda-notes-${index}`} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                ))}
+                  ))}
+                </div>
+                
                 {agendaFields.length === 0 && (
-                  <div className="text-center py-6 border rounded-lg border-dashed">
-                    <p className="text-sm text-muted-foreground">
-                      Chưa có mục nào. Nhấn "Thêm mục" để bắt đầu.
-                    </p>
+                  <div className="text-center py-8 bg-slate-50/50 border-2 border-dashed border-slate-100 rounded-xl">
+                    <p className="text-xs text-slate-400 font-medium italic">Chưa có mục chương trình chi tiết nào được thiết lập.</p>
                   </div>
                 )}
               </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Hủy
+
+              <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-8">
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">
+                  Hủy bỏ
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
-                  data-testid="button-submit-session"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
                   {createMutation.isPending || updateMutation.isPending
-                    ? "Đang lưu..."
+                    ? "Đang lưu trữ..."
                     : editingSession
-                    ? "Cập nhật"
-                    : "Tạo mới"}
+                    ? "Cập nhật dữ liệu"
+                    : "Xác nhận tạo mới"}
                 </Button>
               </DialogFooter>
             </form>
