@@ -18,3 +18,4 @@ server/data/*.pptx
 
 # Build artifacts & reports
 stats.html
+docs/
