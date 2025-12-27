@@ -44,6 +44,8 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useAdminView } from "@/hooks/useAdminView";
 import type { Conference } from "@shared/types";
+import { analyticsService } from "@/services/analyticsService";
+import { authService } from "@/services/authService";
 import {
   Select,
   SelectContent,
@@ -163,22 +165,19 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   const { data: contactMessageCount = { count: 0 } } = useQuery<{ count: number }>({
     queryKey: ["api", "stats", "contact-messages"],
     queryFn: async () => {
-      const response = await fetch("/api/stats/contact-messages");
-      if (!response.ok) throw new Error("Failed to fetch contact message count");
-      return response.json();
+      const response = await analyticsService.getStats();
+      return { count: (response as any).totalContactMessages || 0 };
     },
     refetchInterval: 30000,
   });
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/logout", { method: "POST", credentials: "include" });
-      if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        await refetchAuth();
-        setLocation("/admin/login");
-        toast({ title: "Đã đăng xuất", description: "Hẹn gặp lại bạn!" });
-      }
+      await authService.logout();
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      await refetchAuth();
+      setLocation("/admin/login");
+      toast({ title: "Đã đăng xuất", description: "Hẹn gặp lại bạn!" });
     } catch (error) {
       toast({ title: "Lỗi", description: "Đăng xuất thất bại.", variant: "destructive" });
     }

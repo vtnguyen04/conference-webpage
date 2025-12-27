@@ -14,7 +14,7 @@
     "contactPhone": "024-1234-5678",
     "isActive": true,
     "createdAt": "2025-11-11T12:25:27.745Z",
-    "updatedAt": "2025-12-24T15:57:15.802Z",
+    "updatedAt": "2025-12-27T19:04:48.330Z",
     "registrationNote1": "Quý vị vui lòng lựa chọn những hội thảo ưu tiên tham dự. Xin lưu ý rằng một số hội thảo sẽ có số lượng chỗ ngồi giới hạn, vì vậy chúng tôi không thể đảm bảo rằng quý vị sẽ tham gia được tất cả các phiên mong muốn.\nThời gian đăng ký đến 17:00, Thứ Bảy, ngày 20/09/2025",
     "registrationNote2": "Tham dự miễn phí\nMỗi đại biểu được đăng ký tham dự 1 phiên toàn thể (buổi sáng) và tối đa 2 phiên chuyên đề (1 phiên sáng, 1 phiên chiều).\nNếu Quý đại biểu muốn nhận Giấy tham dự hội nghị, vui lòng chọn vào cột Cấp Giấy tham dự hội nghị",
     "filesToDelete": [
@@ -839,7 +839,7 @@
       "category": "deadline",
       "publishedAt": "2025-11-12T02:41",
       "conferenceId": "hoi-nghi-khoa-hoc-lan-thu-5",
-      "views": 38,
+      "views": 41,
       "id": "announcement-1763016115028-hvvwcymz0",
       "createdAt": "2025-11-13T06:41:55.028Z",
       "updatedAt": "2025-12-24T15:55:34.212Z"

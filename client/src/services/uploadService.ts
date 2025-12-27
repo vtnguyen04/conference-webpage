@@ -6,6 +6,9 @@ export const uploadService = {
   uploadPdf: async (formData: FormData): Promise<{ pdfPath: string }> => {
     return apiUploadFile("/api/upload-pdf", formData);
   },
+  uploadBanners: async (formData: FormData): Promise<{ imagePaths: string[] }> => {
+    return apiUploadFile("/api/upload/banners", formData);
+  },
   deleteFile: async (filePath: string): Promise<void> => {
     return apiRequest("DELETE", `/api/upload?filePath=${filePath}`);
   },

@@ -10,27 +10,26 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { announcementService } from "@/services/announcementService";
+import { usePublicAnnouncements } from "@/hooks/usePublicData";
+
 const AnnouncementsSection = () => {
     const { conference } = useActiveConference();
-    const { data: announcements = [] } = useQuery<Announcement[]> ({
-        queryKey: ["/api/announcements"],
-        queryFn: () => announcementService.getAnnouncements(conference?.slug, 6),
-        enabled: !!conference,
-    });
+    const { data: announcements = [] } = usePublicAnnouncements(conference?.slug);
+
     if (announcements.length === 0) {
         return null;
     }
+
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
-                title="TIN TỨC - THÔNG BÁO"
+                title="TIN TỨC || THÔNG BÁO"
                 subtitle="Cập nhật mới nhất từ Ban Tổ chức"
                 accentColor="bg-teal-600"
                 cta={
                     <Link href="/announcements">
-                        <Button variant="outline" className="border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white font-semibold px-8">
-                            Xem tất cả
+                        <Button className="bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-12 px-10 rounded-full transition-all shadow-xl shadow-teal-200">
+                            Xem tất cả thông báo
                         </Button>
                     </Link>
                 }

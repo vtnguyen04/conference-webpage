@@ -1,7 +1,31 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useOrganizers } from "@/hooks/useOrganizers";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useAdminView } from "@/hooks/useAdminView";
+import { insertOrganizerSchema } from "@shared/validation";
+import type { Organizer, InsertOrganizer } from "@shared/types";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Pencil, 
+  Trash2, 
+  User, 
+  MoreHorizontal, 
+  Briefcase, 
+  GraduationCap,
+  Info 
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, User, MoreHorizontal, Info, Briefcase, GraduationCap } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +45,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageUploader } from "@/components/ImageUploader";
 import {
   Select,
   SelectContent,
@@ -28,41 +54,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import type { Organizer, InsertOrganizer } from "@shared/types";
-import { insertOrganizerSchema } from "@shared/validation";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
-import { ImageUploader } from "@/components/ImageUploader";
-import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default function OrganizersManagementPage() {
-  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOrganizer, setEditingOrganizer] = useState<Organizer | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { data: organizers = [] } = useQuery<Organizer[]>({
-    queryKey: ["/api/organizers", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/organizers/${viewingSlug}`);
-    },
-    enabled: !!viewingSlug,
+  const { 
+    organizers, 
+    isLoading, 
+    createOrganizer, 
+    updateOrganizer, 
+    deleteOrganizer, 
+    deleteAllOrganizers,
+    isCreating, 
+    isUpdating, 
+    isDeleting: isDeletingOrganizer 
+  } = useOrganizers(viewingSlug || undefined);
+
+  const { uploadImage, deleteImage, isUploading, isDeleting: isDeletingImage } = useImageUpload({
+    onSuccess: (path) => form.setValue("photoUrl", path, { shouldValidate: true }),
+    onDeleteSuccess: () => form.setValue("photoUrl", "", { shouldValidate: true }),
   });
 
   const form = useForm<InsertOrganizer>({
@@ -75,63 +87,6 @@ export default function OrganizersManagementPage() {
       bio: "",
       organizingRole: "Thành viên",
       displayOrder: 0,
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertOrganizer) => {
-      return await apiRequest("POST", "/api/organizers", data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã thêm thành viên BTC mới." });
-      queryClient.invalidateQueries({ queryKey: ["/api/organizers", viewingSlug] });
-      setIsDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertOrganizer }) => {
-      return await apiRequest("PUT", `/api/organizers/${id}`, data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã cập nhật thông tin thành viên." });
-      queryClient.invalidateQueries({ queryKey: ["/api/organizers", viewingSlug] });
-      setIsDialogOpen(false);
-      setEditingOrganizer(null);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/organizers/${id}`);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã xóa thành viên khỏi BTC." });
-      queryClient.invalidateQueries({ queryKey: ["/api/organizers", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("DELETE", "/api/admin/organizers/all");
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã dọn sạch danh sách BTC." });
-      queryClient.invalidateQueries({ queryKey: ["/api/organizers", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
 
@@ -157,7 +112,7 @@ export default function OrganizersManagementPage() {
       name: organizer.name,
       title: organizer.title,
       credentials: organizer.credentials,
-      photoUrl: organizer.photoUrl,
+      photoUrl: organizer.photoUrl || "",
       bio: organizer.bio,
       organizingRole: organizer.organizingRole,
       displayOrder: organizer.displayOrder,
@@ -168,73 +123,35 @@ export default function OrganizersManagementPage() {
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa thành viên "${name}"?`)) {
-      deleteMutation.mutate(id);
+      deleteOrganizer(id);
     }
   };
 
   const handleDeleteAll = async () => {
     if (isReadOnly) return;
     if (confirm("Cảnh báo: Bạn có chắc muốn xóa TẤT CẢ thành viên BTC?")) {
-      deleteAllMutation.mutate();
+      deleteAllOrganizers();
     }
   };
 
   const onSubmit = (data: InsertOrganizer) => {
     if (isReadOnly) return;
     if (editingOrganizer) {
-      updateMutation.mutate({ id: editingOrganizer.id, data });
+      updateOrganizer({ id: editingOrganizer.id, data });
     } else {
-      createMutation.mutate(data);
+      createOrganizer(data);
     }
-  };
-
-  const handleImageUpload = async (files: File[]) => {
-    if (files.length === 0 || isReadOnly) return;
-    const file = files[0];
-    const formData = new FormData();
-    formData.append("image", file);
-    const oldPhotoUrl = form.getValues("photoUrl");
-    if (oldPhotoUrl) formData.append("oldImagePath", oldPhotoUrl);
-
-    setIsUploading(true);
-    try {
-      const result = await apiUploadFile("/api/upload", formData);
-      form.setValue("photoUrl", result.imagePath, { shouldValidate: true });
-      toast({ title: "Tải ảnh lên thành công" });
-    } catch (error: any) {
-      toast({ title: "Lỗi tải ảnh lên", description: error.message, variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleImageDelete = async () => {
-    if (isReadOnly) return;
-    const currentPhotoUrl = form.getValues("photoUrl");
-    if (!currentPhotoUrl) return;
-    if (!confirm("Xác nhận xóa ảnh?")) return;
-    setIsDeleting(true);
-    try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentPhotoUrl}`);
-      form.setValue("photoUrl", "", { shouldValidate: true });
-      toast({ title: "Đã xóa ảnh" });
-    } catch (error: any) {
-      toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
-    } finally {
-      setIsDeleting(false);
-    }
+    setIsDialogOpen(false);
   };
 
   const groupedOrganizers = organizers.reduce((acc, organizer) => {
     const role = organizer.organizingRole;
-    if (!acc[role]) {
-      acc[role] = [];
-    }
+    if (!acc[role]) acc[role] = [];
     acc[role].push(organizer);
     return acc;
   }, {} as Record<string, Organizer[]>);
 
-  const roleOrder: (string)[] = ["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"];
+  const roleOrder = ["Trưởng Ban", "Phó trưởng Ban", "Thành viên", "Thành viên TK"];
 
   const renderOrganizerCard = (organizer: Organizer) => (
     <Card 
@@ -300,7 +217,12 @@ export default function OrganizersManagementPage() {
       />
 
       <div className="space-y-10">
-        {organizers.length > 0 ? (
+        {isLoading ? (
+          <div className="h-64 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border border-dashed">
+            <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đang tải danh sách...</span>
+          </div>
+        ) : organizers.length > 0 ? (
           roleOrder.map(role => groupedOrganizers[role] && (
             <div key={role} className="space-y-4">
               <div className="flex items-center gap-4">
@@ -309,7 +231,7 @@ export default function OrganizersManagementPage() {
                 </Badge>
                 <div className="h-[1px] flex-1 bg-slate-100" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedOrganizers[role]
                   .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
                   .map(renderOrganizerCard)}
@@ -319,15 +241,9 @@ export default function OrganizersManagementPage() {
         ) : (
           <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
             <CardContent className="p-12 text-center">
-              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
-                <User className="h-8 w-8 text-slate-300" />
-              </div>
-              <p className="text-slate-500 font-medium">
-                Ban tổ chức hiện đang trống.
-              </p>
-              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">
-                Thêm thành viên đầu tiên &rarr;
-              </Button>
+              <User className="h-8 w-8 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">Ban tổ chức hiện đang trống.</p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Bắt đầu thêm ngay &rarr;</Button>
             </CardContent>
           </Card>
         )}
@@ -347,7 +263,6 @@ export default function OrganizersManagementPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Image Side */}
                 <div className="lg:col-span-5 space-y-4">
                   <FormField
                     control={form.control}
@@ -358,10 +273,10 @@ export default function OrganizersManagementPage() {
                         <FormControl>
                           <ImageUploader
                             preview={field.value}
-                            onDrop={handleImageUpload}
-                            onDelete={handleImageDelete}
+                            onDrop={(files) => uploadImage(files, field.value || "")}
+                            onDelete={() => deleteImage(field.value || "")}
                             isUploading={isUploading}
-                            isDeleting={isDeleting}
+                            isDeleting={isDeletingImage}
                             disabled={isReadOnly}
                           />
                         </FormControl>
@@ -369,15 +284,8 @@ export default function OrganizersManagementPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
-                    <Info className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-amber-700 font-medium leading-relaxed">
-                      Sử dụng ảnh chân dung rõ nét, tỷ lệ 1:1 là tốt nhất.
-                    </p>
-                  </div>
                 </div>
 
-                {/* Details Side */}
                 <div className="lg:col-span-7 space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -428,7 +336,7 @@ export default function OrganizersManagementPage() {
                       name="organizingRole"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Nhiệm vụ trong BTC</FormLabel>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Nhiệm vụ BTC</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
                             <FormControl>
                               <SelectTrigger className="bg-slate-50 border-slate-200">
@@ -451,7 +359,7 @@ export default function OrganizersManagementPage() {
                       name="displayOrder"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Thứ tự hiển thị</FormLabel>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Thứ tự</FormLabel>
                           <FormControl>
                             <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} className="bg-slate-50 border-slate-200" />
                           </FormControl>
@@ -471,7 +379,7 @@ export default function OrganizersManagementPage() {
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tiểu sử tóm tắt</FormLabel>
                       <FormControl>
-                        <Textarea {...field} rows={4} className="bg-slate-50 border-slate-200 resize-none" placeholder="Nhập giới thiệu chi tiết..." />
+                        <Textarea {...field} rows={4} className="bg-slate-50 border-slate-200 resize-none" placeholder="Nhập giới thiệu..." />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -480,19 +388,13 @@ export default function OrganizersManagementPage() {
               </div>
 
               <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-8">
-                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">
-                  Hủy bỏ
-                </Button>
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">Hủy bỏ</Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  disabled={isCreating || isUpdating || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? "Đang lưu..."
-                    : editingOrganizer
-                    ? "Lưu thay đổi"
-                    : "Xác nhận tạo mới"}
+                  {isCreating || isUpdating ? "Đang lưu..." : editingOrganizer ? "Lưu thay đổi" : "Xác nhận tạo mới"}
                 </Button>
               </DialogFooter>
             </form>

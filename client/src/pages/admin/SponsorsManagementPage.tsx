@@ -1,7 +1,38 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSponsors } from "@/hooks/useSponsors";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { useAdminView } from "@/hooks/useAdminView";
+import { insertSponsorSchema } from "@shared/validation";
+import type { Sponsor, InsertSponsor } from "@shared/types";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Building2, 
+  ExternalLink, 
+  Hash, 
+  Pencil, 
+  Trash2, 
+  Info, 
+  MoreHorizontal,
+  Plus
+} from "lucide-react";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Building2, ExternalLink, Hash, Info, MoreHorizontal } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,24 +58,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import type { Sponsor, InsertSponsor } from "@shared/types";
-import { insertSponsorSchema } from "@shared/validation";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
-import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const tierLabels: Record<string, string> = {
   diamond: "Kim cương",
@@ -74,20 +88,24 @@ const tierOrder: Record<string, number> = {
 };
 
 export default function SponsorsManagementPage() {
-  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { data: sponsors = [] } = useQuery<Sponsor[]>({
-    queryKey: ["/api/sponsors", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/sponsors/${viewingSlug}`);
-    },
-    enabled: !!viewingSlug,
+  const { 
+    sponsors, 
+    isLoading, 
+    createSponsor, 
+    updateSponsor, 
+    deleteSponsor, 
+    isCreating, 
+    isUpdating, 
+    isDeleting: isDeletingSponsor 
+  } = useSponsors(viewingSlug || undefined);
+
+  const { uploadImage, deleteImage, isUploading, isDeleting: isDeletingImage } = useImageUpload({
+    onSuccess: (path) => form.setValue("logoUrl", path, { shouldValidate: true }),
+    onDeleteSuccess: () => form.setValue("logoUrl", "", { shouldValidate: true }),
   });
 
   const form = useForm<InsertSponsor>({
@@ -98,50 +116,6 @@ export default function SponsorsManagementPage() {
       tier: "supporting",
       websiteUrl: "",
       displayOrder: 0,
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertSponsor) => {
-      return await apiRequest("POST", "/api/sponsors", data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã thêm nhà tài trợ mới." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
-      setIsDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertSponsor }) => {
-      return await apiRequest("PUT", `/api/sponsors/${id}`, data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã cập nhật thông tin nhà tài trợ." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
-      setIsDialogOpen(false);
-      setEditingSponsor(null);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/sponsors/${id}`);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã xóa nhà tài trợ." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sponsors", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
 
@@ -174,54 +148,18 @@ export default function SponsorsManagementPage() {
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa nhà tài trợ "${name}"?`)) {
-      deleteMutation.mutate(id);
+      deleteSponsor(id);
     }
   };
 
   const onSubmit = (data: InsertSponsor) => {
     if (isReadOnly) return;
     if (editingSponsor) {
-      updateMutation.mutate({ id: editingSponsor.id, data });
+      updateSponsor({ id: editingSponsor.id, data });
     } else {
-      createMutation.mutate(data);
+      createSponsor(data);
     }
-  };
-
-  const handleImageUpload = async (files: File[]) => {
-    if (files.length === 0 || isReadOnly) return;
-    const file = files[0];
-    const formData = new FormData();
-    formData.append("image", file);
-    const oldImageUrl = form.getValues("logoUrl");
-    if (oldImageUrl) formData.append("oldImagePath", oldImageUrl);
-
-    setIsUploading(true);
-    try {
-      const result = await apiUploadFile("/api/upload", formData);
-      form.setValue("logoUrl", result.imagePath, { shouldValidate: true });
-      toast({ title: "Đã tải logo lên" });
-    } catch (error: any) {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleImageDelete = async () => {
-    if (isReadOnly) return;
-    const currentLogoUrl = form.getValues("logoUrl");
-    if (!currentLogoUrl) return;
-    if (!confirm("Xác nhận xóa logo này?")) return;
-    setIsDeleting(true);
-    try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentLogoUrl}`);
-      form.setValue("logoUrl", "", { shouldValidate: true });
-      toast({ title: "Đã xóa logo" });
-    } catch (error: any) {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    } finally {
-      setIsDeleting(false);
-    }
+    setIsDialogOpen(false);
   };
 
   const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
@@ -248,7 +186,7 @@ export default function SponsorsManagementPage() {
               <img
                 src={sponsor.logoUrl}
                 alt={sponsor.name}
-                className="max-h-full max-w-full object-contain filter drop-shadow-sm group-hover:drop-shadow-md transition-all"
+                className="max-h-full max-h-full object-contain filter drop-shadow-sm group-hover:drop-shadow-md transition-all"
               />
             ) : (
               <Building2 className="h-10 w-10 text-slate-300" />
@@ -316,7 +254,12 @@ export default function SponsorsManagementPage() {
       />
 
       <div className="space-y-12">
-        {sortedTiers.length > 0 ? (
+        {isLoading ? (
+          <div className="h-64 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border border-dashed border-slate-200">
+            <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đang tải dữ liệu...</span>
+          </div>
+        ) : sortedTiers.length > 0 ? (
           sortedTiers.map((tier) => (
             <div key={tier} className="space-y-6">
               <div className="flex items-center gap-4">
@@ -374,10 +317,10 @@ export default function SponsorsManagementPage() {
                         <FormControl>
                           <ImageUploader
                             preview={field.value}
-                            onDrop={handleImageUpload}
-                            onDelete={handleImageDelete}
+                            onDrop={(files) => uploadImage(files, field.value)}
+                            onDelete={() => deleteImage(field.value || "")}
                             isUploading={isUploading}
-                            isDeleting={isDeleting}
+                            isDeleting={isDeletingImage}
                             disabled={isReadOnly}
                           />
                         </FormControl>
@@ -478,10 +421,10 @@ export default function SponsorsManagementPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  disabled={isCreating || isUpdating || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
+                  {isCreating || isUpdating
                     ? "Đang lưu trữ..."
                     : editingSponsor
                     ? "Lưu thay đổi"

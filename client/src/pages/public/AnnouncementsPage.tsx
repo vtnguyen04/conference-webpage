@@ -1,10 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowRight, Clock } from "lucide-react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import type { Announcement } from "@shared/types";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -15,324 +9,135 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link, useRoute } from "wouter";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
+import { AnnouncementCard } from "@/components/AnnouncementCard";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { announcementService } from "@/services/announcementService";
+import { usePublicAnnouncements } from "@/hooks/usePublicData";
+import { Megaphone, Info, Newspaper, Calendar, Clock, ArrowRight } from "lucide-react";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
+
 export default function AnnouncementsPage() {
-  const [_isAnnouncements, _announcementsParams] = useRoute("/announcements");
-  const [isConferenceAnnouncements, conferenceAnnouncementsParams] = useRoute(
-    "/conference/:slug/announcements"
-  );
-  const slug = isConferenceAnnouncements
-    ? conferenceAnnouncementsParams?.slug
-    : undefined;
+  const [, params] = useRoute("/conference/:slug/announcements");
+  const slug = params?.slug;
   const { conference } = useActiveConference();
-  const conferenceId = conference?.id;
-  const { data: announcements = [], isLoading } = useQuery<Announcement[]>({
-    queryKey: ["announcements", slug || "active"],
-    queryFn: () => announcementService.getAnnouncements(slug),
-    enabled: !!conferenceId,
-  });
+  
+  const { data: announcements = [], isLoading } = usePublicAnnouncements(slug || conference?.slug);
+
   const mainContentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (announcements.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
+  }, [announcements.length]);
+
+  // Logic thống kê được khôi phục
+  const stats = useMemo(() => {
+    if (!announcements.length) return null;
+    return {
+      total: announcements.length,
+      important: announcements.filter(a => a.category === "important").length,
+      deadline: announcements.filter(a => a.category === "deadline").length,
+      daysCount: new Set(announcements.map(a => format(new Date(a.publishedAt), "yyyy-MM-dd"))).size
+    };
   }, [announcements]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin h-12 w-12 border-4 border-teal-600 border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang tải bản tin mới nhất...</p>
         </div>
       </div>
     );
   }
-  const featuredAnnouncements = announcements
-    .filter((a) => a.category === "important")
-    .slice(0, 2);
-  const regularAnnouncements = announcements.filter(
-    (a) =>
-      a.category !== "important" || !featuredAnnouncements.includes(a)
-  );
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "important":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "deadline":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "update":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case "important":
-        return "QUAN TRỌNG";
-      case "deadline":
-        return "HẠN CUỐI";
-      case "update":
-        return "CẬP NHẬT";
-      default:
-        return "THÔNG BÁO";
-    }
-  };
-  const getLinkUrl = (announcementId: string) => {
-    return slug
-      ? `/conference/${slug}/announcements/${announcementId}`
-      : `/announcements/${announcementId}`;
-  };
+
   return (
-    <>
+    <div className="animate-in fade-in duration-500">
       <PageHeader
-        title="Tin tức & Thông báo"
-        subtitle="Cập nhật mới nhất về hội nghị, các sự kiện quan trọng và thông tin liên quan."
+        title="Thông báo & Tin tức"
+        subtitle="Cập nhật những thông tin mới nhất về lịch trình, tài liệu và các hoạt động bên lề của hội nghị."
         bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">
             <BreadcrumbItem>
-              <BreadcrumbLink asChild className="text-white">
+              <BreadcrumbLink asChild className="text-white opacity-80 hover:opacity-100 transition-opacity">
                 <Link href="/">Trang chủ</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator className="text-white/40" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-white">
-                Tin tức & Thông báo
-              </BreadcrumbPage>
+              <BreadcrumbPage className="text-white font-bold">Bản tin hội nghị</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-      <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            {/* Featured Announcements - Tin nổi bật */}
-            {featuredAnnouncements.length > 0 && (
-              <section className="mb-16">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-0.5 bg-blue-600"></div>
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    Tin nổi bật
-                  </h2>
-                  <div className="w-12 h-0.5 bg-blue-600"></div>
-                </div>
-                <div className="grid lg:grid-cols-2 gap-8">
-                  {featuredAnnouncements.map((announcement) => (
-                    <Link
-                      key={announcement.id}
-                      href={getLinkUrl(announcement.id)}
-                    >
-                      <Card className="overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group h-full">
-                        {announcement.featuredImageUrl && (
-                          <div className="aspect-video overflow-hidden">
-                            <img
-                              src={announcement.featuredImageUrl}
-                              alt={announcement.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        )}
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Badge
-                              variant="outline"
-                              className={`border-2 font-semibold text-xs ${getCategoryColor(
-                                announcement.category || "default"
-                              )}`}
-                            >
-                              {getCategoryLabel(
-                                announcement.category || "default"
-                              )}
-                            </Badge>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                              <Calendar className="h-4 w-4" />
-                              <span>
-                                {format(
-                                  new Date(announcement.publishedAt),
-                                  "dd 'Tháng' MM, yyyy",
-                                  { locale: vi }
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
-                            {announcement.title}
-                          </h3>
-                          {announcement.excerpt && (
-                            <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
-                              {announcement.excerpt}
-                            </p>
-                          )}
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <span className="text-blue-600 font-semibold text-sm group-hover:underline">
-                              Đọc chi tiết
-                            </span>
-                            <ArrowRight className="h-4 w-4 text-blue-600 transform group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
+
+      <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="flex flex-col items-center text-center space-y-4 mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
+                <Newspaper className="h-4 w-4" />
+                <span className="text-xs font-extrabold uppercase tracking-widest">Tin tức tiêu điểm</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Cập nhật mới nhất
+              </h2>
+              <div className="h-1 w-20 bg-teal-500 rounded-full" />
+            </div>
+
+            {announcements.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {announcements.map((announcement) => (
+                    <AnnouncementCard key={announcement.id} announcement={announcement} type="regular" />
                   ))}
                 </div>
-              </section>
-            )}
-            {/* Regular Announcements - Danh sách tin thường */}
-            <section>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-0.5 bg-gray-400"></div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Tất cả thông báo
-                </h2>
-                <div className="flex-1 h-0.5 bg-gray-400"></div>
-              </div>
-              {regularAnnouncements.length > 0 ? (
-                <div className="space-y-6">
-                  {regularAnnouncements.map((announcement) => (
-                    <Link
-                      key={announcement.id}
-                      href={getLinkUrl(announcement.id)}
-                    >
-                      <Card className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-                            {/* Hình ảnh */}
-                            {announcement.featuredImageUrl && (
-                              <div className="lg:w-48 lg:shrink-0">
-                                <div className="aspect-video lg:aspect-square overflow-hidden rounded-lg">
-                                  <img
-                                    src={announcement.featuredImageUrl}
-                                    alt={announcement.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                            {/* Nội dung */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-3">
-                                <Badge
-                                  variant="outline"
-                                  className={`border font-medium text-xs ${getCategoryColor(
-                                    announcement.category || "default"
-                                  )}`}
-                                >
-                                  {getCategoryLabel(
-                                    announcement.category || "default"
-                                  )}
-                                </Badge>
-                                <div className="flex items-center gap-1 text-sm text-gray-500">
-                                  <Calendar className="h-3 w-3" />
-                                  <span>
-                                    {format(
-                                      new Date(announcement.publishedAt),
-                                      "dd/MM/yyyy",
-                                      { locale: vi }
-                                    )}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1 text-sm text-gray-500">
-                                  <Clock className="h-3 w-3" />
-                                  <span>
-                                    {format(
-                                      new Date(announcement.publishedAt),
-                                      "HH:mm",
-                                      { locale: vi }
-                                    )}
-                                  </span>
-                                </div>
-                              </div>
-                              <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
-                                {announcement.title}
-                              </h3>
-                              {announcement.excerpt && (
-                                <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
-                                  {announcement.excerpt}
-                                </p>
-                              )}
-                              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span className="text-blue-600 text-sm font-medium group-hover:underline">
-                                  Xem chi tiết
-                                </span>
-                                <ArrowRight className="h-4 w-4 text-blue-600 transform group-hover:translate-x-1 transition-transform" />
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              ) : announcements.length === 0 ? (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Chưa có thông báo
-                    </h3>
-                    <p className="text-gray-600">
-                      Các thông báo mới sẽ được cập nhật tại đây.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : null}
-            </section>
-            {/* Thống kê */}
-            {announcements.length > 0 && (
-              <div className="mt-16 pt-8 border-t border-gray-200">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {announcements.length}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Tổng số thông báo
+
+                {/* Phần Thống kê được khôi phục và nâng cấp UI */}
+                {stats && (
+                  <div className="mt-20 pt-12 border-t border-slate-200">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                      <div className="text-center space-y-1">
+                        <p className="text-3xl font-black text-teal-600 tracking-tighter">{stats.total}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tổng thông báo</p>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-3xl font-black text-rose-600 tracking-tighter">{stats.important}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tin quan trọng</p>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-3xl font-black text-amber-600 tracking-tighter">{stats.deadline}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hạn đăng ký</p>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-3xl font-black text-slate-600 tracking-tighter">{stats.daysCount}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ngày cập nhật</p>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-red-600 mb-1">
-                      {
-                        announcements.filter(
-                          (a) => a.category === "important"
-                        ).length
-                      }
-                    </div>
-                    <div className="text-sm text-gray-600">Tin quan trọng</div>
+                )}
+              </>
+            ) : (
+              <Card className="border-dashed border-2 border-slate-200 bg-white/50 shadow-none">
+                <CardContent className="p-20 text-center">
+                  <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Info className="h-8 w-8 text-slate-300" />
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-orange-600 mb-1">
-                      {
-                        announcements.filter(
-                          (a) => a.category === "deadline"
-                        ).length
-                      }
-                    </div>
-                    <div className="text-sm text-gray-600">Hạn cuối</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-600 mb-1">
-                      {
-                        new Set(
-                          announcements.map((a) =>
-                            format(new Date(a.publishedAt), "yyyy-MM-dd")
-                          )
-                        ).size
-                      }
-                    </div>
-                    <div className="text-sm text-gray-600">Ngày đăng</div>
-                  </div>
-                </div>
-              </div>
+                  <p className="text-slate-500 font-bold uppercase text-[11px] tracking-widest">
+                    Chưa có thông báo nào được đăng tải
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,31 +3,29 @@ import SectionHeader from "@/components/SectionHeader";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SponsorsList } from "@/components/SponsorsList";
-import { useQuery } from "@tanstack/react-query";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { sponsorService } from "@/services/sponsorService";
+import { usePublicSponsors } from "@/hooks/usePublicData";
+
 const SponsorsSection = () => {
     const { conference } = useActiveConference();
-    const { data: sponsors = [] } = useQuery<Sponsor[]>({
-        queryKey: ["/api/sponsors"],
-        queryFn: () => sponsorService.getSponsors(conference?.slug),
-        enabled: !!conference,
-    });
+    const { data: sponsors = [] } = usePublicSponsors(conference?.slug);
+
     if (sponsors.length === 0) {
         return null;
     }
+
     return (
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
                 title="Đơn vị tài trợ"
-                subtitle="Cảm ơn sự đồng hành của các đối tác"
-                accentColor="bg-gray-500"
+                subtitle="Cảm ơn sự đồng hành của các đối tác chiến lược"
+                accentColor="bg-teal-500"
             />
             <SponsorsList sponsors={sponsors} />
             <div className="text-center mt-16">
                 <Link href="/sponsors">
-                    <Button variant="outline" size="lg" className="border-2 border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white font-semibold px-8">
-                        Xem tất cả nhà tài trợ
+                    <Button className="bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-12 px-10 rounded-full transition-all shadow-xl shadow-teal-200">
+                        Xem danh sách đối tác
                     </Button>
                 </Link>
             </div>

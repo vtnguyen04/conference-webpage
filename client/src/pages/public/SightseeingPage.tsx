@@ -1,7 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
-import type { Sightseeing } from "@shared/types";
+import { ArrowRight, Map, Info, Compass } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -12,111 +10,126 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
-import type { Conference } from "@shared/types";
 import { useEffect, useRef } from "react";
-import { Building } from "lucide-react"; 
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { usePublicSightseeing } from "@/hooks/usePublicData";
+import { Badge } from "@/components/ui/badge";
+
 export default function SightseeingPage() {
-  const { data: sightseeing = [], isLoading } = useQuery<Sightseeing[]>({
-    queryKey: ["/api/sightseeing"],
-  });
-  const { data: conference } = useQuery<Conference>({
-    queryKey: ["/api/conferences/active"],
-  });
+  const { conference } = useActiveConference();
+  const { data: sightseeing = [], isLoading } = usePublicSightseeing(conference?.slug);
+
   const mainContentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (sightseeing.length > 0 && mainContentRef.current) {
       mainContentRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [sightseeing]);
+  }, [sightseeing.length]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin h-12 w-12 border-4 border-teal-600 border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang khám phá các địa danh...</p>
         </div>
       </div>
     );
   }
+
   return (
-    <>
+    <div className="animate-in fade-in duration-500">
       <PageHeader
-        title="Địa điểm tham quan"
-        subtitle="Khám phá những địa điểm thú vị và hấp dẫn gần nơi diễn ra hội nghị."
+        title="Du lịch & Trải nghiệm"
+        subtitle="Khám phá vẻ đẹp văn hóa, ẩm thực và các danh lam thắng cảnh tiêu biểu xung quanh khu vực hội nghị."
         bannerImageUrl={conference?.bannerUrls?.[0]}
       >
         <Breadcrumb className="mb-4 mx-auto">
           <BreadcrumbList className="text-white justify-center">
             <BreadcrumbItem>
-              <BreadcrumbLink asChild className="text-white">
+              <BreadcrumbLink asChild className="text-white opacity-80 hover:opacity-100 transition-opacity">
                 <Link href="/">Trang chủ</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator className="text-white/40" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-white">Địa điểm tham quan</BreadcrumbPage>
+              <BreadcrumbPage className="text-white font-bold">Địa điểm tham quan</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-      <div ref={mainContentRef} className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <section>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-0.5 bg-gray-400"></div>
-                <h2 className="text-xl font-semibold text-gray-900">Tất cả địa điểm</h2>
-                <div className="flex-1 h-0.5 bg-gray-400"></div>
+
+      <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto space-y-12">
+            
+            <div className="flex flex-col items-center text-center space-y-4 mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
+                <Compass className="h-4 w-4" />
+                <span className="text-xs font-extrabold uppercase tracking-widest">Gợi ý dành cho đại biểu</span>
               </div>
-              {sightseeing.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {sightseeing.map((item) => (
-                    <Link key={item.id} href={`/sightseeing/${item.id}`}>
-                      <Card className="overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer group h-full">
-                        {item.featuredImageUrl && (
-                          <div className="aspect-video overflow-hidden">
-                            <img
-                              src={item.featuredImageUrl}
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        )}
-                        <CardContent className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Hành trình Trải nghiệm
+              </h2>
+              <div className="h-1 w-20 bg-teal-500 rounded-full" />
+            </div>
+
+            {sightseeing.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {sightseeing.map((item) => (
+                  <Link key={item.id} href={`/sightseeing/${item.id}`}>
+                    <Card className="group overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white rounded-3xl h-full flex flex-col">
+                      {item.featuredImageUrl && (
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <img
+                            src={item.featuredImageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          <Badge className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-teal-600 border-none font-bold text-[10px] uppercase tracking-widest py-1.5 px-3 rounded-full shadow-sm">
+                            Địa điểm du lịch
+                          </Badge>
+                        </div>
+                      )}
+                      <CardContent className="p-8 flex-1 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <h3 className="text-xl font-bold text-slate-800 group-hover:text-teal-600 transition-colors line-clamp-2 leading-tight">
                             {item.title}
                           </h3>
                           {item.excerpt && (
-                            <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                            <p className="text-slate-500 text-sm font-medium line-clamp-3 leading-relaxed">
                               {item.excerpt}
                             </p>
                           )}
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <span className="text-blue-600 font-semibold text-sm group-hover:underline">
-                              Xem chi tiết
-                            </span>
-                            <ArrowRight className="h-4 w-4 text-blue-600 transform group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Building className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Chưa có địa điểm</h3>
-                    <p className="text-gray-600">Các địa điểm tham quan sẽ được cập nhật tại đây.</p>
-                  </CardContent>
-                </Card>
-              )}
-            </section>
+                        </div>
+                        
+                        <div className="flex items-center justify-between pt-6 mt-6 border-t border-slate-50 group-hover:border-teal-50 transition-colors">
+                          <span className="text-teal-600 font-extrabold text-[11px] uppercase tracking-widest flex items-center gap-2">
+                            Khám phá ngay <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-dashed border-2 border-slate-200 bg-white/50 shadow-none">
+                <CardContent className="p-20 text-center">
+                  <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Map className="h-8 w-8 text-slate-300" />
+                  </div>
+                  <p className="text-slate-500 font-bold uppercase text-[11px] tracking-widest">
+                    Thông tin địa điểm đang được cập nhật
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

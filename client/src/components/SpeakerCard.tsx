@@ -1,53 +1,74 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Speaker } from "@shared/types";
+import { Badge } from "@/components/ui/badge";
+import { User, Quote } from "lucide-react";
+
 interface SpeakerCardProps {
   speaker: Speaker;
 }
+
 export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardProps) {
   return (
-    <div className="p-1 h-full">
+    <div className="p-2 h-full w-full">
       <Card
-        className="overflow-hidden transition-all duration-300 border-2 border-slate-200 hover:border-blue-600 hover:shadow-xl h-full flex flex-col group relative"
+        className="group relative overflow-hidden bg-white border-2 border-slate-100 hover:border-teal-500 shadow-sm hover:shadow-xl transition-all duration-500 rounded-[2.5rem] h-full flex flex-col"
         data-testid={`card-speaker-${speaker.id}`}
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-amber-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-        <div className="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <CardContent className="p-6 flex flex-col items-center text-center flex-1">
-          {speaker.photoUrl ? (
-            <div className="relative mb-6">
-              <div className="absolute -inset-2 border-2 border-blue-600/20 group-hover:border-blue-600 transition-colors duration-300"></div>
-              <img
-                src={speaker.photoUrl}
-                alt={speaker.name}
-                className="w-32 h-32 object-cover object-top relative z-10"
-              />
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <CardContent className="p-8 md:p-10 flex flex-col items-center text-center">
+          {/* Framed Avatar Section - Perfectly Widen */}
+          <div className="relative mb-8">
+            <div className="absolute -inset-4 border-2 border-dashed border-teal-600/20 rounded-full group-hover:rotate-90 transition-transform duration-1000" />
+            <div className="relative h-36 w-36 md:h-40 md:w-40 rounded-full p-1.5 bg-white border-2 border-teal-600 shadow-lg overflow-hidden">
+              {speaker.photoUrl ? (
+                <img
+                  src={speaker.photoUrl}
+                  alt={speaker.name}
+                  className="w-full h-full object-cover rounded-full transition-transform duration-700 group-hover:scale-110"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-teal-50 text-teal-200">
+                  <User className="w-20 h-20" />
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="relative mb-6">
-              <div className="absolute -inset-2 border-2 border-blue-600/20 group-hover:border-blue-600 transition-colors duration-300"></div>
-              <div className="w-32 h-32 bg-slate-200 flex items-center justify-center text-slate-600 text-3xl font-bold relative z-10">
-                {speaker.name.charAt(0)}
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            {/* Role Badge */}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-max z-10">
+              <Badge className="bg-teal-600 text-white border-none font-black text-[9px] uppercase tracking-widest px-4 py-1.5 shadow-lg">
+                {speaker.role === 'moderator' ? 'Chủ tọa' : 
+                 speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
+              </Badge>
             </div>
-          )}
-          <h3 className="font-bold text-lg mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">
-            {speaker.credentials && `${speaker.credentials}. `}{speaker.name}
-          </h3>
-          {speaker.title && (
-            <p className="text-sm font-semibold text-slate-700 mb-3">{speaker.title}</p>
-          )}
-          {speaker.specialty && (
-            <p className="text-sm text-slate-600 mb-4">{speaker.specialty}</p>
-          )}
-          <div className="mt-auto pt-4 w-full text-center">
-            <div className="h-0.5 w-12 bg-blue-600 mx-auto mb-3"></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
-              {speaker.role === 'moderator' ? 'Chủ tọa' :
-                speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
-            </span>
+          </div>
+
+          {/* Name & Credentials */}
+          <div className="space-y-1 mb-6">
+            <p className="text-teal-600 font-black text-[11px] uppercase tracking-[0.25em]">{speaker.credentials || 'Báo cáo viên'}</p>
+            <h3 className="font-black text-2xl text-slate-900 leading-tight group-hover:text-teal-600 transition-colors">
+              {speaker.name}
+            </h3>
+          </div>
+
+          {/* Title & Info - Widen text area */}
+          <div className="space-y-6 w-full px-2">
+            <p className="text-[13px] font-extrabold text-slate-700 uppercase tracking-tight leading-relaxed">
+              {speaker.title}
+            </p>
+            
+            {speaker.specialty && (
+              <p className="text-xs font-bold text-teal-600/60 italic">
+                Chuyên khoa: {speaker.specialty}
+              </p>
+            )}
+
+            {/* Bio Section - High Readability & Wide */}
+            <div className="relative px-6 py-6 bg-slate-50 rounded-[2rem] border border-slate-100 group-hover:bg-teal-50/30 transition-all text-left shadow-inner">
+              <Quote className="absolute -top-2 left-4 h-5 w-5 text-teal-200 opacity-50" />
+              <p className="text-[12px] text-slate-700 font-semibold leading-relaxed italic line-clamp-4">
+                {speaker.bio || "Thông tin kinh nghiệm chuyên môn đang được cập nhật..."}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

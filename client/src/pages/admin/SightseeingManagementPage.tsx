@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Map, Camera, FileText, MoreHorizontal, Info, Clock } from "lucide-react";
@@ -29,10 +29,10 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Sightseeing, InsertSightseeing } from "@shared/types";
 import { insertSightseeingSchema } from "@shared/validation";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
-import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useSightseeing } from "@/hooks/useSightseeing";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,23 +41,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { ImageUploader } from "@/components/ImageUploader";
 
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSightseeing, setEditingSightseeing] = useState<Sightseeing | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { data: sightseeing = [] } = useQuery<Sightseeing[]>({
-    queryKey: ["/api/sightseeing", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/sightseeing/slug/${viewingSlug}`);
-    },
-    enabled: !!viewingSlug,
+    const {
+      sightseeing,
+      isLoading,
+      createSightseeing,
+      updateSightseeing,
+      deleteSightseeing,
+      isCreating,
+      isUpdating,
+      isDeleting: isDeletingItem
+    } = useSightseeing(viewingSlug || undefined);
+  const { uploadImage, deleteImage, isUploading, isDeleting: isDeletingImage } = useImageUpload({
+    onSuccess: (path) => form.setValue("featuredImageUrl", path, { shouldValidate: true }),
+    onDeleteSuccess: () => form.setValue("featuredImageUrl", "", { shouldValidate: true }),
   });
 
   const form = useForm<InsertSightseeing>({
@@ -67,63 +72,6 @@ export default function SightseeingManagementPage() {
       content: "",
       excerpt: "",
       featuredImageUrl: "",
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertSightseeing) => {
-      return await apiRequest("POST", "/api/sightseeing", data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã thêm địa điểm tham quan mới." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
-      setIsDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertSightseeing }) => {
-      return await apiRequest("PUT", `/api/sightseeing/${id}`, data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã cập nhật thông tin địa điểm." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
-      setIsDialogOpen(false);
-      setEditingSightseeing(null);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/sightseeing/${id}`);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã xóa địa điểm tham quan." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("DELETE", "/api/admin/sightseeing/all");
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã dọn sạch danh sách địa điểm." });
-      queryClient.invalidateQueries({ queryKey: ["/api/sightseeing", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
 
@@ -154,109 +102,25 @@ export default function SightseeingManagementPage() {
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Xác nhận xóa địa điểm: "${title}"?`)) {
-      deleteMutation.mutate(id);
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (isReadOnly) return;
-    if (confirm("Cảnh báo: Bạn có chắc muốn xóa TẤT CẢ địa điểm tham quan?")) {
-      deleteAllMutation.mutate();
+      deleteSightseeing(id);
     }
   };
 
   const onSubmit = (data: InsertSightseeing) => {
     if (isReadOnly) return;
     if (editingSightseeing) {
-      updateMutation.mutate({ id: editingSightseeing.id, data });
+      updateSightseeing({ id: editingSightseeing.id, data });
     } else {
-      createMutation.mutate(data);
+      createSightseeing(data);
     }
+    setIsDialogOpen(false);
   };
 
-  const handleImageDrop = async (files: File[]) => {
-    if (files.length === 0 || isReadOnly) return;
-    const file = files[0];
-    const formData = new FormData();
-    formData.append("image", file);
-    const oldImageUrl = form.getValues("featuredImageUrl");
-    if (oldImageUrl) formData.append("oldImagePath", oldImageUrl);
-
-    setIsUploading(true);
-    try {
-      const result = await apiUploadFile("/api/upload", formData);
-      form.setValue("featuredImageUrl", result.imagePath, { shouldValidate: true });
-      toast({ title: "Tải ảnh lên thành công" });
-    } catch (error: any) {
-      toast({ title: "Lỗi tải ảnh", description: error.message, variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleImageDelete = async () => {
-    if (isReadOnly) return;
-    const currentImageUrl = form.getValues("featuredImageUrl");
-    if (!currentImageUrl) return;
-    if (!confirm("Xác nhận xóa ảnh này?")) return;
-    setIsDeleting(true);
-    try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentImageUrl}`);
-      form.setValue("featuredImageUrl", "", { shouldValidate: true });
-      toast({ title: "Đã xóa ảnh" });
-    } catch (error: any) {
-      toast({ title: "Lỗi xóa ảnh", description: error.message, variant: "destructive" });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const imageHandler = () => {
-    if (isReadOnly) return;
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-    input.onchange = async () => {
-      const file = input.files ? input.files[0] : null;
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        try {
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          const result = await response.json();
-          const imageUrl = result.imagePath;
-          const quill = quillRef.current?.getEditor();
-          if (quill) {
-            const range = quill.getSelection();
-            if (range) quill.insertEmbed(range.index, 'image', imageUrl);
-          }
-        } catch (error) {
-          toast({ title: 'Lỗi chèn ảnh', description: 'Không thể tải ảnh vào nội dung.', variant: 'destructive' });
-        }
-      }
-    };
-  };
-
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, false] }],
-        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-        ['link', 'image'],
-        ['clean']
-      ],
-      handlers: { image: imageHandler },
-    },
-  }), [isReadOnly]);
-
-  const sortedSightseeing = [...sightseeing].sort(
-    (a, b) => new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime()
-  );
+  const sortedSightseeing = useMemo(() => {
+    return [...sightseeing].sort(
+      (a, b) => new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime()
+    );
+  }, [sightseeing]);
 
   const renderSightseeingItem = (item: Sightseeing) => (
     <Card 
@@ -307,13 +171,6 @@ export default function SightseeingManagementPage() {
                 {item.excerpt}
               </p>
             </div>
-
-            <div className="pt-2">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter flex items-center">
-                <FileText className="h-3 w-3 mr-1.5 text-slate-300" />
-                Xem nội dung giới thiệu
-              </span>
-            </div>
           </div>
         </div>
       </CardContent>
@@ -324,28 +181,27 @@ export default function SightseeingManagementPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <AdminPageHeader 
         title="Quản lý Địa điểm Tham quan"
-        description="Biên tập danh sách các danh lam thắng cảnh, địa điểm ẩm thực và tour du lịch đặc trưng tại khu vực tổ chức hội nghị."
+        description="Biên tập danh sách các địa danh và gợi ý trải nghiệm cho đại biểu hội nghị."
         onAdd={handleAdd}
         addLabel="Thêm địa điểm"
-        onDeleteAll={sightseeing.length > 0 ? handleDeleteAll : undefined}
         isReadOnly={isReadOnly}
       />
 
       <div className="space-y-4">
-        {sortedSightseeing.length > 0 ? (
+        {isLoading ? (
+          <div className="h-64 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border border-dashed">
+            <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đang tải dữ liệu...</span>
+          </div>
+        ) : sortedSightseeing.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {sortedSightseeing.map(renderSightseeingItem)}
           </div>
         ) : (
-          <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
-            <CardContent className="p-12 text-center">
-              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
-                <Map className="h-8 w-8 text-slate-300" />
-              </div>
-              <p className="text-slate-500 font-medium">Chưa có dữ liệu địa điểm tham quan.</p>
-              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Bắt đầu thêm ngay &rarr;</Button>
-            </CardContent>
-          </Card>
+          <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+            <Map className="h-10 w-10 text-slate-200 mx-auto mb-4" />
+            <p className="text-slate-400 font-bold text-[11px] uppercase tracking-widest">Chưa có địa điểm tham quan</p>
+          </div>
         )}
       </div>
 
@@ -356,31 +212,27 @@ export default function SightseeingManagementPage() {
               {editingSightseeing ? "Cập nhật địa điểm" : "Thêm địa điểm tham quan"}
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Thông tin chi tiết về địa danh sẽ giúp người tham dự có trải nghiệm du lịch tốt hơn.
+              Cung cấp thông tin giới thiệu về địa điểm du lịch, ẩm thực.
             </DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Media Section */}
-                <div className="lg:col-span-4 space-y-6">
+                <div className="lg:col-span-4">
                   <FormField
                     control={form.control}
                     name="featuredImageUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center">
-                          <Camera className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-                          Ảnh tiêu biểu
-                        </FormLabel>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Ảnh tiêu biểu</FormLabel>
                         <FormControl>
                           <ImageUploader
                             preview={field.value}
-                            onDrop={handleImageDrop}
-                            onDelete={handleImageDelete}
+                            onDrop={(files) => uploadImage(files, field.value)}
+                            onDelete={() => deleteImage(field.value || "")}
                             isUploading={isUploading}
-                            isDeleting={isDeleting}
+                            isDeleting={isDeletingImage}
                             disabled={isReadOnly}
                           />
                         </FormControl>
@@ -388,24 +240,17 @@ export default function SightseeingManagementPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
-                    <Info className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-amber-700 font-medium leading-relaxed">
-                      Hãy chọn ảnh đẹp nhất để giới thiệu vẻ đẹp của địa điểm đến khách tham dự.
-                    </p>
-                  </div>
                 </div>
 
-                {/* Content Section */}
                 <div className="lg:col-span-8 space-y-5">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tên địa danh / Địa điểm</FormLabel>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tên địa danh</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Ví dụ: Chùa Cầu Hội An, Bánh mì Phượng..." className="bg-slate-50 border-slate-200 font-bold h-11" readOnly={isReadOnly} />
+                          <Input {...field} placeholder="Nhập tên địa điểm..." className="bg-slate-50 border-slate-200 font-bold h-11" readOnly={isReadOnly} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -417,9 +262,9 @@ export default function SightseeingManagementPage() {
                     name="excerpt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Mô tả ngắn gọn</FormLabel>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Tóm tắt ngắn</FormLabel>
                         <FormControl>
-                          <Textarea {...field} rows={3} className="bg-slate-50 border-slate-200 resize-none" placeholder="Tóm tắt ngắn về điểm đến này..." readOnly={isReadOnly} />
+                          <Textarea {...field} rows={3} className="bg-slate-50 border-slate-200 resize-none" placeholder="Mô tả ngắn gọn..." readOnly={isReadOnly} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -434,12 +279,9 @@ export default function SightseeingManagementPage() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center">
-                        <FileText className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-                        Giới thiệu chi tiết
-                      </FormLabel>
+                      <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Nội dung chi tiết</FormLabel>
                       <FormControl>
-                        <React.Suspense fallback={<div className="h-40 bg-slate-50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-400 uppercase">Đang tải trình soạn thảo...</div>}>
+                        <React.Suspense fallback={<div className="h-40 bg-slate-50 rounded-xl flex items-center justify-center text-xs font-bold text-slate-400">Đang tải trình soạn thảo...</div>}>
                           <ReactQuill
                             ref={quillRef}
                             theme="snow"
@@ -447,7 +289,6 @@ export default function SightseeingManagementPage() {
                             onChange={field.onChange}
                             readOnly={isReadOnly}
                             className="bg-white rounded-lg min-h-[300px]"
-                            modules={modules}
                           />
                         </React.Suspense>
                       </FormControl>
@@ -461,10 +302,10 @@ export default function SightseeingManagementPage() {
                 <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold text-slate-500">Hủy bỏ</Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  disabled={isCreating || isUpdating || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending ? "Đang xử lý..." : editingSightseeing ? "Lưu thay đổi" : "Thêm địa điểm mới"}
+                  {isCreating || isUpdating ? "Đang lưu trữ..." : editingSightseeing ? "Lưu thay đổi" : "Thêm địa điểm mới"}
                 </Button>
               </DialogFooter>
             </form>

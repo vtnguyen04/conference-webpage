@@ -88,11 +88,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
     isFull: boolean;
   }>>({
     queryKey: ["/api/sessions/capacity", conference?.slug],
-    queryFn: async () => {
-      const response = await fetch("/api/sessions/capacity");
-      if (!response.ok) throw new Error("Failed to fetch capacity");
-      return response.json();
-    },
+    queryFn: () => sessionService.getSessionCapacities(),
     enabled: !!conference,
   });
 

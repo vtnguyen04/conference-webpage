@@ -5,6 +5,7 @@ export interface DashboardAnalytics {
   totalCheckIns: number;
   totalSessions: number;
   totalSponsors: number;
+  totalContactMessages?: number;
 }
 
 export const analyticsService = {

@@ -1,7 +1,27 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertSessionSchema } from "@shared/validation";
+import { useSessions } from "@/hooks/useSessions";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useAdminView } from "@/hooks/useAdminView";
+import { speakerService } from "@/services/speakerService";
+import type { Session, InsertSession, Speaker } from "@shared/types";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+
+// UI Components
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Clock, MapPin, X, Calendar as CalendarIcon, Info, Users, Layout, MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -30,19 +50,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import type { Session, InsertSession, Speaker } from "@shared/types";
-import { insertSessionSchema } from "@shared/validation";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,27 +57,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Icons
+import { 
+  Clock, 
+  MapPin, 
+  Users, 
+  Layout, 
+  MoreHorizontal, 
+  Pencil, 
+  Trash2, 
+  Calendar as CalendarIcon, 
+  Info, 
+  X, 
+  Plus 
+} from "lucide-react";
+
 export default function SessionsPage() {
-  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { data: sessions = [] } = useQuery<Session[]>({
-    queryKey: ["/api/sessions", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/sessions/${viewingSlug}`);
-    },
-    enabled: !!viewingSlug,
-  });
+  const { 
+    sessions, 
+    isLoading, 
+    createSession, 
+    updateSession, 
+    deleteSession, 
+    isCreating, 
+    isUpdating, 
+  } = useSessions(viewingSlug || undefined);
 
   const { data: speakers = [] } = useQuery<Speaker[]>({
     queryKey: ["/api/speakers", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/speakers/${viewingSlug}`);
-    },
+    queryFn: () => viewingSlug ? speakerService.getSpeakers(viewingSlug) : Promise.resolve([]),
     enabled: !!viewingSlug,
   });
 
@@ -96,50 +115,6 @@ export default function SessionsPage() {
   const { fields: agendaFields, append: appendAgenda, remove: removeAgenda } = useFieldArray({
     control: form.control,
     name: "agendaItems",
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertSession) => {
-      return await apiRequest("POST", "/api/sessions", data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã tạo phiên họp mới." });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
-      setIsDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertSession }) => {
-      return await apiRequest("PUT", `/api/sessions/${id}`, data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã cập nhật phiên họp." });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
-      setIsDialogOpen(false);
-      setEditingSession(null);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/sessions/${id}`);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã xóa phiên họp." });
-      queryClient.refetchQueries({ queryKey: ["/api/sessions", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
   });
 
   const handleAdd = () => {
@@ -187,26 +162,29 @@ export default function SessionsPage() {
   const handleDelete = async (id: string, title: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa phiên họp "${title}"?`)) {
-      deleteMutation.mutate(id);
+      deleteSession(id);
     }
   };
 
   const onSubmit = (data: InsertSession) => {
     if (isReadOnly) return;
     if (editingSession) {
-      updateMutation.mutate({ id: editingSession.id, data });
+      updateSession({ id: editingSession.id, data });
     } else {
-      createMutation.mutate(data);
+      createSession(data);
     }
+    setIsDialogOpen(false);
   };
 
-  const sessionsByDay = sessions.reduce((acc, session) => {
-    if (!acc[session.day]) {
-      acc[session.day] = [];
-    }
-    acc[session.day].push(session);
-    return acc;
-  }, {} as Record<number, Session[]>);
+  const sessionsByDay = useMemo(() => {
+    return sessions.reduce((acc, session) => {
+      if (!acc[session.day]) {
+        acc[session.day] = [];
+      }
+      acc[session.day].push(session);
+      return acc;
+    }, {} as Record<number, Session[]>);
+  }, [sessions]);
 
   const renderSessionItem = (session: Session) => (
     <div
@@ -269,13 +247,11 @@ export default function SessionsPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32 font-medium">
-                <DropdownMenuItem onClick={() => handleEdit(session)} className="text-indigo-600">
-                  <Pencil className="h-3.5 w-3.5 mr-2" />
-                  Chỉnh sửa
+                <DropdownMenuItem onClick={() => handleEdit(session)} className="text-indigo-600 cursor-pointer">
+                  <Pencil className="h-3.5 w-3.5 mr-2" /> Chỉnh sửa
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(session.id, session.title)} className="text-rose-600">
-                  <Trash2 className="h-3.5 w-3.5 mr-2" />
-                  Xóa bỏ
+                <DropdownMenuItem onClick={() => handleDelete(session.id, session.title)} className="text-rose-600 cursor-pointer">
+                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa bỏ
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -296,7 +272,12 @@ export default function SessionsPage() {
       />
 
       <div className="space-y-10">
-        {Object.keys(sessionsByDay).length > 0 ? (
+        {isLoading ? (
+          <div className="h-64 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border border-dashed">
+            <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đang tải lịch trình...</span>
+          </div>
+        ) : Object.keys(sessionsByDay).length > 0 ? (
           Object.keys(sessionsByDay).sort().map((day) => (
             <div key={day} className="space-y-4">
               <div className="flex items-center gap-3">
@@ -316,15 +297,9 @@ export default function SessionsPage() {
         ) : (
           <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
             <CardContent className="p-12 text-center">
-              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
-                <CalendarIcon className="h-8 w-8 text-slate-300" />
-              </div>
-              <p className="text-slate-500 font-medium">
-                Chưa có dữ liệu phiên họp. Hãy bắt đầu xây dựng lịch trình.
-              </p>
-              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">
-                Tạo phiên họp đầu tiên &rarr;
-              </Button>
+              <CalendarIcon className="h-8 w-8 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">Chưa có dữ liệu phiên họp.</p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Tạo phiên họp đầu tiên &rarr;</Button>
             </CardContent>
           </Card>
         )}
@@ -344,12 +319,9 @@ export default function SessionsPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                {/* Basic Info Section */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
-                      <Info className="h-4 w-4" />
-                    </div>
+                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md"><Info className="h-4 w-4" /></div>
                     <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Thông tin cơ bản</h4>
                   </div>
 
@@ -359,7 +331,7 @@ export default function SessionsPage() {
                       name="day"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Ngày thứ mấy</FormLabel>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Ngày hội nghị</FormLabel>
                           <FormControl>
                             <Input type="number" min="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} className="bg-slate-50 border-slate-200" />
                           </FormControl>
@@ -455,12 +427,9 @@ export default function SessionsPage() {
                   </div>
                 </div>
 
-                {/* Additional Details Section */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
-                      <Users className="h-4 w-4" />
-                    </div>
+                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-md"><Users className="h-4 w-4" /></div>
                     <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Chủ tọa & Quản lý</h4>
                   </div>
 
@@ -540,7 +509,7 @@ export default function SessionsPage() {
                 </div>
               </div>
 
-              {/* Agenda Items Section */}
+              {/* Agenda Items Section - Restored fully */}
               <div className="pt-8 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
@@ -549,7 +518,7 @@ export default function SessionsPage() {
                     </div>
                     <div>
                       <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Chương trình chi tiết (Agenda)</h4>
-                      <p className="text-[10px] text-slate-400 font-medium">Xác định các mục nhỏ trong phiên họp</p>
+                      <p className="text-[10px] text-slate-400 font-medium">Xác định các bài báo cáo và thời gian cụ thể trong phiên.</p>
                     </div>
                   </div>
                   <Button
@@ -573,7 +542,7 @@ export default function SessionsPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => removeAgenda(index)}
-                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border border-slate-200 shadow-sm text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border border-slate-200 shadow-sm text-slate-400 hover:text-rose-600"
                         disabled={isReadOnly}
                       >
                         <X className="h-3 w-3" />
@@ -585,7 +554,7 @@ export default function SessionsPage() {
                           name={`agendaItems.${index}.timeSlot`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Thời lượng</FormLabel>
+                              <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Thời gian</FormLabel>
                               <FormControl>
                                 <Input {...field} placeholder="08:00 - 08:15" className="h-8 bg-white text-xs border-slate-200" />
                               </FormControl>
@@ -625,9 +594,9 @@ export default function SessionsPage() {
                         name={`agendaItems.${index}.title`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Tên bài báo cáo / Công việc</FormLabel>
+                            <FormLabel className="text-[10px] font-bold text-slate-400 uppercase">Tên bài báo cáo / Chủ đề</FormLabel>
                             <FormControl>
-                              <Input {...field} className="h-8 bg-white text-xs font-bold border-slate-200" />
+                              <Input {...field} placeholder="Nhập tên bài báo cáo..." className="h-8 bg-white text-xs font-bold border-slate-200" />
                             </FormControl>
                           </FormItem>
                         )}
@@ -649,10 +618,10 @@ export default function SessionsPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  disabled={isCreating || isUpdating || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
+                  {isCreating || isUpdating
                     ? "Đang lưu trữ..."
                     : editingSession
                     ? "Cập nhật dữ liệu"

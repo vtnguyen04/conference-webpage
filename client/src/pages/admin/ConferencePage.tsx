@@ -18,7 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import type { Conference } from "@shared/types";
 import { conferenceSchema } from "@shared/validation";
 import { useAdminView } from "@/hooks/useAdminView";
@@ -37,20 +37,14 @@ import {
   Save,
   Info
 } from "lucide-react";
+import { conferenceService } from "@/services/conferenceService";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { cn } from "@/lib/utils";
 
 export default function ConferencePage() {
   const { toast } = useToast();
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
-  const [isLogoUploading, setIsLogoUploading] = useState(false);
-  const [isLogoDeleting, setIsLogoDeleting] = useState(false);
   const { viewingSlug, isReadOnly } = useAdminView();
-
-  const { data: conferences = [] } = useQuery<Conference[]>({
-    queryKey: ["/api/conferences"],
-  });
-
-  const selectedConference = conferences.find(c => c.slug === viewingSlug);
 
   const form = useForm<Conference>({
     resolver: zodResolver(conferenceSchema),
@@ -74,6 +68,18 @@ export default function ConferencePage() {
     },
   });
 
+  const { uploadImage: uploadLogo, deleteImage: deleteLogo, isUploading: isLogoUploading, isDeleting: isLogoDeleting } = useImageUpload({
+    onSuccess: (path) => form.setValue("logoUrl", path, { shouldValidate: true }),
+    onDeleteSuccess: () => form.setValue("logoUrl", "", { shouldValidate: true }),
+  });
+
+  const { data: conferences = [] } = useQuery<Conference[]>({
+    queryKey: ["/api/conferences"],
+    queryFn: conferenceService.getAllConferences,
+  });
+
+  const selectedConference = conferences.find(c => c.slug === viewingSlug);
+
   useEffect(() => {
     if (selectedConference) {
       form.reset({
@@ -87,7 +93,7 @@ export default function ConferencePage() {
   const updateMutation = useMutation({
     mutationFn: async (data: Conference) => {
       if (!selectedConference) throw new Error("No conference selected");
-      return await apiRequest("PUT", `/api/conferences/${selectedConference.slug}`, data);
+      return await conferenceService.updateConference(selectedConference.slug, data);
     },
     onSuccess: () => {
       toast({ title: "Thành công", description: "Cấu hình hội nghị đã được cập nhật." });
@@ -114,43 +120,6 @@ export default function ConferencePage() {
       filesToDelete,
     };
     updateMutation.mutate(payload);
-  };
-
-  const handleLogoDrop = async (acceptedFiles: File[]) => {
-    if (isReadOnly) return;
-    const file = acceptedFiles[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('image', file);
-    const oldLogoUrl = form.getValues("logoUrl");
-    if (oldLogoUrl) formData.append("oldImagePath", oldLogoUrl);
-
-    setIsLogoUploading(true);
-    try {
-      const result = await apiUploadFile("/api/upload", formData);
-      form.setValue("logoUrl", result.imagePath, { shouldValidate: true });
-      toast({ title: 'Thành công', description: 'Đã tải lên logo hội nghị.' });
-    } catch (error: any) {
-      toast({ title: 'Lỗi tải logo', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsLogoUploading(false);
-    }
-  };
-
-  const handleLogoDelete = async () => {
-    if (isReadOnly) return;
-    const currentLogoUrl = form.getValues("logoUrl");
-    if (!currentLogoUrl || !confirm("Xác nhận xóa logo này?")) return;
-    setIsLogoDeleting(true);
-    try {
-      await apiRequest("DELETE", `/api/upload?filePath=${currentLogoUrl}`);
-      form.setValue("logoUrl", "", { shouldValidate: true });
-      toast({ title: 'Thành công', description: 'Logo đã được xóa.' });
-    } catch (error: any) {
-      toast({ title: 'Lỗi', description: error.message || 'Không thể xóa logo.', variant: 'destructive' });
-    } finally {
-      setIsLogoDeleting(false);
-    }
   };
 
   return (
@@ -437,8 +406,8 @@ export default function ConferencePage() {
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4 block">Logo Chính thức</FormLabel>
                             <FormControl>
                               <ImageUploader
-                                onDrop={handleLogoDrop}
-                                onDelete={handleLogoDelete}
+                                onDrop={(files) => uploadLogo(files, field.value)}
+                                onDelete={() => deleteLogo(field.value)}
                                 preview={field.value}
                                 isUploading={isLogoUploading}
                                 isDeleting={isLogoDeleting}

@@ -1,7 +1,32 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSpeakers } from "@/hooks/useSpeakers";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useAdminView } from "@/hooks/useAdminView";
+import { insertSpeakerSchema } from "@shared/validation";
+import type { Speaker, InsertSpeaker } from "@shared/types";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Pencil, 
+  Trash2, 
+  User, 
+  Mail, 
+  GraduationCap, 
+  Briefcase, 
+  Info, 
+  MoreHorizontal 
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, User, Mail, GraduationCap, Briefcase, Info, MoreHorizontal } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +46,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageUploader } from "@/components/ImageUploader";
 import {
   Select,
   SelectContent,
@@ -28,45 +55,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import type { Speaker, InsertSpeaker } from "@shared/types";
-import { insertSpeakerSchema } from "@shared/validation";
-import { apiRequest, queryClient, apiUploadFile } from "@/lib/queryClient";
-import { ImageUploader } from "@/components/ImageUploader";
-import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { useImageUpload } from "@/hooks/useImageUpload";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default function SpeakersManagementPage() {
-  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
+  const { 
+    speakers, 
+    isLoading, 
+    createSpeaker, 
+    updateSpeaker, 
+    deleteSpeaker, 
+    isCreating, 
+    isUpdating, 
+    isDeleting: isDeletingSpeaker 
+  } = useSpeakers(viewingSlug || undefined);
+
   const { uploadImage, deleteImage, isUploading, isDeleting } = useImageUpload({
     onSuccess: (path) => form.setValue("photoUrl", path, { shouldValidate: true }),
     onDeleteSuccess: () => form.setValue("photoUrl", "", { shouldValidate: true }),
-  });
-
-  const { data: speakers = [] } = useQuery<Speaker[]>({
-    queryKey: ["/api/speakers", viewingSlug],
-    queryFn: async () => {
-      if (!viewingSlug) return [];
-      return await apiRequest("GET", `/api/speakers/${viewingSlug}`);
-    },
-    enabled: !!viewingSlug,
   });
 
   const form = useForm<InsertSpeaker>({
@@ -80,50 +88,6 @@ export default function SpeakersManagementPage() {
       bio: "",
       email: "",
       role: "speaker",
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertSpeaker) => {
-      return await apiRequest("POST", "/api/speakers", data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã thêm báo cáo viên mới." });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
-      setIsDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertSpeaker }) => {
-      return await apiRequest("PUT", `/api/speakers/${id}`, data);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã cập nhật thông tin." });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
-      setIsDialogOpen(false);
-      setEditingSpeaker(null);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/speakers/${id}`);
-    },
-    onSuccess: () => {
-      toast({ title: "Thành công", description: "Đã xóa báo cáo viên." });
-      queryClient.invalidateQueries({ queryKey: ["/api/speakers", viewingSlug] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
     },
   });
 
@@ -162,17 +126,18 @@ export default function SpeakersManagementPage() {
   const handleDelete = async (id: string, name: string) => {
     if (isReadOnly) return;
     if (confirm(`Bạn có chắc muốn xóa báo cáo viên "${name}"?`)) {
-      deleteMutation.mutate(id);
+      deleteSpeaker(id);
     }
   };
 
   const onSubmit = (data: InsertSpeaker) => {
     if (isReadOnly) return;
     if (editingSpeaker) {
-      updateMutation.mutate({ id: editingSpeaker.id, data });
+      updateSpeaker({ id: editingSpeaker.id, data });
     } else {
-      createMutation.mutate(data);
+      createSpeaker(data);
     }
+    setIsDialogOpen(false);
   };
 
   const renderSpeakerCard = (speaker: Speaker) => (
@@ -210,47 +175,36 @@ export default function SpeakersManagementPage() {
             </h3>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center">
               <Briefcase className="h-3 w-3 mr-1.5 text-slate-300" />
-              {speaker.title || "Chưa cập nhật chức danh"}
+              {speaker.title || "Chưa cập nhật"}
             </p>
             <p className="text-xs text-slate-500 font-medium flex items-center">
               <GraduationCap className="h-3.5 w-3.5 mr-1.5 text-slate-300" />
               {speaker.specialty}
             </p>
-            {speaker.email && (
-              <p className="text-xs text-indigo-500/80 font-medium flex items-center pt-1">
-                <Mail className="h-3 w-3 mr-1.5" />
-                {speaker.email}
-              </p>
-            )}
           </div>
         </div>
         
         <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter flex items-center">
-            <Info className="h-3 w-3 mr-1" />
-            Chi tiết
+            <Info className="h-3 w-3 mr-1" /> Chi tiết
           </span>
-          <div className="flex items-center gap-1">
-            {!isReadOnly && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-32 font-medium">
-                  <DropdownMenuItem onClick={() => handleEdit(speaker)} className="text-indigo-600">
-                    <Pencil className="h-3.5 w-3.5 mr-2" />
-                    Chỉnh sửa
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(speaker.id, speaker.name)} className="text-rose-600">
-                    <Trash2 className="h-3.5 w-3.5 mr-2" />
-                    Xóa bỏ
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+          {!isReadOnly && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem onClick={() => handleEdit(speaker)} className="text-indigo-600 cursor-pointer">
+                  <Pencil className="h-3.5 w-3.5 mr-2" /> Sửa
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDelete(speaker.id, speaker.name)} className="text-rose-600 cursor-pointer">
+                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -259,30 +213,29 @@ export default function SpeakersManagementPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <AdminPageHeader 
-        title="Quản lý Báo cáo viên & Chủ tọa"
-        description="Quản lý danh sách các chuyên gia, báo cáo viên và chủ tọa tham gia vào các phiên họp của hội nghị."
+        title="Quản lý Báo cáo viên"
+        description="Danh sách các chuyên gia và chủ tọa tham gia báo cáo tại hội nghị."
         onAdd={handleAdd}
         addLabel="Thêm báo cáo viên"
         isReadOnly={isReadOnly}
       />
 
       <div className="space-y-12">
-        {speakers.length > 0 ? (
+        {isLoading ? (
+          <div className="h-64 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border border-dashed">
+            <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đang tải dữ liệu...</span>
+          </div>
+        ) : speakers.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {speakers.map(renderSpeakerCard)}
           </div>
         ) : (
           <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
             <CardContent className="p-12 text-center">
-              <div className="inline-flex items-center justify-center p-4 bg-white rounded-full shadow-sm mb-4">
-                <User className="h-8 w-8 text-slate-300" />
-              </div>
-              <p className="text-slate-500 font-medium">
-                Chưa có báo cáo viên nào trong hệ thống.
-              </p>
-              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">
-                Bắt đầu thêm ngay &rarr;
-              </Button>
+              <User className="h-8 w-8 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">Chưa có báo cáo viên nào.</p>
+              <Button variant="link" onClick={handleAdd} className="text-indigo-600 font-bold mt-2">Bắt đầu thêm ngay &rarr;</Button>
             </CardContent>
           </Card>
         )}
@@ -302,7 +255,6 @@ export default function SpeakersManagementPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Side: Avatar Upload */}
                 <div className="lg:col-span-4 space-y-4">
                    <FormField
                     control={form.control}
@@ -314,7 +266,7 @@ export default function SpeakersManagementPage() {
                           <ImageUploader
                             preview={field.value}
                             onDrop={(files) => uploadImage(files, field.value)}
-                            onDelete={() => deleteImage(field.value)}
+                            onDelete={() => deleteImage(field.value || "")}
                             isUploading={isUploading}
                             isDeleting={isDeleting}
                             disabled={isReadOnly}
@@ -327,12 +279,11 @@ export default function SpeakersManagementPage() {
                   <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
                     <p className="text-[10px] text-amber-700 font-medium flex items-start leading-relaxed">
                       <Info className="h-3 w-3 mr-1.5 mt-0.5 shrink-0" />
-                      Khuyến nghị ảnh tỷ lệ 1:1, dung lượng dưới 2MB để có tốc độ tải trang tốt nhất.
+                      Khuyến nghị ảnh tỷ lệ 1:1, dung lượng dưới 2MB.
                     </p>
                   </div>
                 </div>
 
-                {/* Right Side: Form Fields */}
                 <div className="lg:col-span-8 grid grid-cols-2 gap-x-6 gap-y-4">
                   <FormField
                     control={form.control}
@@ -368,7 +319,7 @@ export default function SpeakersManagementPage() {
                         <FormItem>
                           <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Chức danh / Đơn vị công tác</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Trưởng khoa Tim mạch - Bệnh viện Đa khoa Trung ương" className="bg-slate-50 border-slate-200" />
+                            <Input {...field} placeholder="Trưởng khoa Tim mạch - Bệnh viện..." className="bg-slate-50 border-slate-200" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -382,7 +333,7 @@ export default function SpeakersManagementPage() {
                       <FormItem>
                         <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Chuyên khoa</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Tim mạch, Nội khoa..." className="bg-slate-50 border-slate-200" />
+                          <Input {...field} placeholder="Tim mạch..." className="bg-slate-50 border-slate-200" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -393,7 +344,7 @@ export default function SpeakersManagementPage() {
                     name="role"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Vai trò trong hội nghị</FormLabel>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Vai trò</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
                           <FormControl>
                             <SelectTrigger className="bg-slate-50 border-slate-200">
@@ -401,9 +352,9 @@ export default function SpeakersManagementPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="speaker" className="font-medium">Báo cáo viên</SelectItem>
-                            <SelectItem value="moderator" className="font-medium">Chủ tọa</SelectItem>
-                            <SelectItem value="both" className="font-medium">Cả hai vai trò</SelectItem>
+                            <SelectItem value="speaker">Báo cáo viên</SelectItem>
+                            <SelectItem value="moderator">Chủ tọa</SelectItem>
+                            <SelectItem value="both">Cả hai vai trò</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -453,14 +404,10 @@ export default function SpeakersManagementPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || isReadOnly}
+                  disabled={isCreating || isUpdating || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-lg shadow-indigo-100"
                 >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? "Đang xử lý..."
-                    : editingSpeaker
-                    ? "Lưu thay đổi"
-                    : "Xác nhận tạo mới"}
+                  {isCreating || isUpdating ? "Đang xử lý..." : editingSpeaker ? "Lưu thay đổi" : "Xác nhận tạo mới"}
                 </Button>
               </DialogFooter>
             </form>

@@ -1,5 +1,6 @@
 import { apiRequest } from "./apiClient";
 import type { Conference } from "@shared/types";
+
 export const conferenceService = {
   getAllConferences: async (): Promise<Conference[]> => {
     return apiRequest("GET", "/api/conferences");
