@@ -27,21 +27,30 @@ Hệ thống quản lý hội nghị, quản lý nội dung đa hội thảo và
 
 ```text
 conference-webpage/
-├── client/                     # Mã nguồn Frontend (React)
+├── client/                     # PHÂN HỆ FRONTEND (REACT + VITE)
 │   └── src/
-│       ├── components/         # UI Components
-│       ├── pages/              # Giao diện chính (Admin & Public)
-│       └── AdminApp.tsx        # Router trang quản trị
-├── server/                     # Mã nguồn Backend (Express)
-│   ├── routers/                # API Routes
-│   ├── controllers/            # Xử lý Logic
-│   ├── services/               # Nghiệp vụ tập trung (Email, Registration)
-│   ├── repositories/           # Truy vấn dữ liệu (JSON/DB)
-│   ├── middlewares/            # Auth, Error Handler, v.v.
-│   └── data/                   # Database (.db) và Content (.json)
-├── shared/                     # Code dùng chung (Schema, Types, Validation)
-├── public/                     # Ảnh tải lên và tài nguyên tĩnh
-└── Dockerfile                  # Đóng gói ứng dụng
+│       ├── services/           # Lớp 1: Giao tiếp API thuần túy (Centralized Services)
+│       ├── hooks/              # Lớp 2: Logic nghiệp vụ tập trung (Custom React Hooks)
+│       ├── components/         # Lớp 3: Giao diện hiển thị (UI Components & Admin Pages)
+│       │   ├── admin/          # Các component đặc thù cho CMS Admin
+│       │   └── ui/             # Thư viện UI cơ sở (Shadcn/UI)
+│       ├── pages/              # Các trang chính (AdminApp & PublicApp)
+│       ├── lib/                # Cấu hình thư viện (QueryClient, Utils)
+│       └── AdminApp.tsx        # Cấu trúc điều hướng phân hệ quản trị
+├── server/                     # PHÂN HỆ BACKEND (NODE.JS + EXPRESS)
+│   ├── routers/                # Định nghĩa các điểm cuối API (RESTful Routes)
+│   ├── controllers/            # Điều hướng yêu cầu và phản hồi (HTTP Handlers)
+│   ├── services/               # Xử lý nghiệp vụ nặng (Email, PDF, Automation)
+│   ├── repositories/           # Lớp truy cập dữ liệu (Hybrid JSON/SQLite Data Layer)
+│   ├── middlewares/            # Kiểm soát quyền truy cập, lỗi và hội nghị hoạt động
+│   └── data/                   # Lưu trữ bền vững (SQLite .db và nội dung .json)
+├── shared/                     # CHUẨN HÓA DỮ LIỆU (TYPESCRIPT & VALIDATION)
+│   ├── schema.ts               # Định nghĩa cấu trúc bảng (Drizzle ORM)
+│   ├── validation.ts           # Ràng buộc dữ liệu (Zod Schemas)
+│   └── types.ts                # Định nghĩa kiểu dữ liệu toàn hệ thống
+├── public/                     # TÀI NGUYÊN TĨNH
+│   └── uploads/                # Hình ảnh và tệp tin đại biểu tải lên
+└── Dockerfile                  # Quy trình đóng gói Container hóa
 ```
 
 ---
@@ -123,4 +132,4 @@ docker run -d \
 - **Build cho Production**: `npm run build`
 
 ---
-*Tài liệu được cập nhật ngày 24/12/2025.*
+*Tài liệu được cập nhật ngày 28/12/2025 theo tiêu chuẩn Enterprise CMS.*
