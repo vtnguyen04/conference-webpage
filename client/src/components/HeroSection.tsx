@@ -146,9 +146,11 @@ const HeroSection = () => {
             </div>
 
             {/* Bottom Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-50">
-                <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent" />
-                <span className="text-[8px] font-black text-white uppercase tracking-[0.3em]">Scroll</span>
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3 animate-bounce">
+                <div className="w-[1.5px] h-14 bg-gradient-to-b from-teal-400 via-white to-transparent shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
+                <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.4em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    Scroll
+                </span>
             </div>
         </section>
     )
