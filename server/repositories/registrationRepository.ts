@@ -8,6 +8,7 @@ import {
   lt,
   sql,
   count,
+  countDistinct,
 } from "drizzle-orm";
 import { db } from "../db";
 import {
@@ -131,11 +132,17 @@ export class RegistrationRepository {
     return existing.length > 0;
   }
   async getStats(slug: string) {
-    const [totalResult] = await db.select({ value: count() }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
-    const [uniqueAttendeesResult] = await db.select({ value: count(registrations.email) }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
-    const [totalCheckInsResult] = await db.select({ value: count() }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).all();
-    const [uniqueCheckedInResult] = await db.select({ value: count(registrations.email) }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).all();
-    return { totalRegistrations: totalResult.value, uniqueAttendees: uniqueAttendeesResult.value, totalCheckIns: totalCheckInsResult.value, uniqueCheckedInAttendees: uniqueCheckedInResult.value };
+    const totalResult = await db.select({ value: count() }).from(registrations).where(eq(registrations.conferenceSlug, slug)).get();
+    const uniqueAttendeesResult = await db.select({ value: countDistinct(registrations.email) }).from(registrations).where(eq(registrations.conferenceSlug, slug)).get();
+    const totalCheckInsResult = await db.select({ value: count() }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).get();
+    const uniqueCheckedInResult = await db.select({ value: countDistinct(registrations.email) }).from(checkIns).innerJoin(registrations, eq(checkIns.registrationId, registrations.id)).where(eq(registrations.conferenceSlug, slug)).get();
+    
+    return { 
+      totalRegistrations: Number(totalResult?.value ?? 0), 
+      uniqueAttendees: Number(uniqueAttendeesResult?.value ?? 0), 
+      totalCheckIns: Number(totalCheckInsResult?.value ?? 0), 
+      uniqueCheckedInAttendees: Number(uniqueCheckedInResult?.value ?? 0) 
+    };
   }
   async getSessionCapacityStatus(sessions: any[]): Promise<any[]> {
     return await Promise.all(sessions.map(async (session) => {

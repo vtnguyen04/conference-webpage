@@ -22,5 +22,8 @@ export class ConferenceRepository {
   async setActive(slug: string): Promise<void> {
     return await jsonStorage.setActiveConference(slug);
   }
+  async clone(fromSlug: string): Promise<Conference> {
+    return await jsonStorage.cloneConference(fromSlug);
+  }
 }
 export const conferenceRepository = new ConferenceRepository();

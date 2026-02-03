@@ -35,7 +35,10 @@ export function PageHeader({ title, subtitle, bannerImageUrl, className, childre
           
           {/* Main Title Section */}
           <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight uppercase drop-shadow-2xl">
+            <h1 
+              className="block text-4xl md:text-6xl font-black tracking-normal uppercase drop-shadow-2xl py-6 overflow-visible"
+              style={{ lineHeight: '1.4', height: 'auto' }}
+            >
               {title}
             </h1>
             <div className="h-1.5 w-24 bg-teal-500 mx-auto rounded-full shadow-lg shadow-teal-900/40" />

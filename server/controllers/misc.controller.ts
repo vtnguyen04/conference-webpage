@@ -76,7 +76,10 @@ export const getAdminStats = async (req: RequestWithActiveConference, res: Respo
         const sponsors = await sponsorRepository.getAll(slug);
         const regStats = await registrationRepository.getStats(slug);
         res.json({ totalSessions: sessions.length, totalSponsors: sponsors.length, ...regStats });
-    } catch (error) { res.status(500).json({ message: "Failed" }); }
+    } catch (error: any) { 
+        console.error("Error in getAdminStats:", error);
+        res.status(500).json({ message: "Failed", error: error.message }); 
+    }
 };
 export const createNewContactMessage = async (req: any, res: Response) => {
     try { res.status(201).json(await contactRepository.create(contactFormSchema.parse(req.body))); } catch (error: any) { res.status(400).json({ message: error.message }); }

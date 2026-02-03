@@ -26,9 +26,11 @@ export const updateConference = async (req: any, res: Response) => {
     res.json(await conferenceRepository.update(req.params.conferenceSlug, updates));
   } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
-export const cloneConference = async (_req: any, res: Response) => {
+export const cloneConference = async (req: any, res: Response) => {
   try {
-    res.status(501).json({ message: "Chức năng Clone đang được bảo trì." });
+    const { fromSlug } = req.params;
+    const conference = await conferenceRepository.clone(fromSlug);
+    res.status(201).json(conference);
   } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 export const activateConference = async (req: any, res: Response) => {

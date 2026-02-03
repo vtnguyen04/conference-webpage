@@ -71,7 +71,11 @@ const HeroSection = () => {
 
                     {/* Main Title */}
                     <div className="space-y-6">
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-[1.1]" data-testid="text-conference-name">
+                        <h1 
+                            className="block text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-normal py-6 overflow-visible" 
+                            style={{ lineHeight: '1.4', height: 'auto' }}
+                            data-testid="text-conference-name"
+                        >
                             {conference?.name || "Hội Nghị Khoa Học Quốc Tế"}
                         </h1>
                         
