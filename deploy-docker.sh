@@ -18,6 +18,12 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+# Ensure .env exists
+if [ ! -f .env ]; then
+    echo "⚠️  Warning: .env file not found. Creating an empty one..."
+    touch .env
+fi
+
 # 1. Fetch code
 echo "Step 1: Pulling latest code..."
 git pull origin main
@@ -31,18 +37,27 @@ mkdir -p "$UPLOADS_PATH_HOST"
 echo "Step 3: Building Docker image..."
 docker build -t $IMAGE_NAME .
 
-# 4. Stop Old Container
-echo "Step 4: Cleaning up old container..."
-# Find container ID by name, if it exists, stop and remove it
-EXISTING_CONTAINER=$(docker ps -aq -f name=^/${APP_NAME}$)
-if [ -n "$EXISTING_CONTAINER" ]; then
-    echo "   Stopping and removing container: $APP_NAME"
-    docker stop $APP_NAME
-    docker rm $APP_NAME
+# 4. Clean up Old Container & Port Conflicts
+echo "Step 4: Cleaning up old container and port conflicts..."
+# Remove container with our APP_NAME
+docker rm -f $APP_NAME 2>/dev/null || true
+
+# Also remove ANY other container currently using our PORT
+CONFLICT_CONTAINER=$(docker ps -q --filter "publish=$PORT")
+if [ -n "$CONFLICT_CONTAINER" ]; then
+    echo "   Removing container $CONFLICT_CONTAINER using port $PORT..."
+    docker rm -f $CONFLICT_CONTAINER
 fi
 
-# 5. Run New Container
-echo "Step 5: Launching container..."
+# 5. Handle PM2 Conflict
+echo "Step 5: Checking for non-docker conflicts..."
+if command -v pm2 &> /dev/null && pm2 list | grep -q "Conference"; then
+    echo "   Stopping PM2 'Conference'..."
+    pm2 stop Conference 2>/dev/null || true
+fi
+
+# 6. Launch Container
+echo "Step 6: Launching container..."
 docker run -d \
   --name $APP_NAME \
   --restart unless-stopped \
@@ -52,7 +67,11 @@ docker run -d \
   --env-file .env \
   $IMAGE_NAME
 
+# 7. Clean up
+echo "Step 7: Cleaning up unused Docker images..."
+docker image prune -f
+
 echo "------------------------------------------------"
 echo "Done! Application is running."
 echo "------------------------------------------------"
-docker ps -f name=^/${APP_NAME}$
+docker ps -f name=$APP_NAME
