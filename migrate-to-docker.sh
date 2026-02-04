@@ -12,14 +12,13 @@ if [ -d "docker-data" ] && [ ! -w "docker-data" ]; then
     exit 1
 fi
 
-mkdir -p docker-data/db
+mkdir -p docker-data/data
 mkdir -p docker-data/uploads
 
 # 1. Copy TOÀN BỘ thư mục server/data (bao gồm .db, .json, .pdf...)
 if [ -d "server/data" ]; then
-    echo "📄 Copying ALL files from server/data/..."
-    # Dùng -r để copy thư mục, -f để ghi đè
-    cp -rf server/data/* docker-data/db/
+    echo "📄 Copying ALL files (JSON, DB, PDF) from server/data/..."
+    cp -rf server/data/* docker-data/data/
     echo "✅ All server data files copied."
 else
     echo "⚠️  Warning: server/data directory not found!"

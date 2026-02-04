@@ -5,20 +5,19 @@ set -e
 APP_NAME="conference-app"
 IMAGE_NAME="conference-image"
 PORT=5000
-DATA_PATH_HOST="$(pwd)/docker-data/db"
+# Đổi tên thành 'data' cho đúng ý nghĩa (chứa cả .db và .json)
+DATA_PATH_HOST="$(pwd)/docker-data/data"
 UPLOADS_PATH_HOST="$(pwd)/docker-data/uploads"
 
 echo "------------------------------------------------"
 echo "🚀 Starting Docker Deployment..."
 echo "------------------------------------------------"
 
-# Check Docker
 if ! command -v docker &> /dev/null; then
     echo "Error: Docker not found."
     exit 1
 fi
 
-# Ensure .env exists
 if [ ! -f .env ]; then
     echo "⚠️  Warning: .env file not found. Creating an empty one..."
     touch .env
@@ -39,10 +38,8 @@ docker build -t $IMAGE_NAME .
 
 # 4. Clean up Old Container & Port Conflicts
 echo "Step 4: Cleaning up old container and port conflicts..."
-# Remove container with our APP_NAME
 docker rm -f $APP_NAME 2>/dev/null || true
 
-# Also remove ANY other container currently using our PORT
 CONFLICT_CONTAINER=$(docker ps -q --filter "publish=$PORT")
 if [ -n "$CONFLICT_CONTAINER" ]; then
     echo "   Removing container $CONFLICT_CONTAINER using port $PORT..."
