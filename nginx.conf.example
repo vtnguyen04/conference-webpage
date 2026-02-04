@@ -1,0 +1,24 @@
+server {
+    # --- CẤU HÌNH TÊN MIỀN ---
+    # Thay 'your-domain.com' bằng tên miền thật của bạn
+    server_name your-domain.com www.your-domain.com;
+
+    # --- CẤU HÌNH PROXY ---
+    location / {
+        # Chuyển hướng traffic vào Docker Container đang chạy ở port 5000
+        # Lưu ý: Đảm bảo Container đang chạy (-p 5000:5000)
+        proxy_pass http://127.0.0.1:5000;
+        
+        # Các cấu hình chuẩn để hỗ trợ WebSocket (Socket.io/WS)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        
+        # Cấu hình để ứng dụng nhận diện đúng IP thực của người dùng
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

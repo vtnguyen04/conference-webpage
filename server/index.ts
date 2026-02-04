@@ -16,6 +16,7 @@ import { log, serveStatic, setupVite } from "./vite";
 import { confirmationReminderService } from "./services/confirmationReminderService";
 import { reminderService } from "./services/reminderService";
 const app = express();
+app.set('trust proxy', 1); // Trust the first proxy (Nginx/Docker)
 const server = createServer(app);
 app.use(helmet({
   contentSecurityPolicy: false,
