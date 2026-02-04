@@ -1,29 +1,47 @@
 #!/bin/bash
 set -e
 
-echo "------------------------------------------"
-echo "Dang bat dau quy trinh cap nhat code..."
-echo "------------------------------------------"
+echo "------------------------------------------------"
+echo "🚀 Starting Deployment Process..."
+echo "------------------------------------------------"
 
-echo "1. Dang keo code moi tu repository..."
-git pull origin main
-
-echo "2. Dang cai dat thu vien (dependencies)..."
-npm install --quiet
-
-echo "3. Dang build code va cap nhat cau truc Database..."
-npm run build
-
-echo "4. Dang khoi dong lai server qua PM2..."
-if pm2 list | grep -q "Conference"; then
-    pm2 reload Conference
-    echo "Da reload ung dung 'Conference'."
-else
-    pm2 start ecosystem.config.cjs --env production
-    echo "Da khoi dong moi ung dung 'Conference'."
+# Check if PM2 is installed, install it if missing
+if ! command -v pm2 &> /dev/null; then
+    echo "⚠️  PM2 not found. Attempting to install globally..."
+    if command -v npm &> /dev/null; then
+        # Try to install PM2. If it fails due to permissions, it will exit the script.
+        npm install -g pm2
+        echo "✅ PM2 installed successfully."
+    else
+        echo "❌ Error: npm is not installed. Please install Node.js and npm first."
+        exit 1
+    fi
 fi
 
-echo "------------------------------------------"
-echo "Cap nhat hoan tat va an toan!"
-echo "Website cua ban da san sang voi phien ban moi."
-echo "------------------------------------------"
+# 1. Fetch latest changes
+echo "📦 Step 1: Fetching latest updates from repository..."
+git pull origin main
+
+# 2. Install dependencies
+echo "📥 Step 2: Installing dependencies..."
+npm install --quiet
+
+# 3. Build and Migration
+echo "🛠️  Step 3: Building application and migrating database..."
+npm run build
+
+# 4. Process Management
+echo "🔄 Step 4: Managing server process via PM2..."
+# Check if the application is already running
+if pm2 list | grep -q "Conference"; then
+    pm2 reload Conference
+    echo "✅ Application 'Conference' reloaded successfully."
+else
+    pm2 start ecosystem.config.cjs --env production
+    echo "🚀 Application 'Conference' started successfully."
+fi
+
+echo "------------------------------------------------"
+echo "✨ Deployment Completed Successfully!"
+echo "🌐 Your application is now live with the latest changes."
+echo "------------------------------------------------"
