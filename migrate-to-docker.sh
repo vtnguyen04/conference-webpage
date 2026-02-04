@@ -1,37 +1,38 @@
 #!/bin/bash
-set -e # Dừng ngay nếu có lỗi
+set -e
 
 echo "------------------------------------------------"
-echo "🚚 Starting data migration to Docker..."
+echo "🚚 Starting ALL DATA migration to Docker..."
 echo "------------------------------------------------"
 
-# Kiểm tra quyền ghi (Write Permission)
-# Nếu thư mục docker-data đã tồn tại và user hiện tại không ghi được (do root sở hữu)
+# Kiểm tra quyền ghi
 if [ -d "docker-data" ] && [ ! -w "docker-data" ]; then
-    echo "❌ LỖI: Không có quyền ghi vào thư mục 'docker-data'."
-    echo "Nguyên nhân: Thư mục này do Docker tạo ra nên thuộc quyền Root."
-    echo "👉 Giải pháp: Hãy chạy script này với sudo:"
-    echo "   sudo ./migrate-to-docker.sh"
+    echo "❌ LỖI: Không có quyền ghi vào 'docker-data'."
+    echo "👉 Hãy chạy: sudo ./migrate-to-docker.sh"
     exit 1
 fi
 
 mkdir -p docker-data/db
 mkdir -p docker-data/uploads
 
-if [ -f "server/data/main.db" ]; then
-    echo "📄 Copying main.db..."
-    # Dùng cp -f để ghi đè file cũ (nếu có)
-    cp -f server/data/main.db docker-data/db/
-    echo "✅ Database copied successfully."
+# 1. Copy TOÀN BỘ thư mục server/data (bao gồm .db, .json, .pdf...)
+if [ -d "server/data" ]; then
+    echo "📄 Copying ALL files from server/data/..."
+    # Dùng -r để copy thư mục, -f để ghi đè
+    cp -rf server/data/* docker-data/db/
+    echo "✅ All server data files copied."
+else
+    echo "⚠️  Warning: server/data directory not found!"
 fi
 
+# 2. Copy TOÀN BỘ uploads
 if [ -d "public/uploads" ]; then
-    echo "📂 Copying uploads..."
+    echo "📂 Copying all uploads..."
     cp -rf public/uploads/* docker-data/uploads/
-    echo "✅ Uploads copied successfully."
+    echo "✅ All uploads copied."
 fi
 
 echo "------------------------------------------------"
-echo "✅ Migration Finished!"
-echo "You can now run ./deploy-docker.sh"
+echo "✅ Migration Finished Successfully!"
+echo "Now run ./deploy-docker.sh to apply changes."
 echo "------------------------------------------------"
