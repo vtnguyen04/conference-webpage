@@ -33,7 +33,10 @@ docker build -t $IMAGE_NAME .
 
 # 4. Stop Old Container
 echo "Step 4: Cleaning up old container..."
-if [ "$(docker ps -aq -f name=$APP_NAME)" ]; then
+# Find container ID by name, if it exists, stop and remove it
+EXISTING_CONTAINER=$(docker ps -aq -f name=^/${APP_NAME}$)
+if [ -n "$EXISTING_CONTAINER" ]; then
+    echo "   Stopping and removing container: $APP_NAME"
     docker stop $APP_NAME
     docker rm $APP_NAME
 fi
@@ -52,4 +55,4 @@ docker run -d \
 echo "------------------------------------------------"
 echo "Done! Application is running."
 echo "------------------------------------------------"
-docker ps -f name=$APP_NAME
+docker ps -f name=^/${APP_NAME}$
