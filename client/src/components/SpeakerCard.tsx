@@ -58,7 +58,7 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
             
             {speaker.specialty && (
               <p className="text-xs font-bold text-teal-600/60 italic">
-                Chuyên khoa: {speaker.specialty}
+                Chuyên ngành: {speaker.specialty}
               </p>
             )}
 

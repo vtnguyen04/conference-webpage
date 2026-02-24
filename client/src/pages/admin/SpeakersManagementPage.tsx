@@ -331,7 +331,7 @@ export default function SpeakersManagementPage() {
                     name="specialty"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Chuyên khoa</FormLabel>
+                        <FormLabel className="text-[11px] font-bold text-slate-500 uppercase">Chuyên ngành</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="Tim mạch..." className="bg-slate-50 border-slate-200" />
                         </FormControl>
