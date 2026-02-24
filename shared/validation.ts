@@ -9,6 +9,7 @@ const stringToBoolean = z.preprocess((val) => {
 export const insertConferenceSchema = z.object({
   slug: z.string().min(1),
   name: z.string().min(1),
+  tagline: z.string().optional().or(z.literal("")),
   theme: z.string().optional().or(z.literal("")),
   logoUrl: z.string().optional().or(z.literal("")),
   bannerUrls: z.array(z.string()).optional(),

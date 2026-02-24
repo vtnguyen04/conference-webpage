@@ -185,6 +185,7 @@ export interface Conference {
   id: string;
   slug: string;
   name: string;
+  tagline?: string;
   theme?: string;
   logoUrl?: string;
   bannerUrls?: string[];

@@ -72,6 +72,7 @@ export class JSONStorage {
       id: slug,
       slug: slug,
       name: conf.name!,
+      tagline: conf.tagline || "",
       theme: conf.theme || "",
       logoUrl: conf.logoUrl || "",
       bannerUrls: conf.bannerUrls || [],

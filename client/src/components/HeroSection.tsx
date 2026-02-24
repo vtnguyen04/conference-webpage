@@ -16,6 +16,11 @@ const HeroSection = () => {
         Autoplay({ delay: 6000, stopOnInteraction: true })
     );
 
+    const conferenceYear = conference?.startDate 
+        ? new Date(conference.startDate).getFullYear() 
+        : new Date().getFullYear();
+    const tagline = conference?.tagline || "Sự kiện Khoa học thường niên";
+
     if (isLoading) {
         return (
             <div className="relative h-[700px] md:h-[800px] flex items-center justify-center overflow-hidden bg-slate-900">
@@ -65,7 +70,7 @@ const HeroSection = () => {
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-2xl">
                         <div className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
                         <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
-                            Sự kiện Khoa học thường niên 2025
+                            {tagline} {conferenceYear}
                         </span>
                     </div>
 

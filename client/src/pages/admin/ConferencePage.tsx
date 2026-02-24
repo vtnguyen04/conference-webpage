@@ -171,6 +171,20 @@ export default function ConferencePage() {
                       />
                       <FormField
                         control={form.control as any}
+                        name="tagline"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tagline / Nhãn phụ (VD: Sự kiện khoa học thường niên)</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ""} placeholder="Sự kiện Khoa học thường niên" className="h-11 bg-slate-50 border-slate-200 font-medium focus:bg-white transition-all" />
+                            </FormControl>
+                            <FormDescription className="text-[10px]">Tiêu đề nhỏ hiển thị phía trên tên hội nghị tại trang chủ.</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control as any}
                         name="slug"
                         render={({ field }) => (
                           <FormItem className="col-span-2 md:col-span-1">
