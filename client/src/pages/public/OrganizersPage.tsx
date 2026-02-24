@@ -84,7 +84,7 @@ export default function OrganizersPage() {
                 <span className="text-xs font-extrabold uppercase tracking-widest">Hội đồng điều hành</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Nhân sự Ban Tổ chức
+                BAN TỔ CHỨC
               </h2>
               <div className="h-1 w-20 bg-teal-500 rounded-full" />
             </div>
@@ -93,7 +93,7 @@ export default function OrganizersPage() {
               roleOrder.map(role => groupedOrganizers[role] && (
                 <div key={role} className="space-y-10">
                   <div className="flex items-center gap-4">
-                    <Badge className="bg-slate-900 text-white px-6 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-md">
+                    <Badge className="bg-teal-600 text-white px-6 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-md">
                       {role}
                     </Badge>
                     <div className="h-[1px] flex-1 bg-slate-200" />

@@ -54,11 +54,11 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
   const getConferenceMenuItems = (conference: Conference, isCurrentActive: boolean) => {
     const allItems = [
       { href: isCurrentActive ? "/program" : `/conference/${conference.slug}/program`, label: "Chương trình hội nghị" },
+      { href: isCurrentActive ? "/documents" : `/conference/${conference.slug}/documents`, label: "Kỷ yếu" },
       { href: isCurrentActive ? "/speakers" : `/conference/${conference.slug}/speakers`, label: "Chủ tọa & Báo cáo viên" },
       { href: isCurrentActive ? "/organizers" : `/conference/${conference.slug}/organizers`, label: "Ban tổ chức" },
       { href: isCurrentActive ? "/sponsors" : `/conference/${conference.slug}/sponsors`, label: "Đơn vị tài trợ" },
       { href: isCurrentActive ? "/announcements" : `/conference/${conference.slug}/announcements`, label: "Thông báo" },
-      { href: isCurrentActive ? "/documents" : `/conference/${conference.slug}/documents`, label: "Tài liệu báo cáo" },
     ];
     if (conference.isActive) {
       allItems.push(

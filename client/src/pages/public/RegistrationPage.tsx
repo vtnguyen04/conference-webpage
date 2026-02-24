@@ -278,7 +278,7 @@ export default function RegistrationPage() {
                                               </FormControl>
                                               <div className="space-y-1">
                                                 <FormLabel className="text-[13px] font-bold text-amber-900 cursor-pointer">
-                                                  Yêu cầu cấp chứng chỉ CME (Đào tạo liên tục)
+                                                  Yêu cầu cấp giấy chứng nhận
                                                 </FormLabel>
                                                 <p className="text-[11px] text-amber-700/70 font-medium uppercase tracking-tighter">Đánh dấu nếu bạn muốn nhận chứng chỉ sau khi kết thúc phiên báo cáo.</p>
                                               </div>

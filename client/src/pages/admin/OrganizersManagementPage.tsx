@@ -209,7 +209,7 @@ export default function OrganizersManagementPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <AdminPageHeader 
         title="Quản lý Ban tổ chức"
-        description="Quản lý nhân sự và phân công nhiệm vụ trong hội đồng ban tổ chức hội nghị."
+        description="Quản lý thành viên và phân công nhiệm vụ trong hội đồng ban tổ chức hội nghị."
         onAdd={handleAdd}
         addLabel="Thêm thành viên"
         onDeleteAll={organizers.length > 0 ? handleDeleteAll : undefined}
