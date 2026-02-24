@@ -34,6 +34,18 @@ export default function CheckinPage() {
       return data.filter(session => {
         const startTime = new Date(session.startTime);
         const endTime = new Date(session.endTime);
+
+        // Kiểm tra nếu cùng ngày và trong khung giờ 7h - 17h
+        const isSameDay = now.getFullYear() === startTime.getFullYear() &&
+                          now.getMonth() === startTime.getMonth() &&
+                          now.getDate() === startTime.getDate();
+        
+        if (isSameDay) {
+          const currentHour = now.getHours();
+          if (currentHour >= 7 && currentHour < 17) return true;
+        }
+
+        // Vẫn giữ logic cho các phiên đang diễn ra
         return startTime <= now && endTime >= now;
       });
     }

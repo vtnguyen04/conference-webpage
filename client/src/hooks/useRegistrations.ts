@@ -10,6 +10,18 @@ const isSessionActive = (session?: Session): boolean => {
   const now = new Date();
   const startTime = new Date(session.startTime);
   const endTime = new Date(session.endTime);
+
+  // Kiểm tra nếu cùng ngày và trong khung giờ 7h - 17h
+  const isSameDay = now.getFullYear() === startTime.getFullYear() &&
+                    now.getMonth() === startTime.getMonth() &&
+                    now.getDate() === startTime.getDate();
+  
+  if (isSameDay) {
+    const currentHour = now.getHours();
+    if (currentHour >= 7 && currentHour < 17) return true;
+  }
+
+  // Vẫn cho phép check-in nếu đang trong thời gian diễn ra phiên (phòng hờ phiên tối)
   return startTime <= now && now <= endTime;
 };
 export const useRegistrations = () => {
