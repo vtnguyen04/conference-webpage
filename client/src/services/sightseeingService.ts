@@ -5,8 +5,9 @@ export const sightseeingService = {
   getSightseeings: async (slug: string): Promise<Sightseeing[]> => {
     return apiRequest("GET", `/api/sightseeing/slug/${slug}`);
   },
-  getSightseeingById: async (id: string): Promise<Sightseeing> => {
-    return apiRequest("GET", `/api/sightseeing/${id}`);
+  getSightseeingById: async (id: string, slug?: string): Promise<Sightseeing> => {
+    const url = slug ? `/api/sightseeing/${slug}/${id}` : `/api/sightseeing/${id}`;
+    return apiRequest("GET", url);
   },
   createSightseeing: async (data: InsertSightseeing): Promise<Sightseeing> => {
     return apiRequest("POST", "/api/sightseeing", data);

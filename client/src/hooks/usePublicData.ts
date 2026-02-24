@@ -9,7 +9,7 @@ import type { Speaker, Session, Sponsor, Organizer, Announcement, Sightseeing } 
 
 export function usePublicSpeakers(slug?: string) {
   return useQuery<Speaker[]>({
-    queryKey: ["/api/speakers", slug],
+    queryKey: ["api", "speakers", "slug", slug],
     queryFn: () => slug ? speakerService.getSpeakers(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
@@ -17,7 +17,7 @@ export function usePublicSpeakers(slug?: string) {
 
 export function usePublicSessions(slug?: string) {
   return useQuery<Session[]>({
-    queryKey: ["/api/sessions", slug],
+    queryKey: ["api", "sessions", "slug", slug],
     queryFn: () => slug ? sessionService.getSessions(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
@@ -25,7 +25,7 @@ export function usePublicSessions(slug?: string) {
 
 export function usePublicSponsors(slug?: string) {
   return useQuery<Sponsor[]>({
-    queryKey: ["/api/sponsors", slug],
+    queryKey: ["api", "sponsors", "slug", slug],
     queryFn: () => slug ? sponsorService.getSponsors(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
@@ -33,7 +33,7 @@ export function usePublicSponsors(slug?: string) {
 
 export function usePublicOrganizers(slug?: string) {
   return useQuery<Organizer[]>({
-    queryKey: ["/api/organizers", slug],
+    queryKey: ["api", "organizers", "slug", slug],
     queryFn: () => slug ? organizerService.getOrganizers(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
@@ -41,32 +41,32 @@ export function usePublicOrganizers(slug?: string) {
 
 export function usePublicAnnouncements(slug?: string) {
   return useQuery<Announcement[]>({
-    queryKey: ["/api/announcements", slug],
+    queryKey: ["api", "announcements", "slug", slug],
     queryFn: () => slug ? announcementService.getAnnouncements(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
 }
 
-export function usePublicAnnouncement(id?: string) {
+export function usePublicAnnouncement(id?: string, slug?: string) {
   return useQuery<Announcement>({
-    queryKey: ["/api/announcements", id],
-    queryFn: () => id ? announcementService.getAnnouncementById(id) : Promise.reject("Missing ID"),
+    queryKey: slug ? ["api", "announcements", slug, id] : ["api", "announcements", id],
+    queryFn: () => id ? announcementService.getAnnouncementById(id, slug) : Promise.reject("Missing ID"),
     enabled: !!id,
   });
 }
 
 export function usePublicSightseeing(slug?: string) {
   return useQuery<Sightseeing[]>({
-    queryKey: ["/api/sightseeing", slug],
+    queryKey: ["api", "sightseeing", "slug", slug],
     queryFn: () => slug ? sightseeingService.getSightseeings(slug) : Promise.resolve([]),
     enabled: !!slug,
   });
 }
 
-export function usePublicSightseeingItem(id?: string) {
+export function usePublicSightseeingItem(id?: string, slug?: string) {
   return useQuery<Sightseeing>({
-    queryKey: ["/api/sightseeing", id],
-    queryFn: () => id ? sightseeingService.getSightseeingById(id) : Promise.reject("Missing ID"),
+    queryKey: slug ? ["api", "sightseeing", slug, id] : ["api", "sightseeing", id],
+    queryFn: () => id ? sightseeingService.getSightseeingById(id, slug) : Promise.reject("Missing ID"),
     enabled: !!id,
   });
 }

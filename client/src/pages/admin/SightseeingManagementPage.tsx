@@ -142,7 +142,9 @@ export default function SightseeingManagementPage() {
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center">
                 <Clock className="h-3 w-3 mr-1.5" />
-                {item.createdAt ? format(new Date(item.createdAt), "dd/MM/yyyy", { locale: vi }) : "N/A"}
+                {item.createdAt && !isNaN(new Date(item.createdAt).getTime()) 
+                  ? format(new Date(item.createdAt), "dd/MM/yyyy", { locale: vi }) 
+                  : "N/A"}
               </span>
               {!isReadOnly && (
                 <DropdownMenu>

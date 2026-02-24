@@ -71,11 +71,13 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                                 <Calendar className="h-4 w-4" />
                                 <span>
-                                    {format(
-                                        new Date(announcement.publishedAt),
-                                        "dd 'Tháng' MM, yyyy",
-                                        { locale: vi }
-                                    )}
+                                    {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
+                                        ? format(
+                                            new Date(announcement.publishedAt),
+                                            "dd 'Tháng' MM, yyyy",
+                                            { locale: vi }
+                                        )
+                                        : "Đang cập nhật"}
                                 </span>
                             </div>
                         </div>
@@ -134,21 +136,25 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                 <div className="flex items-center gap-1 text-sm text-gray-500">
                                     <Calendar className="h-3 w-3" />
                                     <span>
-                                        {format(
-                                            new Date(announcement.publishedAt),
-                                            "dd/MM/yyyy",
-                                            { locale: vi }
-                                        )}
+                                        {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
+                                            ? format(
+                                                new Date(announcement.publishedAt),
+                                                "dd/MM/yyyy",
+                                                { locale: vi }
+                                            )
+                                            : "N/A"}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1 text-sm text-gray-500">
                                     <Clock className="h-3 w-3" />
                                     <span>
-                                        {format(
-                                            new Date(announcement.publishedAt),
-                                            "HH:mm",
-                                            { locale: vi }
-                                        )}
+                                        {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
+                                            ? format(
+                                                new Date(announcement.publishedAt),
+                                                "HH:mm",
+                                                { locale: vi }
+                                            )
+                                            : ""}
                                     </span>
                                 </div>
                             </div>

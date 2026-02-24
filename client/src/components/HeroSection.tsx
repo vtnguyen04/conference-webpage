@@ -100,7 +100,9 @@ const HeroSection = () => {
                                 <div className="text-left">
                                     <p className="text-[9px] font-black text-teal-400 uppercase tracking-widest">Thời gian</p>
                                     <p className="text-sm font-bold text-white uppercase">
-                                        {format(new Date(conference.startDate), "dd/MM", { locale: vi })} - {format(new Date(conference.endDate), "dd/MM/yyyy", { locale: vi })}
+                                        {conference.startDate && !isNaN(new Date(conference.startDate).getTime()) && conference.endDate && !isNaN(new Date(conference.endDate).getTime())
+                                          ? `${format(new Date(conference.startDate), "dd/MM", { locale: vi })} - ${format(new Date(conference.endDate), "dd/MM/yyyy", { locale: vi })}`
+                                          : "Đang cập nhật"}
                                     </p>
                                 </div>
                             </div>

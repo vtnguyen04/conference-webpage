@@ -49,9 +49,9 @@ export default function AnnouncementDetailPage() {
     data: announcement,
     isLoading,
     isError
-  } = usePublicAnnouncement(announcementId);
+  } = usePublicAnnouncement(announcementId, slug || conference?.slug);
 
-  const { incrementView } = useAnnouncements(slug || undefined);
+  const { incrementView } = useAnnouncements(slug || conference?.slug);
 
   useEffect(() => {
     if (announcementId) {
@@ -139,7 +139,9 @@ export default function AnnouncementDetailPage() {
                 </Badge>
                 <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   <Clock className="h-3.5 w-3.5" />
-                  {format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })}
+                  {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime()) 
+                    ? format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })
+                    : "Đang cập nhật"}
                 </div>
                 <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   <Eye className="h-3.5 w-3.5" />

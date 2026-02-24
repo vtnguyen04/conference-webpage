@@ -71,7 +71,11 @@ const AnnouncementsSection = () => {
                                         {announcement.publishedAt && (
                                             <div className="flex items-center gap-2 text-xs text-slate-500 mb-3 uppercase tracking-wide font-semibold">
                                                 <Calendar className="h-3.5 w-3.5" />
-                                                <span>{format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })}</span>
+                                                <span>
+                                                  {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
+                                                    ? format(new Date(announcement.publishedAt), "dd 'Tháng' MM, yyyy", { locale: vi })
+                                                    : "Đang cập nhật"}
+                                                </span>
                                             </div>
                                         )}
                                         <h3 className="font-bold text-lg line-clamp-2 mb-3 text-slate-900 group-hover:text-teal-600 transition-colors flex-grow">

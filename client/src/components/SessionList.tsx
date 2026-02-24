@@ -30,7 +30,9 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 text-teal-700 rounded-lg text-[10px] font-extrabold uppercase tracking-widest ring-1 ring-teal-100">
                   <Clock className="h-3 w-3" />
-                  {format(new Date(session.startTime), "HH:mm")} - {format(new Date(session.endTime), "HH:mm")}
+                  {session.startTime && !isNaN(new Date(session.startTime).getTime()) && session.endTime && !isNaN(new Date(session.endTime).getTime())
+                    ? `${format(new Date(session.startTime), "HH:mm")} - ${format(new Date(session.endTime), "HH:mm")}`
+                    : "TBA"}
                 </div>
                 <Badge variant="outline" className="border-slate-200 text-slate-400 font-bold text-[9px] uppercase tracking-tighter">
                   {session.type}

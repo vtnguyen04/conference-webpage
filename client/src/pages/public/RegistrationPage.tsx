@@ -317,7 +317,7 @@ export default function RegistrationPage() {
                                                 const [date, timeOfDay] = slot.split('_');
                                                 return (
                                                   <TabsTrigger key={slot} value={slot} className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-[10px] uppercase tracking-widest h-10 shrink-0">
-                                                    {timeOfDay} {format(new Date(date), "dd/MM", { locale: vi })}
+                                                    {timeOfDay} {date && !isNaN(new Date(date).getTime()) ? format(new Date(date), "dd/MM", { locale: vi }) : ""}
                                                   </TabsTrigger>
                                                 )
                                               })}

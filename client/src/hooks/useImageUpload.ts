@@ -6,6 +6,7 @@ interface UseImageUploadOptions {
   onSuccess?: (path: string) => void;
   onDeleteSuccess?: () => void;
   uploadPath?: string;
+  fieldName?: string;
 }
 
 export function useImageUpload(options: UseImageUploadOptions = {}) {
@@ -18,22 +19,24 @@ export function useImageUpload(options: UseImageUploadOptions = {}) {
     
     const file = files[0];
     const formData = new FormData();
-    formData.append("image", file);
+    const fieldName = options.fieldName || "image";
+    formData.append(fieldName, file);
     
     if (oldPath) {
-      formData.append("oldImagePath", oldPath);
+      formData.append(fieldName === "pdf" ? "oldPdfPath" : "oldImagePath", oldPath);
     }
 
     setIsUploading(true);
     try {
       const result = await apiUploadFile(options.uploadPath || "/api/upload", formData);
-      toast({ title: "Thành công", description: "Đã tải ảnh lên máy chủ." });
-      if (options.onSuccess) options.onSuccess(result.imagePath);
-      return result.imagePath;
+      const filePath = result.imagePath || result.pdfPath;
+      toast({ title: "Thành công", description: "Đã tải tệp lên máy chủ." });
+      if (options.onSuccess) options.onSuccess(filePath);
+      return filePath;
     } catch (error: any) {
       toast({ 
-        title: "Lỗi tải ảnh", 
-        description: error.message || "Không thể tải ảnh lên.", 
+        title: "Lỗi tải tệp", 
+        description: error.message || "Không thể tải tệp lên.", 
         variant: "destructive" 
       });
       throw error;

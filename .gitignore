@@ -19,3 +19,8 @@ server/data/*.pptx
 # Build artifacts & reports
 stats.html
 docs/
+
+# Ignored data and uploads
+public/uploads/*
+!public/uploads/.gitkeep
+server/data/

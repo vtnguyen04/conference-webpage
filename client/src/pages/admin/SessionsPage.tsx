@@ -196,8 +196,9 @@ export default function SessionsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold ring-1 ring-indigo-100">
               <Clock className="h-3.5 w-3.5" />
-              {format(new Date(session.startTime), "HH:mm", { locale: vi })} -{" "}
-              {format(new Date(session.endTime), "HH:mm", { locale: vi })}
+              {session.startTime && !isNaN(new Date(session.startTime).getTime()) && session.endTime && !isNaN(new Date(session.endTime).getTime())
+                ? `${format(new Date(session.startTime), "HH:mm", { locale: vi })} - ${format(new Date(session.endTime), "HH:mm", { locale: vi })}`
+                : "Chưa đặt thời gian"}
             </div>
             {session.track && (
               <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase">

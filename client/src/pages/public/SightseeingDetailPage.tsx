@@ -12,6 +12,7 @@ import { Facebook, Share2, Compass, ChevronLeft, MapPin, Info, Clock } from "luc
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
 import { usePublicSightseeingItem } from "@/hooks/usePublicData";
+import { useActiveConference } from "@/hooks/useActiveConference";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -21,8 +22,9 @@ export default function SightseeingDetailPage() {
   const params = useParams();
   const sightseeingId = params.id;
   const mainContentRef = useRef<HTMLDivElement>(null);
+  const { conference } = useActiveConference();
 
-  const { data: sightseeing, isLoading, isError } = usePublicSightseeingItem(sightseeingId);
+  const { data: sightseeing, isLoading, isError } = usePublicSightseeingItem(sightseeingId, conference?.slug);
 
   useEffect(() => {
     if (sightseeing && mainContentRef.current) {
@@ -103,7 +105,9 @@ export default function SightseeingDetailPage() {
                 </Badge>
                 <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   <Clock className="h-3.5 w-3.5" />
-                  Đăng ngày {format(new Date(sightseeing.createdAt || ""), "dd/MM/yyyy", { locale: vi })}
+                  Đăng ngày {sightseeing.createdAt && !isNaN(new Date(sightseeing.createdAt).getTime())
+                    ? format(new Date(sightseeing.createdAt), "dd/MM/yyyy", { locale: vi })
+                    : "Đang cập nhật"}
                 </div>
               </div>
 

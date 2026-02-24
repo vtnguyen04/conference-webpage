@@ -13,6 +13,10 @@ import {
 import { checkActiveConference } from "../middlewares/checkActiveConference";
 const router = Router();
 router.get("/slug/:conferenceSlug", getAnnouncementsByConferenceSlug);
+router.get("/:id", checkActiveConference, (req: any, res) => {
+    req.params.conferenceSlug = req.activeConference.slug;
+    return getAnnouncementById(req, res);
+});
 router.get("/:conferenceSlug/:id", getAnnouncementById);
 router.post("/:conferenceSlug/:id/view", incrementAnnouncementViewsBySlug);
 router.post("/:id/view", checkActiveConference, incrementAnnouncementViews);

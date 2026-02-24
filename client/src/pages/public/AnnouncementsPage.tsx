@@ -40,7 +40,10 @@ export default function AnnouncementsPage() {
       total: announcements.length,
       important: announcements.filter(a => a.category === "important").length,
       deadline: announcements.filter(a => a.category === "deadline").length,
-      daysCount: new Set(announcements.map(a => format(new Date(a.publishedAt), "yyyy-MM-dd"))).size
+      daysCount: new Set(announcements.map(a => {
+        const date = a.publishedAt ? new Date(a.publishedAt) : null;
+        return date && !isNaN(date.getTime()) ? format(date, "yyyy-MM-dd") : "unknown";
+      })).size
     };
   }, [announcements]);
 

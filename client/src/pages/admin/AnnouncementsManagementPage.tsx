@@ -95,6 +95,7 @@ export default function AnnouncementsManagementPage() {
     isDeleting: isPdfDeleting 
   } = useImageUpload({
     uploadPath: "/api/upload-pdf",
+    fieldName: "pdf",
     onSuccess: (path) => form.setValue("pdfUrl", path, { shouldValidate: true }),
     onDeleteSuccess: () => form.setValue("pdfUrl", "", { shouldValidate: true }),
   });
@@ -121,7 +122,9 @@ export default function AnnouncementsManagementPage() {
           featuredImageUrl: editingAnnouncement.featuredImageUrl,
           pdfUrl: editingAnnouncement.pdfUrl,
           category: editingAnnouncement.category,
-          publishedAt: new Date(editingAnnouncement.publishedAt).toISOString().slice(0, 16),
+          publishedAt: editingAnnouncement.publishedAt && !isNaN(new Date(editingAnnouncement.publishedAt).getTime())
+            ? new Date(editingAnnouncement.publishedAt).toISOString().slice(0, 16)
+            : new Date().toISOString().slice(0, 16),
         });
       } else {
         form.reset({
@@ -204,9 +207,11 @@ export default function AnnouncementsManagementPage() {
     },
   }), [isReadOnly]);
 
-  const sortedAnnouncements = [...announcements].sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
+  const sortedAnnouncements = [...announcements].sort((a, b) => {
+    const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
+  });
 
   const renderAnnouncementItem = (announcement: Announcement) => (
     <div
@@ -231,7 +236,9 @@ export default function AnnouncementsManagementPage() {
               </Badge>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center">
                 <Clock className="h-3 w-3 mr-1.5" />
-                {format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })}
+                {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
+                  ? format(new Date(announcement.publishedAt), "dd/MM/yyyy HH:mm", { locale: vi })
+                  : "Đang cập nhật"}
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-400">
