@@ -1,9 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowRight, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Announcement } from "@shared/types";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import type { Announcement } from "@shared/types";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { Link } from "wouter";
 interface AnnouncementCardProps {
     announcement: Announcement;
@@ -57,10 +57,10 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                         </div>
                     )}
                     <CardContent className="p-6">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex flex-wrap items-center gap-3 mb-3">
                             <Badge
                                 variant="outline"
-                                className={`border-2 font-semibold text-xs ${getCategoryColor(
+                                className={`border font-semibold text-[10px] uppercase tracking-wider ${getCategoryColor(
                                     announcement.category || "default"
                                 )}`}
                             >
@@ -68,32 +68,32 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                     announcement.category || "default"
                                 )}
                             </Badge>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <div className="flex items-center gap-1 text-sm text-gray-400">
                                 <Calendar className="h-4 w-4" />
                                 <span>
                                     {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
                                         ? format(
                                             new Date(announcement.publishedAt),
-                                            "dd 'Tháng' MM, yyyy",
+                                            "dd/MM/yyyy",
                                             { locale: vi }
                                         )
                                         : "Đang cập nhật"}
                                 </span>
                             </div>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2">
                             {announcement.title}
                         </h3>
                         {announcement.excerpt && (
-                            <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                            <p className="text-gray-500 mb-4 line-clamp-3 leading-relaxed text-sm">
                                 {announcement.excerpt}
                             </p>
                         )}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <span className="text-blue-600 font-semibold text-sm group-hover:underline">
+                            <span className="text-indigo-600 font-semibold text-sm group-hover:underline flex items-center gap-1">
                                 Đọc chi tiết
                             </span>
-                            <ArrowRight className="h-4 w-4 text-blue-600 transform group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="h-4 w-4 text-indigo-600 transform group-hover:translate-x-1 transition-transform" />
                         </div>
                     </CardContent>
                 </Card>
@@ -105,7 +105,7 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
             key={announcement.id}
             href={getLinkUrl(announcement.id)}
         >
-            <Card className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+            <Card className="border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                 <CardContent className="p-6">
                     <div className="flex flex-col lg:flex-row lg:items-start gap-6">
                         {/* Hình ảnh */}
@@ -122,10 +122,10 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                         )}
                         {/* Nội dung */}
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="flex flex-wrap items-center gap-3 mb-3">
                                 <Badge
                                     variant="outline"
-                                    className={`border font-medium text-xs ${getCategoryColor(
+                                    className={`border font-semibold text-[10px] uppercase tracking-wider ${getCategoryColor(
                                         announcement.category || "default"
                                     )}`}
                                 >
@@ -133,7 +133,7 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                         announcement.category || "default"
                                     )}
                                 </Badge>
-                                <div className="flex items-center gap-1 text-sm text-gray-500">
+                                <div className="flex items-center gap-1 text-sm text-gray-400">
                                     <Calendar className="h-3 w-3" />
                                     <span>
                                         {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
@@ -145,7 +145,7 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                             : "N/A"}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-1 text-sm text-gray-500">
+                                <div className="flex items-center gap-1 text-sm text-gray-400">
                                     <Clock className="h-3 w-3" />
                                     <span>
                                         {announcement.publishedAt && !isNaN(new Date(announcement.publishedAt).getTime())
@@ -158,19 +158,19 @@ export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardP
                                     </span>
                                 </div>
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2">
                                 {announcement.title}
                             </h3>
                             {announcement.excerpt && (
-                                <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                <p className="text-gray-500 mb-4 line-clamp-2 leading-relaxed text-sm">
                                     {announcement.excerpt}
                                 </p>
                             )}
                             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span className="text-blue-600 text-sm font-medium group-hover:underline">
+                                <span className="text-indigo-600 text-sm font-semibold group-hover:underline flex items-center gap-1">
                                     Xem chi tiết
                                 </span>
-                                <ArrowRight className="h-4 w-4 text-blue-600 transform group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="h-4 w-4 text-indigo-600 transform group-hover:translate-x-1 transition-transform" />
                             </div>
                         </div>
                     </div>

@@ -1,29 +1,44 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { AnnouncementCard } from "@/components/AnnouncementCard";
 import { PageHeader } from "@/components/PageHeader";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link, useRoute } from "wouter";
-import { useEffect, useRef, useMemo } from "react";
-import { AnnouncementCard } from "@/components/AnnouncementCard";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious
+} from "@/components/ui/pagination";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicAnnouncements } from "@/hooks/usePublicData";
-import { Megaphone, Info, Newspaper, Calendar, Clock, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge";
+import { Info, Newspaper } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useRoute } from "wouter";
 
 export default function AnnouncementsPage() {
   const [, params] = useRoute("/conference/:slug/announcements");
   const slug = params?.slug;
   const { conference } = useActiveConference();
-  
+
   const { data: announcements = [], isLoading } = usePublicAnnouncements(slug || conference?.slug);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(announcements.length / itemsPerPage);
+
+  const paginatedAnnouncements = announcements.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const mainContentRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +97,7 @@ export default function AnnouncementsPage() {
 
       <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto space-y-12">
+          <div className="max-w-4xl mx-auto space-y-12">
             <div className="flex flex-col items-center text-center space-y-4 mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
                 <Newspaper className="h-4 w-4" />
@@ -96,11 +111,45 @@ export default function AnnouncementsPage() {
 
             {announcements.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {announcements.map((announcement) => (
+                <div className="grid grid-cols-1 gap-8">
+                  {paginatedAnnouncements.map((announcement) => (
                     <AnnouncementCard key={announcement.id} announcement={announcement} type="regular" />
                   ))}
                 </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-12">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+
+                        {[...Array(totalPages)].map((_, i) => (
+                          <PaginationItem key={i + 1}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(i + 1)}
+                              isActive={currentPage === i + 1}
+                              className="cursor-pointer"
+                            >
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
 
                 {/* Phần Thống kê được khôi phục và nâng cấp UI */}
                 {stats && (
