@@ -27,15 +27,15 @@ const getCategoryColor = (category: string) => {
 const getCategoryLabel = (category: string) => {
     switch (category) {
         case "important":
-            return "QUAN TRỌNG";
+            return "Quan trọng";
         case "deadline":
-            return "HẠN CUỐI";
+            return "Hạn cuối";
         case "update":
-            return "CẬP NHẬT";
+            return "Cập nhật";
         case "news":
-            return "TIN TỨC";
+            return "Tin tức";
         default:
-            return "THÔNG BÁO";
+            return "Thông báo";
     }
 };
 export const AnnouncementCard = ({ announcement, slug, type }: AnnouncementCardProps) => {

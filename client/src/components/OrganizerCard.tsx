@@ -1,11 +1,11 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Organizer } from "@shared/types";
-import { Badge } from "@/components/ui/badge";
-import { User, ShieldCheck } from "lucide-react";
+import { ShieldCheck, User } from "lucide-react";
 
 export const OrganizerCard = ({ organizer }: { organizer: Organizer }) => (
     <div className="p-2 h-full w-full">
-      <Card 
+      <Card
         className="group relative overflow-hidden bg-white border-2 border-slate-100 hover:border-teal-600 shadow-sm hover:shadow-xl transition-all duration-500 rounded-[2rem] h-full flex flex-col"
       >
         <CardContent className="p-6 flex flex-col items-center text-center">
@@ -25,7 +25,7 @@ export const OrganizerCard = ({ organizer }: { organizer: Organizer }) => (
                 </div>
               )}
             </div>
-            
+
             {/* Overlay Role Badge */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-max z-10">
               <Badge className="bg-teal-600 text-white border-none font-black text-[8px] uppercase tracking-widest px-3 py-1 shadow-xl">
@@ -41,14 +41,14 @@ export const OrganizerCard = ({ organizer }: { organizer: Organizer }) => (
               <span className="text-[9px] font-black text-teal-600 uppercase tracking-widest">Ban Tổ chức</span>
             </div>
             <h3 className="font-black text-xl text-slate-900 leading-tight">
-              {organizer.credentials && <span className="text-slate-400 font-bold block text-[10px] uppercase mb-0.5 tracking-wider">{organizer.credentials}</span>}
+              {organizer.credentials && <span className="text-slate-400 font-bold block text-[10px] mb-0.5">{organizer.credentials}</span>}
               {organizer.name}
             </h3>
           </div>
 
           {/* Title - Full Display */}
           <div className="w-full">
-            <p className="text-[12px] font-extrabold text-slate-600 leading-relaxed uppercase tracking-tight">
+            <p className="text-[12px] font-extrabold text-slate-600 leading-relaxed">
               {organizer.title}
             </p>
             <div className="h-0.5 w-8 bg-slate-100 rounded-full mx-auto mt-4 group-hover:w-16 group-hover:bg-teal-600 transition-all duration-500" />

@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Speaker } from "@shared/types";
-import { Badge } from "@/components/ui/badge";
-import { User, Quote } from "lucide-react";
+import { Quote, User } from "lucide-react";
+import { memo } from "react";
 
 interface SpeakerCardProps {
   speaker: Speaker;
@@ -32,11 +32,11 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
                 </div>
               )}
             </div>
-            
+
             {/* Role Badge */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-max z-10">
               <Badge className="bg-teal-600 text-white border-none font-black text-[9px] uppercase tracking-widest px-4 py-1.5 shadow-lg">
-                {speaker.role === 'moderator' ? 'Chủ tọa' : 
+                {speaker.role === 'moderator' ? 'Chủ tọa' :
                  speaker.role === 'both' ? 'Chủ tọa & Báo cáo viên' : 'Báo cáo viên'}
               </Badge>
             </div>
@@ -44,7 +44,7 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
 
           {/* Name & Credentials */}
           <div className="space-y-1 mb-6">
-            <p className="text-teal-600 font-black text-[11px] uppercase tracking-[0.25em]">{speaker.credentials || 'Báo cáo viên'}</p>
+            {speaker.credentials && <span className="text-slate-400 font-bold block text-[10px] mb-0.5">{speaker.credentials}</span>}
             <h3 className="font-black text-2xl text-slate-900 leading-tight group-hover:text-teal-600 transition-colors">
               {speaker.name}
             </h3>
@@ -52,10 +52,10 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
 
           {/* Title & Info - Widen text area */}
           <div className="space-y-6 w-full px-2">
-            <p className="text-[13px] font-extrabold text-slate-700 uppercase tracking-tight leading-relaxed">
+            <p className="text-[12px] font-extrabold text-slate-600 leading-relaxed">
               {speaker.title}
             </p>
-            
+
             {speaker.specialty && (
               <p className="text-xs font-bold text-teal-600/60 italic">
                 Chuyên ngành: {speaker.specialty}
