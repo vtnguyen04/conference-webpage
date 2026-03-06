@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import { registrationRepository } from "../repositories/registrationRepository";
 import { conferenceRepository } from "../repositories/conferenceRepository";
+import { registrationRepository } from "../repositories/registrationRepository";
 import { emailService } from "./emailService";
 const REMINDER_INTERVAL_HOURS = 4;
 const MAX_REMINDERS = 2;
