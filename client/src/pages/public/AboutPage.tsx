@@ -88,22 +88,26 @@ export default function AboutPage() {
                 </section>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100">
-                    <h4 className="font-bold text-teal-900 mb-3 flex items-center gap-2">
-                      <Bookmark className="h-4 w-4 text-teal-600" /> Giá trị học thuật
-                    </h4>
-                    <p className="text-sm text-teal-800/80 leading-relaxed font-medium">
-                      Hội nghị là diễn đàn uy tín để các nhà khoa học công bố những công trình nghiên cứu mới nhất và trao đổi kinh nghiệm chuyên môn sâu sắc.
-                    </p>
-                  </div>
-                  <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-teal-600" /> Kết nối quốc tế
-                    </h4>
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                      Mở rộng mạng lưới hợp tác giữa các viện nghiên cứu, trường đại học và các doanh nghiệp dược phẩm trong và ngoài nước.
-                    </p>
-                  </div>
+                  {(conference?.feature1Title || conference?.feature1Desc) && (
+                    <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100">
+                      <h4 className="font-bold text-teal-900 mb-3 flex items-center gap-2">
+                        <Bookmark className="h-4 w-4 text-teal-600" /> {conference.feature1Title || "Giá trị học thuật"}
+                      </h4>
+                      <p className="text-sm text-teal-800/80 leading-relaxed font-medium">
+                        {conference.feature1Desc || "Hội nghị là diễn đàn uy tín để các nhà khoa học công bố những công trình nghiên cứu mới nhất và trao đổi kinh nghiệm chuyên môn sâu sắc."}
+                      </p>
+                    </div>
+                  )}
+                  {(conference?.feature2Title || conference?.feature2Desc) && (
+                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                      <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-teal-600" /> {conference.feature2Title || "Kết nối quốc tế"}
+                      </h4>
+                      <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                        {conference.feature2Desc || "Mở rộng mạng lưới hợp tác giữa các viện nghiên cứu, trường đại học và các doanh nghiệp dược phẩm trong và ngoài nước."}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -156,15 +160,17 @@ export default function AboutPage() {
                     </CardContent>
                   </div>
 
-                  <div className="p-6 bg-[#042f2e] rounded-2xl text-white shadow-xl shadow-teal-900/10">
-                    <div className="flex items-center gap-2 mb-3">
-                      <ShieldCheck className="h-4 w-4 text-teal-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-teal-400">Tin cậy & Bảo mật</span>
+                  {(conference?.feature3Title || conference?.feature3Desc) && (
+                    <div className="p-6 bg-[#042f2e] rounded-2xl text-white shadow-xl shadow-teal-900/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <ShieldCheck className="h-4 w-4 text-teal-400" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-teal-400">{conference.feature3Title || "Tin cậy & Bảo mật"}</span>
+                      </div>
+                      <p className="text-xs text-teal-50/70 leading-relaxed font-medium">
+                        {conference.feature3Desc || "Ban tổ chức cam kết đảm bảo tính minh bạch và bảo mật thông tin trong mọi quy trình đăng ký tham dự."}
+                      </p>
                     </div>
-                    <p className="text-xs text-teal-50/70 leading-relaxed font-medium">
-                      Ban tổ chức cam kết đảm bảo tính minh bạch và bảo mật thông tin trong mọi quy trình đăng ký tham dự.
-                    </p>
-                  </div>
+                  )}
 
                 </div>
               </div>

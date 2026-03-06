@@ -24,6 +24,12 @@ export const insertConferenceSchema = z.object({
   location: z.string().optional().or(z.literal("")),
   contactEmail: z.string().email().optional().or(z.literal("")),
   contactPhone: z.string().optional().or(z.literal("")),
+  feature1Title: z.string().optional().or(z.literal("")),
+  feature1Desc: z.string().optional().or(z.literal("")),
+  feature2Title: z.string().optional().or(z.literal("")),
+  feature2Desc: z.string().optional().or(z.literal("")),
+  feature3Title: z.string().optional().or(z.literal("")),
+  feature3Desc: z.string().optional().or(z.literal("")),
   isActive: z.coerce.boolean().default(true),
 });
 export const conferenceSchema = insertConferenceSchema.extend({

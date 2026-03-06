@@ -61,6 +61,12 @@ export default function ConferencePage() {
       registrationNote2: "",
       registrationBenefits: "",
       registrationRules: "",
+      feature1Title: "",
+      feature1Desc: "",
+      feature2Title: "",
+      feature2Desc: "",
+      feature3Title: "",
+      feature3Desc: "",
       logoUrl: "",
       bannerUrls: [],
       startDate: new Date(),
@@ -365,6 +371,96 @@ export default function ConferencePage() {
                         </FormItem>
                       )}
                     />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 mt-8 pt-8 border-t border-slate-200">
+                      <div className="col-span-2">
+                        <h3 className="font-bold text-slate-800 text-sm mb-4">Các tính năng nổi bật (Hiển thị trang Giới thiệu)</h3>
+                      </div>
+
+                      {/* Feature 1 */}
+                      <FormField
+                        control={form.control as any}
+                        name="feature1Title"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tiêu đề tính năng 1</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ""} placeholder="Ví dụ: Giá trị học thuật" className="h-11 bg-slate-50 border-slate-200 focus:bg-white" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control as any}
+                        name="feature1Desc"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mô tả tính năng 1</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} value={field.value || ""} placeholder="Mô tả ngắn gọn về đặc điểm nổi bật..." className="bg-slate-50 border-slate-200 focus:bg-white resize-none" rows={3} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Feature 2 */}
+                      <FormField
+                        control={form.control as any}
+                        name="feature2Title"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tiêu đề tính năng 2</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ""} placeholder="Ví dụ: Kết nối quốc tế" className="h-11 bg-slate-50 border-slate-200 focus:bg-white" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control as any}
+                        name="feature2Desc"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mô tả tính năng 2</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} value={field.value || ""} placeholder="Mô tả ngắn gọn về đặc điểm nổi bật..." className="bg-slate-50 border-slate-200 focus:bg-white resize-none" rows={3} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Feature 3 */}
+                      <FormField
+                        control={form.control as any}
+                        name="feature3Title"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tiêu đề tính năng 3</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ""} placeholder="Ví dụ: Tin cậy & Bảo mật" className="h-11 bg-slate-50 border-slate-200 focus:bg-white" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control as any}
+                        name="feature3Desc"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2 md:col-span-1">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mô tả tính năng 3</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} value={field.value || ""} placeholder="Mô tả ngắn gọn về đặc điểm nổi bật..." className="bg-slate-50 border-slate-200 focus:bg-white resize-none" rows={3} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>

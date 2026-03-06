@@ -200,6 +200,12 @@ export interface Conference {
   location?: string;
   contactEmail?: string;
   contactPhone?: string;
+  feature1Title?: string;
+  feature1Desc?: string;
+  feature2Title?: string;
+  feature2Desc?: string;
+  feature3Title?: string;
+  feature3Desc?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
