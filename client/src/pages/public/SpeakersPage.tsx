@@ -42,7 +42,7 @@ export default function SpeakersPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <div className="animate-spin h-12 w-12 border-4 border-teal-600 border-t-transparent rounded-full mx-auto"></div>
-          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang kết nối ban tổ chức...</p>
+          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang kết nối danh sách báo cáo viên...</p>
         </div>
       </div>
     );
@@ -51,7 +51,7 @@ export default function SpeakersPage() {
   return (
     <div className="animate-in fade-in duration-500">
       <PageHeader
-        title="Ban tổ chức"
+        title="Chủ tọa & Báo cáo viên"
         subtitle="Gặp gỡ các nhà khoa học, báo cáo viên hàng đầu sẽ chia sẻ kiến thức và kinh nghiệm tại hội nghị."
         bannerImageUrl={conference?.bannerUrls?.[0]}
       >
