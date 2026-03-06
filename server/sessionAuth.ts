@@ -1,6 +1,6 @@
-import session from "express-session";
-import type { Express, RequestHandler } from "express";
 import connectSqlite3 from "connect-sqlite3";
+import type { Express, RequestHandler } from "express";
+import session from "express-session";
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000;
   const SQLiteStore = connectSqlite3(session);
@@ -17,6 +17,7 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: sessionTtl,
     },
   });

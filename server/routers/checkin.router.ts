@@ -1,12 +1,14 @@
 import { Router } from "express";
 import {
     getCheckIns,
-    qrCheckIn,
-    manualCheckIn
+    manualCheckIn,
+    qrCheckIn
 } from "../controllers/registration.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
+import { isAuthenticated } from "../sessionAuth";
 const router = Router();
-router.post("/", checkActiveConference, qrCheckIn);
-router.post("/manual", checkActiveConference, manualCheckIn);
-router.get("/session/:sessionId", getCheckIns);
+// Protected: check-in operations require authentication
+router.post("/", isAuthenticated, checkActiveConference, qrCheckIn);
+router.post("/manual", isAuthenticated, checkActiveConference, manualCheckIn);
+router.get("/session/:sessionId", isAuthenticated, getCheckIns);
 export default router;

@@ -1,20 +1,23 @@
 import { Router } from "express";
 import {
-  getSessionsByConferenceSlug,
-  getActiveConferenceSessions,
-  createSession,
-  updateSession,
-  deleteSession,
-  deleteAllSessions,
-  getSessionsCapacity,
+    createSession,
+    deleteAllSessions,
+    deleteSession,
+    getActiveConferenceSessions,
+    getSessionsByConferenceSlug,
+    getSessionsCapacity,
+    updateSession,
 } from "../controllers/session.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
+import { isAuthenticated } from "../sessionAuth";
 const router = Router();
+// Public read routes
 router.get("/capacity", checkActiveConference, getSessionsCapacity);
 router.get("/", checkActiveConference, getActiveConferenceSessions);
-router.post("/", checkActiveConference, createSession);
 router.get("/:conferenceSlug", getSessionsByConferenceSlug);
-router.delete("/admin/all", checkActiveConference, deleteAllSessions);
-router.put("/:id", checkActiveConference, updateSession);
-router.delete("/:id", checkActiveConference, deleteSession);
+// Protected write routes
+router.post("/", isAuthenticated, checkActiveConference, createSession);
+router.put("/:id", isAuthenticated, checkActiveConference, updateSession);
+router.delete("/:id", isAuthenticated, checkActiveConference, deleteSession);
+router.delete("/admin/all", isAuthenticated, checkActiveConference, deleteAllSessions);
 export default router;

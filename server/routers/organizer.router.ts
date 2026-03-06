@@ -1,18 +1,21 @@
 import { Router } from "express";
 import {
-    getOrganizersByConferenceSlug,
-    getActiveConferenceOrganizers,
     createOrganizer,
-    updateOrganizer,
-    deleteOrganizer,
     deleteAllOrganizers,
+    deleteOrganizer,
+    getActiveConferenceOrganizers,
+    getOrganizersByConferenceSlug,
+    updateOrganizer,
 } from "../controllers/organizer.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
+import { isAuthenticated } from "../sessionAuth";
 const router = Router();
+// Public read routes
 router.get("/:conferenceSlug", getOrganizersByConferenceSlug);
 router.get("/", checkActiveConference, getActiveConferenceOrganizers);
-router.post("/", checkActiveConference, createOrganizer);
-router.put("/:id", checkActiveConference, updateOrganizer);
-router.delete("/:id", checkActiveConference, deleteOrganizer);
-router.delete("/admin/all", checkActiveConference, deleteAllOrganizers);
+// Protected write routes
+router.post("/", isAuthenticated, checkActiveConference, createOrganizer);
+router.put("/:id", isAuthenticated, checkActiveConference, updateOrganizer);
+router.delete("/:id", isAuthenticated, checkActiveConference, deleteOrganizer);
+router.delete("/admin/all", isAuthenticated, checkActiveConference, deleteAllOrganizers);
 export default router;

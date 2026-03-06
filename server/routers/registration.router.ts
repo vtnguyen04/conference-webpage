@@ -1,16 +1,19 @@
 import { Router } from "express";
 import {
-    getPaginatedRegistrations,
-    exportRegistrations,
+    batchRegister,
     confirmRegistration,
-    getRegistrationsBySessionId,
-    batchRegister
+    exportRegistrations,
+    getPaginatedRegistrations,
+    getRegistrationsBySessionId
 } from "../controllers/registration.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
+import { isAuthenticated } from "../sessionAuth";
 const router = Router();
-router.get("/", checkActiveConference, getPaginatedRegistrations);
-router.get("/export", checkActiveConference, exportRegistrations);
+// Protected: viewing/exporting registration data requires auth (PII)
+router.get("/", isAuthenticated, checkActiveConference, getPaginatedRegistrations);
+router.get("/export", isAuthenticated, checkActiveConference, exportRegistrations);
+router.get("/session/:sessionId", isAuthenticated, getRegistrationsBySessionId);
+// Public: confirmation via token and batch registration
 router.get("/confirm/:token", confirmRegistration);
-router.get("/session/:sessionId", getRegistrationsBySessionId);
 router.post("/batch", checkActiveConference, batchRegister);
 export default router;

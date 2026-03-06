@@ -19,10 +19,28 @@ const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Nginx/Docker)
 const server = createServer(app);
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
 }));
 app.use(compression());
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : undefined;
+app.use(cors({
+  origin: allowedOrigins || true,
+  credentials: true,
+}));
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5000,

@@ -41,6 +41,10 @@ export function slugify(text: string): string {
   return text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-');
 }
 export function getConferenceFilePath(slug: string): string {
+  // Sanitize slug to prevent path traversal
+  if (!slug || !/^[a-zA-Z0-9_-]+$/.test(slug)) {
+    throw new Error("Invalid conference slug");
+  }
   return join(DATA_DIR, `${slug}.json`);
 }
 export async function readConferenceData(slug: string): Promise<ConferenceData | null> {

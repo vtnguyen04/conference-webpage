@@ -12,6 +12,7 @@ import {
     uploadPdf
 } from "../controllers/misc.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
+import { isAuthenticated } from "../sessionAuth";
 const router = Router();
 const uploadDir = path.join(process.cwd(), "public", "uploads");
 if (!fs.existsSync(uploadDir)) {
@@ -22,21 +23,15 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 }
 });
-router.post('/upload', upload.single('image'), uploadImage);
-router.post('/upload-pdf', upload.single('pdf'), uploadPdf);
-router.post('/upload/banners', upload.array('banners', 5), uploadBanners);
-router.delete('/upload', deleteUpload);
-router.get('/admin/stats', checkActiveConference, getAdminStats);
-router.get('/analytics', checkActiveConference, getAdminStats);
+// Protected: uploads and admin stats require authentication
+router.post('/upload', isAuthenticated, upload.single('image'), uploadImage);
+router.post('/upload-pdf', isAuthenticated, upload.single('pdf'), uploadPdf);
+router.post('/upload/banners', isAuthenticated, upload.array('banners', 5), uploadBanners);
+router.delete('/upload', isAuthenticated, deleteUpload);
+router.get('/admin/stats', isAuthenticated, checkActiveConference, getAdminStats);
+router.get('/analytics', isAuthenticated, checkActiveConference, getAdminStats);
+// Protected: contact message management requires authentication
+router.get('/contact-messages', isAuthenticated, getContactMessagesPaginated);
+// Public: contact form submission
 router.post('/contact', createNewContactMessage);
-router.get('/contact-messages', getContactMessagesPaginated);
-router.get("/uploads/:filePath(*)", (req, res) => {
-    const filePath = req.params.filePath;
-    const absolutePath = path.join(uploadDir, filePath);
-    if (fs.existsSync(absolutePath)) {
-        res.sendFile(absolutePath);
-    } else {
-        res.status(404).json({ error: "File not found" });
-    }
-});
 export default router;

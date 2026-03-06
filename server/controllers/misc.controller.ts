@@ -30,6 +30,9 @@ export const uploadImage = async (req: any, res: Response) => {
 export const uploadPdf = async (req: any, res: Response) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No file" });
+        if (req.file.mimetype !== 'application/pdf') {
+            return res.status(400).json({ message: "Only PDF files are allowed" });
+        }
         const filename = `document-${Date.now()}.pdf`;
         const absolutePath = path.join(process.cwd(), "public", "uploads", filename);
         await fs.writeFile(absolutePath, req.file.buffer);
