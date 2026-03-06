@@ -56,12 +56,14 @@ const categoryLabels: Record<string, string> = {
   general: "Thông báo chung",
   important: "Quan trọng",
   deadline: "Hạn chót",
+  news: "Tin tức",
 };
 
 const categoryColors: Record<string, string> = {
   general: "bg-blue-50 text-blue-700 border-blue-100",
   important: "bg-amber-50 text-amber-700 border-amber-100",
   deadline: "bg-rose-50 text-rose-700 border-rose-100",
+  news: "bg-emerald-50 text-emerald-700 border-emerald-100",
 };
 
 export default function AnnouncementsManagementPage() {
@@ -413,7 +415,8 @@ export default function AnnouncementsManagementPage() {
                             <SelectContent>
                               <SelectItem value="general">Thông báo chung</SelectItem>
                               <SelectItem value="important">Quan trọng</SelectItem>
-                              <SelectItem value="deadline">Hạn chót</SelectItem>
+                               <SelectItem value="deadline">Hạn chót</SelectItem>
+                              <SelectItem value="news">Tin tức</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />

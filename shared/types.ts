@@ -135,7 +135,7 @@ export interface Announcement {
   featuredImageUrl?: string;
   pdfUrl?: string;
   views: number;
-  category: "general" | "important" | "deadline";
+  category: "general" | "important" | "deadline" | "news";
   publishedAt: string;
   createdAt: string;
   updatedAt: string;

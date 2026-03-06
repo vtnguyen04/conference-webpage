@@ -18,6 +18,8 @@ const getCategoryColor = (category: string) => {
             return "bg-orange-100 text-orange-800 border-orange-200";
         case "update":
             return "bg-blue-100 text-blue-800 border-blue-200";
+        case "news":
+            return "bg-emerald-100 text-emerald-800 border-emerald-200";
         default:
             return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -30,6 +32,8 @@ const getCategoryLabel = (category: string) => {
             return "HẠN CUỐI";
         case "update":
             return "CẬP NHẬT";
+        case "news":
+            return "TIN TỨC";
         default:
             return "THÔNG BÁO";
     }

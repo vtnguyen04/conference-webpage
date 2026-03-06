@@ -97,7 +97,7 @@ export const insertAnnouncementSchema = z.object({
   excerpt: z.string(),
   featuredImageUrl: z.string().optional().or(z.literal("")),
   pdfUrl: z.string().optional().or(z.literal("")),
-  category: z.enum(["general", "important", "deadline"]).default("general"),
+  category: z.enum(["general", "important", "deadline", "news"]).default("general"),
   publishedAt: z.string().optional(),
 });
 export const insertDocumentSchema = z.object({

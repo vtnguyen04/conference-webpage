@@ -55,6 +55,7 @@ export default function AnnouncementsPage() {
       total: announcements.length,
       important: announcements.filter(a => a.category === "important").length,
       deadline: announcements.filter(a => a.category === "deadline").length,
+      news: announcements.filter(a => a.category === "news").length,
       daysCount: new Set(announcements.map(a => {
         const date = a.publishedAt ? new Date(a.publishedAt) : null;
         return date && !isNaN(date.getTime()) ? format(date, "yyyy-MM-dd") : "unknown";
@@ -154,7 +155,7 @@ export default function AnnouncementsPage() {
                 {/* Phần Thống kê được khôi phục và nâng cấp UI */}
                 {stats && (
                   <div className="mt-20 pt-12 border-t border-slate-200">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8">
                       <div className="text-center space-y-1">
                         <p className="text-3xl font-black text-teal-600 tracking-tighter">{stats.total}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tổng thông báo</p>
@@ -166,6 +167,10 @@ export default function AnnouncementsPage() {
                       <div className="text-center space-y-1">
                         <p className="text-3xl font-black text-amber-600 tracking-tighter">{stats.deadline}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hạn đăng ký</p>
+                      </div>
+                       <div className="text-center space-y-1">
+                        <p className="text-3xl font-black text-emerald-600 tracking-tighter">{stats.news}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tin tức</p>
                       </div>
                       <div className="text-center space-y-1">
                         <p className="text-3xl font-black text-slate-600 tracking-tighter">{stats.daysCount}</p>
