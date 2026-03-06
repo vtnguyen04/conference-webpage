@@ -113,14 +113,14 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                               {item.timeSlot}
                             </div>
                             <div className="flex-1 space-y-1">
-                              <p className="text-base font-extrabold text-slate-800 leading-tight group-hover/item:text-teal-700 transition-colors">{item.title}</p>
-                              {speaker && (
-                                <div className="flex flex-wrap items-center gap-2 text-sm font-extrabold text-blue-600">
+                               <p className="text-lg font-extrabold text-slate-800 leading-tight group-hover/item:text-teal-700 transition-colors">{item.title}</p>
+                               {speaker && (
+                                <div className="flex flex-wrap items-center gap-2 text-base font-extrabold text-blue-600">
                                   <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
                                   {speaker.credentials} {speaker.name}{speaker.title ? `, ${speaker.title}` : ""}
                                 </div>
                               )}
-                              {item.notes && <p className="text-xs text-slate-400 font-medium italic mt-1">{item.notes}</p>}
+                               {item.notes && <p className="text-sm text-slate-400 font-medium italic mt-1">{item.notes}</p>}
                             </div>
                           </div>
                         </div>

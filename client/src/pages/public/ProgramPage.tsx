@@ -120,7 +120,7 @@ export default function ProgramPage() {
                       <TabsTrigger
                         key={dayKey}
                         value={dayKey}
-                        className="rounded-xl data-[state=active]:bg-teal-600 data-[state=active]:text-white font-bold text-[11px] uppercase tracking-widest h-full px-8 transition-all"
+                        className="rounded-xl data-[state=active]:bg-teal-600 data-[state=active]:text-white font-bold text-sm h-full px-8 transition-all"
                       >
                         {dayKey}
                       </TabsTrigger>
