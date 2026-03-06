@@ -1,18 +1,18 @@
+import type {
+    Conference,
+} from "@shared/schema";
 import { existsSync } from "fs";
 import { readdir, unlink } from "fs/promises";
-import type {
-  Conference,
-} from "@shared/schema";
-import { 
-    readConferenceData, 
-    writeConferenceData, 
-    readConfig, 
-    writeConfig, 
-    getConferenceFilePath, 
-    slugify, 
-    DATA_DIR,
+import {
     ConferenceData,
-    cloneFile
+    DATA_DIR,
+    cloneFile,
+    getConferenceFilePath,
+    readConferenceData,
+    readConfig,
+    slugify,
+    writeConferenceData,
+    writeConfig
 } from "./dataContext";
 export class JSONStorage {
   async getActiveConference(): Promise<Conference | undefined> {
@@ -92,7 +92,7 @@ export class JSONStorage {
     } as any;
     const newData: ConferenceData = {
       conference,
-      sessions: [], speakers: [], organizers: [], sponsors: [], announcements: [], sightseeing: [], whitelists: [],
+      sessions: [], speakers: [], organizers: [], sponsors: [], announcements: [], documents: [], sightseeing: [], whitelists: [],
     };
     await writeConferenceData(slug, newData);
     return conference;
@@ -128,7 +128,7 @@ export class JSONStorage {
         await this.updateConference(conf.slug, { isActive: false });
       }
     }
-    
+
     // Activate the target one
     await this.updateConference(slugToActivate, { isActive: true });
 
@@ -227,6 +227,16 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     }));
 
+    const newDocuments = await Promise.all((sourceData.documents || []).map(async d => ({
+      ...d,
+      id: `document-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      conferenceId: slug,
+      featuredImageUrl: await cloneFile(d.featuredImageUrl),
+      pdfUrl: await cloneFile(d.pdfUrl),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })));
+
     const newData: ConferenceData = {
       conference: newConference,
       sessions: newSessions as any,
@@ -234,6 +244,7 @@ export class JSONStorage {
       organizers: newOrganizers as any,
       sponsors: newSponsors as any,
       announcements: newAnnouncements as any,
+      documents: newDocuments as any,
       sightseeing: newSightseeing as any,
       whitelists: newWhitelists as any,
     };

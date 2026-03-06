@@ -1,11 +1,23 @@
 import { relations } from "drizzle-orm";
 import {
-  index,
-  integer,
-  sqliteTable,
-  text,
+    index,
+    integer,
+    sqliteTable,
+    text,
 } from "drizzle-orm/sqlite-core";
 import { randomUUID } from "node:crypto";
+import {
+    Announcement,
+    Conference,
+    DashboardStats,
+    Document,
+    Organizer,
+    Session,
+    Sightseeing,
+    Speaker,
+    Sponsor,
+    Whitelist
+} from "./types";
 export const sessions = sqliteTable(
   "sessions",
   {
@@ -124,15 +136,17 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
-import {
-  Announcement,
-  Conference,
-  DashboardStats,
-  Organizer,
-  Session,
-  Sightseeing,
-  Speaker,
-  Sponsor,
-  Whitelist
-} from "./types";
-export type { Announcement, Conference, DashboardStats, Organizer, Session, Sightseeing, Speaker, Sponsor, Whitelist };
+export type {
+    Announcement,
+    Conference,
+    DashboardStats,
+    Document,
+    InsertAnnouncement,
+    InsertDocument,
+    Organizer,
+    Session,
+    Sightseeing,
+    Speaker,
+    Sponsor,
+    Whitelist
+};

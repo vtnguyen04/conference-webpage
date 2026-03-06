@@ -106,6 +106,14 @@ export const insertSightseeingSchema = z.object({
   excerpt: z.string(),
   featuredImageUrl: z.string().optional().or(z.literal("")),
 });
+export const insertDocumentSchema = z.object({
+  title: z.string().min(1),
+  content: z.string(),
+  excerpt: z.string(),
+  featuredImageUrl: z.string().optional().or(z.literal("")),
+  pdfUrl: z.string().optional().or(z.literal("")),
+  publishedAt: z.string().optional(),
+});
 export const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -145,6 +153,7 @@ export type ContactFormValues = ContactFormRequest;
 export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
 export type InsertOrganizer = z.infer<typeof insertOrganizerSchema>;
 export type InsertSession = z.infer<typeof insertSessionSchema>;
+export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type InsertSightseeing = z.infer<typeof insertSightseeingSchema>;
 export type InsertSpeaker = z.infer<typeof insertSpeakerSchema>;
 export type InsertSponsor = z.infer<typeof insertSponsorSchema>;

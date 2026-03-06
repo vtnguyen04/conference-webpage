@@ -1,10 +1,10 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { ApiError } from "@/services/apiClient";
-export async function apiRequest(
+import { QueryClient, QueryFunction } from "@tanstack/react-query";
+export async function apiRequest<T = any>(
   method: string,
   url: string,
   data?: unknown | undefined,
-): Promise<any> {
+): Promise<T> {
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -15,7 +15,7 @@ export async function apiRequest(
   if (method !== "DELETE" && res.headers.get("content-type")?.includes("application/json")) {
     return await res.json();
   }
-  return {};
+  return {} as T;
 }
 export async function apiUploadFile(
   url: string,

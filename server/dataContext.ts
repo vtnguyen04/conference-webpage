@@ -1,16 +1,17 @@
-import { join, extname } from "path";
-import { existsSync, mkdirSync } from "fs";
-import { readFile, writeFile, unlink, copyFile } from "fs/promises";
 import type {
-  Conference,
-  Session,
-  Speaker,
-  Organizer,
-  Sponsor,
-  Announcement,
-  Sightseeing,
-  Whitelist,
+    Announcement,
+    Conference,
+    Document,
+    Organizer,
+    Session,
+    Sightseeing,
+    Speaker,
+    Sponsor,
+    Whitelist,
 } from "@shared/schema";
+import { existsSync, mkdirSync } from "fs";
+import { copyFile, readFile, unlink, writeFile } from "fs/promises";
+import { extname, join } from "path";
 export interface ConferenceData {
   conference: Conference;
   sessions: Session[];
@@ -18,6 +19,7 @@ export interface ConferenceData {
   organizers: Organizer[];
   sponsors: Sponsor[];
   announcements: Announcement[];
+  documents: Document[];
   sightseeing: Sightseeing[];
   whitelists: Whitelist[];
 }

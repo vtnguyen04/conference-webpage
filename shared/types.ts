@@ -158,13 +158,20 @@ export interface Whitelist {
   createdAt: string;
 }
 export interface Document {
-  id?: string;
+  id: string;
+  conferenceId: string;
   title: string;
-  url: string;
-  type: string;
-  conferenceId?: string;
+  content: string;
+  excerpt: string;
+  featuredImageUrl?: string;
+  pdfUrl?: string;
+  views: number;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export type InsertAnnouncement = Omit<Announcement, "id" | "createdAt" | "updatedAt" | "views" | "publishedAt"> & { publishedAt?: string };
+export type InsertDocument = Omit<Document, "id" | "createdAt" | "updatedAt" | "views" | "publishedAt"> & { publishedAt?: string };
 export type InsertOrganizer = Omit<Organizer, "id" | "createdAt" | "updatedAt">;
 export type InsertSession = Omit<Session, "id" | "createdAt" | "updatedAt">;
 export type InsertSightseeing = Omit<Sightseeing, "id" | "createdAt" | "updatedAt">;
