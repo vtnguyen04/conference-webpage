@@ -29,6 +29,7 @@ import {
     Building,
     Calendar,
     FileText,
+    Globe,
     Image as ImageIcon,
     Info,
     Mail,
@@ -269,6 +270,23 @@ export default function ConferencePage() {
                                 <Input {...field} value={field.value || ""} className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all" />
                               </div>
                             </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control as any}
+                        name="surveyUrl"
+                        render={({ field }) => (
+                          <FormItem className="col-span-2">
+                            <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Link khảo sát (Google/Microsoft Form)</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Input {...field} value={field.value || ""} placeholder="https://docs.google.com/forms/d/..." className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all" />
+                              </div>
+                            </FormControl>
+                            <FormDescription className="text-[10px]">Dán link Google Form hoặc Microsoft Form để nhúng trực tiếp vào website.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}

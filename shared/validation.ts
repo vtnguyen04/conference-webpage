@@ -30,6 +30,7 @@ export const insertConferenceSchema = z.object({
   feature2Desc: z.string().optional().or(z.literal("")),
   feature3Title: z.string().optional().or(z.literal("")),
   feature3Desc: z.string().optional().or(z.literal("")),
+  surveyUrl: z.string().url().optional().or(z.literal("")),
   isActive: z.coerce.boolean().default(true),
 });
 export const conferenceSchema = insertConferenceSchema.extend({

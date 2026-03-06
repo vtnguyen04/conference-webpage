@@ -1,7 +1,7 @@
-import React, { Suspense } from "react";
-import { Switch, Route } from "wouter";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Loader2 } from "lucide-react";
+import React, { Suspense } from "react";
+import { Route, Switch } from "wouter";
 const HomePage = React.lazy(() => import("@/pages/public/HomePage"));
 const AboutPage = React.lazy(() => import("@/pages/public/AboutPage"));
 const ProgramPage = React.lazy(() => import("@/pages/public/ProgramPage"));
@@ -17,6 +17,7 @@ const RegistrationConfirmedPage = React.lazy(() => import("@/pages/public/Regist
 const RegistrationFailedPage = React.lazy(() => import("@/pages/public/RegistrationFailedPage"));
 const ContactPage = React.lazy(() => import("@/pages/public/ContactPage"));
 const DocumentsPage = React.lazy(() => import("@/pages/public/DocumentsPage"));
+const SurveyPage = React.lazy(() => import("@/pages/public/SurveyPage"));
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
 export function PublicApp() {
   return (
@@ -49,6 +50,7 @@ export function PublicApp() {
           <Route path="/registration-confirmed" component={RegistrationConfirmedPage} />
           <Route path="/registration-failed" component={RegistrationFailedPage} />
           <Route path="/contact" component={ContactPage} />
+          <Route path="/khao-sat" component={SurveyPage} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
