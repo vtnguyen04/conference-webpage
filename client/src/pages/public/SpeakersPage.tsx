@@ -1,26 +1,25 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Link, useRoute } from "wouter";
-import { useEffect, useRef } from "react";
 import { SpeakerCard } from "@/components/SpeakerCard";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Card, CardContent } from "@/components/ui/card";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicSpeakers } from "@/hooks/usePublicData";
-import { Users, Info, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Info, Sparkles, Users } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link, useRoute } from "wouter";
 
 export default function SpeakersPage() {
   const [, params] = useRoute("/conference/:slug/speakers");
   const slug = params?.slug;
   const { conference } = useActiveConference();
-  
+
   const { data: speakers = [], isLoading } = usePublicSpeakers(slug || conference?.slug);
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -43,7 +42,7 @@ export default function SpeakersPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <div className="animate-spin h-12 w-12 border-4 border-teal-600 border-t-transparent rounded-full mx-auto"></div>
-          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang kết nối hội đồng chuyên gia...</p>
+          <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Đang kết nối ban tổ chức...</p>
         </div>
       </div>
     );
@@ -52,7 +51,7 @@ export default function SpeakersPage() {
   return (
     <div className="animate-in fade-in duration-500">
       <PageHeader
-        title="Hội đồng Chuyên gia"
+        title="Ban tổ chức"
         subtitle="Gặp gỡ các nhà khoa học, báo cáo viên hàng đầu sẽ chia sẻ kiến thức và kinh nghiệm tại hội nghị."
         bannerImageUrl={conference?.bannerUrls?.[0]}
       >
@@ -74,7 +73,7 @@ export default function SpeakersPage() {
       <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto space-y-24">
-            
+
             {/* Moderators Section */}
             {moderators.length > 0 && (
               <section className="space-y-12">
@@ -84,11 +83,11 @@ export default function SpeakersPage() {
                     <span className="text-xs font-extrabold uppercase tracking-widest">Ban điều hành phiên họp</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                    Chủ tọa Đoàn
+                    Chủ tọa
                   </h2>
                   <div className="h-1 w-20 bg-amber-500 rounded-full" />
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {moderators.map((speaker) => (
                     <SpeakerCard key={speaker.id} speaker={speaker} />
@@ -106,7 +105,7 @@ export default function SpeakersPage() {
                     <span className="text-xs font-extrabold uppercase tracking-widest">Diễn giả tham luận</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                    Báo cáo viên chuyên đề
+                    Báo cáo viên
                   </h2>
                   <div className="h-1 w-20 bg-teal-500 rounded-full" />
                 </div>

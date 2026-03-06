@@ -1,75 +1,73 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSpeakers } from "@/hooks/useSpeakers";
-import { useImageUpload } from "@/hooks/useImageUpload";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { useAdminView } from "@/hooks/useAdminView";
-import { insertSpeakerSchema } from "@shared/validation";
-import type { Speaker, InsertSpeaker } from "@shared/types";
+import { ImageUploader } from "@/components/ImageUploader";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Pencil, 
-  Trash2, 
-  User, 
-  Mail, 
-  GraduationCap, 
-  Briefcase, 
-  Info, 
-  MoreHorizontal 
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ImageUploader } from "@/components/ImageUploader";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAdminView } from "@/hooks/useAdminView";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { useSpeakers } from "@/hooks/useSpeakers";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { InsertSpeaker, Speaker } from "@shared/types";
+import { insertSpeakerSchema } from "@shared/validation";
+import {
+    Briefcase,
+    GraduationCap,
+    Info,
+    MoreHorizontal,
+    Pencil,
+    Trash2,
+    User
+} from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function SpeakersManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { 
-    speakers, 
-    isLoading, 
-    createSpeaker, 
-    updateSpeaker, 
-    deleteSpeaker, 
-    isCreating, 
-    isUpdating, 
-    isDeleting: isDeletingSpeaker 
+  const {
+    speakers,
+    isLoading,
+    createSpeaker,
+    updateSpeaker,
+    deleteSpeaker,
+    isCreating,
+    isUpdating,
+    isDeleting: isDeletingSpeaker
   } = useSpeakers(viewingSlug || undefined);
 
   const { uploadImage, deleteImage, isUploading, isDeleting } = useImageUpload({
@@ -141,8 +139,8 @@ export default function SpeakersManagementPage() {
   };
 
   const renderSpeakerCard = (speaker: Speaker) => (
-    <Card 
-      key={speaker.id} 
+    <Card
+      key={speaker.id}
       className="group border-slate-200/60 hover:border-indigo-200 hover:shadow-md transition-all duration-300 overflow-hidden bg-white"
     >
       <CardContent className="p-0">
@@ -154,7 +152,7 @@ export default function SpeakersManagementPage() {
                 <User className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex gap-1">
               {speaker.role === "moderator" || speaker.role === "both" ? (
                 <Badge variant="secondary" className="bg-amber-50 text-amber-600 border-amber-100 text-[10px] font-bold uppercase tracking-tighter">
@@ -183,7 +181,7 @@ export default function SpeakersManagementPage() {
             </p>
           </div>
         </div>
-        
+
         <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter flex items-center">
             <Info className="h-3 w-3 mr-1" /> Chi tiết
@@ -212,9 +210,9 @@ export default function SpeakersManagementPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <AdminPageHeader 
+      <AdminPageHeader
         title="Quản lý Báo cáo viên"
-        description="Danh sách các chuyên gia và chủ tọa tham gia báo cáo tại hội nghị."
+        description="Danh sách các báo cáo viên và chủ tọa tham gia báo cáo tại hội nghị."
         onAdd={handleAdd}
         addLabel="Thêm báo cáo viên"
         isReadOnly={isReadOnly}
@@ -251,7 +249,7 @@ export default function SpeakersManagementPage() {
               Điền thông tin chi tiết để hiển thị trên website chính thức.
             </DialogDescription>
           </DialogHeader>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
