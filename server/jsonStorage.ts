@@ -92,7 +92,7 @@ export class JSONStorage {
     } as any;
     const newData: ConferenceData = {
       conference,
-      sessions: [], speakers: [], organizers: [], sponsors: [], announcements: [], documents: [], sightseeing: [], whitelists: [],
+      sessions: [], speakers: [], organizers: [], sponsors: [], announcements: [], documents: [], whitelists: [],
     };
     await writeConferenceData(slug, newData);
     return conference;
@@ -210,14 +210,6 @@ export class JSONStorage {
       updatedAt: new Date().toISOString(),
     })));
 
-    const newSightseeing = await Promise.all((sourceData.sightseeing || []).map(async s => ({
-      ...s,
-      id: `sightseeing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      conferenceId: slug,
-      featuredImageUrl: await cloneFile(s.featuredImageUrl),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    })));
 
     const newWhitelists = (sourceData.whitelists || []).map(w => ({
       ...w,
@@ -245,7 +237,6 @@ export class JSONStorage {
       sponsors: newSponsors as any,
       announcements: newAnnouncements as any,
       documents: newDocuments as any,
-      sightseeing: newSightseeing as any,
       whitelists: newWhitelists as any,
     };
 

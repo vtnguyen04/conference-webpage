@@ -4,7 +4,6 @@ import type {
     Document,
     Organizer,
     Session,
-    Sightseeing,
     Speaker,
     Sponsor,
     Whitelist,
@@ -20,7 +19,6 @@ export interface ConferenceData {
   sponsors: Sponsor[];
   announcements: Announcement[];
   documents: Document[];
-  sightseeing: Sightseeing[];
   whitelists: Whitelist[];
 }
 export const DATA_DIR = join(process.cwd(), "server", "data");

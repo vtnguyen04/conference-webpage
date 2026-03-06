@@ -2,10 +2,9 @@ import { announcementService } from "@/services/announcementService";
 import { documentService } from "@/services/documentService";
 import { organizerService } from "@/services/organizerService";
 import { sessionService } from "@/services/sessionService";
-import { sightseeingService } from "@/services/sightseeingService";
 import { speakerService } from "@/services/speakerService";
 import { sponsorService } from "@/services/sponsorService";
-import type { Announcement, Document, Organizer, Session, Sightseeing, Speaker, Sponsor } from "@shared/types";
+import type { Announcement, Document, Organizer, Session, Speaker, Sponsor } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 
 export function usePublicSpeakers(slug?: string) {
@@ -56,21 +55,6 @@ export function usePublicAnnouncement(id?: string, slug?: string) {
   });
 }
 
-export function usePublicSightseeing(slug?: string) {
-  return useQuery<Sightseeing[]>({
-    queryKey: ["api", "sightseeing", "slug", slug],
-    queryFn: () => slug ? sightseeingService.getSightseeings(slug) : Promise.resolve([]),
-    enabled: !!slug,
-  });
-}
-
-export function usePublicSightseeingItem(id?: string, slug?: string) {
-  return useQuery<Sightseeing>({
-    queryKey: slug ? ["api", "sightseeing", slug, id] : ["api", "sightseeing", id],
-    queryFn: () => id ? sightseeingService.getSightseeingById(id, slug) : Promise.reject("Missing ID"),
-    enabled: !!id,
-  });
-}
 
 export function usePublicDocuments(slug?: string) {
   return useQuery<Document[]>({

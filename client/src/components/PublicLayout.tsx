@@ -1,20 +1,20 @@
-import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuPortal,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Mail, Phone, MapPin, ChevronDown, Facebook, Globe, Share2, Calendar, FileText, ArrowRight } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { Conference } from "@shared/types";
 import { cn } from "@/lib/utils";
+import type { Conference } from "@shared/types";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, ChevronDown, Facebook, Globe, Mail, MapPin, Menu, Phone, Share2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "wouter";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -115,7 +115,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                 </div>
               )}
             </Link>
-            
+
             <nav className="hidden lg:flex items-center space-x-1 mx-auto">
               {navItems.map((item) => (
                 <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
@@ -172,7 +172,6 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <NavLink href="/sightseeing">THAM QUAN</NavLink>
               <NavLink href="/contact">LIÊN HỆ</NavLink>
             </nav>
 
@@ -227,7 +226,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
       <footer className="bg-[#042f2e] text-white pt-20 pb-10 mt-auto">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-10 mb-16">
-            
+
             {/* Column 1: Brand Intro */}
             <div className="space-y-6">
               <Link href="/" className="inline-block">

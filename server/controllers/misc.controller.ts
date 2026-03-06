@@ -1,4 +1,4 @@
-import { contactFormSchema, insertSightseeingSchema } from "@shared/validation";
+import { contactFormSchema } from "@shared/validation";
 import { type Response } from "express";
 import fs from 'fs/promises';
 import path from 'path';
@@ -7,7 +7,6 @@ import { type RequestWithActiveConference } from "../middlewares/checkActiveConf
 import { contactRepository } from "../repositories/contactRepository";
 import { registrationRepository } from "../repositories/registrationRepository";
 import { sessionRepository } from "../repositories/sessionRepository";
-import { sightseeingRepository } from "../repositories/sightseeingRepository";
 import { sponsorRepository } from "../repositories/sponsorRepository";
 import { deleteFile } from "../utils";
 async function processAndSaveImage(buffer: Buffer, _originalName: string, type: 'banner' | 'avatar' | 'general' = 'general'): Promise<string> {
@@ -48,27 +47,6 @@ export const uploadBanners = async (req: any, res: Response) => {
 export const deleteUpload = async (req: any, res: Response) => {
     try { if (req.query.filePath) { await deleteFile(req.query.filePath as string); res.json({ success: true }); } else res.status(400).json({ message: "Missing path" }); } catch (error: any) { res.status(500).json({ message: "Failed" }); }
 };
-export const getActiveConferenceSightseeing = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await sightseeingRepository.getAll(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
-};
-export const getSightseeingBySlug = async (req: any, res: Response) => {
-    try { res.json(await sightseeingRepository.getAll(req.params.conferenceSlug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
-};
-export const getSightseeingItemById = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await sightseeingRepository.getById(req.activeConference.slug, req.params.id)); } catch (error: any) { res.status(500).json({ message: "Failed" }); }
-};
-export const getSightseeingItemBySlugAndId = async (req: any, res: Response) => {
-    try { res.json(await sightseeingRepository.getById(req.params.conferenceSlug, req.params.id)); } catch (error: any) { res.status(500).json({ message: "Failed" }); }
-};
-export const createSightseeingItem = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.status(201).json(await sightseeingRepository.create(req.activeConference.slug, { ...insertSightseeingSchema.parse(req.body), conferenceId: req.activeConference.slug })); } catch (error: any) { res.status(400).json({ message: error.message }); }
-};
-export const updateSightseeingItem = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await sightseeingRepository.update(req.activeConference.slug, req.params.id, req.body)); } catch (error: any) { res.status(400).json({ message: error.message }); }
-};
-export const deleteSightseeingItem = async (req: RequestWithActiveConference, res: Response) => {
-    try { await sightseeingRepository.delete(req.activeConference.slug, req.params.id); res.json({ success: true }); } catch (error: any) { res.status(400).json({ message: error.message }); }
-};
 export const getAdminStats = async (req: RequestWithActiveConference, res: Response) => {
     try {
         const slug = req.activeConference.slug;
@@ -76,9 +54,9 @@ export const getAdminStats = async (req: RequestWithActiveConference, res: Respo
         const sponsors = await sponsorRepository.getAll(slug);
         const regStats = await registrationRepository.getStats(slug);
         res.json({ totalSessions: sessions.length, totalSponsors: sponsors.length, ...regStats });
-    } catch (error: any) { 
+    } catch (error: any) {
         console.error("Error in getAdminStats:", error);
-        res.status(500).json({ message: "Failed", error: error.message }); 
+        res.status(500).json({ message: "Failed", error: error.message });
     }
 };
 export const createNewContactMessage = async (req: any, res: Response) => {

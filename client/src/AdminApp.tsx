@@ -17,7 +17,6 @@ const DocumentsManagementPage = React.lazy(() => import("@/pages/admin/Documents
 const RegistrationsPage = React.lazy(() => import("@/pages/admin/RegistrationsPage"));
 const CheckinPage = React.lazy(() => import("@/pages/admin/CheckinPage"));
 const AnalyticsPage = React.lazy(() => import("@/pages/admin/AnalyticsPage"));
-const SightseeingManagementPage = React.lazy(() => import("@/pages/admin/SightseeingManagementPage"));
 const ContactMessagesPage = React.lazy(() => import("@/pages/admin/ContactMessagesPage"));
 const ConferencesManagementPage = React.lazy(() => import("@/pages/admin/ConferencesManagementPage"));
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
@@ -59,7 +58,6 @@ export function AdminApp() {
                     <Route path="/admin/sponsors" component={SponsorsManagementPage} />
                     <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
                     <Route path="/admin/documents" component={DocumentsManagementPage} />
-                    <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
                     <Route path="/admin/registrations" component={RegistrationsPage} />
                     <Route path="/admin/checkin" component={CheckinPage} />
                     <Route path="/admin/analytics" component={AnalyticsPage} />

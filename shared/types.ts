@@ -140,16 +140,6 @@ export interface Announcement {
   createdAt: string;
   updatedAt: string;
 }
-export interface Sightseeing {
-  id: string;
-  conferenceId: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  featuredImageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 export interface Whitelist {
   id: string;
   conferenceId: string;
@@ -174,7 +164,6 @@ export type InsertAnnouncement = Omit<Announcement, "id" | "createdAt" | "update
 export type InsertDocument = Omit<Document, "id" | "createdAt" | "updatedAt" | "views" | "publishedAt"> & { publishedAt?: string };
 export type InsertOrganizer = Omit<Organizer, "id" | "createdAt" | "updatedAt">;
 export type InsertSession = Omit<Session, "id" | "createdAt" | "updatedAt">;
-export type InsertSightseeing = Omit<Sightseeing, "id" | "createdAt" | "updatedAt">;
 export type InsertSpeaker = Omit<Speaker, "id" | "createdAt" | "updatedAt">;
 export type InsertSponsor = Omit<Sponsor, "id" | "createdAt" | "updatedAt">;
 export type InsertRegistration = Omit<Registration,

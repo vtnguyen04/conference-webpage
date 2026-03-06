@@ -52,13 +52,12 @@ import {
     LayoutDashboard,
     LogOut,
     Mail,
-    Map,
     Megaphone,
     Menu,
     Search,
     Settings,
     UserCheck,
-    Users,
+    Users
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
@@ -87,7 +86,6 @@ const menuGroups = [
       { href: "/admin/sponsors", icon: Award, label: "Nhà tài trợ" },
       { href: "/admin/announcements", icon: Megaphone, label: "Thông báo" },
       { href: "/admin/documents", icon: FileText, label: "Kỷ yếu" },
-      { href: "/admin/sightseeing", icon: Map, label: "Địa điểm tham quan" },
     ]
   },
   {

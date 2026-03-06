@@ -10,8 +10,6 @@ const OrganizersPage = React.lazy(() => import("@/pages/public/OrganizersPage"))
 const SponsorsPage = React.lazy(() => import("@/pages/public/SponsorsPage"));
 const AnnouncementsPage = React.lazy(() => import("@/pages/public/AnnouncementsPage"));
 const AnnouncementDetailPage = React.lazy(() => import("@/pages/public/AnnouncementDetailPage"));
-const SightseeingPage = React.lazy(() => import("@/pages/public/SightseeingPage"));
-const SightseeingDetailPage = React.lazy(() => import("@/pages/public/SightseeingDetailPage"));
 const RegistrationPage = React.lazy(() => import("@/pages/public/RegistrationPage"));
 const RegistrationConfirmedPage = React.lazy(() => import("@/pages/public/RegistrationConfirmedPage"));
 const RegistrationFailedPage = React.lazy(() => import("@/pages/public/RegistrationFailedPage"));
@@ -47,8 +45,6 @@ export function PublicApp() {
            <Route path="/conference/:slug/documents" component={DocumentsPage} />
            <Route path="/conference/:slug/documents/:id" component={DocumentDetailPage} />
            {/* General Routes (non-conference specific) */}
-          <Route path="/sightseeing" component={SightseeingPage} />
-          <Route path="/sightseeing/:id" component={SightseeingDetailPage} />
           <Route path="/register" component={RegistrationPage} />
           <Route path="/registration-confirmed" component={RegistrationConfirmedPage} />
           <Route path="/registration-failed" component={RegistrationFailedPage} />

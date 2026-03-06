@@ -11,9 +11,10 @@ import {
     Conference,
     DashboardStats,
     Document,
+    InsertAnnouncement,
+    InsertDocument,
     Organizer,
     Session,
-    Sightseeing,
     Speaker,
     Sponsor,
     Whitelist
@@ -145,7 +146,6 @@ export type {
     InsertDocument,
     Organizer,
     Session,
-    Sightseeing,
     Speaker,
     Sponsor,
     Whitelist
