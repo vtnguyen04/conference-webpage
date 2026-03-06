@@ -1,16 +1,14 @@
-import React from "react";
-import { useActiveConference } from "@/hooks/useActiveConference";
-import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";
-import { LazyMotion, domAnimation } from "framer-motion";
-import HeroSection from "@/components/HeroSection";
-import QuickActionsSection from "@/components/QuickActionsSection";
-import OrganizersSection from "@/components/OrganizersSection";
 import AnnouncementsSection from "@/components/AnnouncementsSection";
+import HeroSection from "@/components/HeroSection";
+import OrganizersSection from "@/components/OrganizersSection";
 import ProgramSection from "@/components/ProgramSection";
+import QuickActionsSection from "@/components/QuickActionsSection";
+import { ScrollAnimatedSection } from "@/components/ScrollAnimatedSection";
 import SpeakersSection from "@/components/SpeakersSection";
 import SponsorsSection from "@/components/SponsorsSection";
-import IntroductionSection from "@/components/IntroductionSection";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { LazyMotion, domAnimation } from "framer-motion";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 export default function HomePage() {
   const { conference, isLoading, error } = useActiveConference();
@@ -56,11 +54,6 @@ export default function HomePage() {
           </div>
         </ScrollAnimatedSection>
 
-        {/* 2. Introduction - Trắng */}
-        <ScrollAnimatedSection className="py-24 bg-white relative overflow-hidden">
-            <div className="absolute top-20 left-10 w-64 h-64 bg-teal-100/10 rounded-full blur-3xl" />
-            <IntroductionSection />
-        </ScrollAnimatedSection>
 
         {/* 3. Announcements - Xanh Teal nhạt vừa phải */}
         <ScrollAnimatedSection className="py-24 bg-teal-50/80 border-y border-teal-100/50">

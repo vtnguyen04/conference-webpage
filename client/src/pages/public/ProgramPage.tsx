@@ -12,6 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicSessions, usePublicSpeakers } from "@/hooks/usePublicData";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import { Calendar as CalendarIcon, Info } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { Link, useRoute } from "wouter";
@@ -33,15 +35,39 @@ export default function ProgramPage() {
   }, [sessions.length]);
 
   const sessionsByDay = useMemo(() => {
-    const grouped: Record<number, typeof sessions> = {};
-    sessions.forEach(s => {
-      if (!grouped[s.day]) grouped[s.day] = [];
-      grouped[s.day].push(s);
+    const grouped: Record<string, typeof sessions> = {};
+
+    // Sort sessions chronologically first
+    const sortedSessions = [...sessions].sort((a, b) => {
+      const timeA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const timeB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      return timeA - timeB;
+    });
+
+    sortedSessions.forEach(s => {
+      if (!s.startTime) return;
+      const startDate = new Date(s.startTime);
+      if (isNaN(startDate.getTime())) return;
+
+      const hour = startDate.getHours();
+      const timeOfDay = hour < 12 ? "Sáng" : "Chiều";
+
+      // format: EEEE (Thứ X), dd/MM/yyyy
+      let dayStr = format(startDate, "EEEE", { locale: vi });
+      // vi locale might output 'thứ Sáu', capitalize it:
+      dayStr = dayStr.charAt(0).toUpperCase() + dayStr.slice(1);
+
+      const dateStr = format(startDate, "dd/MM/yyyy");
+      const key = `${timeOfDay} ${dayStr} (${dateStr})`;
+
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(s);
     });
     return grouped;
   }, [sessions]);
 
-  const sortedDays = Object.keys(sessionsByDay).map(Number).sort((a, b) => a - b);
+  // Keys are already in chronological order because we sorted the items before grouping
+  const sortedDays = Object.keys(sessionsByDay);
 
   if (sessionsLoading || speakersLoading) {
     return (
@@ -80,29 +106,33 @@ export default function ProgramPage() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
             {sortedDays.length > 0 ? (
-              <Tabs defaultValue={sortedDays[0].toString()} className="w-full">
-                <div className="flex flex-col items-center mb-12 space-y-6">
+              <Tabs defaultValue={sortedDays[0]} className="w-full">
+                <div className="flex flex-col items-center mb-12 space-y-6 w-full">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
                     <CalendarIcon className="h-4 w-4" />
                     <span className="text-xs font-extrabold uppercase tracking-widest">Chương trình hội nghị</span>
                   </div>
 
-                  <TabsList className="bg-white p-1 h-14 rounded-2xl shadow-sm border border-slate-200/60 w-full max-w-md">
-                    {sortedDays.map(day => (
+                  <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+                    <div className="flex min-w-full w-max justify-center px-4 md:px-0">
+                      <TabsList className="bg-white p-1 h-14 rounded-2xl shadow-sm border border-slate-200/60 inline-flex w-max">
+                    {sortedDays.map(dayKey => (
                       <TabsTrigger
-                        key={day}
-                        value={day.toString()}
+                        key={dayKey}
+                        value={dayKey}
                         className="rounded-xl data-[state=active]:bg-teal-600 data-[state=active]:text-white font-bold text-[11px] uppercase tracking-widest h-full px-8 transition-all"
                       >
-                        Ngày {day}
+                        {dayKey}
                       </TabsTrigger>
                     ))}
-                  </TabsList>
+                      </TabsList>
+                    </div>
+                  </div>
                 </div>
 
-                {sortedDays.map(day => (
-                  <TabsContent key={day} value={day.toString()} className="mt-0 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-                    <SessionList sessions={sessionsByDay[day]} speakers={speakers} />
+                {sortedDays.map(dayKey => (
+                  <TabsContent key={dayKey} value={dayKey} className="mt-0 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                    <SessionList sessions={sessionsByDay[dayKey]} speakers={speakers} />
                   </TabsContent>
                 ))}
               </Tabs>

@@ -1,15 +1,14 @@
-import React, { useMemo } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, User, Layout, ArrowRight, CheckCircle2, Info } from "lucide-react";
-import { format } from "date-fns";
 import type { Session, Speaker } from "@shared/types";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ArrowRight, Clock, Info, Layout, MapPin, User } from "lucide-react";
+import React, { useMemo } from "react";
 
 interface SessionListProps {
   sessions: Session[];
   speakers: Speaker[];
-  view?: 'homepage' | 'full'; 
+  view?: 'homepage' | 'full';
 }
 
 interface SpeakerMap {
@@ -18,9 +17,9 @@ interface SpeakerMap {
 
 const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Session; speakerMap: SpeakerMap }) => {
   return (
-    <AccordionItem 
-      key={session.id} 
-      value={session.id} 
+    <AccordionItem
+      key={session.id}
+      value={session.id}
       className="border-none mb-4"
     >
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300 overflow-hidden">
@@ -38,7 +37,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                   {session.type}
                 </Badge>
               </div>
-              <h3 className="text-base font-extrabold text-slate-800 group-hover:text-teal-600 transition-colors leading-tight">
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 group-hover:text-teal-600 transition-colors leading-tight">
                 {session.title}
               </h3>
               <div className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -53,7 +52,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
         </AccordionTrigger>
         <AccordionContent className="px-8 pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="h-px w-full bg-slate-50 mb-8" />
-          
+
           <div className="space-y-8">
             {session.description && (
               <div className="space-y-3">
@@ -77,13 +76,13 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                     <div className="flex flex-wrap gap-3">
                       {validChairs.map(id => (
                         <div key={id} className="flex items-center gap-3 bg-slate-50 pl-1 pr-4 py-1 rounded-full border border-slate-100 group/avatar hover:border-teal-200 transition-colors">
-                          <img 
-                            src={speakerMap[id].photoUrl || `https://avatar.vercel.sh/${speakerMap[id].name}.png`} 
-                            alt={speakerMap[id].name} 
-                            className="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white" 
+                          <img
+                            src={speakerMap[id].photoUrl || `https://avatar.vercel.sh/${speakerMap[id].name}.png`}
+                            alt={speakerMap[id].name}
+                            className="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white"
                           />
-                          <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-tighter">
-                            {speakerMap[id].credentials} {speakerMap[id].name}
+                          <span className="text-[12px] font-extrabold text-blue-700 uppercase tracking-tighter">
+                            {speakerMap[id].credentials} {speakerMap[id].name}{speakerMap[id].title ? `, ${speakerMap[id].title}` : ""}
                           </span>
                         </div>
                       ))}
@@ -102,7 +101,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                   </div>
                   <Badge className="bg-teal-600 text-white text-[9px] font-bold uppercase">{session.agendaItems.length} mục</Badge>
                 </div>
-                
+
                 <div className="grid gap-3">
                   {session.agendaItems.map((item, index) => {
                     const speaker = item.speakerId ? speakerMap[item.speakerId] : null;
@@ -114,11 +113,11 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                               {item.timeSlot}
                             </div>
                             <div className="flex-1 space-y-1">
-                              <p className="text-sm font-bold text-slate-800 leading-tight group-hover/item:text-teal-700 transition-colors">{item.title}</p>
+                              <p className="text-base font-extrabold text-slate-800 leading-tight group-hover/item:text-teal-700 transition-colors">{item.title}</p>
                               {speaker && (
-                                <div className="flex items-center gap-2 text-xs font-bold text-teal-600/80">
-                                  <span className="h-1 w-1 rounded-full bg-teal-400" />
-                                  {speaker.credentials} {speaker.name}
+                                <div className="flex flex-wrap items-center gap-2 text-sm font-extrabold text-blue-600">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                                  {speaker.credentials} {speaker.name}{speaker.title ? `, ${speaker.title}` : ""}
                                 </div>
                               )}
                               {item.notes && <p className="text-xs text-slate-400 font-medium italic mt-1">{item.notes}</p>}
@@ -183,10 +182,6 @@ export function SessionList({ sessions, speakers, view = 'full' }: SessionListPr
     <div className="space-y-12">
       {Object.keys(sessionsBySlot).map(slot => (
         <div key={slot} className="space-y-6">
-          <div className="flex items-center gap-4">
-            <Badge className="bg-slate-900 text-white px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">Buổi {slot}</Badge>
-            <div className="h-px flex-1 bg-slate-100" />
-          </div>
           <Accordion type="single" collapsible className="w-full">
             {sessionsBySlot[slot].map(session => (
               <SessionAccordionItem key={session.id} session={session} speakerMap={speakerMap} />
@@ -197,5 +192,3 @@ export function SessionList({ sessions, speakers, view = 'full' }: SessionListPr
     </div>
   );
 }
-
-import { Info as LucideInfo } from "lucide-react";
