@@ -1,10 +1,11 @@
-import React, { Suspense } from "react";
-import { Switch, Route, Redirect, useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import Login from "@/pages/Login";
 import { Loader2 } from "lucide-react";
+import React, { Suspense } from "react";
+import { Redirect, Route, Switch, useLocation } from "wouter";
 const DashboardPage = React.lazy(() => import("@/pages/admin/DashboardPage"));
 const ConferencePage = React.lazy(() => import("@/pages/admin/ConferencePage"));
 const SessionsPage = React.lazy(() => import("@/pages/admin/SessionsPage"));
@@ -12,13 +13,13 @@ const SpeakersManagementPage = React.lazy(() => import("@/pages/admin/SpeakersMa
 const OrganizersManagementPage = React.lazy(() => import("@/pages/admin/OrganizersManagementPage"));
 const SponsorsManagementPage = React.lazy(() => import("@/pages/admin/SponsorsManagementPage"));
 const AnnouncementsManagementPage = React.lazy(() => import("@/pages/admin/AnnouncementsManagementPage"));
+const DocumentsManagementPage = React.lazy(() => import("@/pages/admin/DocumentsManagementPage"));
 const RegistrationsPage = React.lazy(() => import("@/pages/admin/RegistrationsPage"));
 const CheckinPage = React.lazy(() => import("@/pages/admin/CheckinPage"));
 const AnalyticsPage = React.lazy(() => import("@/pages/admin/AnalyticsPage"));
 const SightseeingManagementPage = React.lazy(() => import("@/pages/admin/SightseeingManagementPage"));
 const ContactMessagesPage = React.lazy(() => import("@/pages/admin/ContactMessagesPage"));
 const ConferencesManagementPage = React.lazy(() => import("@/pages/admin/ConferencesManagementPage"));
-import Login from "@/pages/Login";
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
 /**
  * Component gốc của ứng dụng Admin.
@@ -57,6 +58,7 @@ export function AdminApp() {
                     <Route path="/admin/organizers" component={OrganizersManagementPage} />
                     <Route path="/admin/sponsors" component={SponsorsManagementPage} />
                     <Route path="/admin/announcements" component={AnnouncementsManagementPage} />
+                    <Route path="/admin/documents" component={DocumentsManagementPage} />
                     <Route path="/admin/sightseeing" component={SightseeingManagementPage} />
                     <Route path="/admin/registrations" component={RegistrationsPage} />
                     <Route path="/admin/checkin" component={CheckinPage} />

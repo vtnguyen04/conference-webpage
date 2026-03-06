@@ -1,67 +1,67 @@
-import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
-import {
-  LayoutDashboard,
-  FileText,
-  Calendar,
-  Users,
-  Award,
-  Megaphone,
-  UserCheck,
-  BarChart3,
-  LogOut,
-  Bell,
-  Menu,
-  Building,
-  Mail,
-  Eye,
-  Settings,
-  Map,
-  ClipboardList,
-  Search,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-  SidebarInset,
-  SidebarHeader,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
-import { useAdminView } from "@/hooks/useAdminView";
-import type { Conference } from "@shared/types";
-import { analyticsService } from "@/services/analyticsService";
-import { authService } from "@/services/authService";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarInset,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
+} from "@/components/ui/sidebar";
+import { useToast } from "@/hooks/use-toast";
+import { useAdminView } from "@/hooks/useAdminView";
+import { useAuth } from "@/hooks/useAuth";
+import { queryClient } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+import { analyticsService } from "@/services/analyticsService";
+import { authService } from "@/services/authService";
+import type { Conference } from "@shared/types";
+import { useQuery } from "@tanstack/react-query";
+import {
+    Award,
+    BarChart3,
+    Bell,
+    Building,
+    Calendar,
+    ClipboardList,
+    Eye,
+    FileText,
+    LayoutDashboard,
+    LogOut,
+    Mail,
+    Map,
+    Megaphone,
+    Menu,
+    Search,
+    Settings,
+    UserCheck,
+    Users,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 
 const menuGroups = [
   {
@@ -86,6 +86,7 @@ const menuGroups = [
       { href: "/admin/organizers", icon: Users, label: "Ban tổ chức" },
       { href: "/admin/sponsors", icon: Award, label: "Nhà tài trợ" },
       { href: "/admin/announcements", icon: Megaphone, label: "Thông báo" },
+      { href: "/admin/documents", icon: FileText, label: "Kỷ yếu" },
       { href: "/admin/sightseeing", icon: Map, label: "Địa điểm tham quan" },
     ]
   },
@@ -105,7 +106,7 @@ const ConferenceSelector = () => {
   });
   const { viewingSlug, setViewingSlug, isReadOnly } = useAdminView();
   if (!viewingSlug) return null;
-  
+
   return (
     <div className="flex items-center gap-2">
       <Select
@@ -217,8 +218,8 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                         onClick={() => setLocation(item.href)}
                         className={cn(
                           "flex items-center gap-3 px-3 h-10 rounded-lg transition-all duration-200 group",
-                          location === item.href 
-                            ? "bg-indigo-50 text-indigo-700 shadow-sm border-l-4 border-indigo-600" 
+                          location === item.href
+                            ? "bg-indigo-50 text-indigo-700 shadow-sm border-l-4 border-indigo-600"
                             : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         )}
                         tooltip={!sidebarOpen ? item.label : undefined}
@@ -298,17 +299,17 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            
+
             <div className="h-6 w-[1px] bg-slate-200 mx-2" />
-            
+
             <ConferenceSelector />
           </div>
 
           <div className="flex items-center gap-3">
             <div className="hidden md:flex relative group mr-4">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-              <Input 
-                placeholder="Tìm kiếm nhanh..." 
+              <Input
+                placeholder="Tìm kiếm nhanh..."
                 className="w-48 h-9 pl-9 bg-slate-50 border-slate-100 focus-visible:bg-white transition-all text-xs"
               />
             </div>
@@ -341,4 +342,3 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
     </div>
   );
 }
-
