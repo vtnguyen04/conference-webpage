@@ -81,7 +81,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                             alt={speakerMap[id].name}
                             className="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white"
                           />
-                          <span className="text-[12px] font-extrabold text-blue-700 uppercase tracking-tighter">
+                          <span className="text-[12px] font-extrabold text-blue-700">
                             {speakerMap[id].credentials} {speakerMap[id].name}{speakerMap[id].title ? `, ${speakerMap[id].title}` : ""}
                           </span>
                         </div>
