@@ -1,16 +1,15 @@
-import { Announcement } from "@shared/types";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import SectionHeader from "@/components/SectionHeader";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { usePublicAnnouncements } from "@/hooks/usePublicData";
+import { Announcement } from "@shared/types";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import Autoplay from "embla-carousel-autoplay";
-import SectionHeader from "@/components/SectionHeader";
+import { Calendar } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { useActiveConference } from "@/hooks/useActiveConference";
-import { usePublicAnnouncements } from "@/hooks/usePublicData";
 
 const AnnouncementsSection = () => {
     const { conference } = useActiveConference();
@@ -60,7 +59,8 @@ const AnnouncementsSection = () => {
                                             <div className="absolute top-4 left-4">
                                                 <span className="bg-teal-600 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wide shadow-lg">
                                                     {announcement.category === 'important' ? 'Quan trọng' :
-                                                        announcement.category === 'deadline' ? 'Hạn cuối' : 'Thông báo'}
+                                                        announcement.category === 'deadline' ? 'Hạn cuối' :
+                                                        announcement.category === 'news' ? 'Tin tức' : 'Thông báo'}
                                                 </span>
                                             </div>
                                             <div className="absolute bottom-0 right-0 w-0 h-0 border-l-[40px] border-l-transparent border-b-[40px] border-b-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
