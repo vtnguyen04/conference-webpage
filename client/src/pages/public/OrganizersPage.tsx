@@ -1,27 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/PageHeader";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Link, useRoute } from "wouter";
-import { useEffect, useRef } from "react";
 import { OrganizerCard } from "@/components/OrganizerCard";
+import { PageHeader } from "@/components/PageHeader";
+import { Badge } from "@/components/ui/badge";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Card, CardContent } from "@/components/ui/card";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicOrganizers } from "@/hooks/usePublicData";
-import { Users, Info, ShieldCheck } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Info } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link, useRoute } from "wouter";
 
 export default function OrganizersPage() {
   const [, params] = useRoute("/conference/:slug/organizers");
   const slug = params?.slug;
   const { conference } = useActiveConference();
-  
+
   const { data: organizers = [], isLoading } = usePublicOrganizers(slug || conference?.slug);
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -77,12 +76,8 @@ export default function OrganizersPage() {
       <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto space-y-20">
-            
+
             <div className="flex flex-col items-center text-center space-y-4 mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
-                <ShieldCheck className="h-4 w-4" />
-                <span className="text-xs font-extrabold uppercase tracking-widest">Hội đồng điều hành</span>
-              </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                 BAN TỔ CHỨC
               </h2>
@@ -98,7 +93,7 @@ export default function OrganizersPage() {
                     </Badge>
                     <div className="h-[1px] flex-1 bg-slate-200" />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {groupedOrganizers[role]
                       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))

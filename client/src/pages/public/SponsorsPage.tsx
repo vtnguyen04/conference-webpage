@@ -1,26 +1,26 @@
 import { PageHeader } from "@/components/PageHeader";
+import { SponsorsList } from "@/components/SponsorsList";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link, useRoute } from "wouter";
-import { useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicSponsors } from "@/hooks/usePublicData";
-import { SponsorsList } from "@/components/SponsorsList";
-import { Card, CardContent } from "@/components/ui/card";
-import { Info, Heart } from "lucide-react";
+import { Heart, Info } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link, useRoute } from "wouter";
 
 export default function SponsorsPage() {
   const [, params] = useRoute("/conference/:slug/sponsors");
   const slug = params?.slug;
   const { conference } = useActiveConference();
   const { data: sponsors = [], isLoading } = usePublicSponsors(slug || conference?.slug);
-  
+
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,14 +65,14 @@ export default function SponsorsPage() {
       <div ref={mainContentRef} className="py-16 md:py-24 bg-slate-50/50">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            
+
             <div className="flex flex-col items-center text-center space-y-4 mb-20">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100 shadow-sm">
                 <Heart className="h-4 w-4 fill-teal-600" />
                 <span className="text-xs font-extrabold uppercase tracking-widest">Tri ân đối tác</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Danh sách Đơn vị Tài trợ
+                ĐƠN VỊ TÀI TRỢ
               </h2>
               <div className="h-1 w-20 bg-teal-500 rounded-full" />
             </div>

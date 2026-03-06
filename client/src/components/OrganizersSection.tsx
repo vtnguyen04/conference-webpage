@@ -1,13 +1,10 @@
-import { Organizer } from "@shared/types";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import SectionHeader from "@/components/SectionHeader";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { OrganizerCard } from "@/components/OrganizerCard";
-import { useQuery } from "@tanstack/react-query";
+import SectionHeader from "@/components/SectionHeader";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicOrganizers } from "@/hooks/usePublicData";
+import { Organizer } from "@shared/types";
+import Autoplay from "embla-carousel-autoplay";
 
 const OrganizersSection = () => {
     const { conference } = useActiveConference();
@@ -23,13 +20,6 @@ const OrganizersSection = () => {
                 title="Ban Tổ chức"
                 subtitle="Những người đứng sau thành công của hội nghị"
                 accentColor="bg-teal-600"
-                cta={
-                    <Link href="/organizers">
-                        <Button className="bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-12 px-10 rounded-full transition-all shadow-xl shadow-teal-200">
-                            Hội đồng điều hành
-                        </Button>
-                    </Link>
-                }
             />
             <Carousel
                 opts={{
