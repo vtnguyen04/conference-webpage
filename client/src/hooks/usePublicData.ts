@@ -1,11 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
-import { speakerService } from "@/services/speakerService";
-import { sessionService } from "@/services/sessionService";
-import { sponsorService } from "@/services/sponsorService";
-import { organizerService } from "@/services/organizerService";
 import { announcementService } from "@/services/announcementService";
+import { documentService } from "@/services/documentService";
+import { organizerService } from "@/services/organizerService";
+import { sessionService } from "@/services/sessionService";
 import { sightseeingService } from "@/services/sightseeingService";
-import type { Speaker, Session, Sponsor, Organizer, Announcement, Sightseeing } from "@shared/types";
+import { speakerService } from "@/services/speakerService";
+import { sponsorService } from "@/services/sponsorService";
+import type { Announcement, Document, Organizer, Session, Sightseeing, Speaker, Sponsor } from "@shared/types";
+import { useQuery } from "@tanstack/react-query";
 
 export function usePublicSpeakers(slug?: string) {
   return useQuery<Speaker[]>({
@@ -67,6 +68,22 @@ export function usePublicSightseeingItem(id?: string, slug?: string) {
   return useQuery<Sightseeing>({
     queryKey: slug ? ["api", "sightseeing", slug, id] : ["api", "sightseeing", id],
     queryFn: () => id ? sightseeingService.getSightseeingById(id, slug) : Promise.reject("Missing ID"),
+    enabled: !!id,
+  });
+}
+
+export function usePublicDocuments(slug?: string) {
+  return useQuery<Document[]>({
+    queryKey: ["api", "documents", "slug", slug],
+    queryFn: () => slug ? documentService.getAll(slug) : Promise.resolve([]),
+    enabled: !!slug,
+  });
+}
+
+export function usePublicDocument(id?: string, slug?: string) {
+  return useQuery<Document>({
+    queryKey: slug ? ["api", "documents", slug, id] : ["api", "documents", id],
+    queryFn: () => id ? documentService.getById(id, slug) : Promise.reject("Missing ID"),
     enabled: !!id,
   });
 }

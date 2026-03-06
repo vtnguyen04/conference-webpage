@@ -17,6 +17,7 @@ const RegistrationConfirmedPage = React.lazy(() => import("@/pages/public/Regist
 const RegistrationFailedPage = React.lazy(() => import("@/pages/public/RegistrationFailedPage"));
 const ContactPage = React.lazy(() => import("@/pages/public/ContactPage"));
 const DocumentsPage = React.lazy(() => import("@/pages/public/DocumentsPage"));
+const DocumentDetailPage = React.lazy(() => import("@/pages/public/DocumentDetailPage"));
 const SurveyPage = React.lazy(() => import("@/pages/public/SurveyPage"));
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
 export function PublicApp() {
@@ -32,18 +33,20 @@ export function PublicApp() {
           <Route path="/organizers" component={OrganizersPage} />
           <Route path="/sponsors" component={SponsorsPage} />
           <Route path="/announcements" component={AnnouncementsPage} />
-          <Route path="/announcements/:id" component={AnnouncementDetailPage} />
-          <Route path="/documents" component={DocumentsPage} />
-          {/* Year-specific routes for past conferences */}
+           <Route path="/announcements/:id" component={AnnouncementDetailPage} />
+           <Route path="/documents" component={DocumentsPage} />
+           <Route path="/documents/:id" component={DocumentDetailPage} />
+           {/* Year-specific routes for past conferences */}
           <Route path="/conference/:slug" component={ProgramPage} /> {/* Default for slug */}
           <Route path="/conference/:slug/program" component={ProgramPage} />
           <Route path="/conference/:slug/speakers" component={SpeakersPage} />
           <Route path="/conference/:slug/organizers" component={OrganizersPage} />
           <Route path="/conference/:slug/sponsors" component={SponsorsPage} />
           <Route path="/conference/:slug/announcements" component={AnnouncementsPage} />
-          <Route path="/conference/:slug/announcements/:id" component={AnnouncementDetailPage} />
-          <Route path="/conference/:slug/documents" component={DocumentsPage} />
-          {/* General Routes (non-conference specific) */}
+           <Route path="/conference/:slug/announcements/:id" component={AnnouncementDetailPage} />
+           <Route path="/conference/:slug/documents" component={DocumentsPage} />
+           <Route path="/conference/:slug/documents/:id" component={DocumentDetailPage} />
+           {/* General Routes (non-conference specific) */}
           <Route path="/sightseeing" component={SightseeingPage} />
           <Route path="/sightseeing/:id" component={SightseeingDetailPage} />
           <Route path="/register" component={RegistrationPage} />
