@@ -1,20 +1,20 @@
+import compression from "compression";
+import cors from "cors";
 import dotenv from 'dotenv';
-dotenv.config();
 import { sql } from "drizzle-orm";
 import express from "express";
+import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
 import { createServer } from 'http';
 import path from "path";
-import helmet from "helmet";
-import cors from "cors";
-import compression from "compression";
-import { rateLimit } from "express-rate-limit";
 import { db } from "./db";
 import { errorHandler } from "./middlewares/errorHandler";
 import mainRouter from "./routers";
-import { setupAuth } from './sessionAuth';
-import { log, serveStatic, setupVite } from "./vite";
 import { confirmationReminderService } from "./services/confirmationReminderService";
 import { reminderService } from "./services/reminderService";
+import { setupAuth } from './sessionAuth';
+import { log, serveStatic, setupVite } from "./vite";
+dotenv.config();
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Nginx/Docker)
 const server = createServer(app);
@@ -39,8 +39,8 @@ const authLimiter = rateLimit({
   message: "Too many login attempts, please try again after an hour",
 });
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 (async () => {
   try { db.run(sql`SELECT 1`); log("Database connection successful"); } catch (error) { process.exit(1); }
   setupAuth(app);

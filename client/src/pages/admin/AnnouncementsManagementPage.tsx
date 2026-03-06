@@ -1,58 +1,56 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ImageUploader } from "@/components/ImageUploader";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Calendar, Eye, MoreHorizontal, FileText, Megaphone, Info, Clock, Paperclip } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-const ReactQuill = React.lazy(() => import("react-quill"));
-import "react-quill/dist/quill.snow.css";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import type { Announcement, InsertAnnouncement } from "@shared/types";
-import { insertAnnouncementSchema } from "@shared/validation";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { ImageUploader } from "@/components/ImageUploader";
 import { useAdminView } from "@/hooks/useAdminView";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { uploadService } from "@/services/uploadService";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { uploadService } from "@/services/uploadService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { Announcement, InsertAnnouncement } from "@shared/types";
+import { insertAnnouncementSchema } from "@shared/validation";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Clock, Eye, Megaphone, MoreHorizontal, Paperclip, Pencil, Trash2 } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import "react-quill-new/dist/quill.snow.css";
+const ReactQuill = React.lazy(() => import("react-quill-new"));
 
 const categoryLabels: Record<string, string> = {
   general: "Thông báo chung",
@@ -73,14 +71,14 @@ export default function AnnouncementsManagementPage() {
   const quillRef = useRef<any>(null);
   const { viewingSlug, isReadOnly } = useAdminView();
 
-  const { 
-    announcements, 
-    isLoading, 
-    createAnnouncement, 
-    updateAnnouncement, 
-    deleteAnnouncement, 
-    isCreating, 
-    isUpdating, 
+  const {
+    announcements,
+    isLoading,
+    createAnnouncement,
+    updateAnnouncement,
+    deleteAnnouncement,
+    isCreating,
+    isUpdating,
   } = useAnnouncements(viewingSlug || undefined);
 
   const { uploadImage, deleteImage, isUploading: isImageUploading, isDeleting: isImageDeleting } = useImageUpload({
@@ -88,11 +86,11 @@ export default function AnnouncementsManagementPage() {
     onDeleteSuccess: () => form.setValue("featuredImageUrl", "", { shouldValidate: true }),
   });
 
-  const { 
-    uploadImage: uploadPdfFile, 
-    deleteImage: deletePdfFile, 
-    isUploading: isPdfUploading, 
-    isDeleting: isPdfDeleting 
+  const {
+    uploadImage: uploadPdfFile,
+    deleteImage: deletePdfFile,
+    isUploading: isPdfUploading,
+    isDeleting: isPdfDeleting
   } = useImageUpload({
     uploadPath: "/api/upload-pdf",
     fieldName: "pdf",
@@ -289,7 +287,7 @@ export default function AnnouncementsManagementPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <AdminPageHeader 
+      <AdminPageHeader
         title="Quản lý Thông báo"
         description="Đăng và điều chỉnh các bản tin, cập nhật quan trọng dành cho người tham dự hội nghị."
         onAdd={handleAdd}

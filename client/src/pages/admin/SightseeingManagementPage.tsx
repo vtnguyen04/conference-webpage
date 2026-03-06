@@ -1,47 +1,45 @@
-import React, { useState, useMemo, useRef } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ImageUploader } from "@/components/ImageUploader";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Map, Camera, FileText, MoreHorizontal, Info, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-const ReactQuill = React.lazy(() => import("react-quill"));
-import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { Sightseeing, InsertSightseeing } from "@shared/types";
-import { insertSightseeingSchema } from "@shared/validation";
 import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { useSightseeing } from "@/hooks/useSightseeing";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useSightseeing } from "@/hooks/useSightseeing";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { InsertSightseeing, Sightseeing } from "@shared/types";
+import { insertSightseeingSchema } from "@shared/validation";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { ImageUploader } from "@/components/ImageUploader";
+import { Clock, Map, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import "react-quill-new/dist/quill.snow.css";
+const ReactQuill = React.lazy(() => import("react-quill-new"));
 
 export default function SightseeingManagementPage() {
   const { toast } = useToast();
@@ -123,8 +121,8 @@ export default function SightseeingManagementPage() {
   }, [sightseeing]);
 
   const renderSightseeingItem = (item: Sightseeing) => (
-    <Card 
-      key={item.id} 
+    <Card
+      key={item.id}
       className="group relative bg-white border border-slate-200/60 rounded-xl overflow-hidden hover:border-indigo-200 hover:shadow-md transition-all duration-300"
     >
       <CardContent className="p-0">
@@ -142,8 +140,8 @@ export default function SightseeingManagementPage() {
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center">
                 <Clock className="h-3 w-3 mr-1.5" />
-                {item.createdAt && !isNaN(new Date(item.createdAt).getTime()) 
-                  ? format(new Date(item.createdAt), "dd/MM/yyyy", { locale: vi }) 
+                {item.createdAt && !isNaN(new Date(item.createdAt).getTime())
+                  ? format(new Date(item.createdAt), "dd/MM/yyyy", { locale: vi })
                   : "N/A"}
               </span>
               {!isReadOnly && (
@@ -181,7 +179,7 @@ export default function SightseeingManagementPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <AdminPageHeader 
+      <AdminPageHeader
         title="Quản lý Địa điểm Tham quan"
         description="Biên tập danh sách các địa danh và gợi ý trải nghiệm cho đại biểu hội nghị."
         onAdd={handleAdd}
