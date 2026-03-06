@@ -1,17 +1,17 @@
-import { useEffect, useRef } from "react";
-import { Link } from "wouter";
 import { PageHeader } from "@/components/PageHeader";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useActiveConference } from "@/hooks/useActiveConference";
 import { CardContent } from "@/components/ui/card";
-import { Mail, Phone, MapPin, Calendar, Info, FileText, Globe, Bookmark, ShieldCheck } from "lucide-react";
+import { useActiveConference } from "@/hooks/useActiveConference";
+import { Bookmark, Calendar, FileText, Globe, Mail, MapPin, ShieldCheck } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link } from "wouter";
 
 export default function AboutPage() {
   const { conference, isLoading } = useActiveConference();
@@ -60,15 +60,16 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-              
+
               {/* Nội dung chính */}
               <div className="lg:col-span-8 space-y-12">
                 <section className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-1 bg-teal-600 rounded-full" />
-                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Thư ngỏ & Mục tiêu Hội nghị</h2>
-                  </div>
-                  
+                  {conference?.introImageUrl && (
+                    <div className="rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                      <img src={conference.introImageUrl} alt="Giới thiệu hội nghị" className="w-full h-auto object-cover" />
+                    </div>
+                  )}
+
                   <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm">
                     {conference?.introContent ? (
                       <div
@@ -109,7 +110,7 @@ export default function AboutPage() {
               {/* Sidebar thông tin */}
               <div className="lg:col-span-4 space-y-8">
                 <div className="space-y-6 sticky top-24">
-                  
+
                   <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                     <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                       <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">

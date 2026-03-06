@@ -170,9 +170,9 @@ export type InsertSession = Omit<Session, "id" | "createdAt" | "updatedAt">;
 export type InsertSightseeing = Omit<Sightseeing, "id" | "createdAt" | "updatedAt">;
 export type InsertSpeaker = Omit<Speaker, "id" | "createdAt" | "updatedAt">;
 export type InsertSponsor = Omit<Sponsor, "id" | "createdAt" | "updatedAt">;
-export type InsertRegistration = Omit<Registration, 
-  "id" | "createdAt" | "updatedAt" | "registeredAt" | 
-  "conferenceCertificateSent" | "qrCode" | "status" | "emailSent" | 
+export type InsertRegistration = Omit<Registration,
+  "id" | "createdAt" | "updatedAt" | "registeredAt" |
+  "conferenceCertificateSent" | "qrCode" | "status" | "emailSent" |
   "confirmationToken" | "confirmationTokenExpires" | "reminderCount" | "lastReminderSentAt"
 >;
 export interface DashboardStats {
@@ -190,6 +190,7 @@ export interface Conference {
   logoUrl?: string;
   bannerUrls?: string[];
   introContent?: string;
+  introImageUrl?: string;
   registrationNote1?: string;
   registrationNote2?: string;
   registrationBenefits?: string;

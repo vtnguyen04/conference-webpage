@@ -1,45 +1,45 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ImageUploader } from "@/components/ImageUploader";
 import { MultiImageManager } from "@/components/MultiImageManager";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useAdminView } from "@/hooks/useAdminView";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { queryClient } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+import { conferenceService } from "@/services/conferenceService";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { Conference } from "@shared/types";
 import { conferenceSchema } from "@shared/validation";
-import { useAdminView } from "@/hooks/useAdminView";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Building, 
-  Settings2, 
-  FileText, 
-  ShieldCheck, 
-  Image as ImageIcon, 
-  Calendar, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Save,
-  Info
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+    Building,
+    Calendar,
+    FileText,
+    Image as ImageIcon,
+    Info,
+    Mail,
+    MapPin,
+    Phone,
+    Save,
+    Settings2,
+    ShieldCheck
 } from "lucide-react";
-import { conferenceService } from "@/services/conferenceService";
-import { useImageUpload } from "@/hooks/useImageUpload";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function ConferencePage() {
   const { toast } = useToast();
@@ -56,6 +56,7 @@ export default function ConferencePage() {
       contactEmail: "",
       contactPhone: "",
       introContent: "",
+      introImageUrl: "",
       registrationNote1: "",
       registrationNote2: "",
       registrationBenefits: "",
@@ -71,6 +72,11 @@ export default function ConferencePage() {
   const { uploadImage: uploadLogo, deleteImage: deleteLogo, isUploading: isLogoUploading, isDeleting: isLogoDeleting } = useImageUpload({
     onSuccess: (path) => form.setValue("logoUrl", path, { shouldValidate: true }),
     onDeleteSuccess: () => form.setValue("logoUrl", "", { shouldValidate: true }),
+  });
+
+  const { uploadImage: uploadIntro, deleteImage: deleteIntro, isUploading: isIntroUploading, isDeleting: isIntroDeleting } = useImageUpload({
+    onSuccess: (path) => form.setValue("introImageUrl", path, { shouldValidate: true }),
+    onDeleteSuccess: () => form.setValue("introImageUrl", "", { shouldValidate: true }),
   });
 
   const { data: conferences = [] } = useQuery<Conference[]>({
@@ -124,7 +130,7 @@ export default function ConferencePage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <AdminPageHeader 
+      <AdminPageHeader
         title="Cấu hình Chi tiết Hội nghị"
         description="Quản lý toàn bộ thông tin định danh, nội dung giới thiệu và hình ảnh hiển thị của hội nghị hiện tại."
       />
@@ -313,7 +319,30 @@ export default function ConferencePage() {
               {/* Tab 2: Intro Content */}
               <TabsContent value="content" className="space-y-6 animate-in slide-in-from-left-2">
                 <Card className="border-slate-200/60 shadow-sm bg-white">
-                  <CardContent className="p-8">
+                  <CardContent className="p-8 space-y-8">
+                    <FormField
+                      control={form.control as any}
+                      name="introImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                            <ImageIcon className="h-4 w-4 text-indigo-500" /> Hình ảnh Giới thiệu
+                          </FormLabel>
+                          <FormControl>
+                            <ImageUploader
+                              onDrop={(files) => uploadIntro(files, field.value)}
+                              onDelete={() => deleteIntro(field.value)}
+                              preview={field.value}
+                              isUploading={isIntroUploading}
+                              isDeleting={isIntroDeleting}
+                              disabled={isReadOnly}
+                            />
+                          </FormControl>
+                          <FormDescription className="text-[10px] mt-2 italic">Hình ảnh minh họa hiển thị trong phần giới thiệu.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control as any}
                       name="introContent"
@@ -474,18 +503,18 @@ export default function ConferencePage() {
                 </span>
               </div>
               <div className="flex gap-3">
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+                <Button
+                  type="button"
+                  variant="ghost"
                   className="font-bold text-slate-500"
                   onClick={() => form.reset()}
                   disabled={isReadOnly}
                 >
                   Hoàn tác
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={updateMutation.isPending || isReadOnly} 
+                <Button
+                  type="submit"
+                  disabled={updateMutation.isPending || isReadOnly}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-10 shadow-xl shadow-indigo-100 h-11"
                 >
                   <Save className="h-4 w-4 mr-2" />

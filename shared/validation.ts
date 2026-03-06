@@ -14,6 +14,7 @@ export const insertConferenceSchema = z.object({
   logoUrl: z.string().optional().or(z.literal("")),
   bannerUrls: z.array(z.string()).optional(),
   introContent: z.string().optional().or(z.literal("")),
+  introImageUrl: z.string().optional().or(z.literal("")),
   registrationNote1: z.string().optional().or(z.literal("")),
   registrationNote2: z.string().optional().or(z.literal("")),
   registrationBenefits: z.string().optional().or(z.literal("")),
