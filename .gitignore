@@ -19,8 +19,15 @@ server/data/*.pptx
 # Build artifacts & reports
 stats.html
 docs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
 
 # Ignored data and uploads
 public/uploads/*
 !public/uploads/.gitkeep
-server/data/
+server/data/*.json
+!server/data/example.json
+# Loại bỏ migrations nếu không cần track
+migrations/meta/
