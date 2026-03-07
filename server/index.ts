@@ -22,12 +22,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://fonts.googleapis.com", "https://maps.googleapis.com", "https://*.googleapis.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "https://*.googleapis.com", "https://*.ggpht.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'"],
-      frameSrc: ["'self'", "https://www.google.com", "https://maps.google.com", "https://docs.google.com"],
+      connectSrc: ["'self'", "https://maps.googleapis.com", "https://*.googleapis.com", "https://play.google.com"],
+      frameSrc: ["'self'", "https://www.google.com", "https://maps.google.com", "https://docs.google.com", "https://forms.gle"],
       objectSrc: ["'none'"],
     },
   },
