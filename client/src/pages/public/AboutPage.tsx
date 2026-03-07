@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { CardContent } from "@/components/ui/card";
 import { useActiveConference } from "@/hooks/useActiveConference";
-import { Bookmark, Calendar, FileText, Globe, Mail, MapPin, ShieldCheck } from "lucide-react";
+import { Bookmark, Calendar, Globe, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "wouter";
 
@@ -70,21 +70,14 @@ export default function AboutPage() {
                     </div>
                   )}
 
-                  <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm">
-                    {conference?.introContent ? (
+                  {conference?.introContent && (
+                    <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm">
                       <div
                         className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed text-justify"
                         dangerouslySetInnerHTML={{ __html: conference.introContent.replace(/\n/g, '<br />') }}
                       />
-                    ) : (
-                      <div className="py-12 text-center space-y-3">
-                        <FileText className="h-8 w-8 text-slate-200 mx-auto" />
-                        <p className="text-slate-400 font-bold uppercase text-[11px] tracking-widest">
-                          Nội dung giới thiệu đang được cập nhật
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </section>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
