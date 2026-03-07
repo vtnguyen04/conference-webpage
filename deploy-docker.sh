@@ -25,6 +25,8 @@ fi
 
 # 1. Fetch code
 echo "Step 1: Pulling latest code..."
+# Reset các file cấu hình có thể gây conflict trên server
+git checkout package.json package-lock.json 2>/dev/null || true
 git pull origin main
 
 # 2. Prepare Directories

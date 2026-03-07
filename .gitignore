@@ -27,7 +27,6 @@ yarn-error.log*
 # Ignored data and uploads
 public/uploads/*
 !public/uploads/.gitkeep
-server/data/*.json
-!server/data/example.json
+server/data/
 # Loại bỏ migrations nếu không cần track
 migrations/meta/
