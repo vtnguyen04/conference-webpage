@@ -12,7 +12,6 @@ commit.md
 server/data/*.db
 *.db
 # deploy.md
-/migrations/meta/
 server/data/*.docx
 server/data/*.pptx
 
@@ -29,4 +28,3 @@ public/uploads/*
 !public/uploads/.gitkeep
 server/data/
 # Loại bỏ migrations nếu không cần track
-migrations/meta/
