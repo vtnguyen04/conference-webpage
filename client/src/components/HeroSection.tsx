@@ -20,12 +20,12 @@ const HeroSection = () => {
     }
 
     return (
-        <section className="w-full bg-slate-50/50 py-6 md:py-8 overflow-hidden">
-            <div className="w-full px-4 sm:px-6 lg:px-12 2xl:px-24">
+        <section className="w-full bg-slate-50/50 overflow-hidden">
+            <div className="w-full">
                 {/* Image Carousel */}
                 <Carousel
                     plugins={[plugin.current]}
-                    className="w-full rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border-[6px] md:border-8 border-white bg-slate-100 group relative"
+                    className="w-full overflow-hidden bg-slate-100 group relative"
                 >
                     <CarouselContent className="w-full ml-0">
                         {(conference?.bannerUrls && conference.bannerUrls.length > 0) ? (
@@ -37,8 +37,6 @@ const HeroSection = () => {
                                             alt={`Banner ${index + 1}`}
                                             className="w-full h-full object-cover object-center transition-transform duration-[10s] ease-linear group-hover:scale-110"
                                         />
-                                        {/* Subtle inner shadow for depth */}
-                                        <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none" />
                                     </div>
                                 </CarouselItem>
                             ))
