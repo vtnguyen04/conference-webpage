@@ -1,22 +1,56 @@
 import { type Response } from "express";
 import { type RequestWithActiveConference } from "../middlewares/checkActiveConference";
-import { sponsorRepository } from "../repositories/sponsorRepository";
+import { sponsorService } from "../services/sponsorService";
 import { insertSponsorSchema } from "@shared/validation";
+
 export const getSponsorsByConferenceSlug = async (req: any, res: Response) => {
-    try { res.json(await sponsorRepository.getAll(req.params.conferenceSlug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { 
+        res.json(await sponsorService.getAllSponsors(req.params.conferenceSlug)); 
+    } catch (error) { 
+        res.status(500).json({ message: "Failed" }); 
+    }
 };
+
 export const getActiveConferenceSponsors = async (req: RequestWithActiveConference, res: Response) => {
-    try { if (!req.activeConference) return res.json([]); res.json(await sponsorRepository.getAll(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { 
+        if (!req.activeConference) return res.json([]); 
+        res.json(await sponsorService.getAllSponsors(req.activeConference.slug)); 
+    } catch (error) { 
+        res.status(500).json({ message: "Failed" }); 
+    }
 };
+
 export const createSponsor = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.status(201).json(await sponsorRepository.create(req.activeConference.slug, { ...insertSponsorSchema.parse(req.body), conferenceId: req.activeConference.slug })); } catch (error: any) { res.status(400).json({ message: error.message }); }
+    try { 
+        const validatedData = insertSponsorSchema.parse(req.body);
+        res.status(201).json(await sponsorService.createSponsor(req.activeConference.slug, validatedData)); 
+    } catch (error: any) { 
+        res.status(400).json({ message: error.message }); 
+    }
 };
+
 export const updateSponsor = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await sponsorRepository.update(req.activeConference.slug, req.params.id, req.body)); } catch (error: any) { res.status(400).json({ message: error.message }); }
+    try { 
+        res.json(await sponsorService.updateSponsor(req.activeConference.slug, req.params.id, req.body)); 
+    } catch (error: any) { 
+        res.status(400).json({ message: error.message }); 
+    }
 };
+
 export const deleteSponsor = async (req: RequestWithActiveConference, res: Response) => {
-    try { await sponsorRepository.delete(req.activeConference.slug, req.params.id); res.json({ success: true }); } catch (error: any) { res.status(400).json({ message: error.message }); }
+    try { 
+        await sponsorService.deleteSponsor(req.activeConference.slug, req.params.id); 
+        res.json({ success: true }); 
+    } catch (error: any) { 
+        res.status(400).json({ message: error.message }); 
+    }
 };
+
 export const deleteAllSponsors = async (req: RequestWithActiveConference, res: Response) => {
-    try { await sponsorRepository.deleteAll(req.activeConference.slug); res.json({ success: true }); } catch (error: any) { res.status(400).json({ message: error.message }); }
+    try { 
+        await sponsorService.deleteAllSponsors(req.activeConference.slug); 
+        res.json({ success: true }); 
+    } catch (error: any) { 
+        res.status(400).json({ message: error.message }); 
+    }
 };
