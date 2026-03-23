@@ -91,7 +91,7 @@ export class EmailService {
     email: string,
     fullName: string,
     conferenceName: string,
-    cmeCertificateRequested: boolean,
+    certificateRequested: boolean,
     sessions: Array<{ title: string; time: string; room: string; qrCode: string; }>
   ): Promise<boolean> {
     this.ensureTransporter();
@@ -122,14 +122,14 @@ export class EmailService {
           </tr>
         `;
       }).join('');
-      const cmeNote = cmeCertificateRequested ? `
+      const certificateNote = certificateRequested ? `
         <div style="padding: 12px; background-color: #FFFBEB; border-left: 4px solid #FBBF24; margin: 15px 0;">
-          <p style="margin: 0; color: #92400E; font-size: 14px;">Bạn đã yêu cầu chứng chỉ CME cho các phiên này.</p>
+          <p style="margin: 0; color: #92400E; font-size: 14px;">Bạn đã yêu cầu Chứng nhận tham dự hội nghị cho các phiên này.</p>
         </div>` : '';
       const content = `
         <p>Kính gửi <strong>${fullName}</strong>,</p>
         <p>Chúc mừng bạn đã đăng ký thành công các phiên làm việc tại <strong>${conferenceName}</strong>.</p>
-        ${cmeNote}
+        ${certificateNote}
         <table style="width: 100%;">${sessionRows}</table>
       `;
       const html = this.createEmailTemplate("Đăng ký thành công!", content, "Email này được gửi tự động.", conferenceName);
@@ -161,17 +161,20 @@ export class EmailService {
       await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: Xác nhận đăng ký ${conferenceName}`, html });
     } catch (e) { console.error("Reminder email failed:", e); }
   }
-  async sendCmeCertificateEmail(to: string, userName: string, sessionTitle: string, conferenceName: string, certificate: Buffer) {
+  async sendCertificateEmail(to: string, userName: string, title: string, conferenceName: string, certificate: Buffer) {
     this.ensureTransporter();
     try {
-      const content = `<p>Kính gửi <strong>${userName}</strong>,</p><p>Đính kèm là chứng chỉ CME cho phiên <strong>${sessionTitle}</strong>.</p>`;
-      const html = this.createEmailTemplate("Chứng chỉ CME", content, "Tự động gửi.", conferenceName);
+      // Nếu title là "Hội nghị", gửi thông báo chung, ngược lại gửi cho phiên cụ thể
+      const contextText = title === "Hội nghị" ? `hội nghị <strong>${conferenceName}</strong>` : `phiên <strong>${title}</strong>`;
+      const content = `<p>Kính gửi <strong>${userName}</strong>,</p><p>Đính kèm là Chứng nhận tham dự cho ${contextText}.</p>`;
+      const html = this.createEmailTemplate("Chứng nhận tham dự", content, "Tự động gửi.", conferenceName);
+      
       await this.transporter!.sendMail({
         from: this.defaultFrom,
         to,
-        subject: `Chứng chỉ CME - ${sessionTitle}`,
+        subject: `Chứng nhận tham dự - ${conferenceName}`,
         html,
-        attachments: [{ filename: 'Chung_chi_CME.pdf', content: certificate, contentType: 'application/pdf' }]
+        attachments: [{ filename: 'Giay_chung_nhan_tham_du.pdf', content: certificate, contentType: 'application/pdf' }]
       });
     } catch (e) { console.error("Certificate email failed:", e); }
   }

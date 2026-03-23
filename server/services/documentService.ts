@@ -6,6 +6,14 @@ export class DocumentService {
         return await documentRepository.getAll(conferenceSlug);
     }
 
+    async getById(conferenceSlug: string, id: string) {
+        return await documentRepository.getById(conferenceSlug, id);
+    }
+
+    async incrementViews(conferenceSlug: string, id: string) {
+        return await documentRepository.incrementViews(conferenceSlug, id);
+    }
+
     async createDocument(conferenceSlug: string, data: any) {
         return await documentRepository.create(conferenceSlug, { ...data, conferenceId: conferenceSlug });
     }

@@ -17,7 +17,7 @@ const registrationSchema = z.object({
   role: z.enum(["participant", "speaker", "moderator"], {
     required_error: "Vui lòng chọn một vai trò",
   }).default("participant"),
-  cmeCertificateRequested: z.boolean().default(false),
+  certificateRequested: z.boolean().default(false),
   sessionIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một phiên"),
 });
 
@@ -59,7 +59,7 @@ export function usePublicRegistration(conference?: Conference | null) {
       phone: "",
       organization: "",
       position: "",
-      cmeCertificateRequested: false,
+      certificateRequested: false,
       sessionIds: [],
     },
   });

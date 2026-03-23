@@ -36,7 +36,7 @@ describe('CertificateService', () => {
   });
 
   it('should generate a CME certificate', async () => {
-    const result = await certificateService.generateCmeCertificate('Nguyễn Văn A');
+    const result = await certificateService.generateCertificate('Nguyễn Văn A');
     expect(result).toBeInstanceOf(Buffer);
     expect(PDFDocument.load).toHaveBeenCalled();
   });

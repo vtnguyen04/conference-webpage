@@ -19,7 +19,7 @@ export interface Registration {
   organization?: string | null;
   position?: string | null;
   role: string;
-  cmeCertificateRequested: boolean;
+  certificateRequested: boolean;
   conferenceCertificateSent: boolean;
   qrCode?: string | null;
   status: string;
@@ -84,7 +84,7 @@ export interface Session {
   agendaItems: AgendaItem[];
   materials: Material[];
   capacity?: number | null;
-  allowCmeCertificate?: boolean;
+  allowCertificate?: boolean;
   createdAt: string;
   updatedAt: string;
 }

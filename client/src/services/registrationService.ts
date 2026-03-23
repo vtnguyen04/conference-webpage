@@ -7,7 +7,7 @@ interface BatchRegistrationRequest {
   organization?: string;
   position?: string;
   role: "participant" | "speaker" | "moderator";
-  cmeCertificateRequested: boolean;
+  certificateRequested: boolean;
   sessionIds: string[];
   conferenceSlug?: string;
 }

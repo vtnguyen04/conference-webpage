@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import fontkit from '@pdf-lib/fontkit';
 export class CertificateService {
-  async generateCmeCertificate(userName: string): Promise<Buffer> {
+  async generateCertificate(userName: string): Promise<Buffer> {
     const templatePath = path.join(process.cwd(), 'server', 'data', 'certificate.pdf');
     const existingPdfBytes = await fs.readFile(templatePath);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);

@@ -57,7 +57,7 @@ export class RegistrationRepository {
     const id = randomUUID();
     const qrData = `CONF|${data.conferenceSlug}|${data.sessionId}|${data.email}|${Date.now()}`;
     const qrCodeImage = await QRCode.toDataURL(qrData);
-    const newRegistration = { ...data, id, qrCode: qrCodeImage, status: "confirmed", createdAt: new Date(), registeredAt: new Date(), cmeCertificateRequested: data.cmeCertificateRequested || false, conferenceCertificateSent: false, emailSent: false, confirmationToken: null, confirmationTokenExpires: null, reminderCount: 0, lastReminderSentAt: null };
+    const newRegistration = { ...data, id, qrCode: qrCodeImage, status: "confirmed", createdAt: new Date(), registeredAt: new Date(), certificateRequested: data.certificateRequested || false, conferenceCertificateSent: false, emailSent: false, confirmationToken: null, confirmationTokenExpires: null, reminderCount: 0, lastReminderSentAt: null };
     await db.insert(registrations).values(newRegistration).run();
     return { ...newRegistration, createdAt: new Date(newRegistration.createdAt), registeredAt: new Date(newRegistration.registeredAt) } as Registration;
   }

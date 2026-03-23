@@ -7,6 +7,14 @@ export class AnnouncementService {
         return await announcementRepository.getAll(conferenceSlug);
     }
 
+    async getById(conferenceSlug: string, id: string) {
+        return await announcementRepository.getById(conferenceSlug, id);
+    }
+
+    async incrementViews(conferenceSlug: string, id: string) {
+        return await announcementRepository.incrementViews(conferenceSlug, id);
+    }
+
     async createAnnouncement(conferenceSlug: string, data: any) {
         return await announcementRepository.create(conferenceSlug, { ...data, conferenceId: conferenceSlug });
     }

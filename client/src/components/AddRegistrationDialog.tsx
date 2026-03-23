@@ -47,7 +47,7 @@ const formSchema = z.object({
   role: z.enum(["participant", "speaker", "moderator"], {
     required_error: "Vui lòng chọn một vai trò",
   }),
-  cmeCertificateRequested: z.boolean().default(false),
+  certificateRequested: z.boolean().default(false),
 });
 
 type AddRegistrationFormValues = z.infer<typeof formSchema>;
@@ -69,7 +69,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
       organization: "",
       position: "",
       role: "participant",
-      cmeCertificateRequested: false,
+      certificateRequested: false,
     },
   });
 
@@ -253,7 +253,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                 <div className="pt-2">
                   <FormField
                     control={form.control}
-                    name="cmeCertificateRequested"
+                    name="certificateRequested"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-xl border border-amber-100 bg-amber-50/50 p-3 shadow-sm">
                         <FormControl>
@@ -264,7 +264,7 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                           />
                         </FormControl>
                         <div className="flex items-center gap-2 leading-none">
-                          <FormLabel className="text-[11px] font-bold text-amber-800 uppercase tracking-tight cursor-pointer">Cấp chứng chỉ CME</FormLabel>
+                          <FormLabel className="text-[11px] font-bold text-amber-800 uppercase tracking-tight cursor-pointer">Đăng ký Chứng nhận tham dự</FormLabel>
                           <Award className="h-3.5 w-3.5 text-amber-600" />
                         </div>
                       </FormItem>

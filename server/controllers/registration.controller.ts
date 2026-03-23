@@ -34,7 +34,7 @@ export const exportRegistrations = async (req: RequestWithActiveConference, res:
         res.setHeader("Content-Type", "text/csv; charset=utf-8");
         res.setHeader("Content-Disposition", `attachment; filename=registrations-${conference.slug}.csv`);
         res.write("\uFEFF");
-        const headers = ["ID", "Họ và tên", "Email", "Điện thoại", "Tổ chức", "Chức danh", "Phiên đăng ký", "Yêu cầu CME", "Trạng thái", "Thời gian đăng ký"];
+        const headers = ["ID", "Họ và tên", "Email", "Điện thoại", "Tổ chức", "Chức danh", "Phiên đăng ký", "Yêu cầu Chứng nhận", "Trạng thái", "Thời gian đăng ký"];
         res.write(headers.join(",") + "\n");
         const { data: registrations } = await registrationRepository.getByConferenceSlug(conference.slug, 1, 10000);
         for (const r of registrations) {
@@ -42,7 +42,7 @@ export const exportRegistrations = async (req: RequestWithActiveConference, res:
             const row = [
                 `"${r.id}"`, `"${r.fullName}"`, `"${r.email}"`, `"${r.phone || ''}"`, 
                 `"${r.organization || ''}"`, `"${r.position || ''}"`, `"${session?.title || ''}"`, 
-                `"${r.cmeCertificateRequested ? 'Có' : 'Không'}"`, `"${r.status}"`, 
+                `"${r.certificateRequested ? 'Có' : 'Không'}"`, `"${r.status}"`, 
                 `"${r.registeredAt ? new Date(r.registeredAt).toLocaleString() : ''}"`
             ].join(",");
             res.write(row + "\n");

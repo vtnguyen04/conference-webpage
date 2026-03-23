@@ -11,6 +11,39 @@ export const getActiveConferenceDocuments = async (req: RequestWithActiveConfere
     try { if (!req.activeConference) return res.json([]); res.json(await documentService.getAllByConference(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
 };
 
+export const getDocumentById = async (req: any, res: Response) => {
+    try {
+        const slug = req.params.conferenceSlug || (req as RequestWithActiveConference).activeConference?.slug;
+        if (!slug) return res.status(404).json({ message: "No conference slug found" });
+        const result = await documentService.getById(slug, req.params.id);
+        if (!result) return res.status(404).json({ message: "Not found" });
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
+export const incrementDocumentViews = async (req: RequestWithActiveConference, res: Response) => {
+    try {
+        if (!req.activeConference) return res.status(404).json({ message: "No active conference" });
+        const result = await documentService.incrementViews(req.activeConference.slug, req.params.id);
+        if (!result) return res.status(404).json({ message: "Not found" });
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
+export const incrementDocumentViewsBySlug = async (req: any, res: Response) => {
+    try {
+        const result = await documentService.incrementViews(req.params.conferenceSlug, req.params.id);
+        if (!result) return res.status(404).json({ message: "Not found" });
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
 export const createDocument = async (req: RequestWithActiveConference, res: Response) => {
     try { 
         const validatedData = insertDocumentSchema.parse(req.body);

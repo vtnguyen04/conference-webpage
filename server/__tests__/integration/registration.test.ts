@@ -43,7 +43,7 @@ describe('Registration API Integration Tests', () => {
         position: 'Staff',
         sessionIds: ['sess1'],
         role: 'participant',
-        cmeCertificateRequested: false
+        certificateRequested: false
       });
 
     if (res.status !== 200) {

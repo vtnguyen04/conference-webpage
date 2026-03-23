@@ -90,9 +90,9 @@ export default function RegistrationsPage() {
                                 <Award className="h-5 w-5" />
                             </div>
                             <div>
-                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Yêu cầu CME</p>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Yêu cầu Chứng nhận</p>
                                 <h3 className="text-2xl font-extrabold text-slate-900 leading-none mt-1">
-                                    {registrations.filter(r => r.cmeCertificateRequested).length}
+                                    {registrations.filter(r => r.certificateRequested).length}
                                 </h3>
                             </div>
                         </div>

@@ -266,7 +266,7 @@ export default function RegistrationPage() {
                 
                                         <FormField
                                           control={form.control}
-                                          name="cmeCertificateRequested"
+                                          name="certificateRequested"
                                           render={({ field }) => (
                                             <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-2xl border border-amber-100 bg-amber-50/30 p-5 shadow-sm">
                                               <FormControl>
@@ -278,9 +278,9 @@ export default function RegistrationPage() {
                                               </FormControl>
                                               <div className="space-y-1">
                                                 <FormLabel className="text-[13px] font-bold text-amber-900 cursor-pointer">
-                                                  Yêu cầu cấp giấy chứng nhận
+                                                  Yêu cầu Chứng nhận tham dự hội nghị
                                                 </FormLabel>
-                                                <p className="text-[11px] text-amber-700/70 font-medium uppercase tracking-tighter">Đánh dấu nếu bạn muốn nhận chứng chỉ sau khi kết thúc phiên báo cáo.</p>
+                                                <p className="text-[11px] text-amber-700/70 font-medium uppercase tracking-tighter">Đánh dấu nếu bạn muốn nhận Chứng nhận sau khi kết thúc phiên báo cáo.</p>
                                               </div>
                                             </FormItem>
                                           )}

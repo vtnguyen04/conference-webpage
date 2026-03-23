@@ -55,7 +55,7 @@ export const registrations = sqliteTable("registrations", {
   organization: text("organization"),
   position: text("position"),
   role: text("role").notNull().default("participant"),
-  cmeCertificateRequested: integer("cme_certificate_requested", { mode: "boolean" }).notNull().default(false),
+  certificateRequested: integer("certificate_requested", { mode: "boolean" }).notNull().default(false),
   conferenceCertificateSent: integer("conference_certificate_sent", { mode: "boolean" }).notNull().default(false),
   qrCode: text("qr_code"),
   status: text("status").notNull().default("pending"),

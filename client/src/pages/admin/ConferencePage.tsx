@@ -526,7 +526,7 @@ export default function ConferencePage() {
                           <FormItem>
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quyền lợi tham dự</FormLabel>
                             <FormControl>
-                              <Textarea {...field} value={field.value || ""} rows={4} className="bg-slate-50 border-slate-200 focus:bg-white transition-all resize-none" placeholder="Ví dụ: Tài liệu, CME, Ăn trưa..." />
+                              <Textarea {...field} value={field.value || ""} rows={4} className="bg-slate-50 border-slate-200 focus:bg-white transition-all resize-none" placeholder="Ví dụ: Tài liệu, Chứng nhận, Ăn trưa..." />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

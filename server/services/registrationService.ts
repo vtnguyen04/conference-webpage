@@ -1,6 +1,6 @@
 import { sessionRepository } from "../repositories/sessionRepository";
-import { Session, Registration, registrations as registrationsTable, CheckIn } from "@shared/schema";
-import { BatchRegistrationRequest, InsertRegistration } from "@shared/validation";
+import { Session, Registration, registrations as registrationsTable, CheckIn, InsertRegistration } from "@shared/schema";
+import { BatchRegistrationRequest } from "@shared/validation";
 import { randomUUID } from "node:crypto";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
@@ -31,7 +31,7 @@ export class RegistrationService {
     }
 
     async batchRegisterSessions(request: BatchRegistrationRequest): Promise<{ success: boolean; registrations?: Registration[]; confirmationToken?: string; error?: string; failedSessions?: string[]; }> {
-        const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, role, cmeCertificateRequested } = request;
+        const { conferenceSlug, sessionIds, email, fullName, phone, organization, position, role, certificateRequested } = request;
         const allSessions = await sessionRepository.getAll(conferenceSlug);
         const requested = allSessions.filter(s => sessionIds.includes(s.id));
 
@@ -67,7 +67,7 @@ export class RegistrationService {
                     organization: organization || null,
                     position: position || null,
                     role,
-                    cmeCertificateRequested,
+                    certificateRequested,
                     conferenceCertificateSent: false,
                     status: "pending",
                     qrCode: await QRCode.toDataURL(`CONF|${conferenceSlug}|${sid}|${email}|${Date.now()}`),
@@ -122,7 +122,7 @@ export class RegistrationService {
                     .filter(Boolean) as any[];
 
                 if (sessionDetails.length > 0) {
-                    await emailService.sendConsolidatedRegistrationEmail(reg.email, reg.fullName, conference.name, reg.cmeCertificateRequested, sessionDetails);
+                    await emailService.sendConsolidatedRegistrationEmail(reg.email, reg.fullName, conference.name, reg.certificateRequested, sessionDetails);
                 }
             });
             return { success: true, conferenceName: conference.name };
@@ -148,7 +148,7 @@ export class RegistrationService {
                 newRegistration.email,
                 newRegistration.fullName,
                 conference?.name || "Hội nghị",
-                newRegistration.cmeCertificateRequested,
+                newRegistration.certificateRequested,
                 [{ 
                     title: session.title, 
                     time: this.formatSessionTime(session.startTime, session.endTime), 
@@ -172,14 +172,28 @@ export class RegistrationService {
             method 
         });
 
-        // Xử lý chứng chỉ CME tự động nếu có yêu cầu
-        if (registration.cmeCertificateRequested && !registration.conferenceCertificateSent) {
+        // Xử lý Chứng nhận tham dự hội nghị tự động nếu có yêu cầu (Gửi duy nhất 1 lần cho cả hội nghị)
+        if (registration.certificateRequested) {
             backgroundQueue.enqueue(async () => {
-                const session = await sessionRepository.getById(registration.conferenceSlug, sessionId);
-                if (session) {
-                    const certificate = await certificateService.generateCmeCertificate(registration.fullName);
-                    await emailService.sendCmeCertificateEmail(registration.email, registration.fullName, session.title, conferenceName, certificate);
-                    await db.update(registrationsTable).set({ conferenceCertificateSent: true }).where(eq(registrationsTable.id, registration.id)).run();
+                // Kiểm tra xem người dùng này đã nhận chứng nhận nào trong hội nghị này chưa
+                const userRegistrations = await registrationRepository.getByEmail(registration.email, registration.conferenceSlug);
+                const alreadySent = userRegistrations.some(r => r.conferenceCertificateSent);
+
+                if (!alreadySent) {
+                    const session = await sessionRepository.getById(registration.conferenceSlug, sessionId);
+                    if (session) {
+                        const certificate = await certificateService.generateCertificate(registration.fullName);
+                        // Gửi email chứng nhận chung cho hội nghị
+                        await emailService.sendCertificateEmail(registration.email, registration.fullName, "Hội nghị", conferenceName, certificate);
+                        
+                        // Đánh dấu tất cả các đăng ký của người này trong hội nghị này là đã gửi chứng nhận
+                        await db.update(registrationsTable)
+                            .set({ conferenceCertificateSent: true })
+                            .where(and(
+                                eq(registrationsTable.email, registration.email),
+                                eq(registrationsTable.conferenceSlug, registration.conferenceSlug)
+                            )).run();
+                    }
                 }
             });
         }

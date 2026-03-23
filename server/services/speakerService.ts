@@ -23,7 +23,7 @@ export class SpeakerService {
                     fullName: speaker.name,
                     email: speaker.email,
                     phone: '',
-                    cmeCertificateRequested: false,
+                    certificateRequested: false,
                     role: 'participant'
                 });
                 if (result.success && result.registrations) {

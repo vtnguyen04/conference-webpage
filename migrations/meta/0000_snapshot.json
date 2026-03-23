@@ -322,8 +322,8 @@
           "autoincrement": false,
           "default": "'participant'"
         },
-        "cme_certificate_requested": {
-          "name": "cme_certificate_requested",
+        "certificate_requested": {
+          "name": "certificate_requested",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

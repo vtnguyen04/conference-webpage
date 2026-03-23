@@ -46,7 +46,7 @@ CREATE TABLE `registrations` (
 	`organization` text,
 	`position` text,
 	`role` text DEFAULT 'participant' NOT NULL,
-	`cme_certificate_requested` integer DEFAULT false NOT NULL,
+	`certificate_requested` integer DEFAULT false NOT NULL,
 	`conference_certificate_sent` integer DEFAULT false NOT NULL,
 	`qr_code` text,
 	`status` text DEFAULT 'pending' NOT NULL,

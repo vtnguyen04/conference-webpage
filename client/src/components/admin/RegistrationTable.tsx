@@ -136,7 +136,7 @@ export const RegistrationTable = ({
                     </Badge>
                   </TableCell>
                   <TableCell className="py-4 px-2 text-center">
-                    {registration.cmeCertificateRequested && (
+                    {registration.certificateRequested && (
                       <Badge className="bg-amber-50 text-amber-600 border-amber-100 p-1.5 rounded-lg shadow-sm">
                         <Award className="h-3.5 w-3.5" />
                       </Badge>

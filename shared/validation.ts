@@ -63,7 +63,7 @@ export const insertSessionSchema = z.object({
   agendaItems: z.array(agendaItemSchema).default([]),
   materials: z.array(materialSchema).default([]),
   capacity: z.coerce.number().int().positive().nullable().optional(),
-  allowCmeCertificate: z.coerce.boolean().optional().default(true),
+  allowCertificate: z.coerce.boolean().optional().default(true),
 });
 export const insertSpeakerSchema = z.object({
   name: z.string().min(1),
@@ -126,7 +126,7 @@ export const batchRegistrationRequestSchema = z.object({
   organization: z.string().optional(),
   position: z.string().optional(),
   role: z.string().default("participant"),
-  cmeCertificateRequested: stringToBoolean.default(false),
+  certificateRequested: stringToBoolean.default(false),
 });
 export const insertRegistrationSchema = z.object({
     conferenceSlug: z.string(),
@@ -137,7 +137,7 @@ export const insertRegistrationSchema = z.object({
     organization: z.string().optional().nullable(),
     position: z.string().optional().nullable(),
     role: z.string().default("participant"),
-    cmeCertificateRequested: stringToBoolean.default(false),
+    certificateRequested: stringToBoolean.default(false),
     status: z.enum(["pending", "confirmed", "cancelled"]).default("confirmed"),
 });
 export type BatchRegistrationRequest = z.infer<typeof batchRegistrationRequestSchema>;
