@@ -1,0 +1,67 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Type Check
+      run: npm run check
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Build Application
+      run: npm run build
+      env:
+        NODE_ENV: production
+
+  deploy:
+    name: Deploy to Server
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Di chuyển vào thư mục dự án trên server
+          # Bạn hãy thay đường dẫn này bằng đường dẫn thực tế trên server của bạn
+          cd ~/conference-webpage 
+          
+          # Cập nhật code
+          git pull origin main
+          
+          # Cài đặt lại dependencies nếu cần
+          npm install --production
+          
+          # Chạy script deploy của bạn (đã có sẵn trong dự án)
+          chmod +x deploy.sh
+          ./deploy.sh
+          
+          # Hoặc nếu bạn dùng PM2 trực tiếp:
+          # npm run build
+          # pm2 restart ecosystem.config.cjs --env production
