@@ -27,8 +27,8 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
           <div className="flex flex-col md:flex-row md:items-center justify-between w-full pr-4 text-left gap-4">
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 text-teal-700 rounded-lg text-[10px] font-extrabold uppercase tracking-widest ring-1 ring-teal-100">
-                  <Clock className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-xs font-black uppercase tracking-wider ring-1 ring-teal-100">
+                  <Clock className="h-3.5 w-3.5" />
                   {session.startTime && !isNaN(new Date(session.startTime).getTime()) && session.endTime && !isNaN(new Date(session.endTime).getTime())
                     ? `${format(new Date(session.startTime), "HH:mm")} - ${format(new Date(session.endTime), "HH:mm")}`
                     : "TBA"}
@@ -109,7 +109,7 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                       <div key={index} className="relative group/item">
                         <div className="bg-slate-50/50 rounded-2xl p-4 border border-transparent hover:border-teal-100 hover:bg-white hover:shadow-sm transition-all duration-200">
                           <div className="flex flex-col md:flex-row md:items-start gap-4">
-                            <div className="flex items-center justify-center px-3 py-1 bg-white border border-slate-100 rounded-lg text-[10px] font-black text-teal-600 shadow-sm shrink-0 h-fit">
+                            <div className="flex items-center justify-center px-3.5 py-1.5 bg-white border border-slate-100 rounded-lg text-[12px] font-black text-teal-600 shadow-sm shrink-0 h-fit">
                               {item.timeSlot}
                             </div>
                             <div className="flex-1 space-y-1">
