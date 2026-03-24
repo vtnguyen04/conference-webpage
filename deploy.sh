@@ -27,7 +27,8 @@ echo "📥 Step 2: Installing dependencies..."
 npm install --quiet
 
 # 3. Build and Migration
-echo "🛠️  Step 3: Building application and migrating database..."
+echo "🛠️  Step 3: Syncing database schema and building application..."
+npx drizzle-kit push
 npm run build
 
 # 4. Process Management
