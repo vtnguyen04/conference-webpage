@@ -24,10 +24,13 @@ if [ ! -f .env ]; then
 fi
 
 # 1. Fetch code
-echo "Step 1: Pulling latest code..."
+echo "Step 1: Fetching latest updates from repository..."
 # Reset các file cấu hình có thể gây conflict trên server
 git checkout package.json package-lock.json 2>/dev/null || true
+# Bảo vệ các thay đổi local khác (như file .env) trước khi pull
+git stash 2>/dev/null || true
 git pull origin main
+git stash pop 2>/dev/null || true
 
 # 2. Prepare Directories
 echo "Step 2: Preparing data volumes..."

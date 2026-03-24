@@ -3,7 +3,9 @@
 # Ensure data directory exists
 mkdir -p server/data public/uploads
 
-# Run database migrations
+# Run database migrations and push schema
+echo "Syncing database schema..."
+npx drizzle-kit push
 echo "Running database migrations..."
 npm run db:migrate
 
