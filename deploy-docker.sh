@@ -69,12 +69,12 @@ docker run -d \
   --env-file .env \
   $IMAGE_NAME
 
-# 7. Force Sync Database Schema
-echo "Step 7: Synchronizing database schema (forcing new columns)..."
+# 7. Sync Database Schema (Migrations)
+echo "Step 7: Synchronizing database schema via migrations..."
 # Chờ container khởi động xong một chút trước khi chạy sync
 sleep 2
-# Sử dụng -t để tạo TTY giả và chạy lệnh yes bên trong container để tự động xác nhận
-docker exec -t $APP_NAME sh -c "yes | npx drizzle-kit push --config drizzle.config.ts --force" || echo "⚠️  Warning: Database sync might have had issues, check logs."
+# Sử dụng db:migrate thay cho push để tránh tương tác TTY và đảm bảo an toàn dữ liệu
+docker exec $APP_NAME npm run db:migrate || echo "⚠️  Warning: Database migration might have had issues, check logs."
 
 # 8. Clean up
 echo "Step 8: Cleaning up unused Docker images..."
