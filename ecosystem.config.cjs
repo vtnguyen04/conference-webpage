@@ -5,6 +5,7 @@ module.exports = {
     args   : "run start",
     env_production: {
       NODE_ENV: "production",
+      PORT: "5000",
       SESSION_SECRET: "d944cf516514ff88a7df9001384b0981ccd5b2457b7c9939ba47ccbd9bbd6a4a",
     }
   }]

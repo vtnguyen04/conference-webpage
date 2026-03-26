@@ -42,6 +42,8 @@ COPY --from=builder /app/server/fonts ./server/fonts
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/server/migrate.ts ./server/migrate.ts
 COPY --from=builder /app/shared ./shared
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Ensure persistent directories exist
 RUN mkdir -p public/uploads server/data

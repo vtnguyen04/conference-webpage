@@ -73,7 +73,7 @@ docker run -d \
 echo "Step 7: Synchronizing database schema (forcing new columns)..."
 # Chờ container khởi động xong một chút trước khi chạy sync
 sleep 2
-docker exec $APP_NAME npx drizzle-kit push --force || echo "⚠️  Warning: Database sync might have had issues, check logs."
+docker exec $APP_NAME npx drizzle-kit push --config drizzle.config.ts --force || echo "⚠️  Warning: Database sync might have had issues, check logs."
 
 # 8. Clean up
 echo "Step 8: Cleaning up unused Docker images..."
