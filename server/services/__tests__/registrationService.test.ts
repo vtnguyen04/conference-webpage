@@ -66,28 +66,20 @@ describe('RegistrationService', () => {
         .rejects.toThrow('Người tham dự này đã check-in rồi.');
     });
 
-    it('should create check-in and send certificate if not sent yet', async () => {
+    it('should create check-in but NOT send certificate immediately', async () => {
       vi.mocked(registrationRepository.isCheckedIn).mockResolvedValue(false);
       vi.mocked(registrationRepository.createCheckIn).mockResolvedValue({ id: 'c1' } as any);
-      vi.mocked(registrationRepository.getByEmail).mockResolvedValue([mockReg]);
-      vi.mocked(sessionRepository.getById).mockResolvedValue({ title: 'Session 1' } as any);
 
       const result = await registrationService.processCheckIn(mockReg, 's1', 'Conf', 'qr');
       
-      // Wait for all promises to resolve just in case
-      await new Promise(resolve => setTimeout(resolve, 10));
-
       expect(result.id).toBe('c1');
-      expect(emailService.sendCertificateEmail).toHaveBeenCalled();
-      expect(db.update).toHaveBeenCalled();
+      expect(emailService.sendCertificateEmail).not.toHaveBeenCalled();
+      expect(db.update).not.toHaveBeenCalled();
     });
 
-    it('should NOT send certificate if already sent to this user', async () => {
+    it('should NOT send certificate during check-in even if not sent yet', async () => {
         vi.mocked(registrationRepository.isCheckedIn).mockResolvedValue(false);
         vi.mocked(registrationRepository.createCheckIn).mockResolvedValue({ id: 'c1' } as any);
-        vi.mocked(registrationRepository.getByEmail).mockResolvedValue([
-            { ...mockReg, conferenceCertificateSent: true }
-        ]);
   
         await registrationService.processCheckIn(mockReg, 's1', 'Conf', 'qr');
         

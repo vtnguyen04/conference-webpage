@@ -172,31 +172,8 @@ export class RegistrationService {
             method 
         });
 
-        // Xử lý Chứng nhận tham dự hội nghị tự động nếu có yêu cầu (Gửi duy nhất 1 lần cho cả hội nghị)
-        if (registration.certificateRequested) {
-            backgroundQueue.enqueue(async () => {
-                // Kiểm tra xem người dùng này đã nhận chứng nhận nào trong hội nghị này chưa
-                const userRegistrations = await registrationRepository.getByEmail(registration.email, registration.conferenceSlug);
-                const alreadySent = userRegistrations.some(r => r.conferenceCertificateSent);
-
-                if (!alreadySent) {
-                    const session = await sessionRepository.getById(registration.conferenceSlug, sessionId);
-                    if (session) {
-                        const certificate = await certificateService.generateCertificate(registration.fullName);
-                        // Gửi email chứng nhận chung cho hội nghị
-                        await emailService.sendCertificateEmail(registration.email, registration.fullName, "Hội nghị", conferenceName, certificate);
-                        
-                        // Đánh dấu tất cả các đăng ký của người này trong hội nghị này là đã gửi chứng nhận
-                        await db.update(registrationsTable)
-                            .set({ conferenceCertificateSent: true })
-                            .where(and(
-                                eq(registrationsTable.email, registration.email),
-                                eq(registrationsTable.conferenceSlug, registration.conferenceSlug)
-                            )).run();
-                    }
-                }
-            });
-        }
+        // Tự động gửi chứng chỉ đã được chuyển sang CertificateAutomationService
+        // để gửi sau khi phiên làm việc kết thúc và chỉ gửi 1 lần duy nhất cho mỗi hội nghị.
 
         return checkIn;
     }

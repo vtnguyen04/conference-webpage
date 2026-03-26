@@ -17,6 +17,6 @@ export const errorHandler = (err: any, _req: Request, res: Response, _next: Next
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 };
-export const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any> | any) => (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
