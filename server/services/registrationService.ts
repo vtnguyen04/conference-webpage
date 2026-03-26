@@ -10,7 +10,6 @@ import { backgroundQueue } from "../utils/backgroundQueue";
 import { db } from "../db";
 import { eq, and } from "drizzle-orm";
 import { jsonStorage } from "../jsonStorage";
-import { certificateService } from "./certificateService";
 
 export class RegistrationService {
     private formatSessionTime(startTime: string | Date, endTime: string | Date): string {

@@ -100,7 +100,17 @@ export const useRegistrations = () => {
     onError: (error: any) => toast({ title: "Lỗi check-in hàng loạt", description: error.message, variant: "destructive" }),
   });
   const handleExportCSV = async () => {
-    console.log("Exporting CSV...");
+    try {
+      toast({ title: "Đang xuất dữ liệu...", description: "Vui lòng chờ trong giây lát." });
+      await registrationService.exportRegistrations();
+      toast({ title: "Xuất dữ liệu thành công" });
+    } catch (error: any) {
+      toast({ 
+        title: "Lỗi xuất dữ liệu", 
+        description: error.message || "Có lỗi xảy ra khi tải file.", 
+        variant: "destructive" 
+      });
+    }
   };
   const handleDelete = (id: string) => {
     if (confirm("Bạn có chắc muốn xóa đăng ký này?")) {

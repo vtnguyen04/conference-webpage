@@ -67,7 +67,6 @@ export default function SpeakersManagementPage() {
     deleteSpeaker,
     isCreating,
     isUpdating,
-    isDeleting: isDeletingSpeaker
   } = useSpeakers(viewingSlug || undefined);
 
   const { uploadImage, deleteImage, isUploading, isDeleting } = useImageUpload({

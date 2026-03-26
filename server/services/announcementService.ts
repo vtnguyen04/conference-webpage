@@ -1,5 +1,4 @@
 import { announcementRepository } from "../repositories/announcementRepository";
-import { Announcement } from "@shared/schema";
 import { deleteFile } from "../utils";
 
 export class AnnouncementService {

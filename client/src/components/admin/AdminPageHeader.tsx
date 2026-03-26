@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface AdminPageHeaderProps {
   title: string;

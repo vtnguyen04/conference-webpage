@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { QrCode, CheckCircle, X, Calendar, MapPin, Camera, Clock, User, UserCheck, History, Mail } from "lucide-react";
-import type { Conference, Session } from "@shared/types";
+import { QrCode, CheckCircle, X, Calendar, MapPin, Camera, Clock, UserCheck, History, Mail } from "lucide-react";
+import type { Session } from "@shared/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { cn } from "@/lib/utils";
@@ -21,10 +21,6 @@ export default function CheckinPage() {
   const limit = 10;
   const scannerRef = useRef<any | null>(null);
   const { viewingSlug } = useAdminView();
-
-  const { data: conference } = useQuery<Conference | null>({
-    queryKey: ["/api/conferences/active"],
-  });
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", viewingSlug],
@@ -54,9 +50,7 @@ export default function CheckinPage() {
   const { 
     checkIns, 
     totalCheckIns, 
-    isLoading, 
     submitCheckIn, 
-    isCheckingIn 
   } = useCheckIn(selectedSessionId, page, limit);
 
   const totalPages = Math.ceil(totalCheckIns / limit);
@@ -87,7 +81,7 @@ export default function CheckinPage() {
         },
         () => {}
       );
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Lỗi camera",
         description: "Vui lòng cho phép truy cập camera.",

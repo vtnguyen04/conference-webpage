@@ -6,7 +6,7 @@ import { insertSessionSchema } from "@shared/validation";
 export const getSessionsByConferenceSlug = async (req: any, res: Response) => {
     try { 
         res.json(await sessionService.getAllSessions(req.params.conferenceSlug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -15,7 +15,7 @@ export const getActiveConferenceSessions = async (req: RequestWithActiveConferen
     try { 
         if (!req.activeConference) return res.json([]); 
         res.json(await sessionService.getAllSessions(req.activeConference.slug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -59,7 +59,7 @@ export const getSessionsCapacity = async (req: RequestWithActiveConference, res:
     try { 
         if (!req.activeConference) return res.json([]); 
         res.json(await sessionService.getSessionsCapacityStatus(req.activeConference.slug)); 
-    } catch (error: any) { 
+    } catch (_error: any) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };

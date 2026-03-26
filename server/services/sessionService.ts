@@ -1,6 +1,5 @@
 import { sessionRepository } from "../repositories/sessionRepository";
 import { registrationRepository } from "../repositories/registrationRepository";
-import { Session } from "@shared/schema";
 
 export class SessionService {
     async getAllSessions(conferenceSlug: string) {

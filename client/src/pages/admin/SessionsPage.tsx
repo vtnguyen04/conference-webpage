@@ -10,15 +10,11 @@ import { speakerService } from "@/services/speakerService";
 import type { Session, InsertSession, Speaker } from "@shared/types";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 // UI Components
 import { 
   Card, 
   CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +29,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,

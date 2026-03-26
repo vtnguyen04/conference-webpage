@@ -4,11 +4,11 @@ import { documentService } from "../services/documentService";
 import { insertDocumentSchema } from "@shared/validation";
 
 export const getDocumentsByConferenceSlug = async (req: any, res: Response) => {
-    try { res.json(await documentService.getAllByConference(req.params.conferenceSlug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { res.json(await documentService.getAllByConference(req.params.conferenceSlug)); } catch (_) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const getActiveConferenceDocuments = async (req: RequestWithActiveConference, res: Response) => {
-    try { if (!req.activeConference) return res.json([]); res.json(await documentService.getAllByConference(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { if (!req.activeConference) return res.json([]); res.json(await documentService.getAllByConference(req.activeConference.slug)); } catch (_) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const getDocumentById = async (req: any, res: Response) => {
@@ -18,7 +18,7 @@ export const getDocumentById = async (req: any, res: Response) => {
         const result = await documentService.getById(slug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_) {
         res.status(500).json({ message: "Failed" });
     }
 };
@@ -29,7 +29,7 @@ export const incrementDocumentViews = async (req: RequestWithActiveConference, r
         const result = await documentService.incrementViews(req.activeConference.slug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_) {
         res.status(500).json({ message: "Failed" });
     }
 };
@@ -39,7 +39,7 @@ export const incrementDocumentViewsBySlug = async (req: any, res: Response) => {
         const result = await documentService.incrementViews(req.params.conferenceSlug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_) {
         res.status(500).json({ message: "Failed" });
     }
 };

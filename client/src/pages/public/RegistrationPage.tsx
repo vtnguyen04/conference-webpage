@@ -1,5 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +17,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import type { Session } from "@shared/types";
-import { AlertCircle, Clock, MapPin, Users, Mail } from "lucide-react";
+import { AlertCircle, Clock, MapPin, Mail } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { PageHeader } from "@/components/PageHeader";

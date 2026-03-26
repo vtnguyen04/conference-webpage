@@ -95,7 +95,7 @@ export async function cloneFile(filePathRelative: string | null | undefined): Pr
   try {
     await copyFile(sourcePath, destinationPath);
     return `/uploads/${newFilename}`;
-  } catch (error) {
+  } catch (_error) {
     return filePathRelative;
   }
 }

@@ -23,14 +23,10 @@ import {
   Trash2, 
   Info, 
   MoreHorizontal,
-  Plus
 } from "lucide-react";
 import { 
   Card, 
   CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,7 +96,6 @@ export default function SponsorsManagementPage() {
     deleteSponsor, 
     isCreating, 
     isUpdating, 
-    isDeleting: isDeletingSponsor 
   } = useSponsors(viewingSlug || undefined);
 
   const { uploadImage, deleteImage, isUploading, isDeleting: isDeletingImage } = useImageUpload({

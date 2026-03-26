@@ -8,7 +8,6 @@ import { useAdminView } from "@/hooks/useAdminView";
 import { insertOrganizerSchema } from "@shared/validation";
 import type { Organizer, InsertOrganizer } from "@shared/types";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +21,6 @@ import {
   MoreHorizontal, 
   Briefcase, 
   GraduationCap,
-  Info 
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +35,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -69,7 +66,6 @@ export default function OrganizersManagementPage() {
     deleteAllOrganizers,
     isCreating, 
     isUpdating, 
-    isDeleting: isDeletingOrganizer 
   } = useOrganizers(viewingSlug || undefined);
 
   const { uploadImage, deleteImage, isUploading, isDeleting: isDeletingImage } = useImageUpload({

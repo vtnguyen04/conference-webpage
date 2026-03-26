@@ -54,7 +54,8 @@ async function throwIfResNotOk(res: Response) {
       if (data && data.message) {
         errorMessage = data.message;
       }
-    } catch (e) {
+    } catch (_e) {
+      // No-op
     }
     throw new ApiError(errorMessage, res.status);
   }

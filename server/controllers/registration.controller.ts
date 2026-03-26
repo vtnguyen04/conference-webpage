@@ -31,20 +31,48 @@ export const exportRegistrations = async (req: RequestWithActiveConference, res:
     try {
         const conference = req.activeConference;
         if (!conference) return res.status(404).send("No active conference found.");
+        
         res.setHeader("Content-Type", "text/csv; charset=utf-8");
         res.setHeader("Content-Disposition", `attachment; filename=registrations-${conference.slug}.csv`);
+        
+        // Add BOM for Excel UTF-8 support
         res.write("\uFEFF");
-        const headers = ["ID", "Họ và tên", "Email", "Điện thoại", "Tổ chức", "Chức danh", "Phiên đăng ký", "Yêu cầu Chứng nhận", "Trạng thái", "Thời gian đăng ký"];
+        
+        const headers = ["ID", "Họ và tên", "Email", "Điện thoại", "Tổ chức", "Chức danh", "Phiên đăng ký", "Vai trò", "Yêu cầu Chứng nhận", "Trạng thái", "Thời gian đăng ký"];
         res.write(headers.join(",") + "\n");
-        const { data: registrations } = await registrationRepository.getByConferenceSlug(conference.slug, 1, 10000);
+        
+        // Fetch all registrations (up to 50000 for safety)
+        const { data: registrations } = await registrationRepository.getByConferenceSlug(conference.slug, 1, 50000);
+        
+        const escapeCSV = (val: any) => {
+            const str = String(val ?? '');
+            return `"${str.replace(/"/g, '""')}"`;
+        };
+
         for (const r of registrations) {
             const session = await sessionRepository.getById(conference.slug, r.sessionId);
+            
+            const roleMap: Record<string, string> = {
+                'participant': 'Tham dự',
+                'speaker': 'Báo cáo viên',
+                'moderator': 'Chủ tọa',
+                'both': 'Báo cáo viên & Chủ tọa'
+            };
+
             const row = [
-                `"${r.id}"`, `"${r.fullName}"`, `"${r.email}"`, `"${r.phone || ''}"`, 
-                `"${r.organization || ''}"`, `"${r.position || ''}"`, `"${session?.title || ''}"`, 
-                `"${r.certificateRequested ? 'Có' : 'Không'}"`, `"${r.status}"`, 
-                `"${r.registeredAt ? new Date(r.registeredAt).toLocaleString() : ''}"`
+                escapeCSV(r.id),
+                escapeCSV(r.fullName),
+                escapeCSV(r.email),
+                escapeCSV(r.phone),
+                escapeCSV(r.organization),
+                escapeCSV(r.position),
+                escapeCSV(session?.title),
+                escapeCSV(roleMap[r.role] || r.role),
+                escapeCSV(r.certificateRequested ? 'Có' : 'Không'),
+                escapeCSV(r.status === 'confirmed' ? 'Đã xác nhận' : r.status === 'checked-in' ? 'Đã tham dự' : 'Chờ xác nhận'),
+                escapeCSV(r.registeredAt ? new Date(r.registeredAt).toLocaleString('vi-VN') : '')
             ].join(",");
+            
             res.write(row + "\n");
         }
         res.end();
@@ -79,13 +107,13 @@ export const confirmRegistration = async (req: RequestWithActiveConference, res:
             return res.status(400).send(errorTemplate(result.errorTitle!, result.errorMessage!));
         }
         res.send(confirmationSuccessTemplate(result.conferenceName!));
-    } catch (error: any) {
+    } catch (_error: any) {
         res.status(500).send(errorTemplate("Lỗi xác nhận", "Đã có lỗi xảy ra."));
     }
 };
 
 export const getRegistrationsBySessionId = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await registrationRepository.getBySession(req.params.sessionId)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { res.json(await registrationRepository.getBySession(req.params.sessionId)); } catch (_error) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const batchRegister = async (req: RequestWithActiveConference, res: Response) => {
@@ -118,7 +146,7 @@ export const deleteRegistrationById = async (req: RequestWithActiveConference, r
 };
 
 export const getWhitelists = async (req: RequestWithActiveConference, res: Response) => {
-    try { if (!req.activeConference) return res.json([]); res.json(await whitelistRepository.getAll(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { if (!req.activeConference) return res.json([]); res.json(await whitelistRepository.getAll(req.activeConference.slug)); } catch (_error) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const addToWhitelist = async (req: RequestWithActiveConference, res: Response) => {
@@ -130,7 +158,7 @@ export const removeFromWhitelist = async (req: RequestWithActiveConference, res:
 };
 
 export const getCheckIns = async (req: RequestWithActiveConference, res: Response) => {
-    try { res.json(await registrationRepository.getCheckInsBySession(req.params.sessionId, parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { res.json(await registrationRepository.getCheckInsBySession(req.params.sessionId, parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10)); } catch (_error) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const qrCheckIn = async (req: RequestWithActiveConference, res: Response) => {
@@ -173,7 +201,7 @@ export const bulkCheckIn = async (req: RequestWithActiveConference, res: Respons
           if (!registration || registration.sessionId !== sessionId || registration.status !== 'confirmed') { failCount++; continue; }
           await registrationService.processCheckIn(registration, sessionId, conference.name, 'manual');
           successCount++;
-        } catch (e) { failCount++; }
+        } catch (_e) { failCount++; }
       }
       res.json({ successCount, failCount });
     } catch (error: any) { res.status(400).json({ message: error.message }); }

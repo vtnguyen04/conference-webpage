@@ -16,7 +16,7 @@ export class CertificateService {
     try {
       const fontBytes = await fs.readFile(fontPath);
       embeddedFont = await pdfDoc.embedFont(fontBytes);
-    } catch (error) {
+    } catch (_error) {
       embeddedFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     }
     const displayUserName = userName.toUpperCase();

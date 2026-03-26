@@ -1,4 +1,3 @@
-import { Sponsor } from "@shared/types";
 import SectionHeader from "@/components/SectionHeader";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";

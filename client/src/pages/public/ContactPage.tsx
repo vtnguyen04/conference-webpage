@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { contactFormSchema } from '@shared/validation';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "wouter";
 import { useActiveConference } from '@/hooks/useActiveConference';
-import { Mail, Phone, MapPin, Send, Loader2, Info, MessageSquare, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { contactService } from '@/services/contactService';
-import { cn } from '@/lib/utils';
 
 export default function ContactPage() {
   const { toast } = useToast();

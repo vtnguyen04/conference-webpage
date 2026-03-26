@@ -1,9 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { CheckCircle2, QrCode, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import type { Session } from "@shared/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { usePublicSessions } from "@/hooks/usePublicData";

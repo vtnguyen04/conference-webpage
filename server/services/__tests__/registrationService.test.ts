@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { registrationService } from '../registrationService';
 import { registrationRepository } from '../../repositories/registrationRepository';
-import { sessionRepository } from '../../repositories/sessionRepository';
 import { db } from '../../db';
 import { emailService } from '../emailService';
 import { certificateService } from '../certificateService';

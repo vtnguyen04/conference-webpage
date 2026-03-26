@@ -56,7 +56,7 @@ export class JSONStorage {
         const yearB = (b as any).year || new Date(b.createdAt).getFullYear();
         return yearB - yearA;
       });
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

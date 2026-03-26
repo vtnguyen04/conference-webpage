@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { X, Plus, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadService } from '@/services/uploadService';
 

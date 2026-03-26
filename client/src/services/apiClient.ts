@@ -16,7 +16,8 @@ async function throwIfResNotOk(res: Response) {
       } else if (data && typeof data === 'string') {
         errorMessage = data;
       }
-    } catch (e) {
+    } catch (_e) {
+      // No-op
     }
     if (res.status === 401) {
       throw new ApiError("Mật khẩu không chính xác hoặc phiên đăng nhập đã hết hạn.", 401);
@@ -29,21 +30,17 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<any> {
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: data ? { "Content-Type": "application/json" } : {},
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
-    });
-    await throwIfResNotOk(res);
-    if (method !== "DELETE" && res.headers.get("content-type")?.includes("application/json")) {
-      return await res.json();
-    }
-    return {};
-  } catch (error) {
-    throw error;
+  const res = await fetch(url, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: "include",
+  });
+  await throwIfResNotOk(res);
+  if (method !== "DELETE" && res.headers.get("content-type")?.includes("application/json")) {
+    return await res.json();
   }
+  return {};
 }
 export async function apiUploadFile(
   url: string,

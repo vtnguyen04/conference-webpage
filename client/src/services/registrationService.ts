@@ -37,4 +37,19 @@ export const registrationService = {
   batchRegisterSessions: async (data: BatchRegistrationRequest): Promise<SuccessData> => {
     return apiRequest("POST", "/api/registrations/batch", data);
   },
+  exportRegistrations: async (): Promise<void> => {
+    const res = await fetch("/api/admin/registrations/export", {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Xuất dữ liệu thất bại");
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `registrations-${new Date().getTime()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 };

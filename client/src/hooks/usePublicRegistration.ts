@@ -6,7 +6,6 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Session, Conference } from "@shared/types";
-import { format } from "date-fns";
 
 const registrationSchema = z.object({
   fullName: z.string().min(2, "Vui lòng nhập họ tên đầy đủ"),

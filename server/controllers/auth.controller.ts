@@ -12,7 +12,7 @@ export const login = async (req: any, res: Response) => {
         } else { 
             res.status(401).json({ message: "Invalid credentials" }); 
         }
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -31,7 +31,7 @@ export const getUser = async (req: any, res: Response) => {
         const user = await authService.findUserById(req.session.userId);
         if (!user) return res.status(404).json({ message: "User not found" });
         res.json(user);
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };

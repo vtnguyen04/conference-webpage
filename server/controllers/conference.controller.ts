@@ -5,7 +5,7 @@ import { insertConferenceSchema } from "@shared/validation";
 export const getAllConferences = async (_req: any, res: Response) => {
     try { 
         res.json(await conferenceService.getAllConferences()); 
-    } catch (error) { 
+    } catch (_) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -13,7 +13,7 @@ export const getAllConferences = async (_req: any, res: Response) => {
 export const getActiveConference = async (_req: any, res: Response) => {
     try { 
         res.json(await conferenceService.getActiveConference() || null); 
-    } catch (error) { 
+    } catch (_) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -23,7 +23,7 @@ export const getConferenceBySlug = async (req: any, res: Response) => {
         const conference = await conferenceService.getBySlug(req.params.slug);
         if (!conference) return res.status(404).json({ message: "Not found" });
         res.json(conference);
-    } catch (error) { 
+    } catch (_) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };

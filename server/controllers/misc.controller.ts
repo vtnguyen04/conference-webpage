@@ -25,7 +25,7 @@ export const uploadImage = async (req: any, res: Response) => {
         const imagePath = await processAndSaveImage(req.file.buffer, req.file.originalname, req.body.type || 'general');
         if (req.body.oldImagePath) await deleteFile(req.body.oldImagePath);
         res.json({ imagePath });
-    } catch (error: any) { res.status(500).json({ message: "Failed" }); }
+    } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };
 export const uploadPdf = async (req: any, res: Response) => {
     try {
@@ -38,17 +38,17 @@ export const uploadPdf = async (req: any, res: Response) => {
         await fs.writeFile(absolutePath, req.file.buffer);
         if (req.body.oldPdfPath) await deleteFile(req.body.oldPdfPath);
         res.json({ pdfPath: `/uploads/${filename}` });
-    } catch (error: any) { res.status(500).json({ message: "Failed" }); }
+    } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };
 export const uploadBanners = async (req: any, res: Response) => {
     try {
         const files = req.files as any[];
         const imagePaths = await Promise.all(files.map(file => processAndSaveImage(file.buffer, file.originalname, 'banner')));
         res.json({ imagePaths });
-    } catch (error: any) { res.status(500).json({ message: "Failed" }); }
+    } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };
 export const deleteUpload = async (req: any, res: Response) => {
-    try { if (req.query.filePath) { await deleteFile(req.query.filePath as string); res.json({ success: true }); } else res.status(400).json({ message: "Missing path" }); } catch (error: any) { res.status(500).json({ message: "Failed" }); }
+    try { if (req.query.filePath) { await deleteFile(req.query.filePath as string); res.json({ success: true }); } else res.status(400).json({ message: "Missing path" }); } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };
 export const getAdminStats = async (req: RequestWithActiveConference, res: Response) => {
     try {
@@ -66,7 +66,7 @@ export const createNewContactMessage = async (req: any, res: Response) => {
     try { res.status(201).json(await contactRepository.create(contactFormSchema.parse(req.body))); } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 export const getContactMessagesPaginated = async (req: any, res: Response) => {
-    try { res.json(await contactRepository.getAllPaginated(parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { res.json(await contactRepository.getAllPaginated(parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10)); } catch (_) { res.status(500).json({ message: "Failed" }); }
 };
 export const searchAdminContactMessages = async (req: any, res: Response) => {
     try { res.json(await contactRepository.search(req.query.query as string, parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10)); } catch (error: any) { res.status(400).json({ message: error.message }); }

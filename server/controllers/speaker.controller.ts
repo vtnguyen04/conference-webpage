@@ -6,7 +6,7 @@ import { insertSpeakerSchema } from "@shared/validation";
 export const getSpeakersByConferenceSlug = async (req: any, res: Response) => {
     try { 
         res.json(await speakerService.getAllSpeakers(req.params.conferenceSlug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -15,7 +15,7 @@ export const getActiveConferenceSpeakers = async (req: RequestWithActiveConferen
     try { 
         if (!req.activeConference) return res.json([]); 
         res.json(await speakerService.getAllSpeakers(req.activeConference.slug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };

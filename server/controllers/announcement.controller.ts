@@ -6,7 +6,7 @@ import { insertAnnouncementSchema } from "@shared/validation";
 export const getAnnouncementsByConferenceSlug = async (req: any, res: Response) => {
     try { 
         res.json(await announcementService.getAllByConference(req.params.conferenceSlug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -15,7 +15,7 @@ export const getActiveConferenceAnnouncements = async (req: RequestWithActiveCon
     try { 
         if (!req.activeConference) return res.json([]); 
         res.json(await announcementService.getAllByConference(req.activeConference.slug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -27,7 +27,7 @@ export const getAnnouncementById = async (req: any, res: Response) => {
         const result = await announcementService.getById(slug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ message: "Failed" });
     }
 };
@@ -38,7 +38,7 @@ export const incrementAnnouncementViews = async (req: RequestWithActiveConferenc
         const result = await announcementService.incrementViews(req.activeConference.slug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ message: "Failed" });
     }
 };
@@ -48,7 +48,7 @@ export const incrementAnnouncementViewsBySlug = async (req: any, res: Response) 
         const result = await announcementService.incrementViews(req.params.conferenceSlug, req.params.id);
         if (!result) return res.status(404).json({ message: "Not found" });
         res.json(result);
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ message: "Failed" });
     }
 };

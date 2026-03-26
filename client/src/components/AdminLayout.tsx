@@ -177,12 +177,10 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
       await refetchAuth();
       setLocation("/admin/login");
       toast({ title: "Đã đăng xuất", description: "Hẹn gặp lại bạn!" });
-    } catch (error) {
+    } catch (_error) {
       toast({ title: "Lỗi", description: "Đăng xuất thất bại.", variant: "destructive" });
     }
   };
-
-  const activeItem = menuGroups.flatMap(g => g.items).find(i => i.href === location);
 
   return (
     <div className="flex h-screen w-full bg-[#F8F9FC]">

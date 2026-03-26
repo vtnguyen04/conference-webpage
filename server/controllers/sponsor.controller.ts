@@ -6,7 +6,7 @@ import { insertSponsorSchema } from "@shared/validation";
 export const getSponsorsByConferenceSlug = async (req: any, res: Response) => {
     try { 
         res.json(await sponsorService.getAllSponsors(req.params.conferenceSlug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };
@@ -15,7 +15,7 @@ export const getActiveConferenceSponsors = async (req: RequestWithActiveConferen
     try { 
         if (!req.activeConference) return res.json([]); 
         res.json(await sponsorService.getAllSponsors(req.activeConference.slug)); 
-    } catch (error) { 
+    } catch (_error) { 
         res.status(500).json({ message: "Failed" }); 
     }
 };

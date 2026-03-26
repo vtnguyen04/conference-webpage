@@ -61,7 +61,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 (async () => {
-  try { db.run(sql`SELECT 1`); log("Database connection successful"); } catch (error) { process.exit(1); }
+  try { db.run(sql`SELECT 1`); log("Database connection successful"); } catch (_error) { process.exit(1); }
   setupAuth(app);
   app.use('/api/auth/login', authLimiter);
   app.use('/api/login', authLimiter);

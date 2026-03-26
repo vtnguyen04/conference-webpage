@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { db } from '../db';
 import { registrations, checkIns } from '@shared/schema';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { emailService } from './emailService';
 import { conferenceRepository } from '../repositories/conferenceRepository';
 import { sessionRepository } from '../repositories/sessionRepository';

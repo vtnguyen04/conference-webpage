@@ -4,11 +4,11 @@ import { organizerService } from "../services/organizerService";
 import { insertOrganizerSchema } from "@shared/validation";
 
 export const getOrganizersByConferenceSlug = async (req: any, res: Response) => {
-    try { res.json(await organizerService.getAllByConference(req.params.conferenceSlug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { res.json(await organizerService.getAllByConference(req.params.conferenceSlug)); } catch (_) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const getActiveConferenceOrganizers = async (req: RequestWithActiveConference, res: Response) => {
-    try { if (!req.activeConference) return res.json([]); res.json(await organizerService.getAllByConference(req.activeConference.slug)); } catch (error) { res.status(500).json({ message: "Failed" }); }
+    try { if (!req.activeConference) return res.json([]); res.json(await organizerService.getAllByConference(req.activeConference.slug)); } catch (_) { res.status(500).json({ message: "Failed" }); }
 };
 
 export const createOrganizer = async (req: RequestWithActiveConference, res: Response) => {

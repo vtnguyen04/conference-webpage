@@ -9,15 +9,13 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Tag, FileText, Eye, Facebook, Share2, Clock, ChevronLeft } from "lucide-react";
+import { FileText, Eye, Facebook, Share2, Clock, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicAnnouncement } from "@/hooks/usePublicData";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { announcementService } from "@/services/announcementService";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -41,7 +39,6 @@ export default function AnnouncementDetailPage() {
   const slug = isConferenceAnnouncements ? conferenceAnnouncementsParams?.slug : undefined;
   const announcementId = isConferenceAnnouncements ? conferenceAnnouncementsParams?.id : announcementsParams?.id;
   
-  const queryClient = useQueryClient();
   const mainContentRef = useRef<HTMLDivElement>(null);
   const { conference } = useActiveConference();
 

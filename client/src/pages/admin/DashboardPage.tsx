@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useActiveConference } from "@/hooks/useActiveConference";
 import { useAnalytics } from "@/hooks/useAnalytics";
