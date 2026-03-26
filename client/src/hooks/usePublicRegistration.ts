@@ -17,7 +17,9 @@ const registrationSchema = z.object({
     required_error: "Vui lòng chọn một vai trò",
   }).default("participant"),
   certificateRequested: z.boolean().default(false),
-  sessionIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một phiên"),
+  sessionIds: z.array(z.string())
+    .min(1, "Vui lòng chọn ít nhất một phiên")
+    .max(5, "Bạn chỉ được đăng ký tối đa 5 phiên"),
 });
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
@@ -85,22 +87,36 @@ export function usePublicRegistration(conference?: Conference | null) {
     const disabled = new Set<string>();
     const selected = sessions.filter(s => sessionIds.includes(s.id));
     const now = new Date();
-    
-    const hasPlenary = selected.some(s => s.track === 'Toàn thể');
-    const hasMorningBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() < 12);
-    const hasAfternoonBreakout = selected.some(s => s.track !== 'Toàn thể' && new Date(s.startTime).getHours() >= 12);
+    const isAtLimit = sessionIds.length >= 5;
 
     sessions.forEach(session => {
+      // 1. Disable các phiên đã kết thúc
       if (new Date(session.endTime) < now) {
         disabled.add(session.id);
         return;
       }
+
+      // Nếu phiên đã được chọn thì không disable (để có thể bỏ chọn)
       if (sessionIds.includes(session.id)) return;
-      const isMorning = new Date(session.startTime).getHours() < 12;
-      const isPlenary = session.track === 'Toàn thể';
-      if (isPlenary && hasPlenary) disabled.add(session.id);
-      if (!isPlenary && isMorning && hasMorningBreakout) disabled.add(session.id);
-      if (!isPlenary && !isMorning && hasAfternoonBreakout) disabled.add(session.id);
+
+      // 2. Disable nếu đã đạt giới hạn 5 phiên
+      if (isAtLimit) {
+        disabled.add(session.id);
+        return;
+      }
+
+      // 3. Disable nếu trùng giờ với bất kỳ phiên nào đã chọn
+      const sStart = new Date(session.startTime);
+      const sEnd = new Date(session.endTime);
+      const isOverlapping = selected.some(s => {
+        const selStart = new Date(s.startTime);
+        const selEnd = new Date(s.endTime);
+        return (sStart < selEnd && sEnd > selStart);
+      });
+
+      if (isOverlapping) {
+        disabled.add(session.id);
+      }
     });
     return disabled;
   }, [sessionIds, sessions]);
