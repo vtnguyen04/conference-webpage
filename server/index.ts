@@ -14,7 +14,7 @@ import { confirmationReminderService } from "./services/confirmationReminderServ
 import { reminderService } from "./services/reminderService";
 import { certificateAutomationService } from "./services/certificateAutomationService";
 import { setupAuth } from './sessionAuth';
-import { log, serveStatic, setupVite } from "./vite";
+import { log, serveStatic } from "./vite-utils";
 dotenv.config();
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Nginx/Docker)
@@ -66,12 +66,18 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
   app.use('/api/auth/login', authLimiter);
   app.use('/api/login', authLimiter);
   app.use('/api', apiLimiter);
+  app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
   app.use('/api', mainRouter);
   reminderService.start();
   confirmationReminderService.start();
   certificateAutomationService.start();
   app.use(errorHandler);
-  if (app.get("env") === "development") await setupVite(app, server); else serveStatic(app);
+  if (app.get("env") === "development") {
+    const { setupVite } = await import("./vite");
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({ port, host: "0.0.0.0" }, () => log(`serving on port ${port}`));
 })();

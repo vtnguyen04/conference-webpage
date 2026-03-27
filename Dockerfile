@@ -1,58 +1,53 @@
-# --- Stage 1: Build Stage ---
-FROM node:20-slim AS builder
+# --- Stage 1: Build & Prune ---
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat python3 make g++
 
 WORKDIR /app
 
-# Install build essentials for native modules (better-sqlite3, sharp)
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy package files first for better layer caching
 COPY package*.json ./
-
-# Use npm ci for faster, predictable installs and avoid ETXTBSY issues
 RUN npm ci
 
-# Copy the rest of the source code
 COPY . .
-
-# Build frontend and backend
 RUN npm run build
+RUN npm prune --omit=dev
 
-# --- Stage 2: Production Stage ---
-FROM node:20-slim
+# --- Stage 2: Production Runner ---
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Better-sqlite3 and sharp need some runtime dependencies
-RUN apt-get update && apt-get install -y \
-    openssl \
-    && rm -rf /var/lib/apt/lists/*
+# Runtime dependencies
+RUN apk add --no-cache openssl libstdc++
 
-# Copy built artifacts from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/server/data ./server/data
-COPY --from=builder /app/server/fonts ./server/fonts
-COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/server/migrate.ts ./server/migrate.ts
-COPY --from=builder /app/shared ./shared
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
+# Security: Non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Ensure persistent directories exist
-RUN mkdir -p public/uploads server/data
+ENV NODE_ENV=production \
+    PORT=5000
 
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# Copy ONLY strictly necessary artifacts
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/migrations ./migrations
+COPY --from=builder --chown=nextjs:nodejs /app/server/fonts ./server/fonts
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/entrypoint.sh ./entrypoint.sh
+
+# Copy default template to dist/ as fallback
+COPY --from=builder --chown=nextjs:nodejs /app/server/data/certificate.pdf ./dist/certificate.pdf
+
+# Setup directories and permissions
+RUN chmod +x entrypoint.sh && \
+    mkdir -p public/uploads server/data && \
+    chown -R nextjs:nodejs public/uploads server/data
+
+USER nextjs
 
 EXPOSE 5000
 
-ENV NODE_ENV=production
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD node -e "fetch('http://localhost:5000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
 
 ENTRYPOINT ["./entrypoint.sh"]
