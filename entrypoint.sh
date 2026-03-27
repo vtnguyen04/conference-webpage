@@ -1,14 +1,15 @@
 #!/bin/sh
+set -e
 
-# Ensure data directory exists
-mkdir -p server/data public/uploads
+echo "------------------------------------------------"
+echo "🚀 Container Starting..."
+echo "------------------------------------------------"
 
-# Run database migrations and push schema
-echo "Syncing database schema..."
-npx drizzle-kit push
-echo "Running database migrations..."
+# Run database migrations
+# Chúng ta sử dụng file đã được bundle để không cần tsx/typescript
+echo "Step 1: Running database migrations..."
 npm run db:migrate
 
 # Start the application
-echo "Starting application in production mode..."
+echo "Step 2: Starting application..."
 exec npm start

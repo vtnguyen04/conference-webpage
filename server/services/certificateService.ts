@@ -4,7 +4,16 @@ import path from 'path';
 import fontkit from '@pdf-lib/fontkit';
 export class CertificateService {
   async generateCertificate(userName: string): Promise<Buffer> {
-    const templatePath = path.join(process.cwd(), 'server', 'data', 'certificate.pdf');
+    const dataTemplate = path.join(process.cwd(), 'server', 'data', 'certificate.pdf');
+    const fallbackTemplate = path.join(process.cwd(), 'dist', 'certificate.pdf');
+    
+    let templatePath = dataTemplate;
+    try {
+      await fs.access(dataTemplate);
+    } catch (_e) {
+      templatePath = fallbackTemplate;
+    }
+
     const existingPdfBytes = await fs.readFile(templatePath);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     pdfDoc.registerFontkit(fontkit);

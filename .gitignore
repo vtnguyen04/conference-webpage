@@ -27,4 +27,5 @@ yarn-error.log*
 public/uploads/*
 !public/uploads/.gitkeep
 server/data/
+!server/data/certificate.pdf
 # Loại bỏ migrations nếu không cần track
