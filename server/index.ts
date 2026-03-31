@@ -12,9 +12,9 @@ import { errorHandler } from "./middlewares/errorHandler";
 import mainRouter from "./routers";
 import { confirmationReminderService } from "./services/confirmationReminderService";
 import { reminderService } from "./services/reminderService";
-import { certificateAutomationService } from "./services/certificateAutomationService";
-import { setupAuth } from './sessionAuth';
-import { log, serveStatic } from "./vite-utils";
+import { certificateAutomationService } from "./services/certificateAutomationService.js";
+import { setupAuth } from './sessionAuth.js';
+import { log, serveStatic } from "./vite-utils.js";
 dotenv.config();
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Nginx/Docker)

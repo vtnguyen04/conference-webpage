@@ -133,9 +133,17 @@ export function usePublicRegistration(conference?: Conference | null) {
       form.reset();
       queryClient.invalidateQueries({ queryKey: ['/api/sessions/capacity'] });
       if (res.emailSent) {
-        toast({ title: "Đăng ký thành công!", description: "Vui lòng kiểm tra email để xác nhận." });
+        toast({ 
+          title: "Đăng ký thành công!", 
+          description: "Vui lòng kiểm tra email để xác nhận.",
+        });
       } else {
-        toast({ title: "Đăng ký thành công!", description: "Ghi nhận dữ liệu thành công nhưng không thể gửi email.", variant: "destructive" });
+        toast({ 
+          title: "Đăng ký thành công nhưng không thể gửi email!", 
+          description: res.emailError || "Ghi nhận dữ liệu thành công nhưng không thể gửi email xác nhận. Vui lòng liên hệ ban tổ chức.",
+          variant: "destructive",
+          duration: 10000
+        });
       }
     },
     onError: (error: any) => {

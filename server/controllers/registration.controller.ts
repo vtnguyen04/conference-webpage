@@ -121,16 +121,37 @@ export const batchRegister = async (req: RequestWithActiveConference, res: Respo
         const conference = req.activeConference;
         if (!conference) return res.status(404).json({ message: "No active conference" });
         const requestData = batchRegistrationRequestSchema.parse({ ...req.body, conferenceSlug: conference.slug });
-        
+
         const result = await registrationService.batchRegisterSessions(requestData);
         if (!result.success) return res.status(400).json({ message: result.error, failedSessions: result.failedSessions });
-        
-        let emailSent = false;
+
+        let emailResult = { success: false, error: undefined, errorCode: undefined };
         if (result.confirmationToken) {
-            emailSent = await emailService.sendRegistrationVerificationEmail(requestData.email, requestData.fullName, conference.name, result.confirmationToken);
+            emailResult = await emailService.sendRegistrationVerificationEmail(requestData.email, requestData.fullName, conference.name, result.confirmationToken);
+            
+            if (!emailResult.success) {
+                console.error('[RegistrationController] Email sending failed:', {
+                    email: requestData.email,
+                    error: emailResult.error,
+                    errorCode: emailResult.errorCode,
+                    conference: conference.name
+                });
+            }
         }
-        res.json({ success: true, registrations: result.registrations, emailSent, message: "Đăng ký thành công, vui lòng kiểm tra email để xác nhận." });
-    } catch (error: any) { res.status(400).json({ message: error.message }); }
+        
+        res.json({ 
+            success: true, 
+            registrations: result.registrations, 
+            emailSent: emailResult.success,
+            emailError: emailResult.error,
+            message: emailResult.success 
+                ? "Đăng ký thành công, vui lòng kiểm tra email để xác nhận." 
+                : "Đăng ký thành công nhưng không thể gửi email xác nhận. Vui lòng liên hệ ban tổ chức."
+        });
+    } catch (error: any) { 
+        console.error('[RegistrationController] Batch registration error:', error);
+        res.status(400).json({ message: error.message }); 
+    }
 };
 
 export const searchForRegistrations = async (req: RequestWithActiveConference, res: Response) => {

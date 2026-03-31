@@ -14,6 +14,14 @@ import { RegistrationToolbar } from "@/components/admin/RegistrationToolbar";
 import { RegistrationTable } from "@/components/admin/RegistrationTable";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Users, UserCheck, Award } from "lucide-react";
 
 export default function RegistrationsPage() {
@@ -44,7 +52,10 @@ export default function RegistrationsPage() {
         isAlertOpen,
         setIsAlertOpen,
         handleBulkCheckinConfirm,
-        bulkCheckinSessionId
+        bulkCheckinSessionId,
+        page,
+        setPage,
+        totalPages
     } = useRegistrations();
 
     return (
@@ -127,6 +138,49 @@ export default function RegistrationsPage() {
                     handleDelete={handleDelete}
                     isSessionActive={isSessionActive}
                 />
+
+                {totalPages > 1 && (
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page > 1) setPage(page - 1);
+                                    }}
+                                    className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+                            
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                <PaginationItem key={pageNum}>
+                                    <PaginationLink
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setPage(pageNum);
+                                        }}
+                                        isActive={pageNum === page}
+                                    >
+                                        {pageNum}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+                            
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page < totalPages) setPage(page + 1);
+                                    }}
+                                    className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                )}
             </div>
 
             <AddRegistrationDialog

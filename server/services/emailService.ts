@@ -1,20 +1,70 @@
 import nodemailer from 'nodemailer';
+
+interface EmailSendResult {
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+}
+
 export class EmailService {
   private transporter: nodemailer.Transporter | null = null;
   private defaultFrom: string = '';
-  private ensureTransporter() {
-    if (this.transporter) return;
+  private isConfigured: boolean = false;
+
+  private validateConfiguration() {
+    const hasAuth = !!process.env.SMTP_USER && !!process.env.SMTP_PASS;
+    const hasHost = !!process.env.SMTP_HOST;
+    
+    if (!hasHost || !hasAuth) {
+      console.error('[EmailService] Configuration Error:');
+      console.error(`  - SMTP_HOST: ${hasHost ? '✓' : '✗ MISSING'}`);
+      console.error(`  - SMTP_USER: ${process.env.SMTP_USER ? '✓' : '✗ MISSING'}`);
+      console.error(`  - SMTP_PASS: ${process.env.SMTP_PASS ? '✓' : '✗ MISSING'}`);
+      console.error('  - SMTP_FROM:', process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Hệ thống Hội nghị" <noreply@conference.edu.vn>');
+      console.error('\nPlease configure SMTP settings in .env file');
+      return false;
+    }
+    return true;
+  }
+
+  private async ensureTransporter(): Promise<boolean> {
+    if (this.transporter) return this.isConfigured;
+
     console.log('[EmailService] Initializing transporter...');
     this.defaultFrom = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Hệ thống Hội nghị" <noreply@conference.edu.vn>';
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "smtp.gmail.com",
-      port: parseInt(process.env.SMTP_PORT || "587"),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: process.env.SMTP_USER ? {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      } : undefined,
-    });
+
+    if (!this.validateConfiguration()) {
+      this.isConfigured = false;
+      return false;
+    }
+
+    try {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || "587"),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      // Verify transporter configuration
+      try {
+        await this.transporter.verify();
+        console.log('[EmailService] Transporter ready to send emails');
+        this.isConfigured = true;
+      } catch (error: any) {
+        console.error('[EmailService] Transporter verification failed:', error.message);
+        this.isConfigured = false;
+      }
+
+      return this.isConfigured;
+    } catch (error: any) {
+      console.error('[EmailService] Failed to create transporter:', error.message);
+      this.isConfigured = false;
+      return false;
+    }
   }
   private createEmailTemplate(title: string, content: string, footerNote: string, conferenceName: string) {
     const emailStyles = `
@@ -62,10 +112,24 @@ export class EmailService {
       </html>
     `;
   }
-  async sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<boolean> {
-    this.ensureTransporter();
+  async sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<EmailSendResult> {
+    if (!(await this.ensureTransporter())) {
+      const result: EmailSendResult = {
+        success: false,
+        error: 'Email service not configured. Please check SMTP settings.',
+        errorCode: 'NOT_CONFIGURED'
+      };
+      console.error('[EmailService] Cannot send verification email:', result.error);
+      return result;
+    }
+
     try {
       const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
+      
+      if (!baseUrl) {
+        console.warn('[EmailService] BASE_URL not set, confirmation link may be incomplete');
+      }
+      
       const confirmationLink = `${baseUrl}/api/registrations/confirm/${confirmationToken}`;
       const title = "Xác nhận đăng ký của bạn";
       const content = `
@@ -74,17 +138,28 @@ export class EmailService {
         <div style="margin: 30px 0;"><a href="${confirmationLink}" class="button">Xác nhận đăng ký</a></div>
       `;
       const html = this.createEmailTemplate(title, content, "Email này được gửi tự động. Vui lòng không trả lời.", conferenceName);
-      await this.transporter!.sendMail({
+      
+      const info = await this.transporter!.sendMail({
         from: this.defaultFrom,
         to: email,
         subject: `Xác nhận đăng ký tham gia ${conferenceName}`,
         html,
       });
-      console.log(`Verification email sent to ${email}`);
-      return true;
-    } catch (error) {
-      console.error("Failed to send verification email:", error);
-      return false;
+      
+      console.log(`[EmailService] Verification email sent to ${email}. Message ID: ${info.messageId}`);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[EmailService] Failed to send verification email to ${email}:`, error.message);
+      console.error('[EmailService] Error details:', {
+        code: error.code,
+        command: error.command,
+        response: error.response,
+      });
+      return { 
+        success: false, 
+        error: error.message || 'Failed to send email',
+        errorCode: error.code || 'SEND_FAILED'
+      };
     }
   }
   async sendConsolidatedRegistrationEmail(
@@ -93,8 +168,17 @@ export class EmailService {
     conferenceName: string,
     certificateRequested: boolean,
     sessions: Array<{ title: string; time: string; room: string; qrCode: string; }>
-  ): Promise<boolean> {
-    this.ensureTransporter();
+  ): Promise<EmailSendResult> {
+    if (!(await this.ensureTransporter())) {
+      const result: EmailSendResult = {
+        success: false,
+        error: 'Email service not configured. Please check SMTP settings.',
+        errorCode: 'NOT_CONFIGURED'
+      };
+      console.error('[EmailService] Cannot send consolidated email:', result.error);
+      return result;
+    }
+
     try {
       const attachments: any[] = [];
       const sessionRows = sessions.map((session, index) => {
@@ -133,22 +217,31 @@ export class EmailService {
         <table style="width: 100%;">${sessionRows}</table>
       `;
       const html = this.createEmailTemplate("Đăng ký thành công!", content, "Email này được gửi tự động.", conferenceName);
-      await this.transporter!.sendMail({
+      
+      const info = await this.transporter!.sendMail({
         from: this.defaultFrom,
         to: email,
         subject: `Xác nhận đăng ký - ${conferenceName}`,
         html,
         attachments
       });
-      console.log(`Consolidated registration email sent to ${email}`);
-      return true;
-    } catch (error) {
-      console.error("Failed to send consolidated email:", error);
-      return false;
+      
+      console.log(`[EmailService] Consolidated registration email sent to ${email}. Message ID: ${info.messageId}`);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[EmailService] Failed to send consolidated email to ${email}:`, error.message);
+      return { 
+        success: false, 
+        error: error.message || 'Failed to send email',
+        errorCode: error.code || 'SEND_FAILED'
+      };
     }
   }
   async sendConfirmationReminderEmail(to: string, conferenceName: string, details: any) {
-    this.ensureTransporter();
+    if (!(await this.ensureTransporter())) {
+      console.error('[EmailService] Cannot send reminder email: Email service not configured');
+      return;
+    }
     try {
       const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
       const link = `${baseUrl}/api/registrations/confirm/${details.confirmationToken}`;
@@ -159,16 +252,20 @@ export class EmailService {
       `;
       const html = this.createEmailTemplate("Nhắc nhở xác nhận đăng ký", content, "Tự động gửi.", conferenceName);
       await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: Xác nhận đăng ký ${conferenceName}`, html });
-    } catch (e) { console.error("Reminder email failed:", e); }
+    } catch (e: any) { console.error("[EmailService] Reminder email failed:", e.message); }
   }
+
   async sendCertificateEmail(to: string, userName: string, title: string, conferenceName: string, certificate: Buffer) {
-    this.ensureTransporter();
+    if (!(await this.ensureTransporter())) {
+      console.error('[EmailService] Cannot send certificate email: Email service not configured');
+      return;
+    }
     try {
       // Nếu title là "Hội nghị", gửi thông báo chung, ngược lại gửi cho phiên cụ thể
       const contextText = title === "Hội nghị" ? `hội nghị <strong>${conferenceName}</strong>` : `phiên <strong>${title}</strong>`;
       const content = `<p>Kính gửi <strong>${userName}</strong>,</p><p>Đính kèm là Chứng nhận tham dự cho ${contextText}.</p>`;
       const html = this.createEmailTemplate("Chứng nhận tham dự", content, "Tự động gửi.", conferenceName);
-      
+
       await this.transporter!.sendMail({
         from: this.defaultFrom,
         to,
@@ -176,15 +273,19 @@ export class EmailService {
         html,
         attachments: [{ filename: 'Giay_chung_nhan_tham_du.pdf', content: certificate, contentType: 'application/pdf' }]
       });
-    } catch (e) { console.error("Certificate email failed:", e); }
+    } catch (e: any) { console.error("[EmailService] Certificate email failed:", e.message); }
   }
+
   async sendReminderEmail(to: string, sessionTitle: string, time: string, conferenceName: string) {
-    this.ensureTransporter();
+    if (!(await this.ensureTransporter())) {
+      console.error('[EmailService] Cannot send session reminder email: Email service not configured');
+      return;
+    }
     try {
       const content = `<p>Nhắc nhở: Phiên <strong>${sessionTitle}</strong> sẽ bắt đầu sau <strong>${time}</strong>.</p>`;
       const html = this.createEmailTemplate("Nhắc nhở lịch hẹn", content, "Tự động gửi.", conferenceName);
       await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: ${sessionTitle}`, html });
-    } catch (e) { console.error("Session reminder email failed:", e); }
+    } catch (e: any) { console.error("[EmailService] Session reminder email failed:", e.message); }
   }
 }
 export const emailService = new EmailService();

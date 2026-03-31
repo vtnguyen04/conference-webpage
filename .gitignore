@@ -29,3 +29,6 @@ public/uploads/*
 server/data/
 !server/data/certificate.pdf
 # Loại bỏ migrations nếu không cần track
+
+# Qwen Code settings (local only)
+.qwen/
