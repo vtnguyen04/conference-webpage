@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Award, Trash2, UserCheck, Mail, Calendar, MoreHorizontal } from "lucide-react";
+import { Award, Trash2, UserCheck, Mail, Calendar, MoreHorizontal, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 import type { Registration, Session } from "@shared/types";
 import { cn } from "@/lib/utils";
 import {
@@ -29,6 +29,7 @@ type RegistrationTableProps = {
   handleCheckIn: (registrationId: string) => void;
   checkInMutation: any;
   handleDelete: (id: string) => void;
+  handleResendEmail: (registration: Registration) => void;
   isSessionActive: (session?: Session) => boolean;
 };
 
@@ -52,6 +53,7 @@ export const RegistrationTable = ({
   handleCheckIn,
   checkInMutation,
   handleDelete,
+  handleResendEmail,
   isSessionActive,
 }: RegistrationTableProps) => {
   return (
@@ -70,6 +72,7 @@ export const RegistrationTable = ({
             <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-2">Vai trò</TableHead>
             <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-2">Phiên</TableHead>
             <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-2">Trạng thái</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-2">Email</TableHead>
             <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-2 text-center">Yêu cầu</TableHead>
             <TableHead className="text-right text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Thao tác</TableHead>
           </TableRow>
@@ -128,12 +131,33 @@ export const RegistrationTable = ({
                     </div>
                   </TableCell>
                   <TableCell className="py-4 px-2">
-                    <Badge variant={registration.status === "confirmed" ? "default" : "secondary"} className={cn(
+                    <Badge variant={registration.status === "confirmed" || registration.status === "checked-in" ? "default" : "secondary"} className={cn(
                       "font-bold text-[10px] uppercase tracking-widest px-2 py-0.5",
-                      registration.status === "confirmed" ? "bg-blue-500 hover:bg-blue-600" : ""
+                      registration.status === "confirmed" ? "bg-blue-500 hover:bg-blue-600" : 
+                      registration.status === "checked-in" ? "bg-emerald-500 hover:bg-emerald-600" : ""
                     )}>
-                      {registration.status}
+                      {registration.status === 'confirmed' ? 'Đã xác nhận' : 
+                       registration.status === 'checked-in' ? 'Đã tham dự' : 
+                       registration.status === 'pending' ? 'Chờ xác nhận' : registration.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="py-4 px-2">
+                    {registration.emailSent ? (
+                      <div className="flex items-center text-emerald-600 gap-1.5" title="Đã gửi thành công">
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">Đã gửi</span>
+                      </div>
+                    ) : registration.lastEmailError ? (
+                      <div className="flex items-center text-rose-500 gap-1.5 cursor-help" title={`Lỗi: ${registration.lastEmailError}`}>
+                        <XCircle className="h-4 w-4" />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter line-clamp-1 max-w-[80px]">Thất bại</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-slate-400 gap-1.5" title="Chưa gửi hoặc đang chờ">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">Chờ</span>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="py-4 px-2 text-center">
                     {registration.certificateRequested && (
@@ -163,14 +187,20 @@ export const RegistrationTable = ({
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(registration.id)}
-                            className="py-2 px-3 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer"
-                          >
-                            <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa bỏ
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem 
+                              onClick={() => handleResendEmail(registration)}
+                              className="py-2 px-3 text-xs font-medium text-slate-700 cursor-pointer"
+                            >
+                              <RefreshCw className="h-3.5 w-3.5 mr-2" /> Gửi lại mail
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(registration.id)}
+                              className="py-2 px-3 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-2" /> Xóa bỏ
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
                   </TableCell>

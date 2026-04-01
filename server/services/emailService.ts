@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-interface EmailSendResult {
+export interface EmailSendResult {
   success: boolean;
   error?: string;
   errorCode?: string;
@@ -112,24 +112,47 @@ export class EmailService {
       </html>
     `;
   }
-  async sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<EmailSendResult> {
-    if (!(await this.ensureTransporter())) {
-      const result: EmailSendResult = {
-        success: false,
-        error: 'Email service not configured. Please check SMTP settings.',
-        errorCode: 'NOT_CONFIGURED'
-      };
-      console.error('[EmailService] Cannot send verification email:', result.error);
-      return result;
+  private async sendMailWithRetry(mailOptions: nodemailer.SendMailOptions, maxRetries = 3): Promise<EmailSendResult> {
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!(await this.ensureTransporter())) {
+          return { success: false, error: 'Email service not configured', errorCode: 'NOT_CONFIGURED' };
+        }
+
+        const info = await this.transporter!.sendMail({
+          ...mailOptions,
+          from: this.defaultFrom,
+        });
+        
+        console.log(`[EmailService] Email sent successfully to ${mailOptions.to} (Attempt ${attempt}). Message ID: ${info.messageId}`);
+        return { success: true };
+      } catch (error: any) {
+        lastError = error;
+        const isTransient = ['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EPIPE'].includes(error.code) || 
+                           (error.responseCode && error.responseCode >= 500);
+        
+        console.warn(`[EmailService] Attempt ${attempt} failed to ${mailOptions.to}: ${error.message}`);
+        
+        if (!isTransient || attempt === maxRetries) break;
+        
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
     }
 
+    console.error(`[EmailService] All ${maxRetries} attempts failed to ${mailOptions.to}:`, lastError.message);
+    return { 
+      success: false, 
+      error: lastError.message || 'Failed to send email',
+      errorCode: lastError.code || 'SEND_FAILED'
+    };
+  }
+
+  async sendRegistrationVerificationEmail(email: string, fullName: string, conferenceName: string, confirmationToken: string): Promise<EmailSendResult> {
     try {
       const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
-      
-      if (!baseUrl) {
-        console.warn('[EmailService] BASE_URL not set, confirmation link may be incomplete');
-      }
-      
       const confirmationLink = `${baseUrl}/api/registrations/confirm/${confirmationToken}`;
       const title = "Xác nhận đăng ký của bạn";
       const content = `
@@ -139,29 +162,16 @@ export class EmailService {
       `;
       const html = this.createEmailTemplate(title, content, "Email này được gửi tự động. Vui lòng không trả lời.", conferenceName);
       
-      const info = await this.transporter!.sendMail({
-        from: this.defaultFrom,
+      return await this.sendMailWithRetry({
         to: email,
         subject: `Xác nhận đăng ký tham gia ${conferenceName}`,
         html,
       });
-      
-      console.log(`[EmailService] Verification email sent to ${email}. Message ID: ${info.messageId}`);
-      return { success: true };
     } catch (error: any) {
-      console.error(`[EmailService] Failed to send verification email to ${email}:`, error.message);
-      console.error('[EmailService] Error details:', {
-        code: error.code,
-        command: error.command,
-        response: error.response,
-      });
-      return { 
-        success: false, 
-        error: error.message || 'Failed to send email',
-        errorCode: error.code || 'SEND_FAILED'
-      };
+      return { success: false, error: error.message, errorCode: 'TEMPLATE_ERROR' };
     }
   }
+
   async sendConsolidatedRegistrationEmail(
     email: string,
     fullName: string,
@@ -169,16 +179,6 @@ export class EmailService {
     certificateRequested: boolean,
     sessions: Array<{ title: string; time: string; room: string; qrCode: string; }>
   ): Promise<EmailSendResult> {
-    if (!(await this.ensureTransporter())) {
-      const result: EmailSendResult = {
-        success: false,
-        error: 'Email service not configured. Please check SMTP settings.',
-        errorCode: 'NOT_CONFIGURED'
-      };
-      console.error('[EmailService] Cannot send consolidated email:', result.error);
-      return result;
-    }
-
     try {
       const attachments: any[] = [];
       const sessionRows = sessions.map((session, index) => {
@@ -206,10 +206,12 @@ export class EmailService {
           </tr>
         `;
       }).join('');
+
       const certificateNote = certificateRequested ? `
         <div style="padding: 12px; background-color: #FFFBEB; border-left: 4px solid #FBBF24; margin: 15px 0;">
           <p style="margin: 0; color: #92400E; font-size: 14px;">Bạn đã yêu cầu Chứng nhận tham dự hội nghị cho các phiên này.</p>
         </div>` : '';
+
       const content = `
         <p>Kính gửi <strong>${fullName}</strong>,</p>
         <p>Chúc mừng bạn đã đăng ký thành công các phiên làm việc tại <strong>${conferenceName}</strong>.</p>
@@ -218,30 +220,18 @@ export class EmailService {
       `;
       const html = this.createEmailTemplate("Đăng ký thành công!", content, "Email này được gửi tự động.", conferenceName);
       
-      const info = await this.transporter!.sendMail({
-        from: this.defaultFrom,
+      return await this.sendMailWithRetry({
         to: email,
         subject: `Xác nhận đăng ký - ${conferenceName}`,
         html,
         attachments
       });
-      
-      console.log(`[EmailService] Consolidated registration email sent to ${email}. Message ID: ${info.messageId}`);
-      return { success: true };
     } catch (error: any) {
-      console.error(`[EmailService] Failed to send consolidated email to ${email}:`, error.message);
-      return { 
-        success: false, 
-        error: error.message || 'Failed to send email',
-        errorCode: error.code || 'SEND_FAILED'
-      };
+      return { success: false, error: error.message, errorCode: 'TEMPLATE_ERROR' };
     }
   }
-  async sendConfirmationReminderEmail(to: string, conferenceName: string, details: any) {
-    if (!(await this.ensureTransporter())) {
-      console.error('[EmailService] Cannot send reminder email: Email service not configured');
-      return;
-    }
+
+  async sendConfirmationReminderEmail(to: string, conferenceName: string, details: any): Promise<EmailSendResult> {
     try {
       const baseUrl = (process.env.BASE_URL || '').replace(/\/$/, '');
       const link = `${baseUrl}/api/registrations/confirm/${details.confirmationToken}`;
@@ -251,41 +241,37 @@ export class EmailService {
         <div style="margin: 30px 0;"><a href="${link}" class="button">Xác nhận ngay</a></div>
       `;
       const html = this.createEmailTemplate("Nhắc nhở xác nhận đăng ký", content, "Tự động gửi.", conferenceName);
-      await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: Xác nhận đăng ký ${conferenceName}`, html });
-    } catch (e: any) { console.error("[EmailService] Reminder email failed:", e.message); }
+      return await this.sendMailWithRetry({ to, subject: `Nhắc nhở: Xác nhận đăng ký ${conferenceName}`, html });
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
   }
 
-  async sendCertificateEmail(to: string, userName: string, title: string, conferenceName: string, certificate: Buffer) {
-    if (!(await this.ensureTransporter())) {
-      console.error('[EmailService] Cannot send certificate email: Email service not configured');
-      return;
-    }
+  async sendCertificateEmail(to: string, userName: string, title: string, conferenceName: string, certificate: Buffer): Promise<EmailSendResult> {
     try {
-      // Nếu title là "Hội nghị", gửi thông báo chung, ngược lại gửi cho phiên cụ thể
       const contextText = title === "Hội nghị" ? `hội nghị <strong>${conferenceName}</strong>` : `phiên <strong>${title}</strong>`;
       const content = `<p>Kính gửi <strong>${userName}</strong>,</p><p>Đính kèm là Chứng nhận tham dự cho ${contextText}.</p>`;
       const html = this.createEmailTemplate("Chứng nhận tham dự", content, "Tự động gửi.", conferenceName);
 
-      await this.transporter!.sendMail({
-        from: this.defaultFrom,
+      return await this.sendMailWithRetry({
         to,
         subject: `Chứng nhận tham dự - ${conferenceName}`,
         html,
         attachments: [{ filename: 'Giay_chung_nhan_tham_du.pdf', content: certificate, contentType: 'application/pdf' }]
       });
-    } catch (e: any) { console.error("[EmailService] Certificate email failed:", e.message); }
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
   }
 
-  async sendReminderEmail(to: string, sessionTitle: string, time: string, conferenceName: string) {
-    if (!(await this.ensureTransporter())) {
-      console.error('[EmailService] Cannot send session reminder email: Email service not configured');
-      return;
-    }
+  async sendReminderEmail(to: string, sessionTitle: string, time: string, conferenceName: string): Promise<EmailSendResult> {
     try {
       const content = `<p>Nhắc nhở: Phiên <strong>${sessionTitle}</strong> sẽ bắt đầu sau <strong>${time}</strong>.</p>`;
       const html = this.createEmailTemplate("Nhắc nhở lịch hẹn", content, "Tự động gửi.", conferenceName);
-      await this.transporter!.sendMail({ from: this.defaultFrom, to, subject: `Nhắc nhở: ${sessionTitle}`, html });
-    } catch (e: any) { console.error("[EmailService] Session reminder email failed:", e.message); }
+      return await this.sendMailWithRetry({ to, subject: `Nhắc nhở: ${sessionTitle}`, html });
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
   }
 }
 export const emailService = new EmailService();

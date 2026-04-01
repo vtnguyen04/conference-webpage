@@ -4,8 +4,11 @@ import { registrationRepository } from "../repositories/registrationRepository";
 import { sessionRepository } from "../repositories/sessionRepository";
 import { whitelistRepository } from "../repositories/whitelistRepository";
 import { insertRegistrationSchema, batchRegistrationRequestSchema } from "@shared/validation";
+import { db } from "../db";
+import { eq } from "drizzle-orm";
+import { registrations as registrationsTable } from "@shared/schema";
 import { registrationService } from "../services/registrationService";
-import { emailService } from "../services/emailService";
+import { emailService, type EmailSendResult } from "../services/emailService";
 import { confirmationSuccessTemplate, errorTemplate } from "../utils/templates";
 
 export const getPaginatedRegistrations = async (req: RequestWithActiveConference, res: Response) => {
@@ -125,17 +128,36 @@ export const batchRegister = async (req: RequestWithActiveConference, res: Respo
         const result = await registrationService.batchRegisterSessions(requestData);
         if (!result.success) return res.status(400).json({ message: result.error, failedSessions: result.failedSessions });
 
-        let emailResult = { success: false, error: undefined, errorCode: undefined };
+        let emailResult: EmailSendResult = { success: false, error: undefined, errorCode: undefined };
         if (result.confirmationToken) {
             emailResult = await emailService.sendRegistrationVerificationEmail(requestData.email, requestData.fullName, conference.name, result.confirmationToken);
             
-            if (!emailResult.success) {
+            if (!emailResult.success && result.registrations) {
                 console.error('[RegistrationController] Email sending failed:', {
                     email: requestData.email,
                     error: emailResult.error,
                     errorCode: emailResult.errorCode,
                     conference: conference.name
                 });
+
+                // Cập nhật lỗi vào DB cho tất cả các bản ghi trong đợt đăng ký này
+                for (const reg of result.registrations) {
+                    await db.update(registrationsTable)
+                        .set({ 
+                            lastEmailError: emailResult.error || 'Unknown error',
+                            lastEmailErrorAt: new Date()
+                        })
+                        .where(eq(registrationsTable.id, reg.id))
+                        .run();
+                }
+            } else if (emailResult.success && result.registrations) {
+                // Đánh dấu đã gửi thành công
+                for (const reg of result.registrations) {
+                    await db.update(registrationsTable)
+                        .set({ emailSent: true, lastEmailError: null, lastEmailErrorAt: null })
+                        .where(eq(registrationsTable.id, reg.id))
+                        .run();
+                }
             }
         }
         
@@ -226,4 +248,77 @@ export const bulkCheckIn = async (req: RequestWithActiveConference, res: Respons
       }
       res.json({ successCount, failCount });
     } catch (error: any) { res.status(400).json({ message: error.message }); }
+};
+
+export const resendEmail = async (req: RequestWithActiveConference, res: Response) => {
+    try {
+        const { id } = req.params;
+        const conference = req.activeConference;
+        if (!conference) return res.status(404).json({ message: "No active conference" });
+
+        const registration = await registrationRepository.getById(id);
+        if (!registration) return res.status(404).json({ message: "Không tìm thấy thông tin đăng ký" });
+
+        let emailResult: EmailSendResult;
+
+        if (registration.status === 'pending') {
+            // Gửi lại thư xác nhận
+            emailResult = await emailService.sendRegistrationVerificationEmail(
+                registration.email,
+                registration.fullName,
+                conference.name,
+                registration.confirmationToken || ''
+            );
+        } else {
+            // Gửi lại thư thông tin đăng ký (đã xác nhận)
+            const userRegistrations = await registrationRepository.getByEmail(registration.email, conference.slug);
+            const allSessions = await sessionRepository.getAll(conference.slug);
+            
+            // Helper function logic (since formatSessionTime is private)
+            const formatSessionTime = (startTime: string | Date, endTime: string | Date): string => {
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                const dateStr = start.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const timeStr = `${start.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+                return `${dateStr} | ${timeStr}`;
+            };
+
+            const sessionDetails = userRegistrations
+                .map(r => {
+                    const session = allSessions.find(s => s.id === r.sessionId);
+                    if (!session) return null;
+                    return { 
+                        title: session.title, 
+                        time: formatSessionTime(session.startTime, session.endTime), 
+                        room: session.room, 
+                        qrCode: r.qrCode! 
+                    };
+                })
+                .filter(Boolean) as any[];
+
+            emailResult = await emailService.sendConsolidatedRegistrationEmail(
+                registration.email,
+                registration.fullName,
+                conference.name,
+                registration.certificateRequested,
+                sessionDetails
+            );
+        }
+
+        // Cập nhật kết quả vào DB
+        await registrationRepository.updateEmailError(
+            registration.id, 
+            emailResult.success ? null : (emailResult.error || 'Resend failed'),
+            emailResult.success
+        );
+
+        if (emailResult.success) {
+            res.json({ success: true, message: "Đã gửi lại email thành công" });
+        } else {
+            res.status(500).json({ success: false, message: `Gửi email thất bại: ${emailResult.error}` });
+        }
+    } catch (error: any) {
+        console.error('[RegistrationController] Resend email error:', error);
+        res.status(500).json({ message: error.message || "Lỗi khi gửi lại email" });
+    }
 };

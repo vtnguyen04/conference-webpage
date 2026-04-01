@@ -32,3 +32,6 @@ server/data/
 
 # Qwen Code settings (local only)
 .qwen/
+
+# Docker persistent data
+docker-data/

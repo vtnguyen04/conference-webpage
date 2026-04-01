@@ -28,6 +28,8 @@ export interface Registration {
   confirmationTokenExpires?: Date | null;
   reminderCount: number;
   lastReminderSentAt?: Date | null;
+  lastEmailError?: string | null;
+  lastEmailErrorAt?: Date | null;
   registeredAt?: Date | null;
   createdAt?: Date | null;
 }

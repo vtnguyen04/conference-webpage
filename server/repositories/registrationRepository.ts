@@ -102,6 +102,13 @@ export class RegistrationRepository {
   async deleteUnconfirmed(id: string): Promise<void> {
     await db.delete(registrations).where(eq(registrations.id, id)).run();
   }
+  async updateEmailError(id: string, error: string | null, sent: boolean = false): Promise<void> {
+    await db.update(registrations).set({ 
+      emailSent: sent,
+      lastEmailError: error,
+      lastEmailErrorAt: error ? new Date() : null
+    }).where(eq(registrations.id, id)).run();
+  }
   async createCheckIn(data: InsertCheckIn): Promise<CheckIn> {
     const id = randomUUID();
     const newCheckIn = { ...data, id, checkedInAt: new Date(), createdAt: new Date() };

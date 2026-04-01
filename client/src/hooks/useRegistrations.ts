@@ -99,6 +99,14 @@ export const useRegistrations = () => {
     },
     onError: (error: any) => toast({ title: "Lỗi check-in hàng loạt", description: error.message, variant: "destructive" }),
   });
+  const resendEmailMutation = useMutation({
+    mutationFn: (id: string) => registrationService.resendEmail(id),
+    onSuccess: () => {
+      toast({ title: "Đã gửi lại email thành công" });
+      queryClient.invalidateQueries({ queryKey: ["registrations"] });
+    },
+    onError: (error: any) => toast({ title: "Lỗi gửi lại email", description: error.message, variant: "destructive" }),
+  });
   const handleExportCSV = async () => {
     try {
       toast({ title: "Đang xuất dữ liệu...", description: "Vui lòng chờ trong giây lát." });
@@ -149,6 +157,11 @@ export const useRegistrations = () => {
     });
     setIsAlertOpen(false);
   };
+  const handleResendEmail = (registration: Registration) => {
+    if (confirm(`Gửi lại email cho ${registration.fullName} (${registration.email})?`)) {
+      resendEmailMutation.mutate(registration.id);
+    }
+  };
     return {
         searchQuery,
         page,
@@ -183,6 +196,8 @@ export const useRegistrations = () => {
         handleBulkCheckinConfirm,
         numSelected,
         selectedRegistrationIds,
-        isSessionActive
+        isSessionActive,
+        handleResendEmail,
+        resendEmailMutation
     };
 }

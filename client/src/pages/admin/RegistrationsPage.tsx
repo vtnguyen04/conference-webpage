@@ -54,6 +54,7 @@ export default function RegistrationsPage() {
         handleBulkCheckinConfirm,
         bulkCheckinSessionId,
         page,
+        handleResendEmail,
         setPage,
         totalPages
     } = useRegistrations();
@@ -136,6 +137,7 @@ export default function RegistrationsPage() {
                     handleCheckIn={handleCheckIn}
                     checkInMutation={checkInMutation}
                     handleDelete={handleDelete}
+                    handleResendEmail={handleResendEmail}
                     isSessionActive={isSessionActive}
                 />
 

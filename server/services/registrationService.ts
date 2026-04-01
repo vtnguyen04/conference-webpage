@@ -121,7 +121,8 @@ export class RegistrationService {
                     .filter(Boolean) as any[];
 
                 if (sessionDetails.length > 0) {
-                    await emailService.sendConsolidatedRegistrationEmail(reg.email, reg.fullName, conference.name, reg.certificateRequested, sessionDetails);
+                    const emailResult = await emailService.sendConsolidatedRegistrationEmail(reg.email, reg.fullName, conference.name, reg.certificateRequested, sessionDetails);
+                    await registrationRepository.updateEmailError(reg.id, emailResult.success ? null : (emailResult.error || 'Unknown error'), emailResult.success);
                 }
             });
             return { success: true, conferenceName: conference.name };
@@ -143,7 +144,7 @@ export class RegistrationService {
 
         backgroundQueue.enqueue(async () => {
             const conference = await jsonStorage.getConferenceBySlug(conferenceSlug);
-            await emailService.sendConsolidatedRegistrationEmail(
+            const emailResult = await emailService.sendConsolidatedRegistrationEmail(
                 newRegistration.email,
                 newRegistration.fullName,
                 conference?.name || "Hội nghị",
@@ -155,6 +156,9 @@ export class RegistrationService {
                     qrCode: newRegistration.qrCode! 
                 }]
             );
+
+            // Cập nhật trạng thái lỗi nếu gửi thất bại
+            await registrationRepository.updateEmailError(newRegistration.id, emailResult.success ? null : (emailResult.error || 'Unknown error'), emailResult.success);
         });
 
         return newRegistration;

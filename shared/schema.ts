@@ -64,6 +64,8 @@ export const registrations = sqliteTable("registrations", {
   confirmationTokenExpires: integer("confirmation_token_expires", { mode: "timestamp_ms" }),
   reminderCount: integer("reminder_count").notNull().default(0),
   lastReminderSentAt: integer("last_reminder_sent_at", { mode: "timestamp_ms" }),
+  lastEmailError: text("last_email_error"),
+  lastEmailErrorAt: integer("last_email_error_at", { mode: "timestamp_ms" }),
   registeredAt: integer("registered_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
 }, (table) => ({

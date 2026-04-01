@@ -52,4 +52,7 @@ export const registrationService = {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
   },
+  resendEmail: async (id: string): Promise<void> => {
+    return apiRequest("POST", `/api/admin/registrations/${id}/resend-email`);
+  },
 };

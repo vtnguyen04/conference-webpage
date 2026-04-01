@@ -21,8 +21,14 @@ export class ConfirmationReminderService {
               continue;
             }
           }
-          await emailService.sendConfirmationReminderEmail(reg.email, activeConference.name, { name: reg.fullName, email: reg.email, confirmationToken: reg.confirmationToken });
+          const emailResult = await emailService.sendConfirmationReminderEmail(reg.email, activeConference.name, { name: reg.fullName, email: reg.email, confirmationToken: reg.confirmationToken });
           await registrationRepository.updateReminderStatus(reg.id);
+          
+          if (!emailResult.success) {
+            await registrationRepository.updateEmailError(reg.id, emailResult.error || 'Reminder failed');
+          } else {
+            await registrationRepository.updateEmailError(reg.id, null, true);
+          }
         }
       } catch (error) {
         console.error("Error in confirmation reminder service:", error);

@@ -17,6 +17,7 @@ import {
     deleteRegistrationById,
     exportRegistrations,
     getPaginatedRegistrations,
+    resendEmail,
     searchForRegistrations
 } from "../controllers/registration.controller";
 import {
@@ -37,6 +38,7 @@ router.get("/registrations", checkActiveConference, getPaginatedRegistrations);
 router.post("/registrations", checkActiveConference, addAdminRegistration);
 router.get("/registrations/search", checkActiveConference, searchForRegistrations);
 router.delete("/registrations/:id", deleteRegistrationById);
+router.post("/registrations/:id/resend-email", checkActiveConference, resendEmail);
 router.get("/registrations/export", checkActiveConference, exportRegistrations);
 router.post("/bulk-checkin-registrations", checkActiveConference, bulkCheckIn);
 router.get("/contact-messages", getContactMessagesPaginated);
