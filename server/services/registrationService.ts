@@ -102,27 +102,58 @@ export class RegistrationService {
             .where(and(eq(registrationsTable.confirmationToken, token), eq(registrationsTable.status, 'pending')))
             .run();
 
+        console.log(`[RegistrationService] Confirmed registration for ${reg.email}. Starting QR email process...`);
+
         const conference = await jsonStorage.getConferenceBySlug(reg.conferenceSlug);
         if (conference) {
             backgroundQueue.enqueue(async () => {
-                const userRegistrations = await registrationRepository.getByEmail(reg.email, conference.slug);
-                const allSessions = await sessionRepository.getAll(conference.slug);
-                const sessionDetails = userRegistrations
-                    .map(r => {
-                        const session = allSessions.find(s => s.id === r.sessionId);
-                        if (!session) return null;
-                        return { 
-                            title: session.title, 
-                            time: this.formatSessionTime(session.startTime, session.endTime), 
-                            room: session.room, 
-                            qrCode: r.qrCode! 
-                        };
-                    })
-                    .filter(Boolean) as any[];
+                try {
+                    console.log(`[RegistrationService] Processing QR email for ${reg.email}...`);
+                    
+                    const userRegistrations = await registrationRepository.getByEmail(reg.email, conference.slug);
+                    console.log(`[RegistrationService] Found ${userRegistrations.length} registrations for ${reg.email}`);
+                    
+                    const allSessions = await sessionRepository.getAll(conference.slug);
+                    const sessionDetails = userRegistrations
+                        .map(r => {
+                            const session = allSessions.find(s => s.id === r.sessionId);
+                            if (!session) return null;
+                            return {
+                                title: session.title,
+                                time: this.formatSessionTime(session.startTime, session.endTime),
+                                room: session.room,
+                                qrCode: r.qrCode!
+                            };
+                        })
+                        .filter(Boolean) as any[];
 
-                if (sessionDetails.length > 0) {
-                    const emailResult = await emailService.sendConsolidatedRegistrationEmail(reg.email, reg.fullName, conference.name, reg.certificateRequested, sessionDetails);
-                    await registrationRepository.updateEmailError(reg.id, emailResult.success ? null : (emailResult.error || 'Unknown error'), emailResult.success);
+                    console.log(`[RegistrationService] Prepared ${sessionDetails.length} session details for email`);
+
+                    if (sessionDetails.length > 0) {
+                        console.log(`[RegistrationService] Sending consolidated email to ${reg.email}...`);
+                        const emailResult = await emailService.sendConsolidatedRegistrationEmail(
+                            reg.email, 
+                            reg.fullName, 
+                            conference.name, 
+                            reg.certificateRequested, 
+                            sessionDetails
+                        );
+                        
+                        console.log(`[RegistrationService] Email result:`, emailResult);
+                        
+                        await registrationRepository.updateEmailError(reg.id, emailResult.success ? null : (emailResult.error || 'Unknown error'), emailResult.success);
+                        
+                        if (emailResult.success) {
+                            console.log(`[RegistrationService] ✓ QR email sent successfully to ${reg.email}`);
+                        } else {
+                            console.error(`[RegistrationService] ✗ Failed to send QR email to ${reg.email}:`, emailResult.error);
+                        }
+                    } else {
+                        console.warn(`[RegistrationService] No session details to send email for ${reg.email}`);
+                    }
+                } catch (error: any) {
+                    console.error(`[RegistrationService] Error in QR email process for ${reg.email}:`, error);
+                    console.error(`[RegistrationService] Error stack:`, error.stack);
                 }
             });
             return { success: true, conferenceName: conference.name };
