@@ -225,7 +225,7 @@ export const manualCheckIn = async (req: RequestWithActiveConference, res: Respo
     try {
         const { registrationId } = req.body;
         const registration = await registrationRepository.getById(registrationId);
-        if (!registration || registration.status !== "confirmed") return res.status(400).json({ message: "Invalid" });
+        if (!registration || registration.status !== "confirmed") return res.status(400).json({ message: "Trạng thái đăng ký không hợp lệ (Phải là 'đã xác nhận')" });
         
         const conference = req.activeConference;
         const checkIn = await registrationService.processCheckIn(registration, registration.sessionId, conference.name, 'manual');

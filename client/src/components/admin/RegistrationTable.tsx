@@ -172,10 +172,10 @@ export const RegistrationTable = ({
                         variant="outline" 
                         size="sm" 
                         onClick={() => handleCheckIn(registration.id)} 
-                        disabled={checkInMutation.isPending || registration.status === 'checked-in' || !sessionIsActive}
+                        disabled={checkInMutation.isPending || registration.status !== 'confirmed' || !sessionIsActive}
                         className={cn(
                           "h-8 text-[10px] font-extrabold uppercase tracking-tight px-3",
-                          registration.status === 'checked-in' ? "opacity-50 cursor-not-allowed" : "text-emerald-600 hover:bg-emerald-50 border-emerald-100"
+                          registration.status !== 'confirmed' ? "opacity-50 cursor-not-allowed" : "text-emerald-600 hover:bg-emerald-50 border-emerald-100"
                         )}
                       >
                         <UserCheck className="mr-1.5 h-3.5 w-3.5" /> Check-in
