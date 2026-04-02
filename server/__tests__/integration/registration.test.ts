@@ -28,17 +28,17 @@ describe('Registration API Integration Tests', () => {
   it('POST /api/registrations/batch - should create registration and send verification email', async () => {
     vi.mocked(registrationService.batchRegisterSessions).mockResolvedValue({
       success: true,
-      registrations: [{ id: 'reg1' }] as any,
+      registrations: [{ id: 'reg1', sessionId: 'sess1', email: 'user@test.com', fullName: 'Test User', qrCode: 'qr-data' }] as any,
       confirmationToken: 'token-123'
     });
-    vi.mocked(emailService.sendRegistrationVerificationEmail).mockResolvedValue(true);
+    vi.mocked(emailService.sendRegistrationVerificationEmail).mockResolvedValue({ success: true });
 
     const res = await request(app)
       .post('/api/registrations/batch')
       .send({
         email: 'user@test.com',
         fullName: 'Nguyễn Văn A',
-        phone: '0987654321', // Bổ sung các trường schema yêu cầu
+        phone: '0987654321',
         organization: 'Test Org',
         position: 'Staff',
         sessionIds: ['sess1'],
@@ -62,7 +62,7 @@ describe('Registration API Integration Tests', () => {
     });
 
     const res = await request(app).get('/api/registrations/confirm/token-123');
-    
+
     expect(res.status).toBe(200);
     expect(res.text).toContain('Đăng ký thành công!');
     expect(res.text).toContain('Test Conference');
