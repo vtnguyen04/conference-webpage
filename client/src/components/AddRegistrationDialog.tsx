@@ -32,6 +32,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Session } from "@shared/types";
 import { useActiveConference } from "@/hooks/useActiveConference";
+import { useAuth } from "@/hooks/useAuth";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
 import { Badge } from "@/components/ui/badge";
@@ -74,12 +75,21 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
   });
 
   const { conference } = useActiveConference();
+  const { user } = useAuth();
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", conference?.slug],
     queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
+
+  const allowedSessions = useMemo(() => {
+    if (user?.role === "superadmin" || user?.role === "admin") return sessions;
+    if (user?.role === "staff" && user.assignedSessionIds) {
+      return sessions.filter((s) => user.assignedSessionIds!.includes(s.id));
+    }
+    return sessions;
+  }, [sessions, user]);
 
   const { data: capacityData = [] } = useQuery<Array<{
     sessionId: string;
@@ -295,8 +305,8 @@ export function AddRegistrationDialog({ isOpen, onClose }: AddRegistrationDialog
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="max-h-[300px]">
-                          {sessions.length > 0 ? (
-                            sessions.map((session) => {
+                          {allowedSessions.length > 0 ? (
+                            allowedSessions.map((session) => {
                               const cap = capacityMap[session.id];
                               const isFull = cap?.isFull || false;
                               return (
