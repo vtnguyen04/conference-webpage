@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from '@/components/ui/pagination';
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext, PaginationEllipsis } from '@/components/ui/pagination';
 import { contactMessageService } from '@/services/contactMessageService';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -200,17 +200,30 @@ const ContactMessagesPage: React.FC = () => {
                     className={cn("cursor-pointer font-bold text-xs uppercase", page === 1 && "opacity-50 pointer-events-none")}
                   />
                 </PaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink 
-                      onClick={() => setPage(i + 1)} 
-                      isActive={page === i + 1}
-                      className={cn("cursor-pointer font-bold transition-all", page === i + 1 ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "text-slate-400")}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
+                {(() => {
+                  const getVisiblePages = (current: number, total: number) => {
+                      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+                      if (current <= 3) return [1, 2, 3, 4, '...', total];
+                      if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+                      return [1, '...', current - 1, current, current + 1, '...', total];
+                  };
+
+                  return getVisiblePages(page, totalPages).map((item, index) => (
+                    <PaginationItem key={index}>
+                        {item === '...' ? (
+                            <PaginationEllipsis />
+                        ) : (
+                            <PaginationLink 
+                              onClick={() => setPage(item as number)} 
+                              isActive={page === item}
+                              className={cn("cursor-pointer font-bold transition-all", page === item ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "text-slate-400")}
+                            >
+                              {item}
+                            </PaginationLink>
+                        )}
+                    </PaginationItem>
+                  ));
+                })()}
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} 
