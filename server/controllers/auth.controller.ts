@@ -29,10 +29,10 @@ export const logout = (req: any, res: Response) => {
 
 export const getUser = async (req: any, res: Response) => {
     try {
-        if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+        if (!req.session?.userId) return res.json({ user: null });
         const user = await authService.findUserById(req.session.userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
-        res.json(user);
+        if (!user) return res.json({ user: null });
+        res.json({ user });
     } catch (_error) {
         res.status(500).json({ message: "Failed" });
     }

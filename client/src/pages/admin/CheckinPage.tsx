@@ -94,10 +94,10 @@ export default function CheckinPage() {
         },
         () => {}
       );
-    } catch (_error) {
+    } catch (error: any) {
       toast({
         title: "Lỗi camera",
-        description: "Vui lòng cho phép truy cập camera.",
+        description: "Không thể truy cập camera. Vui lòng cho phép trình duyệt dùng camera hoặc MỞ TRANG NÀY Ở TAB MỚI (nếu bạn đang dùng Web Preview/Iframe).",
         variant: "destructive",
       });
       setScanning(false);

@@ -53,6 +53,6 @@ describe('Auth API Integration Tests', () => {
     
     const res = await agent.get('/api/auth/user');
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe('admin');
+    expect(res.body.user.id).toBe('admin');
   });
 });

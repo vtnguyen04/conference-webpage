@@ -15,15 +15,14 @@ export function useAuth() {
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
-        const user = await apiRequest("GET", "/api/auth/user");
-        return user as AuthUser;
+        const response: any = await apiRequest("GET", "/api/auth/user");
+        if (response && response.user) {
+          return response.user as AuthUser;
+        }
+        return null; // Not logged in
       } catch (err: any) {
-        if (err instanceof ApiError && err.status === 401) {
-          return null;
-        }
-        if (err.status === 401) {
-          return null;
-        }
+        if (err instanceof ApiError && err.status === 401) return null;
+        if (err.status === 401) return null;
         throw err;
       }
     },

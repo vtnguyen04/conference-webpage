@@ -63,12 +63,14 @@ export const SpeakerCard = memo(function SpeakerCard({ speaker }: SpeakerCardPro
             )}
 
             {/* Bio Section - High Readability & Wide */}
-            <div className="relative px-6 py-6 bg-slate-50 rounded-[2rem] border border-slate-100 group-hover:bg-teal-50/30 transition-all text-left shadow-inner">
-              <Quote className="absolute -top-2 left-4 h-5 w-5 text-teal-200 opacity-50" />
-              <p className="text-[12px] text-slate-700 font-semibold leading-relaxed italic line-clamp-4">
-                {speaker.bio || "Thông tin kinh nghiệm chuyên môn đang được cập nhật..."}
-              </p>
-            </div>
+            {speaker.bio && speaker.bio.trim() !== "" && !speaker.bio.toLowerCase().includes("đang cập nhật thông tin") && (
+              <div className="relative px-6 py-6 bg-slate-50 rounded-[2rem] border border-slate-100 group-hover:bg-teal-50/30 transition-all text-left shadow-inner mt-4">
+                <Quote className="absolute -top-2 left-4 h-5 w-5 text-teal-200 opacity-50" />
+                <p className="text-[12px] text-slate-700 font-semibold leading-relaxed italic line-clamp-4">
+                  {speaker.bio}
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
