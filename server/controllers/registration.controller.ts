@@ -280,6 +280,30 @@ export const bulkCheckIn = async (req: RequestWithActiveConference, res: Respons
     } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 
+export const bulkDeleteRegistrations = async (req: RequestWithActiveConference, res: Response) => {
+    try {
+      const { registrationIds } = req.body;
+      const user = (req as any).user;
+      let successCount = 0; let failCount = 0;
+      for (const regId of registrationIds) {
+        try {
+          const registration = await registrationRepository.getById(regId);
+          if (!registration) { failCount++; continue; }
+          // Staff can only delete registrations belonging to their assigned sessions
+          if (user?.role === "staff") {
+              const allowed = user.assignedSessionIds || [];
+              if (!allowed.includes(registration.sessionId)) {
+                  failCount++; continue;
+              }
+          }
+          await registrationRepository.delete(regId);
+          successCount++;
+        } catch (_e) { failCount++; }
+      }
+      res.json({ successCount, failCount });
+    } catch (error: any) { res.status(400).json({ message: error.message }); }
+};
+
 export const resendEmail = async (req: RequestWithActiveConference, res: Response) => {
     try {
         const { id } = req.params;

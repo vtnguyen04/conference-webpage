@@ -58,7 +58,12 @@ export default function RegistrationsPage() {
         page,
         handleResendEmail,
         setPage,
-        totalPages
+        totalPages,
+        handleBulkDelete,
+        handleBulkDeleteConfirm,
+        isBulkDeleteDialogOpen,
+        setIsBulkDeleteDialogOpen,
+        bulkDeleteMutation
     } = useRegistrations();
 
     return (
@@ -127,6 +132,8 @@ export default function RegistrationsPage() {
                     activeSessions={activeSessions}
                     handleBulkCheckin={handleBulkCheckin}
                     bulkCheckinMutation={bulkCheckinMutation}
+                    handleBulkDelete={handleBulkDelete}
+                    bulkDeleteMutation={bulkDeleteMutation}
                 />
 
                 <RegistrationTable
@@ -228,6 +235,31 @@ export default function RegistrationsPage() {
                                 className="bg-indigo-600 text-white font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100"
                             >
                                 {bulkCheckinMutation.isPending ? "Đang xử lý..." : "Xác nhận"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </div>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+                <AlertDialogContent className="border-none shadow-2xl overflow-hidden p-0">
+                    <div className="bg-rose-600 h-2 w-full" />
+                    <div className="p-6">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-xl font-extrabold text-rose-600">Xóa vĩnh viễn {numSelected} đại biểu?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-500 font-medium mt-2 leading-relaxed">
+                                Hành động này sẽ xóa dữ liệu các đại biểu đã chọn khỏi hệ thống.
+                                Lưu ý: Thao tác này không thể hoàn tác.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter className="mt-8 gap-3">
+                            <AlertDialogCancel className="font-bold border-slate-200">Hủy bỏ</AlertDialogCancel>
+                            <AlertDialogAction 
+                                onClick={handleBulkDeleteConfirm} 
+                                disabled={bulkDeleteMutation.isPending}
+                                className="bg-rose-600 text-white font-bold hover:bg-rose-700 shadow-lg shadow-rose-100"
+                            >
+                                {bulkDeleteMutation.isPending ? "Đang xóa..." : "Xác nhận xóa"}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </div>

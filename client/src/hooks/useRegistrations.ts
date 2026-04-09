@@ -164,6 +164,39 @@ export const useRegistrations = () => {
     });
     setIsAlertOpen(false);
   };
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: ({ registrationIds }: { registrationIds: string[] }) =>
+      registrationService.bulkDeleteRegistrations(registrationIds),
+    onSuccess: (data) => {
+      toast({
+        title: "Xóa hàng loạt hoàn tất",
+        description: `Thành công: ${data.successCount}, Thất bại: ${data.failCount}`,
+      });
+      setSelectedRows({});
+      queryClient.invalidateQueries({ queryKey: ["registrations"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Lỗi xóa hàng loạt", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
+
+  const handleBulkDelete = () => {
+    if (numSelected === 0) {
+      toast({ title: "Chú ý", description: "Vui lòng chọn ít nhất một đại biểu." });
+      return;
+    }
+    setIsBulkDeleteDialogOpen(true);
+  };
+  
+  const handleBulkDeleteConfirm = () => {
+    if (selectedRegistrationIds.length > 0) {
+      bulkDeleteMutation.mutate({ registrationIds: selectedRegistrationIds });
+    }
+    setIsBulkDeleteDialogOpen(false);
+  };
   const handleResendEmail = (registration: Registration) => {
     if (confirm(`Gửi lại email cho ${registration.fullName} (${registration.email})?`)) {
       resendEmailMutation.mutate(registration.id);
@@ -205,6 +238,11 @@ export const useRegistrations = () => {
         selectedRegistrationIds,
         isSessionActive,
         handleResendEmail,
-        resendEmailMutation
+        resendEmailMutation,
+        bulkDeleteMutation,
+        isBulkDeleteDialogOpen,
+        setIsBulkDeleteDialogOpen,
+        handleBulkDelete,
+        handleBulkDeleteConfirm
     };
 }

@@ -18,7 +18,8 @@ import {
     exportRegistrations,
     getPaginatedRegistrations,
     resendEmail,
-    searchForRegistrations
+    searchForRegistrations,
+    bulkDeleteRegistrations
 } from "../controllers/registration.controller";
 import {
     deleteAllSessions,
@@ -49,6 +50,7 @@ router.delete("/registrations/:id", deleteRegistrationById);
 router.post("/registrations/:id/resend-email", checkActiveConference, resendEmail);
 router.get("/registrations/export", checkActiveConference, exportRegistrations);
 router.post("/bulk-checkin-registrations", checkActiveConference, bulkCheckIn);
+router.post("/bulk-delete-registrations", checkActiveConference, bulkDeleteRegistrations);
 router.get("/contact-messages", getContactMessagesPaginated);
 router.get("/contact-messages/search", searchAdminContactMessages);
 router.delete("/contact-messages/:id", deleteAdminContactMessage);

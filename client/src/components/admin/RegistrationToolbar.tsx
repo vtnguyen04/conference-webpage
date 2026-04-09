@@ -8,7 +8,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import type { Session } from "@shared/types";
-import { Download, PlusCircle, Search, Filter, Users, CheckCircle2 } from "lucide-react";
+import { Download, PlusCircle, Search, Filter, Users, CheckCircle2, Trash2 } from "lucide-react";
 
 type RegistrationToolbarProps = {
   searchQuery: string;
@@ -22,6 +22,8 @@ type RegistrationToolbarProps = {
   activeSessions: Session[];
   handleBulkCheckin: () => void;
   bulkCheckinMutation: any;
+  handleBulkDelete: () => void;
+  bulkDeleteMutation: any;
 };
 
 export const RegistrationToolbar = ({
@@ -36,6 +38,8 @@ export const RegistrationToolbar = ({
   activeSessions,
   handleBulkCheckin,
   bulkCheckinMutation,
+  handleBulkDelete,
+  bulkDeleteMutation,
 }: RegistrationToolbarProps) => {
   return (
     <div className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-sm space-y-5">
@@ -111,6 +115,16 @@ export const RegistrationToolbar = ({
                 )) : <p className="p-4 text-xs text-slate-400 italic">Không có phiên nào đang diễn ra.</p>}
               </SelectContent>
             </Select>
+            <Button 
+              size="sm" 
+              onClick={handleBulkDelete} 
+              disabled={bulkDeleteMutation.isPending}
+              variant="destructive"
+              className="h-9 font-bold text-xs px-4"
+            >
+              <Trash2 className="mr-2 h-3.5 w-3.5" />
+              Xóa hàng loạt
+            </Button>
             <Button 
               size="sm" 
               onClick={handleBulkCheckin} 

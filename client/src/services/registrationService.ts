@@ -31,6 +31,9 @@ export const registrationService = {
   bulkCheckinRegistrations: async (registrationIds: string[], sessionId: string): Promise<{ successCount: number; failCount: number }> => {
     return apiRequest("POST", "/api/admin/bulk-checkin-registrations", { registrationIds, sessionId });
   },
+  bulkDeleteRegistrations: async (registrationIds: string[]): Promise<{ successCount: number; failCount: number }> => {
+    return apiRequest("POST", "/api/admin/bulk-delete-registrations", { registrationIds });
+  },
   addRegistration: async (data: InsertRegistration): Promise<Registration> => {
     return apiRequest("POST", "/api/admin/registrations", data);
   },
