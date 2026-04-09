@@ -26,10 +26,20 @@ export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
 }
+import { authService } from "./services/authService";
+
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  if (req.session && (req.session as any).userId) {
-    (req as any).user = (req.session as any).user;
-    return next();
+  const userId = req.session && (req.session as any).userId;
+  if (userId) {
+    try {
+      const user = await authService.findUserById(userId);
+      if (user) {
+        (req as any).user = user;
+        return next();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
   return res.status(401).json({ message: "Unauthorized" });
 };
