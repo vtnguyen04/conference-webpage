@@ -123,40 +123,39 @@ Hệ thống quản lý hội nghị khoa học là một giải pháp **full-st
 
 ## 🏗 Kiến Trúc Hệ Thống
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT LAYER                          │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐    │
-│  │   Pages     │  │  Components  │  │   Custom Hooks  │    │
-│  │  (Admin &   │  │  (Shadcn/UI  │  │  (Business Logic│    │
-│  │   Public)   │  │   + Custom)  │  │   + API Calls)  │    │
-│  └─────────────┘  └──────────────┘  └─────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                       API LAYER (REST)                       │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐    │
-│  │   Routers   │  │ Controllers  │  │  Middlewares    │    │
-│  │  (Routes)   │  │  (Handlers)  │  │  (Auth, Error)  │    │
-│  └─────────────┘  └──────────────┘  └─────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                     BUSINESS LOGIC LAYER                     │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐    │
-│  │   Services  │  │  Background  │  │   Email Service │    │
-│  │ (Business   │  │   Queue      │  │   (Nodemailer)  │    │
-│  │  Logic)     │  │  (Tasks)     │  │                 │    │
-│  └─────────────┘  └──────────────┘  └─────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                      DATA ACCESS LAYER                       │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐    │
-│  │Repositories│  │  Drizzle ORM │  │   SQLite/JSON   │    │
-│  │  (Queries)  │  │   (Schema)   │  │    (Storage)    │    │
-│  └─────────────┘  └──────────────┘  └─────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph ClientLayer ["CLIENT LAYER"]
+        direction LR
+        Pages["Pages\n(Admin & Public)"]
+        Components["Components\n(Shadcn/UI + Custom)"]
+        Hooks["Custom Hooks\n(Logic + API)"]
+    end
+
+    subgraph APILayer ["API LAYER (REST)"]
+        direction LR
+        Routers["Routers\n(Routes)"]
+        Controllers["Controllers\n(Handlers)"]
+        Middlewares["Middlewares\n(Auth, Error)"]
+    end
+
+    subgraph BusinessLayer ["BUSINESS LOGIC LAYER"]
+        direction LR
+        Services["Services\n(Business Logic)"]
+        Queue["Background Queue\n(Tasks)"]
+        Email["Email Service\n(Nodemailer)"]
+    end
+
+    subgraph DataLayer ["DATA ACCESS LAYER"]
+        direction LR
+        Repositories["Repositories\n(Queries)"]
+        ORM["Drizzle ORM\n(Schema)"]
+        Storage["SQLite/JSON\n(Storage)"]
+    end
+
+    ClientLayer --> APILayer
+    APILayer --> BusinessLayer
+    BusinessLayer --> DataLayer
 ```
 
 ### Cấu Trúc Thư Mục
