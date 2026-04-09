@@ -183,7 +183,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#F8F9FC]">
+    <div className="flex h-screen w-full overflow-hidden bg-[#F8F9FC]">
       <Sidebar className="border-r border-slate-200 bg-white shadow-sm transition-all duration-300">
         <SidebarHeader className="h-16 border-b border-slate-100 flex items-center px-6">
           <div className="flex items-center gap-3">
@@ -327,7 +327,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
         </header>
 
         <main className={cn(
-          "flex-1 overflow-y-auto p-8 custom-scrollbar",
+          "flex-1 min-h-0 overflow-y-auto p-8 custom-scrollbar",
           className
         )}>
           <div className="max-w-[1400px] mx-auto">
