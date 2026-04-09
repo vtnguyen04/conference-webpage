@@ -15,7 +15,8 @@ echo "------------------------------------------------"
 # 1. Fetch code
 echo "Step 1: Fetching latest updates..."
 git stash 2>/dev/null || true
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 git stash pop 2>/dev/null || true
 
 # 2. Prepare Directories & Permissions
