@@ -2,7 +2,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import type { Session, Speaker } from "@shared/types";
 import { format } from "date-fns";
-import { ArrowRight, Clock, Info, Layout, MapPin, User } from "lucide-react";
+import { Clock, Info, Layout, MapPin, User } from "lucide-react";
 import React, { useMemo } from "react";
 
 interface SessionListProps {
@@ -44,9 +44,6 @@ const SessionAccordionItem = React.memo(({ session, speakerMap }: { session: Ses
                 <MapPin className="h-3.5 w-3.5 mr-1.5 text-teal-500/50" />
                 {session.room || "TBA"}
               </div>
-            </div>
-            <div className="hidden md:flex items-center justify-center h-10 w-10 rounded-full bg-slate-50 group-data-[state=open]:rotate-90 transition-transform">
-              <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-teal-500" />
             </div>
           </div>
         </AccordionTrigger>

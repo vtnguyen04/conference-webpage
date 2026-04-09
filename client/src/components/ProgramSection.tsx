@@ -7,7 +7,7 @@ import { useActiveConference } from "@/hooks/useActiveConference";
 import { usePublicSessions, usePublicSpeakers } from "@/hooks/usePublicData";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { ArrowRight, Calendar, Info } from "lucide-react";
+import { Calendar, Info } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "wouter";
 

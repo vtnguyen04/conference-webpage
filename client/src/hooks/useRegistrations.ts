@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { sessionService } from "@/services/sessionService";
 import { registrationService } from "@/services/registrationService";
 import { useActiveConference } from "@/hooks/useActiveConference";
+import { useAuth } from "@/hooks/useAuth";
 const isSessionActive = (session?: Session): boolean => {
   if (!session) return false;
   const now = new Date();
@@ -57,9 +58,15 @@ export const useRegistrations = () => {
     queryFn: () => sessionService.getSessions(conference?.slug),
     enabled: !!conference,
   });
+  const { user } = useAuth();
+  
   const activeSessions = useMemo(() => {
-    return sessions.filter(session => isSessionActive(session));
-  }, [sessions]);
+    let list = sessions;
+    if (user?.role === "staff" && user.assignedSessionIds) {
+      list = sessions.filter(s => user.assignedSessionIds!.includes(s.id));
+    }
+    return list.filter(session => isSessionActive(session));
+  }, [sessions, user]);
   const filteredRegistrations = useMemo(() => {
     return registrations.filter(reg => {
       if (roleFilter === 'all') return true;

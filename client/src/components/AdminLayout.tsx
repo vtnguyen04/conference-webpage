@@ -62,42 +62,6 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
-const menuGroups = [
-  {
-    label: "Chung",
-    items: [
-      { href: "/admin", icon: LayoutDashboard, label: "Tổng quan" },
-      { href: "/admin/analytics", icon: BarChart3, label: "Phân tích & Thống kê" },
-    ]
-  },
-  {
-    label: "Quản lý Hội nghị",
-    items: [
-      { href: "/admin/conferences", icon: Building, label: "Danh sách hội nghị" },
-      { href: "/admin/conference", icon: FileText, label: "Cấu hình chi tiết" },
-      { href: "/admin/sessions", icon: Calendar, label: "Lịch trình & Phiên họp" },
-    ]
-  },
-  {
-    label: "Nội dung",
-    items: [
-      { href: "/admin/speakers", icon: Users, label: "Báo cáo viên" },
-      { href: "/admin/organizers", icon: Users, label: "Ban tổ chức" },
-      { href: "/admin/sponsors", icon: Award, label: "Nhà tài trợ" },
-      { href: "/admin/announcements", icon: Megaphone, label: "Thông báo" },
-      { href: "/admin/documents", icon: FileText, label: "Kỷ yếu" },
-    ]
-  },
-  {
-    label: "Đăng ký & Liên hệ",
-    items: [
-      { href: "/admin/registrations", icon: ClipboardList, label: "Danh sách đăng ký" },
-      { href: "/admin/checkin", icon: UserCheck, label: "Quản lý Check-in" },
-      { href: "/admin/contact-messages", icon: Mail, label: "Tin nhắn liên hệ", badge: true },
-    ]
-  }
-];
-
 const ConferenceSelector = () => {
   const { data: conferences = [] } = useQuery<Conference[]>({
     queryKey: ['api/conferences'],
@@ -144,6 +108,55 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
   const { user, refetch: refetchAuth } = useAuth();
   const setSlugs = useAdminView(state => state.setSlugs);
   const [scrolled, setScrolled] = useState(false);
+
+  const isStaff = user?.role === "staff";
+  const isSuperAdmin = user?.role === "superadmin";
+
+  const menuGroups = [
+    ...(isStaff ? [] : [
+      {
+        label: "Chung",
+        items: [
+          { href: "/admin", icon: LayoutDashboard, label: "Tổng quan" },
+          { href: "/admin/analytics", icon: BarChart3, label: "Phân tích & Thống kê" },
+        ]
+      },
+      {
+        label: "Quản lý Hội nghị",
+        items: [
+          { href: "/admin/conferences", icon: Building, label: "Danh sách hội nghị" },
+          { href: "/admin/conference", icon: FileText, label: "Cấu hình chi tiết" },
+          { href: "/admin/sessions", icon: Calendar, label: "Lịch trình & Phiên họp" },
+        ]
+      },
+      {
+        label: "Nội dung",
+        items: [
+          { href: "/admin/speakers", icon: Users, label: "Báo cáo viên" },
+          { href: "/admin/organizers", icon: Users, label: "Ban tổ chức" },
+          { href: "/admin/sponsors", icon: Award, label: "Nhà tài trợ" },
+          { href: "/admin/announcements", icon: Megaphone, label: "Thông báo" },
+          { href: "/admin/documents", icon: FileText, label: "Kỷ yếu" },
+        ]
+      }
+    ]),
+    {
+      label: "Đăng ký & Liên hệ",
+      items: [
+        { href: "/admin/registrations", icon: ClipboardList, label: "Danh sách đăng ký" },
+        { href: "/admin/checkin", icon: UserCheck, label: "Quản lý Check-in" },
+        ...(isStaff ? [] : [{ href: "/admin/contact-messages", icon: Mail, label: "Tin nhắn liên hệ", badge: true }]),
+      ]
+    },
+    ...(isSuperAdmin ? [
+      {
+        label: "Hệ thống",
+        items: [
+          { href: "/admin/staff", icon: UserCheck, label: "Quản lý Nhân sự" },
+        ]
+      }
+    ] : [])
+  ];
 
   const { data: activeConference } = useQuery<Conference>({
     queryKey: ['api', 'conferences', 'active'],

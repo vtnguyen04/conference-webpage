@@ -38,8 +38,10 @@ const OrganizersSection = () => {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 border-2 border-slate-300 hover:border-teal-600" />
-                <CarouselNext className="hidden md:flex -right-12 border-2 border-slate-300 hover:border-teal-600" />
+                <div className="flex items-center justify-center gap-4 mt-8">
+                    <CarouselPrevious className="static transform-none mr-0" />
+                    <CarouselNext className="static transform-none ml-0" />
+                </div>
             </Carousel>
         </div>
     )

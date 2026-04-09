@@ -9,20 +9,22 @@ import { registrationRepository } from "../repositories/registrationRepository";
 import { sessionRepository } from "../repositories/sessionRepository";
 import { sponsorRepository } from "../repositories/sponsorRepository";
 import { deleteFile } from "../utils";
-async function processAndSaveImage(buffer: Buffer, _originalName: string, type: 'banner' | 'avatar' | 'general' = 'general'): Promise<string> {
+async function processAndSaveImage(inputFilePath: string, type: 'banner' | 'avatar' | 'general' = 'general'): Promise<string> {
     const filename = `img-${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
     const absolutePath = path.join(process.cwd(), "public", "uploads", filename);
-    let pipeline = sharp(buffer).rotate();
+    let pipeline = sharp(inputFilePath).rotate();
     if (type === 'banner') pipeline = pipeline.resize(1920, 1080, { fit: 'inside', withoutEnlargement: true });
     else if (type === 'avatar') pipeline = pipeline.resize(400, 400, { fit: 'cover' });
     else pipeline = pipeline.resize(1200, null, { withoutEnlargement: true });
     await pipeline.webp({ quality: 80, effort: 6 }).toFile(absolutePath);
+    // Clean up the original uploaded file from diskStorage
+    await fs.unlink(inputFilePath).catch(() => {});
     return `/uploads/${filename}`;
 }
 export const uploadImage = async (req: any, res: Response) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No file" });
-        const imagePath = await processAndSaveImage(req.file.buffer, req.file.originalname, req.body.type || 'general');
+        const imagePath = await processAndSaveImage(req.file.path, req.body.type || 'general');
         if (req.body.oldImagePath) await deleteFile(req.body.oldImagePath);
         res.json({ imagePath });
     } catch (_: any) { res.status(500).json({ message: "Failed" }); }
@@ -31,19 +33,17 @@ export const uploadPdf = async (req: any, res: Response) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No file" });
         if (req.file.mimetype !== 'application/pdf') {
+            await fs.unlink(req.file.path).catch(() => {});
             return res.status(400).json({ message: "Only PDF files are allowed" });
         }
-        const filename = `document-${Date.now()}.pdf`;
-        const absolutePath = path.join(process.cwd(), "public", "uploads", filename);
-        await fs.writeFile(absolutePath, req.file.buffer);
         if (req.body.oldPdfPath) await deleteFile(req.body.oldPdfPath);
-        res.json({ pdfPath: `/uploads/${filename}` });
+        res.json({ pdfPath: `/uploads/${req.file.filename}` });
     } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };
 export const uploadBanners = async (req: any, res: Response) => {
     try {
         const files = req.files as any[];
-        const imagePaths = await Promise.all(files.map(file => processAndSaveImage(file.buffer, file.originalname, 'banner')));
+        const imagePaths = await Promise.all(files.map(file => processAndSaveImage(file.path, 'banner')));
         res.json({ imagePaths });
     } catch (_: any) { res.status(500).json({ message: "Failed" }); }
 };

@@ -40,7 +40,8 @@ export const users = sqliteTable("users", {
   passwordHash: text("password_hash"),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  role: text("role").notNull().default("user"),
+  role: text("role").notNull().default("user"), // superadmin, admin, staff, user
+  assignedSessionIds: text("assigned_session_ids", { mode: "json" }).$type<string[]>(),
   profileImageUrl: text("profile_image_url"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).$defaultFn(() => new Date()),

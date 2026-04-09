@@ -13,6 +13,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -73,6 +74,8 @@ export default function ConferencePage() {
       startDate: new Date(),
       endDate: new Date(),
       isActive: true,
+      isRegistrationOpen: true,
+      closedRegistrationMessage: "Cổng đăng ký cho hội nghị này hiện đang đóng. Hệ thống có thể đang bảo trì hoặc đã đủ số lượng đại biểu. Xin vui lòng quay lại sau!",
     },
   });
 
@@ -485,6 +488,57 @@ export default function ConferencePage() {
 
               {/* Tab 3: Registration Rules */}
               <TabsContent value="registration" className="space-y-6 animate-in slide-in-from-left-2">
+                <Card className="border-indigo-100 shadow-sm bg-indigo-50/50">
+                  <CardContent className="p-6">
+                    <FormField
+                      control={form.control as any}
+                      name="isRegistrationOpen"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between">
+                          <div className="space-y-1">
+                            <FormLabel className="text-sm font-bold text-indigo-900 uppercase tracking-wider">Mở cổng đăng ký</FormLabel>
+                            <FormDescription className="text-xs text-indigo-700/70 font-medium">
+                              Bật chức năng này để cho phép khách mời xem và gửi yêu cầu đăng ký tham dự từ trang chủ. Tắt để tạm bảo trì hoặc khi đã đủ số lượng.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value !== false}
+                              onCheckedChange={field.onChange}
+                              disabled={isReadOnly}
+                              className="data-[state=checked]:bg-indigo-600 scale-110"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch("isRegistrationOpen") === false && (
+                      <div className="mt-6 pt-6 border-t border-indigo-100/60 animate-in fade-in slide-in-from-top-2">
+                        <FormField
+                          control={form.control as any}
+                          name="closedRegistrationMessage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Thông báo khi đóng đăng ký</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  value={field.value || ""}
+                                  rows={3}
+                                  className="bg-white border-slate-200 focus:bg-white transition-all resize-none mt-2"
+                                  placeholder="Nhập lý do đóng cổng đăng ký hiển thị cho khách..."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card className="border-slate-200/60 shadow-sm bg-white">
                     <CardContent className="p-6 space-y-6">

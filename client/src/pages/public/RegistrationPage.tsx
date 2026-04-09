@@ -99,6 +99,35 @@ export default function RegistrationPage() {
     submitRegistration(data);
   };
 
+  if (conference?.isRegistrationOpen === false) {
+    return (
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-xl mx-auto">
+            <Card className="text-center border-slate-200/60 shadow-lg">
+              <CardContent className="p-12">
+                <div className="h-20 w-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle className="h-10 w-10 text-rose-600" />
+                </div>
+                <h1 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                  Tạm ngưng đăng ký
+                </h1>
+                <p className="text-slate-500 font-medium mb-8 leading-relaxed whitespace-pre-wrap">
+                  {conference.closedRegistrationMessage || "Cổng đăng ký cho hội nghị này hiện đang đóng. Hệ thống có thể đang bảo trì hoặc đã đủ số lượng đại biểu. Xin vui lòng quay lại sau!"}
+                </p>
+                <Link href="/">
+                  <Button className="bg-rose-600 hover:bg-rose-700 font-bold px-8 shadow-lg shadow-rose-100">
+                    Trở về Trang Chủ
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (registrationState === 'pendingConfirmation') {
     return (
       <div className="py-16 md:py-24">
@@ -106,30 +135,30 @@ export default function RegistrationPage() {
           <div className="max-w-xl mx-auto">
             <Card className="text-center border-slate-200/60 shadow-lg">
               <CardContent className="p-12">
-                                <div className="h-20 w-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                  <Mail className="h-10 w-10 text-teal-600" />
-                                </div>
-                                <h1 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                                  Kiểm tra email của bạn
-                                </h1>
-                                <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-                                  Chúng tôi đã gửi một email xác nhận đến địa chỉ của bạn. Vui lòng kiểm tra hộp thư đến (và cả thư mục spam/junk) để hoàn tất đăng ký và nhận mã QR tham dự.
-                                </p>
-                                <Button 
-                                  onClick={() => setRegistrationState('form')}
-                                  className="bg-teal-600 hover:bg-teal-700 font-bold px-8 shadow-lg shadow-teal-100"
-                                >
-                                  Quay lại trang đăng ký
-                                </Button>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                
-                  return (
+                <div className="h-20 w-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Mail className="h-10 w-10 text-teal-600" />
+                </div>
+                <h1 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                  Kiểm tra email của bạn
+                </h1>
+                <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                  Chúng tôi đã gửi một email xác nhận đến địa chỉ của bạn. Vui lòng kiểm tra hộp thư đến (và cả thư mục spam/junk) để hoàn tất đăng ký và nhận mã QR tham dự.
+                </p>
+                <Button 
+                  onClick={() => setRegistrationState('form')}
+                  className="bg-teal-600 hover:bg-teal-700 font-bold px-8 shadow-lg shadow-teal-100"
+                >
+                  Quay lại trang đăng ký
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
                     <div className="animate-in fade-in duration-500">
                       <PageHeader
                         title="Đăng ký tham dự Hội nghị"

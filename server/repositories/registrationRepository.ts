@@ -8,6 +8,7 @@ import {
   lt,
   count,
   countDistinct,
+  inArray,
 } from "drizzle-orm";
 import { db } from "../db";
 import {
@@ -21,10 +22,17 @@ import {
 import { randomUUID } from "node:crypto";
 import QRCode from "qrcode";
 export class RegistrationRepository {
-  async getByConferenceSlug(slug: string, page: number, limit: number): Promise<{ data: Registration[]; total: number }> {
+  async getByConferenceSlug(slug: string, page: number, limit: number, allowedSessionIds?: string[]): Promise<{ data: Registration[]; total: number }> {
     const offset = (page - 1) * limit;
-    const data = await db.select().from(registrations).where(eq(registrations.conferenceSlug, slug)).limit(limit).offset(offset).all();
-    const [totalResult] = await db.select({ value: count() }).from(registrations).where(eq(registrations.conferenceSlug, slug)).all();
+
+    let whereClause: any = eq(registrations.conferenceSlug, slug);
+    if (allowedSessionIds) {
+        if (allowedSessionIds.length === 0) return { data: [], total: 0 };
+        whereClause = and(whereClause, inArray(registrations.sessionId, allowedSessionIds));
+    }
+
+    const data = await db.select().from(registrations).where(whereClause).limit(limit).offset(offset).all();
+    const [totalResult] = await db.select({ value: count() }).from(registrations).where(whereClause).all();
     return { data: data, total: totalResult.value };
   }
   async getBySession(sessionId: string): Promise<Registration[]> {
@@ -79,9 +87,15 @@ export class RegistrationRepository {
   async deleteByConferenceSlug(slug: string): Promise<void> {
     await db.delete(registrations).where(eq(registrations.conferenceSlug, slug)).run();
   }
-  async search(slug: string, query: string, page: number, limit: number): Promise<{ data: Registration[]; total: number }> {
+  async search(slug: string, query: string, page: number, limit: number, allowedSessionIds?: string[]): Promise<{ data: Registration[]; total: number }> {
     const offset = (page - 1) * limit;
     let whereClause: any = eq(registrations.conferenceSlug, slug);
+    
+    if (allowedSessionIds) {
+        if (allowedSessionIds.length === 0) return { data: [], total: 0 };
+        whereClause = and(whereClause, inArray(registrations.sessionId, allowedSessionIds));
+    }
+
     if (query) {
         const lowerCaseQuery = query.toLowerCase();
         whereClause = and(whereClause, or(like(registrations.fullName, `%${lowerCaseQuery}%`), like(registrations.email, `%${lowerCaseQuery}%`)));

@@ -35,3 +35,6 @@ server/data/
 
 # Docker persistent data
 docker-data/
+generate_registrations.ts
+update_db.js
+update_db.ts

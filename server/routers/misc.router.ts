@@ -18,7 +18,16 @@ const uploadDir = path.join(process.cwd(), "public", "uploads");
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+    destination: function (_req, _file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const ext = path.extname(file.originalname);
+        const prefix = req.path.includes('pdf') ? 'document' : 'raw';
+        cb(null, `${prefix}-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+    }
+});
 const upload = multer({
     storage: storage,
     limits: { fileSize: 200 * 1024 * 1024 }

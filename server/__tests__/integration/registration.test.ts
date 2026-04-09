@@ -19,6 +19,17 @@ app.get('/api/registrations/confirm/:token', activeConferenceMiddleware, confirm
 
 vi.mock('../../services/registrationService');
 vi.mock('../../services/emailService');
+vi.mock('../../db', () => ({
+  db: {
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => ({
+          run: vi.fn().mockResolvedValue(undefined)
+        }))
+      }))
+    }))
+  }
+}));
 
 describe('Registration API Integration Tests', () => {
   beforeEach(() => {

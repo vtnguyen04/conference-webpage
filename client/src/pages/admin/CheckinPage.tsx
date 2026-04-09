@@ -12,6 +12,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { cn } from "@/lib/utils";
 import { useCheckIn } from "@/hooks/useCheckIn";
 import { useAdminView } from "@/hooks/useAdminView";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CheckinPage() {
   const { toast } = useToast();
@@ -22,12 +23,19 @@ export default function CheckinPage() {
   const scannerRef = useRef<any | null>(null);
   const { viewingSlug } = useAdminView();
 
+  const { user } = useAuth();
+
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", viewingSlug],
     enabled: !!viewingSlug,
     select: (data) => {
       const now = new Date();
-      return data.filter(session => {
+      let filtered = data;
+      if (user?.role === "staff" && user.assignedSessionIds) {
+        filtered = data.filter(s => user.assignedSessionIds!.includes(s.id));
+      }
+
+      return filtered.filter(session => {
         const startTime = new Date(session.startTime);
         const endTime = new Date(session.endTime);
 
@@ -73,7 +81,12 @@ export default function CheckinPage() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minEdgePercentage = 0.7;
+            const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+            const qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+            return { width: qrboxSize, height: qrboxSize };
+          },
         },
         (decodedText) => {
           submitCheckIn(decodedText);
@@ -182,9 +195,9 @@ export default function CheckinPage() {
               )}
             </CardHeader>
             <CardContent className="p-0">
-              <div className="relative aspect-square bg-slate-900 flex items-center justify-center overflow-hidden">
+              <div className="relative w-full min-h-[300px] md:min-h-[400px] bg-slate-900 flex items-center justify-center overflow-hidden">
                 {scanning ? (
-                  <div id="qr-reader" className="w-full h-full object-cover"></div>
+                  <div id="qr-reader" className="w-full"></div>
                 ) : (
                   <div className="flex flex-col items-center gap-6 p-12 text-center animate-in fade-in zoom-in-95 duration-500">
                     <div className="h-24 w-24 bg-white/5 rounded-full flex items-center justify-center ring-1 ring-white/10">
@@ -246,50 +259,53 @@ export default function CheckinPage() {
                 )}
               </div>
 
-              {totalPages > 1 && (
-                <div className="p-4 border-t border-slate-50 bg-slate-50/30">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => setPage(prev => Math.max(prev - 1, 1))} 
-                          className={cn("cursor-pointer font-bold text-[10px] uppercase", page === 1 && "opacity-50 pointer-events-none")}
-                        />
-                      </PaginationItem>
-                      {(() => {
-                        const getVisiblePages = (current: number, total: number) => {
-                            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-                            if (current <= 3) return [1, 2, 3, 4, '...', total];
-                            if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
-                            return [1, '...', current - 1, current, current + 1, '...', total];
-                        };
+              <div className="p-4 border-t border-slate-50 bg-slate-50/30">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setPage(prev => Math.max(prev - 1, 1))} 
+                        className={cn("cursor-pointer font-bold text-[10px] uppercase", page === 1 && "opacity-50 pointer-events-none")}
+                      />
+                    </PaginationItem>
+                    {(() => {
+                      if (totalPages <= 1) return (
+                        <PaginationItem>
+                            <PaginationLink isActive className="cursor-pointer font-bold text-xs h-8 w-8">1</PaginationLink>
+                        </PaginationItem>
+                      );
+                      const getVisiblePages = (current: number, total: number) => {
+                          if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+                          if (current <= 3) return [1, 2, 3, 4, '...', total];
+                          if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+                          return [1, '...', current - 1, current, current + 1, '...', total];
+                      };
 
-                        return getVisiblePages(page, totalPages).map((item, index) => (
-                          <PaginationItem key={index}>
-                              {item === '...' ? (
-                                  <PaginationEllipsis />
-                              ) : (
-                                  <PaginationLink 
-                                    onClick={() => setPage(item as number)} 
-                                    isActive={page === item}
-                                    className="cursor-pointer font-bold text-xs h-8 w-8"
-                                  >
-                                    {item}
-                                  </PaginationLink>
-                              )}
-                          </PaginationItem>
-                        ));
-                      })()}
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => setPage(prev => Math.min(prev + 1, totalPages))} 
-                          className={cn("cursor-pointer font-bold text-[10px] uppercase", page === totalPages && "opacity-50 pointer-events-none")}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+                      return getVisiblePages(page, totalPages).map((item, index) => (
+                        <PaginationItem key={index}>
+                            {item === '...' ? (
+                                <PaginationEllipsis />
+                            ) : (
+                                <PaginationLink 
+                                  onClick={() => setPage(item as number)} 
+                                  isActive={page === item}
+                                  className="cursor-pointer font-bold text-xs h-8 w-8"
+                                >
+                                  {item}
+                                </PaginationLink>
+                            )}
+                        </PaginationItem>
+                      ));
+                    })()}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setPage(prev => Math.min(prev + 1, Math.max(1, totalPages)))} 
+                        className={cn("cursor-pointer font-bold text-[10px] uppercase", (page === totalPages || totalPages === 0) && "opacity-50 pointer-events-none")}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </CardContent>
           </Card>
         </div>

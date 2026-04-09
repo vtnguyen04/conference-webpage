@@ -206,6 +206,8 @@ export interface Conference {
   feature3Desc?: string;
   surveyUrl?: string;
   isActive: boolean;
+  isRegistrationOpen?: boolean;
+  closedRegistrationMessage?: string;
   createdAt: string;
   updatedAt: string;
 }

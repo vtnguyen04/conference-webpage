@@ -19,6 +19,7 @@ const CheckinPage = React.lazy(() => import("@/pages/admin/CheckinPage"));
 const AnalyticsPage = React.lazy(() => import("@/pages/admin/AnalyticsPage"));
 const ContactMessagesPage = React.lazy(() => import("@/pages/admin/ContactMessagesPage"));
 const ConferencesManagementPage = React.lazy(() => import("@/pages/admin/ConferencesManagementPage"));
+const StaffManagementPage = React.lazy(() => import("@/pages/admin/StaffManagementPage"));
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
 /**
  * Component gốc của ứng dụng Admin.
@@ -62,6 +63,7 @@ export function AdminApp() {
                     <Route path="/admin/checkin" component={CheckinPage} />
                     <Route path="/admin/analytics" component={AnalyticsPage} />
                     <Route path="/admin/contact-messages" component={ContactMessagesPage} />
+                    <Route path="/admin/staff" component={StaffManagementPage} />
                     {/* Route gốc /admin ở cuối cùng */}
                     <Route path="/admin" component={DashboardPage} />
                     <Route component={NotFound} />

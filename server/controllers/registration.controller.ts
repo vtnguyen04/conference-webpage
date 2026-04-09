@@ -17,7 +17,10 @@ export const getPaginatedRegistrations = async (req: RequestWithActiveConference
         if (!conference) return res.json({ data: [], total: 0 });
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
-        const result = await registrationRepository.getByConferenceSlug(conference.slug, page, limit);
+        const user = (req as any).user;
+        const allowedSessionIds = user?.role === "staff" ? user.assignedSessionIds || [] : undefined;
+
+        const result = await registrationRepository.getByConferenceSlug(conference.slug, page, limit, allowedSessionIds);
         
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
@@ -180,7 +183,9 @@ export const searchForRegistrations = async (req: RequestWithActiveConference, r
     try {
         const conference = req.activeConference;
         if (!conference) return res.status(404).json({ message: "No active conference" });
-        res.json(await registrationRepository.search(conference.slug, req.query.query as string, parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10));
+        const user = (req as any).user;
+        const allowedSessionIds = user?.role === "staff" ? user.assignedSessionIds || [] : undefined;
+        res.json(await registrationRepository.search(conference.slug, req.query.query as string, parseInt(req.query.page as string) || 1, parseInt(req.query.limit as string) || 10, allowedSessionIds));
     } catch (error: any) { res.status(400).json({ message: error.message }); }
 };
 
@@ -213,6 +218,14 @@ export const qrCheckIn = async (req: RequestWithActiveConference, res: Response)
         const conference = req.activeConference;
         if (qrSlug !== conference.slug || qrSid !== sessionId) return res.status(400).json({ message: "Mismatch" });
 
+        const user = (req as any).user;
+        if (user?.role === "staff") {
+            const allowed = user.assignedSessionIds || [];
+            if (!allowed.includes(sessionId)) {
+                return res.status(403).json({ message: "Forbidden: Bạn không có quyền check-in cho phiên này" });
+            }
+        }
+
         const registration = (await registrationRepository.getByEmail(email, conference.slug)).find(r => r.sessionId === sessionId);
         if (!registration) return res.status(404).json({ message: "Not found" });
 
@@ -227,6 +240,14 @@ export const manualCheckIn = async (req: RequestWithActiveConference, res: Respo
         const registration = await registrationRepository.getById(registrationId);
         if (!registration || registration.status !== "confirmed") return res.status(400).json({ message: "Trạng thái đăng ký không hợp lệ (Phải là 'đã xác nhận')" });
         
+        const user = (req as any).user;
+        if (user?.role === "staff") {
+            const allowed = user.assignedSessionIds || [];
+            if (!allowed.includes(registration.sessionId)) {
+                return res.status(403).json({ message: "Forbidden: Bạn không có quyền check-in cho phiên này" });
+            }
+        }
+
         const conference = req.activeConference;
         const checkIn = await registrationService.processCheckIn(registration, registration.sessionId, conference.name, 'manual');
         res.json(checkIn);
@@ -237,6 +258,15 @@ export const bulkCheckIn = async (req: RequestWithActiveConference, res: Respons
     try {
       const { registrationIds, sessionId } = req.body;
       const conference = req.activeConference;
+      
+      const user = (req as any).user;
+      if (user?.role === "staff") {
+          const allowed = user.assignedSessionIds || [];
+          if (!allowed.includes(sessionId)) {
+              return res.status(403).json({ message: "Forbidden: Bạn không có quyền check-in cho phiên này" });
+          }
+      }
+
       let successCount = 0; let failCount = 0;
       for (const regId of registrationIds) {
         try {

@@ -29,8 +29,16 @@ import {
 import {
     deleteAllSponsors,
 } from "../controllers/sponsor.controller";
+import {
+    getStaffAccounts,
+    createStaffAccount,
+    updateStaffAccount,
+    deleteStaffAccount
+} from "../controllers/staff.controller";
 import { checkActiveConference } from "../middlewares/checkActiveConference";
 import { isAuthenticated } from "../sessionAuth";
+import { requireRole } from "../middlewares/rbac";
+
 const router = Router();
 // All admin routes require authentication
 router.use(isAuthenticated);
@@ -48,6 +56,13 @@ router.delete("/contact-messages/all", deleteAllAdminContactMessages);
 router.delete("/sessions/all", checkActiveConference, deleteAllSessions);
 router.delete("/speakers/all", checkActiveConference, deleteAllSpeakers);
 router.delete("/organizers/all", checkActiveConference, deleteAllOrganizers);
-router.delete("/announcements/all", checkActiveConference, deleteAllAnnouncements);
-router.delete("/sponsors/all", checkActiveConference, deleteAllSponsors);
+router.delete("/announcements/all", checkActiveConference, requireRole(["superadmin", "admin"]), deleteAllAnnouncements);
+router.delete("/sponsors/all", checkActiveConference, requireRole(["superadmin", "admin"]), deleteAllSponsors);
+
+// Staff management (superadmin only)
+router.get("/staff", requireRole(["superadmin"]), getStaffAccounts);
+router.post("/staff", requireRole(["superadmin"]), createStaffAccount);
+router.put("/staff/:id", requireRole(["superadmin"]), updateStaffAccount);
+router.delete("/staff/:id", requireRole(["superadmin"]), deleteStaffAccount);
+
 export default router;

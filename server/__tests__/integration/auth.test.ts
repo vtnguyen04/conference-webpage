@@ -21,7 +21,7 @@ describe('Auth API Integration Tests', () => {
   });
 
   it('POST /api/auth/login - should log in admin with correct credentials', async () => {
-    vi.mocked(authService.validateAdmin).mockResolvedValue(true);
+    vi.mocked(authService.validateAdmin).mockResolvedValue({ id: 'admin', role: 'superadmin', email: 'admin@example.com' } as any);
     
     const res = await request(app)
       .post('/api/auth/login')
@@ -32,7 +32,7 @@ describe('Auth API Integration Tests', () => {
   });
 
   it('POST /api/auth/login - should fail with wrong credentials', async () => {
-    vi.mocked(authService.validateAdmin).mockResolvedValue(false);
+    vi.mocked(authService.validateAdmin).mockResolvedValue(null);
     
     const res = await request(app)
       .post('/api/auth/login')
@@ -43,12 +43,12 @@ describe('Auth API Integration Tests', () => {
   });
 
   it('GET /api/auth/user - should return user if session exists', async () => {
-    vi.mocked(authService.findUserById).mockResolvedValue({ id: 'admin', role: 'admin' } as any);
+    vi.mocked(authService.findUserById).mockResolvedValue({ id: 'admin', role: 'superadmin' } as any);
     
     // Giả lập session bằng cách đăng nhập trước (hoặc mock session middleware)
     // Trong test này, Supertest không tự động giữ session qua các request độc lập mà không có agent
     const agent = request.agent(app);
-    vi.mocked(authService.validateAdmin).mockResolvedValue(true);
+    vi.mocked(authService.validateAdmin).mockResolvedValue({ id: 'admin', role: 'superadmin' } as any);
     await agent.post('/api/auth/login').send({ email: 'admin', password: '1' });
     
     const res = await agent.get('/api/auth/user');
