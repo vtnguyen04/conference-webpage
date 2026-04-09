@@ -25,13 +25,6 @@ const AnnouncementsSection = () => {
                 title="TIN TỨC || THÔNG BÁO"
                 subtitle="Cập nhật mới nhất từ Ban Tổ chức"
                 accentColor="bg-teal-600"
-                cta={
-                    <Link href="/announcements">
-                        <Button className="bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-12 px-10 rounded-full transition-all shadow-xl shadow-teal-200">
-                            Xem tất cả thông báo
-                        </Button>
-                    </Link>
-                }
             />
             <Carousel
                 opts={{
@@ -91,9 +84,17 @@ const AnnouncementsSection = () => {
                             </Link>
                         </CarouselItem>))}
                 </CarouselContent>
-                <CarouselPrevious className="-left-4 md:-left-12 border-2 border-slate-300 hover:border-teal-600" />
-                <CarouselNext className="-right-4 md:-right-12 border-2 border-slate-300 hover:border-teal-600" />
+                <CarouselPrevious className="hidden md:flex -left-12 border-2 border-slate-300 hover:border-teal-600" />
+                <CarouselNext className="hidden md:flex -right-12 border-2 border-slate-300 hover:border-teal-600" />
             </Carousel>
+
+            <div className="text-center mt-12">
+                <Link href="/announcements">
+                    <Button className="group bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs uppercase tracking-widest h-10 px-6 rounded-full transition-all shadow-lg shadow-teal-100 active:scale-95 flex items-center justify-center mx-auto">
+                        Xem chi tiết
+                    </Button>
+                </Link>
+            </div>
         </div>
     )
 }

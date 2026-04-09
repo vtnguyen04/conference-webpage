@@ -38,8 +38,8 @@ const OrganizersSection = () => {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className="-left-4 md:-left-12 border-2 border-slate-300 hover:border-teal-600" />
-                <CarouselNext className="-right-4 md:-right-12 border-2 border-slate-300 hover:border-teal-600" />
+                <CarouselPrevious className="hidden md:flex -left-12 border-2 border-slate-300 hover:border-teal-600" />
+                <CarouselNext className="hidden md:flex -right-12 border-2 border-slate-300 hover:border-teal-600" />
             </Carousel>
         </div>
     )

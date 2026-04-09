@@ -117,10 +117,10 @@ const ConferencesManagementPage: React.FC = () => {
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-slate-100">
-              <TableHead className="w-[45%] text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Thông tin hội nghị</TableHead>
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Trạng thái vận hành</TableHead>
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Ngày bắt đầu</TableHead>
-              <TableHead className="text-right text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Thao tác</TableHead>
+              <TableHead className="w-[45%] min-w-[300px] text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6">Thông tin hội nghị</TableHead>
+              <TableHead className="min-w-[180px] text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6 whitespace-nowrap">Trạng thái vận hành</TableHead>
+              <TableHead className="min-w-[150px] text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6 whitespace-nowrap">Ngày bắt đầu</TableHead>
+              <TableHead className="min-w-[150px] text-right text-[11px] font-bold uppercase tracking-widest text-slate-400 py-4 px-6 whitespace-nowrap">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

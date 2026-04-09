@@ -145,17 +145,17 @@ export default function ConferencePage() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="bg-slate-100 p-1 h-12 rounded-xl mb-8">
-              <TabsTrigger value="general" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2">
+            <TabsList className="bg-slate-100 p-1 h-auto min-h-12 rounded-xl mb-8 flex w-full max-w-full justify-start overflow-x-auto overflow-y-hidden no-scrollbar flex-nowrap items-center touch-pan-x">
+              <TabsTrigger value="general" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2 shrink-0 py-2.5">
                 <Settings2 className="h-3.5 w-3.5" /> Thông tin chung
               </TabsTrigger>
-              <TabsTrigger value="content" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2">
+              <TabsTrigger value="content" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2 shrink-0 py-2.5">
                 <FileText className="h-3.5 w-3.5" /> Nội dung & Giới thiệu
               </TabsTrigger>
-              <TabsTrigger value="registration" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2">
+              <TabsTrigger value="registration" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2 shrink-0 py-2.5">
                 <ShieldCheck className="h-3.5 w-3.5" /> Đăng ký & Quy định
               </TabsTrigger>
-              <TabsTrigger value="images" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2">
+              <TabsTrigger value="images" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 font-bold text-[11px] uppercase tracking-widest gap-2 shrink-0 py-2.5">
                 <ImageIcon className="h-3.5 w-3.5" /> Hình ảnh & Banners
               </TabsTrigger>
             </TabsList>
@@ -170,7 +170,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="name"
                         render={({ field }) => (
-                          <FormItem className="col-span-2 md:col-span-1">
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tên hội nghị chính thức *</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -186,7 +186,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="tagline"
                         render={({ field }) => (
-                          <FormItem className="col-span-2 md:col-span-1">
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tagline / Nhãn phụ (VD: Sự kiện khoa học thường niên)</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ""} placeholder="Sự kiện Khoa học thường niên" className="h-11 bg-slate-50 border-slate-200 font-medium focus:bg-white transition-all" />
@@ -200,7 +200,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="slug"
                         render={({ field }) => (
-                          <FormItem className="col-span-2 md:col-span-1">
+                          <FormItem className="md:col-span-2">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Đường dẫn định danh (Slug)</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -217,7 +217,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="theme"
                         render={({ field }) => (
-                          <FormItem className="col-span-2">
+                          <FormItem className="md:col-span-2">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Chủ đề chính của hội nghị</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ""} placeholder="Nhập chủ đề hoặc slogan..." className="h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all" />
@@ -230,7 +230,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="location"
                         render={({ field }) => (
-                          <FormItem className="col-span-2">
+                          <FormItem className="md:col-span-2">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Địa điểm tổ chức</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -246,7 +246,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="contactEmail"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Email liên hệ</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -262,7 +262,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="contactPhone"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Số điện thoại hỗ trợ</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -278,7 +278,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="surveyUrl"
                         render={({ field }) => (
-                          <FormItem className="col-span-2">
+                          <FormItem className="md:col-span-2">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Link khảo sát (Google/Microsoft Form)</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -295,7 +295,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="startDate"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ngày bắt đầu *</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -317,7 +317,7 @@ export default function ConferencePage() {
                         control={form.control as any}
                         name="endDate"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="md:col-span-1">
                             <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ngày kết thúc *</FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -606,8 +606,8 @@ export default function ConferencePage() {
               </TabsContent>
             </fieldset>
 
-            <div className="flex items-center justify-between p-6 bg-white border border-slate-200/60 rounded-2xl shadow-lg sticky bottom-0 z-10">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-white border border-slate-200/60 rounded-2xl shadow-lg sticky bottom-0 z-10">
+              <div className="flex items-center justify-center sm:justify-start gap-3 w-full sm:w-auto">
                 <div className={cn(
                   "h-3 w-3 rounded-full animate-pulse",
                   updateMutation.isPending ? "bg-amber-500" : "bg-emerald-500"
@@ -616,7 +616,7 @@ export default function ConferencePage() {
                   {updateMutation.isPending ? "Đang lưu trữ dữ liệu..." : "Hệ thống đã sẵn sàng lưu"}
                 </span>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Button
                   type="button"
                   variant="ghost"

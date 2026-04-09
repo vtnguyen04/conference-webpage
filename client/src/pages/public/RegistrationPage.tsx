@@ -177,7 +177,7 @@ export default function RegistrationPage() {
                                             control={form.control}
                                             name="fullName"
                                             render={({ field }) => (
-                                              <FormItem className="col-span-2 md:col-span-1">
+                                              <FormItem>
                                                 <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Họ và tên *</FormLabel>
                                                 <FormControl>
                                                   <Input placeholder="Nguyễn Văn A" {...field} className="h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all font-bold" />
@@ -190,7 +190,7 @@ export default function RegistrationPage() {
                                             control={form.control}
                                             name="email"
                                             render={({ field }) => (
-                                              <FormItem className="col-span-2 md:col-span-1">
+                                              <FormItem>
                                                 <FormLabel className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Địa chỉ Email *</FormLabel>
                                                 <FormControl>
                                                   <Input type="email" placeholder="email@example.com" {...field} className="h-11 bg-slate-50 border-slate-200 focus:bg-white transition-all" />

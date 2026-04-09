@@ -72,20 +72,20 @@ const ProgramSection = () => {
             <div className="max-w-5xl mx-auto space-y-10">
                 {sortedDays.length > 0 ? (
                     <Tabs defaultValue={sortedDays[0]} className="w-full">
-                        <div className="w-full overflow-x-auto pb-4 custom-scrollbar mb-10">
-                            <div className="flex min-w-full w-max justify-center px-4 md:px-0">
-                                <TabsList className="bg-teal-50 p-1 h-14 rounded-2xl shadow-inner border border-teal-100 inline-flex w-max">
-                                {sortedDays.map(dayKey => (
-                                    <TabsTrigger
-                                        key={dayKey}
-                                        value={dayKey}
-                                        className="rounded-xl data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-black text-[11px] uppercase tracking-widest px-10 transition-all duration-300"
-                                    >
-                                        <Calendar className="h-4 w-4 mr-2" />
-                                        {dayKey}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
+                        <div className="w-full px-4 md:px-0 mb-10 overflow-x-auto no-scrollbar">
+                            <div className="flex w-max min-w-full justify-start md:justify-center">
+                                <TabsList className="bg-teal-50 p-1 min-h-[56px] rounded-2xl shadow-inner border border-teal-100 flex flex-nowrap items-center w-full">
+                                    {sortedDays.map(dayKey => (
+                                        <TabsTrigger
+                                            key={dayKey}
+                                            value={dayKey}
+                                            className="rounded-xl data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-black text-[11px] uppercase tracking-widest px-6 md:px-10 py-3 whitespace-nowrap shrink-0 transition-all duration-300 flex items-center"
+                                        >
+                                            <Calendar className="h-4 w-4 mr-2 shrink-0" />
+                                            {dayKey}
+                                        </TabsTrigger>
+                                    ))}
+                                </TabsList>
                             </div>
                         </div>
 
@@ -116,10 +116,9 @@ const ProgramSection = () => {
                 <div className="text-center pt-8">
                     <Link href="/program">
                         <Button
-                            className="group bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-14 px-10 rounded-full transition-all shadow-xl shadow-teal-200 active:scale-95"
+                            className="group bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs uppercase tracking-widest h-10 px-6 rounded-full transition-all shadow-lg shadow-teal-100 active:scale-95 flex items-center justify-center mx-auto"
                         >
-                            Xem chương trình chi tiết & đầy đủ
-                            <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                            Xem chi tiết
                         </Button>
                     </Link>
                 </div>

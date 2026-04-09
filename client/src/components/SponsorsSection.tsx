@@ -23,8 +23,8 @@ const SponsorsSection = () => {
             <SponsorsList sponsors={sponsors} />
             <div className="text-center mt-16">
                 <Link href="/sponsors">
-                    <Button className="bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm uppercase tracking-widest h-12 px-10 rounded-full transition-all shadow-xl shadow-teal-200">
-                        Xem danh sách đối tác
+                    <Button className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs uppercase tracking-widest h-10 px-6 rounded-full transition-all shadow-lg shadow-teal-100">
+                        Xem chi tiết
                     </Button>
                 </Link>
             </div>

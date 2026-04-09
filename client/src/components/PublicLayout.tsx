@@ -191,7 +191,7 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white animate-in slide-in-from-top-2 duration-300 shadow-2xl">
+          <div className="lg:hidden absolute top-full left-0 w-full border-t border-slate-100 bg-white animate-in slide-in-from-top-2 duration-300 shadow-2xl">
             <nav className="container mx-auto p-6 space-y-2 max-h-[80vh] overflow-y-auto">
               {navItems.map((item) => (
                 <Link
@@ -206,6 +206,78 @@ export function PublicLayout({ children, className }: PublicLayoutProps) {
                   {item.label}
                 </Link>
               ))}
+
+              {/* Thông tin hội nghị - Accordion */}
+              {activeConference && (
+                <details className="group">
+                  <summary className="cursor-pointer px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl uppercase tracking-tight list-none flex justify-between items-center [&::-webkit-details-marker]:hidden">
+                    <span>THÔNG TIN HỘI NGHỊ</span>
+                    <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="pl-4 mt-1 space-y-1">
+                    {getConferenceMenuItems(activeConference, true).map(item => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "block px-4 py-2.5 text-xs font-bold transition-colors rounded-lg uppercase tracking-tight",
+                          location === item.href ? "bg-teal-50 text-teal-700" : "text-slate-600 hover:bg-slate-50"
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              )}
+
+              {/* Các kỳ hội nghị - Nested Accordion */}
+              {pastConferences.length > 0 && (
+                <details className="group">
+                  <summary className="cursor-pointer px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl uppercase tracking-tight list-none flex justify-between items-center [&::-webkit-details-marker]:hidden">
+                    <span>CÁC KỲ HỘI NGHỊ</span>
+                    <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="pl-4 mt-1 space-y-2">
+                    {pastConferences.map(conf => (
+                      <details key={conf.slug} className="group/sub">
+                        <summary className="cursor-pointer px-4 py-2 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl uppercase tracking-tight list-none flex justify-between items-center [&::-webkit-details-marker]:hidden">
+                          <span>{conf.name}</span>
+                          <ChevronDown className="h-3 w-3 transition-transform group-open/sub:rotate-180" />
+                        </summary>
+                        <div className="pl-4 mt-1 space-y-1 border-l-2 border-slate-100 ml-4 py-1">
+                          {getConferenceMenuItems(conf, false).map(item => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className={cn(
+                                "block px-4 py-2 text-[11px] font-bold transition-colors rounded-lg uppercase tracking-tight",
+                                location === item.href ? "bg-teal-50 text-teal-700" : "text-slate-500 hover:bg-slate-50"
+                              )}
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                </details>
+              )}
+
+              <Link
+                href="/contact"
+                className={cn(
+                  "block px-4 py-3 text-sm font-bold transition-colors rounded-xl uppercase tracking-tight",
+                  location === "/contact" ? "bg-teal-50 text-teal-700" : "text-slate-700 hover:bg-slate-50"
+                )}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                LIÊN HỆ
+              </Link>
+
               <div className="pt-4 mt-4 border-t border-slate-100">
                 <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-black py-6 rounded-2xl uppercase tracking-widest shadow-lg">

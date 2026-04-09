@@ -22,16 +22,16 @@ const SectionHeader = ({
   return (
     <div className="text-center mb-16 relative">
       <div className="relative inline-block">
-        <div className={`absolute -left-20 top-1/2 w-16 h-0.5 ${accentColor}`}></div>
-        <div className={`absolute -right-20 top-1/2 w-16 h-0.5 ${accentColor}`}></div>
+        <div className={`absolute -left-20 top-1/2 w-16 h-0.5 ${accentColor} hidden md:block`}></div>
+        <div className={`absolute -right-20 top-1/2 w-16 h-0.5 ${accentColor} hidden md:block`}></div>
         {isSplitTitle ? (
-          <div className={cn("flex items-center justify-center text-3xl md:text-4xl font-bold tracking-tight uppercase px-6", titleColor)}>
-            <span>{titleParts[0]}</span>
-            <span className="mx-4 opacity-50">||</span>
-            <span>{titleParts[1]}</span>
+          <div className={cn("flex flex-col md:flex-row items-center justify-center text-2xl md:text-3xl lg:text-4xl font-black tracking-tight uppercase px-4 md:px-6 gap-y-2", titleColor)}>
+            <span className="text-center">{titleParts[0]}</span>
+            <span className="mx-2 md:mx-4 opacity-50 hidden md:inline">||</span>
+            <span className="text-center">{titleParts[1]}</span>
           </div>
         ) : (
-          <h2 className={cn("text-3xl md:text-4xl font-bold tracking-tight uppercase px-6", titleColor)}>
+          <h2 className={cn("text-2xl md:text-4xl font-bold tracking-tight uppercase px-2 md:px-6", titleColor)}>
             {title}
           </h2>
         )}

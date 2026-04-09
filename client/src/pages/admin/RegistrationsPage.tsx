@@ -23,6 +23,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Users, UserCheck, Award } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function RegistrationsPage() {
     const {
@@ -149,9 +150,9 @@ export default function RegistrationsPage() {
                                     href="#"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        if (page > 1) setPage(page - 1);
+                                        setPage((prev) => Math.max(1, prev - 1));
                                     }}
-                                    className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                    className={cn("cursor-pointer", page <= 1 ? "pointer-events-none opacity-50" : "")}
                                 />
                             </PaginationItem>
                             
@@ -164,6 +165,7 @@ export default function RegistrationsPage() {
                                             setPage(pageNum);
                                         }}
                                         isActive={pageNum === page}
+                                        className="cursor-pointer"
                                     >
                                         {pageNum}
                                     </PaginationLink>
@@ -175,9 +177,9 @@ export default function RegistrationsPage() {
                                     href="#"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        if (page < totalPages) setPage(page + 1);
+                                        setPage((prev) => Math.min(totalPages, prev + 1));
                                     }}
-                                    className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                    className={cn("cursor-pointer", page >= totalPages ? "pointer-events-none opacity-50" : "")}
                                 />
                             </PaginationItem>
                         </PaginationContent>
